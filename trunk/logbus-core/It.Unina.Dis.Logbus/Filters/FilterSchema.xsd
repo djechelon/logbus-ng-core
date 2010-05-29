@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="FilterSchema"
+    targetNamespace="http://www.dis.unina.it/logbus-ng/filters"
+    elementFormDefault="qualified"
+    xmlns="http://www.dis.unina.it/logbus-ng/filters"
+    xmlns:mstns="http://www.dis.unina.it/logbus-ng/filters"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+</xs:schema>
