@@ -17,23 +17,13 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.OutTransports
+namespace It.Unina.Dis.Logbus
 {
-    public class SimpleTransportFactory
-        : IOutboundTransportFactory
+    public interface ILogbusController
     {
-        #region IOutboundTransportFactory Membri di
 
-        string[] IOutboundTransportFactory.GetAvailableTransports()
-        {
-            throw new System.NotImplementedException();
-        }
+        void CreateChannel(string name, Filters.IFilter filter, string description);
 
-        IOutboundTransport IOutboundTransportFactory.CreateTransport(string parameters)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        #endregion
+        void RemoveChannel();
     }
 }

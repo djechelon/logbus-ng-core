@@ -25,5 +25,11 @@ namespace It.Unina.Dis.Logbus
     {
 
         void SubmitMessage(SyslogMessage message);
+
+        int ClientsSubscribed { get; }
+
+        //void RefreshClient(object clientId);
+        //object SubscribeClient(string params);
+        //void UnsubscribeClient(object clientId);
     }
 }
