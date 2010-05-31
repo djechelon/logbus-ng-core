@@ -45,6 +45,9 @@
   <ItemGroup>
     <Compile Include="Design\FilterAttribute.cs" />
     <Compile Include="Design\OutboundTransportAttribute.cs" />
+    <Compile Include="Filters\Filter.cs">
+      <DependentUpon>Filter.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Filters\IFilter.cs" />
     <Compile Include="IInboundChannel.cs" />
     <Compile Include="ILogBus.cs" />
@@ -64,18 +67,10 @@
     <Compile Include="SyslogMessageEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Filters\FilterSchema.xsc">
-      <DependentUpon>FilterSchema.xsd</DependentUpon>
-    </None>
-    <None Include="Filters\FilterSchema.xsd" />
-    <None Include="Filters\FilterSchema.xss">
-      <DependentUpon>FilterSchema.xsd</DependentUpon>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="AUTHORS.txt" />
     <None Include="COPYING.txt" />
+    <None Include="Filters\Filter.xsd" />
     <None Include="Logbus-ng.snk" />
     <None Include="MS-RL.txt" />
   </ItemGroup>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.dis.unina.it/logbus-ng/filters" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="Filter" abstract="true" mixed="false"/>
+	<xs:element name="filter" type="filter:Filter" nillable="false"/>
+	<xs:complexType name="AndFilter" abstract="false" block="" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter">
+				<xs:sequence>
+					<xs:element ref="filter:filter" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OrFilter" abstract="false" block="" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter">
+				<xs:sequence>
+					<xs:element ref="filter:filter" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NotFilter" abstract="false" block="" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter">
+				<xs:sequence>
+					<xs:element ref="filter:filter"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TrueFilter" abstract="false" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FalseFilter" abstract="false" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:attribute name="pattern">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:whiteSpace value="preserve"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:complexType name="MessageRegexMatchFilter" abstract="false" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter">
+				<xs:attribute ref="filter:pattern"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MessageRegexNotMatchFilter" abstract="false" final="#all" mixed="false">
+		<xs:complexContent mixed="false">
+			<xs:extension base="filter:Filter">
+				<xs:attribute ref="filter:pattern"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SeverityFilter">
+		<xs:complexContent>
+			<xs:extension base="filter:Filter">
+				<xs:attribute ref="filter:comparison"/>
+				<xs:attribute ref="filter:severity"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="Operator" final="#all">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="eq"/>
+			<xs:enumeration value="neq"/>
+			<xs:enumeration value="geq"/>
+			<xs:enumeration value="gt"/>
+			<xs:enumeration value="lt"/>
+			<xs:enumeration value="leq"/>
+			<xs:enumeration value="like"/>
+			<xs:enumeration value="notlike"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Severity" final="#all">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Emergency"/>
+			<xs:enumeration value="Alert"/>
+			<xs:enumeration value="Critical"/>
+			<xs:enumeration value="Error"/>
+			<xs:enumeration value="Warning"/>
+			<xs:enumeration value="Notice"/>
+			<xs:enumeration value="Info"/>
+			<xs:enumeration value="Debug"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="FacilityEqualsOperator">
+		<xs:complexContent>
+			<xs:extension base="filter:Filter">
+				<xs:attribute ref="filter:facility"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="Facility" final="">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Kernel"/>
+			<xs:enumeration value="User"/>
+			<xs:enumeration value="Mail"/>
+			<xs:enumeration value="System"/>
+			<xs:enumeration value="Security"/>
+			<xs:enumeration value="Internally"/>
+			<xs:enumeration value="Printer"/>
+			<xs:enumeration value="News"/>
+			<xs:enumeration value="UUCP"/>
+			<xs:enumeration value="Cron"/>
+			<xs:enumeration value="Security2"/>
+			<xs:enumeration value="FTP"/>
+			<xs:enumeration value="NTP"/>
+			<xs:enumeration value="Audit"/>
+			<xs:enumeration value="Alert"/>
+			<xs:enumeration value="Clock2"/>
+			<xs:enumeration value="Local0"/>
+			<xs:enumeration value="Local1"/>
+			<xs:enumeration value="Local2"/>
+			<xs:enumeration value="Local3"/>
+			<xs:enumeration value="Local4"/>
+			<xs:enumeration value="Local5"/>
+			<xs:enumeration value="Local6"/>
+			<xs:enumeration value="Local7"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:attribute name="facility">
+		<xs:simpleType>
+			<xs:restriction base="filter:Facility"/>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:simpleType name="Property">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Timestamp"/>
+			<xs:enumeration value="Hostname"/>
+			<xs:enumeration value="Severity"/>
+			<xs:enumeration value="Facility"/>
+			<xs:enumeration value="Version"/>
+			<xs:enumeration value="Host"/>
+			<xs:enumeration value="ApplicationName"/>
+			<xs:enumeration value="ProcessID"/>
+			<xs:enumeration value="MessageID"/>
+			<xs:enumeration value="Data"/>
+			<xs:enumeration value="Text"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="PropertyFilter">
+		<xs:complexContent>
+			<xs:extension base="filter:Filter">
+				<xs:sequence>
+					<xs:element name="value" type="xs:anySimpleType" form="qualified" nillable="false"/>
+				</xs:sequence>
+				<xs:attribute ref="filter:propertyName"/>
+				<xs:attribute ref="filter:comparison"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="ComparisonOperator">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="eq"/>
+			<xs:enumeration value="neq"/>
+			<xs:enumeration value="geq"/>
+			<xs:enumeration value="gt"/>
+			<xs:enumeration value="lt"/>
+			<xs:enumeration value="leq"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:attribute name="severity" type="filter:Severity"/>
+	<xs:attribute name="comparison" type="filter:ComparisonOperator"/>
+	<xs:attribute name="propertyName" type="filter:Property"/>
+	<xs:complexType name="CustomFilter">
+		<xs:complexContent>
+			<xs:extension base="filter:Filter">
+				<xs:sequence>
+					<xs:element ref="filter:parameter" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="name" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FilterParameter">
+		<xs:sequence>
+			<xs:element name="value" type="xs:anyType" form="unqualified" nillable="true"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:element name="parameter" type="filter:FilterParameter" nillable="true"/>
+</xs:schema>
