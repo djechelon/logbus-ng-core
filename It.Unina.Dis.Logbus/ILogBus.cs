@@ -19,14 +19,27 @@
 
 using System;
 using System.Collections.Generic;
+using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus
 {
+    /// <summary>
+    /// This interface represents the Logbus core service
+    /// </summary>
     public interface ILogBus
         : IDisposable
     {
         string[] GetAvailableTransports();
 
-        List<IOutboundChannel> OutboundChannels { get; }
+        IList<IOutboundChannel> OutboundChannels { get; }
 
+        IList<IInboundChannel> InboundChannels { get; }
+
+        IOutboundTransportFactory TransportFactory { get; set; }
+
+        void Start();
+
+        void Stop();
+
+        IFilter MainFilter { get; set; }
     }
 }

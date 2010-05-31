@@ -12,6 +12,8 @@
     <AssemblyName>It.Unina.Dis.Logbus</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Logbus-ng.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,17 +38,24 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Design\FilterAttribute.cs" />
+    <Compile Include="Design\OutboundTransportAttribute.cs" />
     <Compile Include="Filters\IFilter.cs" />
     <Compile Include="IInboundChannel.cs" />
     <Compile Include="ILogBus.cs" />
+    <Compile Include="ILogbusController.cs" />
     <Compile Include="InChannels\SyslogMulticastReceiver.cs" />
     <Compile Include="InChannels\SyslogUdpReceiver.cs" />
     <Compile Include="IOutboundChannel.cs" />
     <Compile Include="IOutboundTransport.cs" />
     <Compile Include="IOutboundTransportFactory.cs" />
+    <Compile Include="LogbusService.cs">
+    </Compile>
     <Compile Include="OutTransports\SimpleTransportFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SyslogFacility.cs" />
@@ -67,6 +76,7 @@
     <None Include="App.config" />
     <None Include="AUTHORS.txt" />
     <None Include="COPYING.txt" />
+    <None Include="Logbus-ng.snk" />
     <None Include="MS-RL.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +85,7 @@
   <ItemGroup>
     <Folder Include="Configuration\" />
     <Folder Include="OutChannels\" />
+    <Folder Include="Wrappers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

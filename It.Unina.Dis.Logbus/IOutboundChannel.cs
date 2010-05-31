@@ -38,6 +38,8 @@ namespace It.Unina.Dis.Logbus
 
         IFilter Filter { get; set; }
 
+        ulong CoalescenceWindowMillis { get; set; }
+
         IOutboundTransportFactory TransportFactory { get; set; }
     }
 }

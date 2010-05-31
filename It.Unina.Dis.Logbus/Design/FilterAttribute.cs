@@ -17,23 +17,16 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.OutTransports
+namespace It.Unina.Dis.Logbus.Design
 {
-    public class SimpleTransportFactory
-        : IOutboundTransportFactory
+    [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public sealed class FilterAttribute : System.Attribute
     {
-        #region IOutboundTransportFactory Membri di
-
-        string[] IOutboundTransportFactory.GetAvailableTransports()
+        public FilterAttribute(string name)
         {
-            throw new System.NotImplementedException();
+            this.Name = name;
         }
 
-        IOutboundTransport IOutboundTransportFactory.CreateTransport(string parameters)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        #endregion
+        public string Name { get; private set; }
     }
 }
