@@ -17,16 +17,19 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.Design
+namespace It.Unina.Dis.Logbus.Filters
 {
-    [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public sealed class FilterAttribute : System.Attribute
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    public partial class TrueFilter : FilterBase
     {
-        public FilterAttribute(string name)
+        public override bool IsMatch(SyslogMessage message)
         {
-            this.Name = name;
+            return true;
         }
-
-        public string Name { get; private set; }
     }
 }

@@ -43,12 +43,49 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Design\FilterAttribute.cs" />
-    <Compile Include="Design\OutboundTransportAttribute.cs" />
-    <Compile Include="Filters\Filter.cs">
-      <DependentUpon>Filter.xsd</DependentUpon>
+    <Compile Include="Configuration\AssemblyToScan.cs" />
+    <Compile Include="Configuration\CustomFilter.cs" />
+    <Compile Include="Configuration\CustomFilterConfiguration.cs">
+      <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Configuration\FilterParameter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\InboundChannelDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\KeyValuePair.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\LogbusConfigSectionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\LogbusConfiguration.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\OutputTransportDefinition.cs" />
+    <Compile Include="Configuration\OutputTransportsConfiguration.cs" />
+    <Compile Include="Design\CustomFilterAttribute.cs" />
+    <Compile Include="Design\OutboundTransportAttribute.cs" />
+    <Compile Include="Filters\AndFilter.cs" />
+    <Compile Include="Filters\CustomFilter.cs" />
+    <Compile Include="Filters\CustomFilterFactory.cs" />
+    <Compile Include="Filters\FacilityEqualsFilter.cs" />
+    <Compile Include="Filters\Facility.cs" />
+    <Compile Include="Filters\FalseFilter.cs" />
+    <Compile Include="Filters\FilterBase.cs" />
+    <Compile Include="Filters\FilterParameter.cs" />
     <Compile Include="Filters\IFilter.cs" />
+    <Compile Include="Filters\ComparisonOperator.cs" />
+    <Compile Include="Filters\MessageRegexMatchFilter.cs" />
+    <Compile Include="Filters\NotFilter.cs" />
+    <Compile Include="Filters\OrFilter.cs" />
+    <Compile Include="Filters\Property.cs" />
+    <Compile Include="Filters\PropertyFilter.cs" />
+    <Compile Include="Filters\RegexNotMatchFilter.cs" />
+    <Compile Include="Filters\Severity.cs" />
+    <Compile Include="Filters\SeverityFilter.cs" />
+    <Compile Include="Filters\TrueFilter.cs" />
     <Compile Include="IInboundChannel.cs" />
     <Compile Include="ILogBus.cs" />
     <Compile Include="ILogbusController.cs" />
@@ -59,8 +96,10 @@
     <Compile Include="IOutboundTransportFactory.cs" />
     <Compile Include="LogbusService.cs">
     </Compile>
-    <Compile Include="OutTransports\SimpleTransportFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Schemas\logbus-filter.cs">
+      <DependentUpon>logbus-filter.xsd</DependentUpon>
+    </None>
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
@@ -70,16 +109,18 @@
     <None Include="App.config" />
     <None Include="AUTHORS.txt" />
     <None Include="COPYING.txt" />
-    <None Include="Filters\Filter.xsd" />
     <None Include="Logbus-ng.snk" />
     <None Include="MS-RL.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Configuration\ConfigTemplate.xml" />
+    <None Include="Schemas\logbus-configuration.xsd" />
+    <None Include="Schemas\logbus-filter.xsd" />
     <Content Include="TestCases.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Configuration\" />
     <Folder Include="OutChannels\" />
+    <Folder Include="OutTransports\" />
     <Folder Include="Wrappers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

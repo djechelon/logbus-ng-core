@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.dis.unina.it/logbus-ng/filters" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xs:complexType name="Filter" abstract="true" mixed="false"/>
-	<xs:element name="filter" type="filter:Filter" nillable="false"/>
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Lord Yevon (Zighi) -->
+<xs:schema xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:altova="http://www.altova.com/xml-schema-extensions" targetNamespace="http://www.dis.unina.it/logbus-ng/filters" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="FilterBase" abstract="true" mixed="false"/>
+	<xs:element name="filter" type="filter:FilterBase" nillable="false"/>
 	<xs:complexType name="AndFilter" abstract="false" block="" final="#all" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter">
+			<xs:extension base="filter:FilterBase">
 				<xs:sequence>
 					<xs:element ref="filter:filter" maxOccurs="unbounded"/>
 				</xs:sequence>
@@ -13,7 +14,7 @@
 	</xs:complexType>
 	<xs:complexType name="OrFilter" abstract="false" block="" final="#all" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter">
+			<xs:extension base="filter:FilterBase">
 				<xs:sequence>
 					<xs:element ref="filter:filter" maxOccurs="unbounded"/>
 				</xs:sequence>
@@ -22,7 +23,7 @@
 	</xs:complexType>
 	<xs:complexType name="NotFilter" abstract="false" block="" final="#all" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter">
+			<xs:extension base="filter:FilterBase">
 				<xs:sequence>
 					<xs:element ref="filter:filter"/>
 				</xs:sequence>
@@ -31,12 +32,12 @@
 	</xs:complexType>
 	<xs:complexType name="TrueFilter" abstract="false" final="#all" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter"/>
+			<xs:extension base="filter:FilterBase"/>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="FalseFilter" abstract="false" final="#all" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter"/>
+			<xs:extension base="filter:FilterBase"/>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:attribute name="pattern">
@@ -46,40 +47,26 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:attribute>
-	<xs:complexType name="MessageRegexMatchFilter" abstract="false" final="#all" mixed="false">
+	<xs:complexType name="MessageRegexMatchFilter" abstract="false" final="" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter">
-				<xs:attribute ref="filter:pattern"/>
+			<xs:extension base="filter:FilterBase">
+				<xs:attribute ref="filter:pattern" use="required"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="MessageRegexNotMatchFilter" abstract="false" final="#all" mixed="false">
 		<xs:complexContent mixed="false">
-			<xs:extension base="filter:Filter">
-				<xs:attribute ref="filter:pattern"/>
-			</xs:extension>
+			<xs:extension base="filter:MessageRegexMatchFilter"/>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="SeverityFilter">
 		<xs:complexContent>
-			<xs:extension base="filter:Filter">
-				<xs:attribute ref="filter:comparison"/>
-				<xs:attribute ref="filter:severity"/>
+			<xs:extension base="filter:FilterBase">
+				<xs:attribute ref="filter:comparison" use="required"/>
+				<xs:attribute ref="filter:severity" use="required"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:simpleType name="Operator" final="#all">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="eq"/>
-			<xs:enumeration value="neq"/>
-			<xs:enumeration value="geq"/>
-			<xs:enumeration value="gt"/>
-			<xs:enumeration value="lt"/>
-			<xs:enumeration value="leq"/>
-			<xs:enumeration value="like"/>
-			<xs:enumeration value="notlike"/>
-		</xs:restriction>
-	</xs:simpleType>
 	<xs:simpleType name="Severity" final="#all">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="Emergency"/>
@@ -92,10 +79,34 @@
 			<xs:enumeration value="Debug"/>
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:complexType name="FacilityEqualsOperator">
+	<xs:attribute name="severity" type="filter:Severity"/>
+	<xs:simpleType name="ComparisonOperator">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="eq"/>
+			<xs:enumeration value="neq"/>
+			<xs:enumeration value="geq"/>
+			<xs:enumeration value="gt"/>
+			<xs:enumeration value="lt"/>
+			<xs:enumeration value="leq"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:attribute name="comparison" type="filter:ComparisonOperator"/>
+	<xs:simpleType name="Operator" final="#all">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="eq"/>
+			<xs:enumeration value="neq"/>
+			<xs:enumeration value="geq"/>
+			<xs:enumeration value="gt"/>
+			<xs:enumeration value="lt"/>
+			<xs:enumeration value="leq"/>
+			<xs:enumeration value="like"/>
+			<xs:enumeration value="notlike"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="FacilityEqualsFilter">
 		<xs:complexContent>
-			<xs:extension base="filter:Filter">
-				<xs:attribute ref="filter:facility"/>
+			<xs:extension base="filter:FilterBase">
+				<xs:attribute ref="filter:facility" use="required"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -149,31 +160,19 @@
 	</xs:simpleType>
 	<xs:complexType name="PropertyFilter">
 		<xs:complexContent>
-			<xs:extension base="filter:Filter">
+			<xs:extension base="filter:FilterBase">
 				<xs:sequence>
 					<xs:element name="value" type="xs:anySimpleType" form="qualified" nillable="false"/>
 				</xs:sequence>
-				<xs:attribute ref="filter:propertyName"/>
-				<xs:attribute ref="filter:comparison"/>
+				<xs:attribute ref="filter:propertyName" use="required"/>
+				<xs:attribute ref="filter:comparison" use="required"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:simpleType name="ComparisonOperator">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="eq"/>
-			<xs:enumeration value="neq"/>
-			<xs:enumeration value="geq"/>
-			<xs:enumeration value="gt"/>
-			<xs:enumeration value="lt"/>
-			<xs:enumeration value="leq"/>
-		</xs:restriction>
-	</xs:simpleType>
-	<xs:attribute name="severity" type="filter:Severity"/>
-	<xs:attribute name="comparison" type="filter:ComparisonOperator"/>
 	<xs:attribute name="propertyName" type="filter:Property"/>
 	<xs:complexType name="CustomFilter">
 		<xs:complexContent>
-			<xs:extension base="filter:Filter">
+			<xs:extension base="filter:FilterBase">
 				<xs:sequence>
 					<xs:element ref="filter:parameter" minOccurs="0" maxOccurs="unbounded"/>
 				</xs:sequence>

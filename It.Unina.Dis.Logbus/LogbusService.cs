@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using It.Unina.Dis.Logbus.Filters;
+using System.Collections;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -38,6 +39,10 @@ namespace It.Unina.Dis.Logbus
 
         #region Constructor/destructor
 
+        public LogbusService()
+        { 
+        }
+
         ~LogbusService()
         {
             Dispose(false);
@@ -48,7 +53,8 @@ namespace It.Unina.Dis.Logbus
 
         public virtual string[] GetAvailableTransports()
         {
-            return (TransportFactory != null) ? TransportFactory.GetAvailableTransports() : new string[0];
+            //return (TransportFactory != null) ? TransportFactory.GetAvailableTransports() : new string[0];
+            throw new NotImplementedException();
         }
 
         public virtual IList<IOutboundChannel> OutboundChannels
