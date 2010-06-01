@@ -17,21 +17,27 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.OutTransports
+using System.Configuration;
+namespace It.Unina.Dis.Logbus.Configuration
 {
-    public class SimpleTransportFactory
-        : IOutboundTransportFactory
+    /// <summary>
+    /// Configuration section handler for App.config/Web.config
+    /// </summary>
+    public class LogbusConfigSectionHandler: IConfigurationSectionHandler
     {
-        #region IOutboundTransportFactory Membri di
+       
 
-        string[] IOutboundTransportFactory.GetAvailableTransports()
+        #region IConfigurationSectionHandler Membri di
+
+        /// <summary>
+        /// Read configuration and return a <see cref="LogbusConfiguration"/> object by design contract
+        /// </summary>
+        /// <returns></returns>
+        
+        object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
         {
             throw new System.NotImplementedException();
-        }
-
-        IOutboundTransport IOutboundTransportFactory.CreateTransport(string parameters)
-        {
-            throw new System.NotImplementedException();
+            throw new ConfigurationException();
         }
 
         #endregion

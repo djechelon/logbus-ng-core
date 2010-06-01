@@ -24,8 +24,8 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PropertyFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(FacilityEqualsFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SeverityFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageRegexNotMatchFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageRegexMatchFilter))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageRegexNotMatchFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(FalseFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(TrueFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(NotFilter))]
@@ -36,9 +36,21 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("core-filter", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = true)]
-    public abstract partial class Filter: IFilter
+    [System.Xml.Serialization.XmlRootAttribute("filter", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public abstract partial class FilterBase : object, System.ComponentModel.INotifyPropertyChanged, IFilter
     {
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         #region IFilter Membri di
 
         public abstract bool IsMatch(SyslogMessage message);

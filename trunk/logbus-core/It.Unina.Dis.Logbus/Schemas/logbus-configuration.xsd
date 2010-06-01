@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Lord Yevon (Zighi) -->
+<xs:schema xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
+	<xs:complexType name="LogbusConfiguration" abstract="false">
+		<xs:annotation>
+			<xs:documentation>Main type for Logbus configuration, bound to IConfigurationSectionHandler</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="in-channels" minOccurs="0"/>
+			<xs:element ref="custom-filters" minOccurs="0"/>
+			<xs:element ref="out-transports" minOccurs="0"/>
+			<xs:element ref="core-filter" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="logbus" type="LogbusConfiguration">
+		<xs:annotation>
+			<xs:documentation>Main element for Logbus configuration</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="InboundChannelsConfiguration" abstract="false">
+		<xs:annotation>
+			<xs:documentation>Configures Inbound channels</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="in-channel" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="in-channels" type="InboundChannelsConfiguration" abstract="false" nillable="true"/>
+	<xs:complexType name="InboundChannelDefinition">
+		<xs:annotation>
+			<xs:documentation>Defines an Inbound channels by type and properties</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute ref="type" use="required"/>
+		<xs:attribute ref="name" use="optional"/>
+	</xs:complexType>
+	<xs:element name="in-channel" type="InboundChannelDefinition"/>
+	<xs:complexType name="KeyValuePair">
+		<xs:annotation>
+			<xs:documentation>Basic and language-idependent definition of KVP</xs:documentation>
+		</xs:annotation>
+		<xs:attribute ref="name" use="required"/>
+		<xs:attribute ref="value" use="optional"/>
+	</xs:complexType>
+	<xs:attribute name="name" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Name of entity</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:attribute name="value" type="xs:string"/>
+	<xs:attribute name="type">
+		<xs:annotation>
+			<xs:documentation>Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:element name="param" abstract="false" final="#all" nillable="false">
+		<xs:annotation>
+			<xs:documentation>Holds a KVP</xs:documentation>
+		</xs:annotation>
+		<xs:complexType mixed="false">
+			<xs:complexContent mixed="false">
+				<xs:extension base="KeyValuePair"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="CustomFiltersConfiguration">
+		<xs:annotation>
+			<xs:documentation>Configure Custom Filters</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="custom-filter" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute ref="factory" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="CustomFilter">
+		<xs:annotation>
+			<xs:documentation>Defines a Custom Filter by type</xs:documentation>
+		</xs:annotation>
+		<xs:attribute ref="name" use="required"/>
+		<xs:attribute ref="description" use="optional"/>
+		<xs:attribute ref="type" use="required"/>
+	</xs:complexType>
+	<xs:element name="custom-filters" abstract="false" nillable="true">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="CustomFiltersConfiguration"/>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="custom-filter" type="CustomFilter"/>
+	<xs:attribute name="description" type="xs:string"/>
+	<xs:complexType name="AssemblyToScan">
+		<xs:annotation>
+			<xs:documentation>Defines an assembly to scan for required types (they must be marked with appropriate attributes)</xs:documentation>
+		</xs:annotation>
+		<xs:attribute ref="assembly" use="required"/>
+		<xs:attribute ref="codebase" use="optional"/>
+	</xs:complexType>
+	<xs:attribute name="assembly" type="xs:string"/>
+	<xs:attribute name="codebase" type="xs:string"/>
+	<xs:element name="scan-assembly" type="AssemblyToScan"/>
+	<xs:complexType name="OutputTransportsConfiguration">
+		<xs:annotation>
+			<xs:documentation>Configures Outbound Transports</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="out-transport" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute ref="factory" use="optional"/>
+	</xs:complexType>
+	<xs:attribute name="factory" type="xs:string"/>
+	<xs:complexType name="OutputTransportDefinition">
+		<xs:annotation>
+			<xs:documentation>Defines an Outbound Transport</xs:documentation>
+		</xs:annotation>
+		<xs:attribute ref="name" use="required"/>
+		<xs:attribute ref="type" use="required"/>
+		<xs:attribute ref="factory" use="required"/>
+	</xs:complexType>
+	<xs:element name="out-transports" type="OutputTransportsConfiguration"/>
+	<xs:element name="out-transport" type="OutputTransportDefinition"/>
+	<xs:element name="core-filter" type="filter:FilterBase" nillable="true"/>
+</xs:schema>
