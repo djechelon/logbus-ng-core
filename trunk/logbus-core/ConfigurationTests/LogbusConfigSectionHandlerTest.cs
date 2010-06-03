@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Configuration;
 using System.Xml;
 using System.Configuration;
+using System;
 
 namespace ConfigurationTests
 {
@@ -85,14 +86,21 @@ namespace ConfigurationTests
         public void CreateTest()
         {
             IConfigurationSectionHandler target = new LogbusConfigSectionHandler(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            object parent = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            object configContext = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            XmlNode section = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            object expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            object actual;
-            actual = target.Create(parent, configContext, section);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
+
+            object ret;
+            try
+            {
+                Configuration conf = ConfigurationManager.OpenExeConfiguration("It.Unina.Dis.Logbus.dll");
+                ret = conf.GetSection("logbus");
+                
+                //ret = System.Configuration.ConfigurationManager.GetSection("logbus");
+
+                Assert.IsInstanceOfType(ret, typeof(LogbusConfiguration));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Exception occurred", ex);
+            }
         }
     }
 }

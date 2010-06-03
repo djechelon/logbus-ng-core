@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Lord Yevon (Zighi) -->
-<xs:schema xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+<xs:schema xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus/configuration" 
+xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
 	<xs:complexType name="LogbusConfiguration" abstract="false">
 		<xs:annotation>

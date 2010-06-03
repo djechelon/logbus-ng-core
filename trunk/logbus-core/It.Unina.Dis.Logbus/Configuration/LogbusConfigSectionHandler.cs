@@ -18,6 +18,11 @@
 */
 
 using System.Configuration;
+using System.Xml.Serialization;
+using System.Xml;
+using System.IO;
+using System;
+using System.Text;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
@@ -36,8 +41,24 @@ namespace It.Unina.Dis.Logbus.Configuration
         
         object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
         {
-            throw new System.NotImplementedException();
-            throw new ConfigurationException();
+            try
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    XmlWriter wr = XmlWriter.Create(ms);
+                    section.WriteTo(wr);
+                    wr.Close();
+                    ms.Seek(0, SeekOrigin.Begin);
+                    string payload = Encoding.UTF8.GetString(ms.ToArray());
+
+
+                    return new XmlSerializer(typeof(LogbusConfiguration)).Deserialize(ms) as LogbusConfiguration;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
         }
 
         #endregion

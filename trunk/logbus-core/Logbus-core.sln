@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationTests", "Confi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Filter Tests", "Filter Tests\Filter Tests.csproj", "{37CBC1CA-48E9-4474-A87C-656AB319018B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAppConfig", "TestAppConfig\TestAppConfig.csproj", "{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Logbus-core.vsmdi
@@ -39,6 +41,10 @@ Global
 		{37CBC1CA-48E9-4474-A87C-656AB319018B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37CBC1CA-48E9-4474-A87C-656AB319018B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37CBC1CA-48E9-4474-A87C-656AB319018B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
