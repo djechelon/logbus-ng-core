@@ -32,7 +32,7 @@ namespace It.Unina.Dis.Logbus.InChannels
     {
         private Dictionary<string, string> config = new Dictionary<string, string>();
         private UdpClient client;
-        private bool disposed = false;
+        
         private bool stopped = true;
         private object objLock = new object();
 
@@ -41,6 +41,11 @@ namespace It.Unina.Dis.Logbus.InChannels
         #region Constructor/destructor
         public SyslogUdpReceiver() { }
 
+        protected bool Disposed
+        {
+            get;
+            private set;
+        }
         ~SyslogUdpReceiver()
         {
             Dispose(false);
@@ -54,24 +59,34 @@ namespace It.Unina.Dis.Logbus.InChannels
             if (disposing)
             {
             }
-            disposed = true;
+            Disposed = true;
         }
 
         #endregion
 
-
+        /// <summary>
+        /// Port to listen on
+        /// </summary>
         public int Port
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Interface to listen on
+        /// </summary>
+        public string IpAddress
+        {
+            get;
+            set;
+        }
 
         #region IInboundChannel Membri di
 
         public void Start()
         {
-            if (disposed) throw new ObjectDisposedException("this");
+            if (Disposed) throw new ObjectDisposedException("this");
             if (running_thread != null && running_thread.IsAlive) throw new InvalidOperationException("Listener is already running");
             ///Configure
 
@@ -100,7 +115,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         public void Stop()
         {
-            if (disposed) throw new ObjectDisposedException("this");
+            if (Disposed) throw new ObjectDisposedException("this");
             if (running_thread == null || !running_thread.IsAlive) throw new InvalidOperationException("Listener is not running");
 
             lock (objLock) stopped = true;
@@ -119,12 +134,6 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
 
         public string Name
-        {
-            get;
-            set;
-        }
-
-        public string IpAddress
         {
             get;
             set;
