@@ -48,9 +48,6 @@
     <Compile Include="Configuration\CustomFilterConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\FilterParameter.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Configuration\InboundChannelDefinition.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -82,7 +79,7 @@
     <Compile Include="Filters\OrFilter.cs" />
     <Compile Include="Filters\Property.cs" />
     <Compile Include="Filters\PropertyFilter.cs" />
-    <Compile Include="Filters\RegexNotMatchFilter.cs" />
+    <Compile Include="Filters\MessageRegexNotMatchFilter.cs" />
     <Compile Include="Filters\Severity.cs" />
     <Compile Include="Filters\SeverityFilter.cs" />
     <Compile Include="Filters\TrueFilter.cs" />

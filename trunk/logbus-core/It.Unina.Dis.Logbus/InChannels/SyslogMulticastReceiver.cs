@@ -23,29 +23,37 @@ namespace It.Unina.Dis.Logbus.InChannels
     public class SyslogMulticastReceiver
         :IInboundChannel
     {
+
         #region IInboundChannel Membri di
 
-        void IInboundChannel.Start()
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        public void Start()
         {
             throw new NotImplementedException();
         }
 
-        void IInboundChannel.Stop()
+        public void Stop()
         {
             throw new NotImplementedException();
         }
 
-        event EventHandler<SyslogMessageEventArgs> IInboundChannel.MessageReceived
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
+
+        public System.Collections.Generic.IDictionary<string, string> Configuration
         {
-            add { throw new NotImplementedException(); }
-            remove { throw new NotImplementedException(); }
+            get { throw new NotImplementedException(); }
         }
 
         #endregion
 
         #region IDisposable Membri di
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             throw new NotImplementedException();
         }

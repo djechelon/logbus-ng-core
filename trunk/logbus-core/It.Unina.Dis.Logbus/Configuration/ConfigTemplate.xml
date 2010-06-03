@@ -46,16 +46,10 @@ This file is for my personal reference about how ConfigSections work
     <configSections>
       <section name="logbus" type="It.Unina.Dis.Logbus.Configuration.LogbusConfigSectionHandler, It.Unina.Dis.Logbus" />
     </configSections>
-
-    <logbus>
+    <logbus xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:config="http://www.dis.unina.it/logbus/configuration">
       <in-channels>
-        <in-channel name="udp" type="UDPListener">
-          <param name="port" value="27888"/>
-          <param name="bind" value="127.0.0.1"/>
-        </in-channel>
-        <in-channel name="multicast" type="MulticastListener">
-          <param name="port" value="37888"/>
-          <param name="group" value="239.238.237.237" />
+        <in-channel config:name="udp" config:type="It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus">
+          <param config:name="port" config:value="27888"/>
         </in-channel>
       </in-channels>
     </logbus>
