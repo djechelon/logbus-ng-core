@@ -17,9 +17,52 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.Filters
 {
-    internal class CustomFilterFactory
+    /// <summary>
+    /// Instantiates custom filters according to type and parameters
+    /// </summary>
+    /// <remarks>Singleton</remarks>
+    internal sealed class CustomFilterFactory
     {
+        #region Singleton control
+        private static CustomFilterFactory instance;
+
+        static CustomFilterFactory()
+        {
+            instance = new CustomFilterFactory();
+        }
+
+        /// <summary>
+        /// Returns singleton
+        /// </summary>
+        public static CustomFilterFactory Instance
+        {
+            get { return instance; }
+        }
+        #endregion
+
+
+        private Dictionary<string, string> registered_types;
+
+        #region Constructor
+        #endregion
+
+        public void RegisterCustomFilter(string tag, string type)
+        {
+            //Would we check if we can activate the object?
+            registered_types.Add(tag, type);
+        }
+
+        public IFilter BuildFilter(string tag, IEnumerable<FilterParameter> parameters)
+        {
+            /*
+             * 1. Check if filter is available
+             * 2. Construct it using parameters as.... what? Constructor argument? Interface methods?
+             * */
+
+            throw new System.NotImplementedException();
+        }
     }
 }

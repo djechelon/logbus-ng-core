@@ -80,7 +80,7 @@ namespace It.Unina.Dis.Logbus
             set;
         }
 
-        public IDictionary<string, string> Data
+        public IDictionary<string, IDictionary<string, string>> Data
         {
             get;
             set;
@@ -95,7 +95,7 @@ namespace It.Unina.Dis.Logbus
 
 
 
-        public SyslogMessage(DateTime? timestamp, string host, SyslogFacility facility, SyslogSeverity level, string text, IDictionary<string, string> data)
+        public SyslogMessage(DateTime? timestamp, string host, SyslogFacility facility, SyslogSeverity level, string text, IDictionary<string, IDictionary<string, string>> data)
             : this()
         {
             Timestamp = timestamp;
@@ -113,11 +113,27 @@ namespace It.Unina.Dis.Logbus
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="FormatException">Thrown when message is not Syslog-compliant</exception>
         public static SyslogMessage Parse(string payload)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="FormatException">Thrown when message is not Syslog-compliant</exception>
         public static SyslogMessage Parse(byte[] payload)
         {
             return Parse(System.Text.Encoding.UTF8.GetString(payload));

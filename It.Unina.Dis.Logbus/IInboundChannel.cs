@@ -27,10 +27,15 @@ namespace It.Unina.Dis.Logbus
         : IDisposable
     {
 
+        string Name { get; set; }
+
         void Start();
 
         void Stop();
 
         event EventHandler<SyslogMessageEventArgs> MessageReceived;
+
+        IDictionary<string, string> Configuration { get; }
+
     }
 }
