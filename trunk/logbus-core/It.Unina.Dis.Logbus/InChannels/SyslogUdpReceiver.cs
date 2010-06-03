@@ -120,7 +120,12 @@ namespace It.Unina.Dis.Logbus.InChannels
 
             lock (objLock) stopped = true;
 
-            running_thread.Join();
+            try
+            {
+                running_thread.Join();
+                client.Close();
+            }
+            catch (Exception) { } //Really nothing?
         }
 
         public event EventHandler<SyslogMessageEventArgs> MessageReceived;
@@ -165,6 +170,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     SyslogMessage new_message = SyslogMessage.Parse(payload);
                     if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
                 }
+                catch (FormatException) { } //We will maybe perform other actions to report malformed message
                 catch (Exception) { }
             }
         }
