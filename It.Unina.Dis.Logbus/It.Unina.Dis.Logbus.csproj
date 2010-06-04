@@ -112,6 +112,7 @@
   <ItemGroup>
     <None Include="Configuration\ConfigTemplate.xml" />
     <None Include="Schemas\logbus-configuration.xsd" />
+    <None Include="Schemas\logbus-control.wsdl" />
     <None Include="Schemas\logbus-filter.xsd" />
     <Content Include="TestCases.txt" />
   </ItemGroup>
