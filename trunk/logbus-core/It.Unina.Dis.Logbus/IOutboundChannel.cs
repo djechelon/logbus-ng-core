@@ -32,6 +32,8 @@ namespace It.Unina.Dis.Logbus
 
         void SubmitMessage(SyslogMessage message);
 
+        int SubscribedClients { get; }
+
         void Start();
 
         void Stop();
