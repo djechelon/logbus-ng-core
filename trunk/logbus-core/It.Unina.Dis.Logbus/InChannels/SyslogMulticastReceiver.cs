@@ -20,7 +20,7 @@
 using System;
 namespace It.Unina.Dis.Logbus.InChannels
 {
-    public class SyslogMulticastReceiver
+    internal class SyslogMulticastReceiver
         :IInboundChannel
     {
 
