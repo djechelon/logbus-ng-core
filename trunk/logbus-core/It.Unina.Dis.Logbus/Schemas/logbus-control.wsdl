@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Lord Yevon (Zighi) -->
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl">
 	<wsdl:import namespace="http://www.dis.unina.it/logbus-ng/filters" location="logbus-filter.xsd"/>
 	<wsdl:types>
-		<xsi:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl">
-			<xsi:element name="channel-list">
-				<xsi:complexType>
-					<xsi:sequence>
-						<xsi:element ref="soapenc:string" minOccurs="0" maxOccurs="unbounded"/>
-					</xsi:sequence>
-				</xsi:complexType>
-			</xsi:element>
+		<xsi:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl" elementFormDefault="qualified" attributeFormDefault="unqualified">
 			<xsi:complexType name="KeyValuePair">
 				<xsi:attribute name="name" use="required">
 					<xsi:simpleType>
@@ -31,10 +24,20 @@
 					<xsi:element ref="logbus:param" minOccurs="0" maxOccurs="unbounded"/>
 				</xsi:sequence>
 			</xsi:complexType>
+			<xsi:complexType name="ChannelList">
+				<xsi:sequence>
+					<xsi:element ref="soapenc:string" minOccurs="0" maxOccurs="unbounded"/>
+				</xsi:sequence>
+			</xsi:complexType>
+			<xsi:complexType name="TransportList">
+				<xsi:sequence>
+					<xsi:element ref="soapenc:string" minOccurs="0" maxOccurs="unbounded"/>
+				</xsi:sequence>
+			</xsi:complexType>
 		</xsi:schema>
 	</wsdl:types>
 	<wsdl:message name="ChannelList">
-		<wsdl:part name="list" element="logbus:channel-list"/>
+		<wsdl:part name="list" type="logbus:ChannelList"/>
 	</wsdl:message>
 	<wsdl:message name="ChannelDescription">
 		<wsdl:part name="id" type="xs:string">
@@ -46,7 +49,7 @@
 		<wsdl:part name="description" type="xs:string">
 			<wsdl:documentation>Human-readable description</wsdl:documentation>
 		</wsdl:part>
-		<wsdl:part name="filter" element="filter:filter">
+		<wsdl:part name="filter" type="filter:FilterBase">
 			<wsdl:documentation>Filter for log messages</wsdl:documentation>
 		</wsdl:part>
 		<wsdl:part name="coalescence-window" type="xs:positiveInteger"/>
@@ -72,12 +75,16 @@
 		<wsdl:part name="description" type="xs:string"/>
 		<wsdl:part name="clients" type="xs:integer"/>
 	</wsdl:message>
-	<wsdl:message name="DuplicateIdException"/>
+	<wsdl:message name="DuplicateIdException">
+		<wsdl:part name="message" type="xs:string"/>
+	</wsdl:message>
 	<wsdl:message name="ClientId">
 		<wsdl:part name="id" type="xs:string"/>
 	</wsdl:message>
 	<wsdl:message name="EmptyMessage"/>
-	<wsdl:message name="TransportList"/>
+	<wsdl:message name="TransportList">
+		<wsdl:part name="list" type="logbus:TransportList"/>
+	</wsdl:message>
 	<wsdl:message name="SubscriptionRequest">
 		<wsdl:part name="channel-id" type="xs:string"/>
 		<wsdl:part name="transport" type="logbus:TransportDefinition"/>
@@ -89,16 +96,20 @@
 		<wsdl:part name="client-id" type="xs:string"/>
 		<wsdl:part name="client-config" type="logbus:Dictionary"/>
 	</wsdl:message>
-	<wsdl:message name="NotSupportedException"/>
+	<wsdl:message name="NotSupportedException">
+		<wsdl:part name="message" type="xs:string"/>
+	</wsdl:message>
 	<wsdl:portType name="ChannelManagement">
 		<wsdl:documentation>Manages outbound channels for the Logbus service</wsdl:documentation>
 		<wsdl:operation name="ListChannels">
 			<wsdl:documentation>Lists the IDs of available channels</wsdl:documentation>
+			<wsdl:input message="logbus:EmptyMessage"/>
 			<wsdl:output message="logbus:ChannelList"/>
 		</wsdl:operation>
 		<wsdl:operation name="CreateChannel">
 			<wsdl:documentation>Creates a new channel</wsdl:documentation>
 			<wsdl:input message="logbus:ChannelDescription"/>
+			<wsdl:output message="logbus:EmptyMessage"/>
 			<wsdl:fault name="ChannelException" message="logbus:ChannelException">
 				<wsdl:documentation>Generic error while creating channel</wsdl:documentation>
 			</wsdl:fault>
@@ -122,6 +133,7 @@
 			<wsdl:input message="logbus:ChannelID">
 				<wsdl:documentation>ID of channel to delete</wsdl:documentation>
 			</wsdl:input>
+			<wsdl:output message="logbus:EmptyMessage"/>
 			<wsdl:fault name="SecurityException" message="logbus:SecurityException">
 				<wsdl:documentation>Not enough privileges to do it</wsdl:documentation>
 			</wsdl:fault>
@@ -137,9 +149,11 @@
 		<wsdl:documentation>Client APIs to use for subscribing existing channels and receive log data</wsdl:documentation>
 		<wsdl:operation name="ListChannels">
 			<wsdl:documentation>Lists the IDs of available channels</wsdl:documentation>
+			<wsdl:input message="logbus:EmptyMessage"/>
 			<wsdl:output message="logbus:ChannelList"/>
 		</wsdl:operation>
 		<wsdl:operation name="GetAvailableTransports">
+			<wsdl:input message="logbus:EmptyMessage"/>
 			<wsdl:output message="logbus:TransportList"/>
 		</wsdl:operation>
 		<wsdl:operation name="SubscribeChannel">
@@ -157,6 +171,7 @@
 		<wsdl:operation name="UnsubscribeChannel">
 			<wsdl:documentation>Unsubscribes a client from a channel</wsdl:documentation>
 			<wsdl:input message="logbus:ClientId"/>
+			<wsdl:output message="logbus:EmptyMessage"/>
 			<wsdl:fault name="FaultName" message="logbus:NotFoundException">
 				<wsdl:documentation>Client was not found, or timed out</wsdl:documentation>
 			</wsdl:fault>
@@ -164,86 +179,133 @@
 		<wsdl:operation name="RefreshSubscription">
 			<wsdl:documentation>Refreshes client subscription, if required by transport</wsdl:documentation>
 			<wsdl:input message="logbus:ClientId"/>
+			<wsdl:output message="logbus:EmptyMessage"/>
 			<wsdl:fault name="NotFoundException" message="logbus:NotFoundException"/>
 			<wsdl:fault name="NotSupportedException" message="logbus:NotSupportedException"/>
 		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:binding name="ChannelManager" type="logbus:ChannelManagement">
-		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<soap12:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
 		<wsdl:operation name="ListChannels">
-			<soap:operation soapAction="urn:#ListChannels"/>
+			<soap12:operation soapAction="urn:#ListChannels" soapActionRequired="true"/>
+			<wsdl:input>
+				<soap12:body use="literal"/>
+			</wsdl:input>
 			<wsdl:output>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="CreateChannel">
-			<soap:operation soapAction="urn:#CreateChannel"/>
+			<soap12:operation soapAction="urn:#CreateChannel" soapActionRequired="true"/>
 			<wsdl:input>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:input>
-			<wsdl:fault name="ChannelException"/>
-			<wsdl:fault name="SecurityException"/>
-			<wsdl:fault name="DuplicateIdException"/>
+			<wsdl:output>
+				<soap12:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="ChannelException">
+				<soap12:fault name="ChannelException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="SecurityException">
+				<soap12:fault name="SecurityException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="DuplicateIdException">
+				<soap12:fault name="DuplicateIdException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="GetChannelInformation">
-			<soap:operation soapAction="urn:#GetChannelInformation"/>
+			<soap12:operation soapAction="urn:#GetChannelInformation" soapActionRequired="true"/>
 			<wsdl:input>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:input>
 			<wsdl:output>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="SecurityException"/>
+			<wsdl:fault name="SecurityException">
+				<soap12:fault name="SecurityException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="DeleteChannel">
-			<soap:operation soapAction="urn:#DeleteChannel"/>
+			<soap12:operation soapAction="urn:#DeleteChannel" soapActionRequired="true"/>
 			<wsdl:input>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:input>
-			<wsdl:fault name="SecurityException"/>
-			<wsdl:fault name="ChannelException"/>
-			<wsdl:fault name="ChannelNotEmptyException"/>
+			<wsdl:output>
+				<soap12:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="SecurityException">
+				<soap12:fault name="SecurityException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="ChannelException">
+				<soap12:fault name="ChannelException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="ChannelNotEmptyException">
+				<soap12:fault name="ChannelNotEmptyException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 	</wsdl:binding>
-	<wsdl:binding name="ChannelHook" type="logbus:ChannelSubscription">
-		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+	<wsdl:binding name="ChannelSubscriber" type="logbus:ChannelSubscription">
+		<soap12:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
 		<wsdl:operation name="ListChannels">
-			<soap:operation soapAction="urn:#ListChannels"/>
+			<soap12:operation soapAction="urn:#ListChannels" soapActionRequired="true"/>
+			<wsdl:input>
+				<soap12:body use="literal"/>
+			</wsdl:input>
 			<wsdl:output>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="GetAvailableTransports">
-			<soap:operation soapAction="urn:#GetAvailableTransports"/>
+			<soap12:operation soapAction="urn:#GetAvailableTransports" soapActionRequired="true"/>
+			<wsdl:input>
+				<soap12:body use="literal"/>
+			</wsdl:input>
 			<wsdl:output>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="SubscribeChannel">
-			<soap:operation soapAction="urn:#SubscribeChannel"/>
+			<soap12:operation soapAction="urn:#SubscribeChannel" soapActionRequired="true"/>
 			<wsdl:input>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:input>
 			<wsdl:output>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="FaultName"/>
-			<wsdl:fault name="TransportException"/>
+			<wsdl:fault name="FaultName">
+				<soap12:fault name="FaultName" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="TransportException">
+				<soap12:fault name="TransportException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="UnsubscribeChannel">
-			<soap:operation soapAction="urn:#UnsubscribeChannel"/>
+			<soap12:operation soapAction="urn:#UnsubscribeChannel" soapActionRequired="true"/>
 			<wsdl:input>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:input>
-			<wsdl:fault name="FaultName"/>
+			<wsdl:output>
+				<soap12:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="FaultName">
+				<soap12:fault name="FaultName" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="RefreshSubscription">
-			<soap:operation soapAction="urn:#RefreshSubscription"/>
+			<soap12:operation soapAction="urn:#RefreshSubscription" soapActionRequired="true"/>
 			<wsdl:input>
-				<soap:body use="literal"/>
+				<soap12:body use="literal"/>
 			</wsdl:input>
-			<wsdl:fault name="NotFoundException"/>
-			<wsdl:fault name="NotSupportedException"/>
+			<wsdl:output>
+				<soap12:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="NotFoundException">
+				<soap12:fault name="NotFoundException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="NotSupportedException">
+				<soap12:fault name="NotSupportedException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 	</wsdl:binding>
+	<wsdl:service name="NewService"/>
 </wsdl:definitions>
