@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Text;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -104,6 +105,11 @@ namespace It.Unina.Dis.Logbus
             Severity = level;
             Text = text;
             Data = data;
+        }
+
+        public byte[] ToByteArray()
+        {
+            return Encoding.UTF8.GetBytes(ToString());
         }
 
         public override string ToString()

@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -92,10 +93,14 @@
     <Compile Include="IOutboundChannelFactory.cs" />
     <Compile Include="IOutboundTransport.cs" />
     <Compile Include="IOutboundTransportFactory.cs" />
+    <Compile Include="LogbusConfigurationException.cs" />
+    <Compile Include="LogbusException.cs" />
     <Compile Include="LogbusService.cs">
     </Compile>
+    <Compile Include="LogbusSingletonHelper.cs" />
     <Compile Include="OutChannels\SimpleOutChannel.cs" />
     <Compile Include="OutChannels\SimpleOutChannelFactory.cs" />
+    <Compile Include="OutTransports\SyslogUdpTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Schemas\logbus-filter.cs">
       <DependentUpon>logbus-filter.xsd</DependentUpon>
@@ -104,6 +109,7 @@
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
     <Compile Include="SyslogMessageEventArgs.cs" />
+    <Compile Include="TransportException.cs" />
     <Compile Include="Utils\BlockingFifoQueue.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -121,7 +127,6 @@
     <Content Include="TestCases.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="OutTransports\" />
     <Folder Include="Wrappers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
