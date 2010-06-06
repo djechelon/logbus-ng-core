@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 
 //For now let's try with System.Object. Maybe one day we'll switch to String
-using OUT_TRANSPORT_CONFIG_TYPE = System.Object;
+using OUT_TRANSPORT_CONFIG_TYPE = System.String;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -69,6 +69,9 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Gets or sets all configuration parameters in one shot
         /// </summary>
-        IEnumerable<KeyValuePair<string, OUT_TRANSPORT_CONFIG_TYPE>> Configuration { get; set; }
+        /// <exception cref="ArgumentNullException">List is null</exception>
+        /// <exception cref="NotSupportedException">One of the keys is not supported</exception>
+        /// <exception cref="ArgumentException">One of the values is not accepted as valid</exception>
+        IEnumerable<KeyValuePair<string, OUT_TRANSPORT_CONFIG_TYPE>> Configuration { set; }
     }
 }
