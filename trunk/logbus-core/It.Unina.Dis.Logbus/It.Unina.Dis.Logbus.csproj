@@ -63,7 +63,7 @@
     <Compile Include="Configuration\OutputTransportDefinition.cs" />
     <Compile Include="Configuration\OutputTransportsConfiguration.cs" />
     <Compile Include="Design\CustomFilterAttribute.cs" />
-    <Compile Include="Design\OutboundTransportAttribute.cs" />
+    <Compile Include="Design\TransportFactoryAttribute.cs" />
     <Compile Include="Filters\AndFilter.cs" />
     <Compile Include="Filters\CustomFilter.cs" />
     <Compile Include="Filters\CustomFilterFactory.cs" />
@@ -89,10 +89,13 @@
     <Compile Include="InChannels\SyslogMulticastReceiver.cs" />
     <Compile Include="InChannels\SyslogUdpReceiver.cs" />
     <Compile Include="IOutboundChannel.cs" />
+    <Compile Include="IOutboundChannelFactory.cs" />
     <Compile Include="IOutboundTransport.cs" />
     <Compile Include="IOutboundTransportFactory.cs" />
     <Compile Include="LogbusService.cs">
     </Compile>
+    <Compile Include="OutChannels\SimpleOutChannel.cs" />
+    <Compile Include="OutChannels\SimpleOutChannelFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Schemas\logbus-filter.cs">
       <DependentUpon>logbus-filter.xsd</DependentUpon>
@@ -101,6 +104,7 @@
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
     <Compile Include="SyslogMessageEventArgs.cs" />
+    <Compile Include="Utils\BlockingFifoQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -117,7 +121,6 @@
     <Content Include="TestCases.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="OutChannels\" />
     <Folder Include="OutTransports\" />
     <Folder Include="Wrappers\" />
   </ItemGroup>

@@ -49,6 +49,7 @@
 		<wsdl:part name="filter" element="filter:filter">
 			<wsdl:documentation>Filter for log messages</wsdl:documentation>
 		</wsdl:part>
+		<wsdl:part name="coalescence-window" type="xs:positiveInteger"/>
 	</wsdl:message>
 	<wsdl:message name="ChannelException">
 		<wsdl:part name="message" type="xs:string"/>

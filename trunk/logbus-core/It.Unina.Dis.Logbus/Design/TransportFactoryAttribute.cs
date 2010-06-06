@@ -20,15 +20,16 @@
 namespace It.Unina.Dis.Logbus.Design
 {
     /// <summary>
-    /// Defines an outbound transport's attributes.
+    /// Defines an outbound transport factory's attributes.
     /// Main attribute is the tag. There cannot exist two classes with the same tag.
-    /// Tag is basically the prefix before colon ':' in transport's definition
+    /// The attribute MUST be applied to a subclass of <see cref="IOutboundTransportFactory"/> and NOT to
+    /// a subclass of <see cref="IOutboundTransport"/>
     /// </summary>
     [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public sealed class OutboundTransportAttribute : System.Attribute
+    public sealed class TransportFactoryAttribute : System.Attribute
     {
        
-        public OutboundTransportAttribute(string tag)
+        public TransportFactoryAttribute(string tag)
         {
             this.Tag = tag;
         }
@@ -38,8 +39,14 @@ namespace It.Unina.Dis.Logbus.Design
         /// </summary>
         public string Tag { get; private set; }
 
+        /// <summary>
+        /// Name of transport created by this factory
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Human-readable description
+        /// </summary>
         public string Description { get; set; }
     }
 }
