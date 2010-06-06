@@ -24,17 +24,26 @@ using System.Threading;
 using System.IO;
 using System.Globalization;
 using System.Net;
+using System.Runtime.CompilerServices;
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
-    public class SyslogUdpReceiver :
+    internal class SyslogUdpReceiver :
         IInboundChannel
     {
         private Dictionary<string, string> config = new Dictionary<string, string>();
         private UdpClient client;
-        
-        private bool stopped = true;
-        private object objLock = new object();
+        private BlockingFifoQueue<SyslogMessage> queue;
+
+
+        protected bool Stopped
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get;
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set;
+        }
 
         private Thread running_thread;
 
@@ -118,7 +127,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             if (Disposed) throw new ObjectDisposedException("this");
             if (running_thread == null || !running_thread.IsAlive) throw new InvalidOperationException("Listener is not running");
 
-            lock (objLock) stopped = true;
+            Stopped = true;
 
             try
             {
@@ -158,11 +167,12 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void RunnerLoop()
         {
-            lock (objLock) stopped = false;
+            Stopped = false;
 
             IPAddress address = (this.IpAddress == null) ? IPAddress.Any : IPAddress.Parse(this.IpAddress);
             IPEndPoint ep = new IPEndPoint(address, Port);
-            while (!stopped)
+
+            while (!Stopped)
             {
                 byte[] payload = client.Receive(ref ep);
                 try
