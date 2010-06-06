@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationTests", "Confi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Filter Tests", "Filter Tests\Filter Tests.csproj", "{37CBC1CA-48E9-4474-A87C-656AB319018B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAppConfig", "TestAppConfig\TestAppConfig.csproj", "{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConfigParser", "AppConfigParser\AppConfigParser.csproj", "{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
