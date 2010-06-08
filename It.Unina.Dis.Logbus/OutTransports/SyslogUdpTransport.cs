@@ -148,6 +148,12 @@ namespace It.Unina.Dis.Logbus.OutTransports
             throw new NotImplementedException();
         }
 
+        public int SubscriptionTtl
+        {
+            get;
+            private set;
+        }
+
         #endregion
 
         #region IDisposable Membri di
@@ -174,7 +180,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
             Disposed = true;
         }
         #endregion
-
 
     }
 }
