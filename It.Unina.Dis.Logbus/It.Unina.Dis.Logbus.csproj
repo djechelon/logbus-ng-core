@@ -84,6 +84,8 @@
     <Compile Include="Filters\Severity.cs" />
     <Compile Include="Filters\SeverityFilter.cs" />
     <Compile Include="Filters\TrueFilter.cs" />
+    <Compile Include="IChannelManagement.cs" />
+    <Compile Include="IChannelSubscription.cs" />
     <Compile Include="IInboundChannel.cs" />
     <Compile Include="ILogBus.cs" />
     <Compile Include="ILogbusController.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="IOutboundChannelFactory.cs" />
     <Compile Include="IOutboundTransport.cs" />
     <Compile Include="IOutboundTransportFactory.cs" />
+    <Compile Include="ITransportFactoryHelper.cs" />
     <Compile Include="LogbusConfigurationException.cs" />
     <Compile Include="LogbusException.cs" />
     <Compile Include="LogbusService.cs">
@@ -100,17 +103,26 @@
     <Compile Include="LogbusSingletonHelper.cs" />
     <Compile Include="OutChannels\SimpleOutChannel.cs" />
     <Compile Include="OutChannels\SimpleOutChannelFactory.cs" />
+    <Compile Include="OutTransports\SimpleTransportHelper.cs" />
+    <Compile Include="OutTransports\SyslogMulticastTransport.cs" />
+    <Compile Include="OutTransports\SyslogMulticastTransportFactory.cs" />
     <Compile Include="OutTransports\SyslogUdpTransport.cs" />
+    <Compile Include="OutTransports\SyslogUdpTransportFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="Schemas\logbus-filter.cs">
-      <DependentUpon>logbus-filter.xsd</DependentUpon>
-    </None>
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
     <Compile Include="SyslogMessageEventArgs.cs" />
     <Compile Include="TransportException.cs" />
     <Compile Include="Utils\BlockingFifoQueue.cs" />
+    <Compile Include="WebServices\ChannelCreationInformation.cs" />
+    <Compile Include="WebServices\ChannelInformation.cs" />
+    <Compile Include="WebServices\ChannelManagementService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WebServices\ChannelSubscriptionRequest.cs" />
+    <Compile Include="WebServices\ChannelSubscriptionResponse.cs" />
+    <Compile Include="WebServices\KeyValuePair.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -127,6 +139,7 @@
     <Content Include="TestCases.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Channels\" />
     <Folder Include="Wrappers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

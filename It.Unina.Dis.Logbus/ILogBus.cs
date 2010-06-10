@@ -34,7 +34,7 @@ namespace It.Unina.Dis.Logbus
 
         IList<IInboundChannel> InboundChannels { get; }
 
-        IOutboundTransportFactory TransportFactory { get; set; }
+        ITransportFactoryHelper TransportFactoryHelper { get; set; }
 
         void Start();
 
