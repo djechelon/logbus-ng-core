@@ -223,10 +223,18 @@ namespace It.Unina.Dis.Logbus
 
                 //Calculate StructuredData...
                 new_payload = payload.Substring(pointer);
-                // new_payload = - %% It’s time to make the do-nuts.
-                String StructuredData = new_payload.Split(' ')[0];
-                if (StructuredData != "-")
+                String StructuredData = "";
+                if (new_payload.StartsWith("-"))
                 {
+                    ret.Data = null;
+                }
+                else
+                {
+                    // new_payload = - %% It’s time to make the do-nuts.
+                    for (int j = 0; (j < new_payload.Length || (new_payload[j] == ']' && new_payload[j] == ' ')); j++)
+                    {
+                        StructuredData += new_payload[j];
+                    }
                     ret.Data = new Dictionary<string, IDictionary<string, string>>();
                     String[] elementi = StructuredData.Split('[', ']');
                     for (int i = 0; i < elementi.Length; i++)
@@ -242,9 +250,6 @@ namespace It.Unina.Dis.Logbus
                         ret.Data.Add(key, values);
                     }
                 }
-                else
-                    ret.Data = null;
-
                 pointer += StructuredData.Length + 1;
 
                 //Calculate Msg...
