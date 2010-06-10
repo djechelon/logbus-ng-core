@@ -289,6 +289,40 @@ namespace Unit_Tests
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
+
+            payload = @"<165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.";
+            expected = new SyslogMessage()
+            {
+                
+            };
+            actual = null;
+
+            try
+            {
+                actual = SyslogMessage.Parse(payload);
+            }
+            catch (FormatException ex)
+            {
+                Assert.Fail("Failed parsing", ex);
+            }
+            Assert.IsNotNull(actual);
+
+            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 iut=""3"" eventSource=""Application"" eventID=""1011""] BOMAn application event log entry...";
+            expected = new SyslogMessage()
+            {
+
+            };
+            actual = null;
+
+            try
+            {
+                actual = SyslogMessage.Parse(payload);
+            }
+            catch (FormatException ex)
+            {
+                Assert.Fail("Failed parsing", ex);
+            }
+            Assert.IsNotNull(actual);
         }
 
         /// <summary>
