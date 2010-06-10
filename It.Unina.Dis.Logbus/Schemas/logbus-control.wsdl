@@ -163,7 +163,7 @@
 			<wsdl:output message="logbus:SubscriptionResponse">
 				<wsdl:documentation>Subscription "ticket" contains both the client's ID and the instructions that it will use to configure itself. These are transport-dependent</wsdl:documentation>
 			</wsdl:output>
-			<wsdl:fault name="FaultName" message="logbus:NotFoundException">
+			<wsdl:fault name="NotFoundException" message="logbus:NotFoundException">
 				<wsdl:documentation>Channel not found</wsdl:documentation>
 			</wsdl:fault>
 			<wsdl:fault name="TransportException" message="logbus:TransportException">
@@ -205,9 +205,15 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="ChannelException"/>
-			<wsdl:fault name="SecurityException"/>
-			<wsdl:fault name="DuplicateIdException"/>
+			<wsdl:fault name="ChannelException">
+				<soap:fault name="ChannelException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="SecurityException">
+				<soap:fault name="SecurityException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="DuplicateIdException">
+				<soap:fault name="DuplicateIdException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="GetChannelInformation">
 			<soap:operation soapAction="urn:#GetChannelInformation"/>
@@ -217,8 +223,12 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="SecurityException"/>
-			<wsdl:fault name="NotFoundException"/>
+			<wsdl:fault name="SecurityException">
+				<soap:fault name="SecurityException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="NotFoundException">
+				<soap:fault name="NotFoundException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="DeleteChannel">
 			<soap:operation soapAction="urn:#DeleteChannel"/>
@@ -228,10 +238,18 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="SecurityException"/>
-			<wsdl:fault name="ChannelException"/>
-			<wsdl:fault name="ChannelNotEmptyException"/>
-			<wsdl:fault name="FaultName"/>
+			<wsdl:fault name="SecurityException">
+				<soap:fault name="SecurityException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="ChannelException">
+				<soap:fault name="ChannelException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="ChannelNotEmptyException">
+				<soap:fault name="ChannelNotEmptyException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="FaultName">
+				<soap:fault name="FaultName" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 	</wsdl:binding>
 	<wsdl:binding name="ChannelSubscription" type="logbus:ChannelSubscription">
@@ -262,8 +280,12 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="FaultName"/>
-			<wsdl:fault name="TransportException"/>
+			<wsdl:fault name="NotFoundException">
+				<soap:fault name="NotFoundException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="TransportException">
+				<soap:fault name="TransportException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="UnsubscribeChannel">
 			<soap:operation soapAction="urn:#UnsubscribeChannel"/>
@@ -273,7 +295,9 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="FaultName"/>
+			<wsdl:fault name="FaultName">
+				<soap:fault name="FaultName" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 		<wsdl:operation name="RefreshSubscription">
 			<soap:operation soapAction="urn:#RefreshSubscription"/>
@@ -283,8 +307,12 @@
 			<wsdl:output>
 				<soap:body use="literal"/>
 			</wsdl:output>
-			<wsdl:fault name="NotFoundException"/>
-			<wsdl:fault name="NotSupportedException"/>
+			<wsdl:fault name="NotFoundException">
+				<soap:fault name="NotFoundException" use="literal"/>
+			</wsdl:fault>
+			<wsdl:fault name="NotSupportedException">
+				<soap:fault name="NotSupportedException" use="literal"/>
+			</wsdl:fault>
 		</wsdl:operation>
 	</wsdl:binding>
 </wsdl:definitions>

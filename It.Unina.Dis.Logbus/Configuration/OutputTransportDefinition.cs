@@ -26,40 +26,25 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("out-transport", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class OutputTransportDefinition
+    public partial class OutputTransportDefinition : object, System.ComponentModel.INotifyPropertyChanged
     {
 
-        private string nameField;
-
-        private string typeField;
+        private string tagField;
 
         private string factoryField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string name
+        public string tag
         {
             get
             {
-                return this.nameField;
+                return this.tagField;
             }
             set
             {
-                this.nameField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string type
-        {
-            get
-            {
-                return this.typeField;
-            }
-            set
-            {
-                this.typeField = value;
+                this.tagField = value;
+                this.RaisePropertyChanged("tag");
             }
         }
 
@@ -74,6 +59,18 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.factoryField = value;
+                this.RaisePropertyChanged("factory");
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

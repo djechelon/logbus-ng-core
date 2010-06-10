@@ -26,10 +26,10 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("in-channel", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class InboundChannelDefinition
+    public partial class InboundChannelDefinition : object, System.ComponentModel.INotifyPropertyChanged
     {
 
-        private param[] paramField;
+        private KeyValuePair[] paramField;
 
         private string typeField;
 
@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("param")]
-        public param[] param
+        public KeyValuePair[] param
         {
             get
             {
@@ -46,6 +46,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.paramField = value;
+                this.RaisePropertyChanged("param");
             }
         }
 
@@ -60,6 +61,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.typeField = value;
+                this.RaisePropertyChanged("type");
             }
         }
 
@@ -74,6 +76,18 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.nameField = value;
+                this.RaisePropertyChanged("name");
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

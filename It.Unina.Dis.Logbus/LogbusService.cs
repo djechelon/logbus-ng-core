@@ -30,7 +30,7 @@ using System.Reflection;
 
 namespace It.Unina.Dis.Logbus
 {
-    public class LogbusService : ILogBus//, ILogbusController
+    public class LogbusService : MarshalByRefObject, ILogBus//, ILogbusController
     {
         private Thread hubThread;
 
@@ -69,7 +69,6 @@ namespace It.Unina.Dis.Logbus
             Dispose(false);
         }
         #endregion
-
 
 
         #region Configuration
@@ -131,7 +130,7 @@ namespace It.Unina.Dis.Logbus
                             IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(in_chan_type, true);
                             try
                             {
-                                foreach (param param in def.param)
+                                foreach (KeyValuePair param in def.param)
                                 {
                                     channel.Configuration[param.name] = param.value;
                                 }
@@ -248,6 +247,30 @@ namespace It.Unina.Dis.Logbus
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
         }
 
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+
+        public event EventHandler Started;
+
+        public event EventHandler Stopped;
+
+        public event EventHandler<SyslogMessageEventArgs> ForwardMessage;
+
+        public event UnhandledExceptionEventHandler Error;
+
+        public string[] AvailableTransports
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public ITransportFactoryHelper TransportFactoryHelper
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region IDisposable Membri di
@@ -270,5 +293,6 @@ namespace It.Unina.Dis.Logbus
             throw new NotImplementedException();
         }
         #endregion
+
     }
 }

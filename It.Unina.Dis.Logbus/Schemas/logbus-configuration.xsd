@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus/configuration" 
-xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Lord Yevon (Zighi) -->
+<xs:schema xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:config="http://www.dis.unina.it/logbus/configuration" targetNamespace="http://www.dis.unina.it/logbus/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
 	<xs:complexType name="LogbusConfiguration" abstract="false">
 		<xs:annotation>
@@ -45,6 +45,11 @@ xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="
 		<xs:attribute ref="name" use="required"/>
 		<xs:attribute ref="value" use="optional"/>
 	</xs:complexType>
+	<xs:element name="param" type="KeyValuePair">
+		<xs:annotation>
+			<xs:documentation>Holds a KVP</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:attribute name="name" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Name of entity</xs:documentation>
@@ -59,16 +64,6 @@ xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="
 			<xs:restriction base="xs:string"/>
 		</xs:simpleType>
 	</xs:attribute>
-	<xs:element name="param" abstract="false" final="#all" nillable="false">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Holds a KVP</xs:documentation>
-		</xs:annotation>
-		<xs:complexType mixed="false">
-			<xs:complexContent mixed="false">
-				<xs:extension base="KeyValuePair"/>
-			</xs:complexContent>
-		</xs:complexType>
-	</xs:element>
 	<xs:complexType name="CustomFiltersConfiguration">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Configure Custom Filters</xs:documentation>
@@ -79,7 +74,7 @@ xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="
 		</xs:sequence>
 		<xs:attribute ref="factory" use="optional"/>
 	</xs:complexType>
-	<xs:complexType name="CustomFilter">
+	<xs:complexType name="CustomFilterDefinition">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Defines a Custom Filter by type</xs:documentation>
 		</xs:annotation>
@@ -87,14 +82,8 @@ xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="
 		<xs:attribute ref="description" use="optional"/>
 		<xs:attribute ref="type" use="required"/>
 	</xs:complexType>
-	<xs:element name="custom-filters" abstract="false" nillable="true">
-		<xs:complexType>
-			<xs:complexContent>
-				<xs:extension base="CustomFiltersConfiguration"/>
-			</xs:complexContent>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="custom-filter" type="CustomFilter"/>
+	<xs:element name="custom-filters" type="CustomFiltersConfiguration"/>
+	<xs:element name="custom-filter" type="CustomFilterDefinition"/>
 	<xs:attribute name="description" type="xs:string"/>
 	<xs:complexType name="AssemblyToScan">
 		<xs:annotation>
@@ -121,11 +110,15 @@ xmlns:config="http://www.dis.unina.it/logbus/configuration" elementFormDefault="
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Defines an Outbound Transport</xs:documentation>
 		</xs:annotation>
-		<xs:attribute ref="name" use="required"/>
-		<xs:attribute ref="type" use="required"/>
-		<xs:attribute ref="factory" use="required"/>
+		<xs:attribute ref="tag" use="required"/>
+		<xs:attribute ref="factory" use="required">
+			<xs:annotation>
+				<xs:documentation>Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 	<xs:element name="out-transports" type="OutputTransportsConfiguration"/>
 	<xs:element name="out-transport" type="OutputTransportDefinition"/>
 	<xs:element name="core-filter" type="filter:FilterBase" nillable="true"/>
+	<xs:attribute name="tag" type="xs:string"/>
 </xs:schema>

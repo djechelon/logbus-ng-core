@@ -45,10 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\AssemblyToScan.cs" />
-    <Compile Include="Configuration\CustomFilter.cs" />
     <Compile Include="Configuration\CustomFilterConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Configuration\CustomFilterDefinition.cs" />
     <Compile Include="Configuration\InboundChannelDefinition.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -96,7 +96,7 @@
     <Compile Include="IOutboundTransport.cs" />
     <Compile Include="IOutboundTransportFactory.cs" />
     <Compile Include="ITransportFactoryHelper.cs" />
-    <Compile Include="LogbusConfigurationException.cs" />
+    <Compile Include="Configuration\LogbusConfigurationException.cs" />
     <Compile Include="LogbusException.cs" />
     <Compile Include="LogbusService.cs">
     </Compile>
@@ -113,7 +113,7 @@
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
     <Compile Include="SyslogMessageEventArgs.cs" />
-    <Compile Include="TransportException.cs" />
+    <Compile Include="OutTransports\TransportException.cs" />
     <Compile Include="Utils\BlockingFifoQueue.cs" />
     <Compile Include="WebServices\ChannelCreationInformation.cs" />
     <Compile Include="WebServices\ChannelInformation.cs" />
@@ -122,6 +122,9 @@
     </Compile>
     <Compile Include="WebServices\ChannelSubscriptionRequest.cs" />
     <Compile Include="WebServices\ChannelSubscriptionResponse.cs" />
+    <Compile Include="WebServices\ChannelSubscriptionService.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WebServices\KeyValuePair.cs" />
   </ItemGroup>
   <ItemGroup>

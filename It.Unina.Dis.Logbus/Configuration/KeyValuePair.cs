@@ -25,7 +25,8 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
-    public partial class KeyValuePair
+    [System.Xml.Serialization.XmlRootAttribute("param", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
+    public partial class KeyValuePair : object, System.ComponentModel.INotifyPropertyChanged
     {
 
         private string nameField;
@@ -43,6 +44,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.nameField = value;
+                this.RaisePropertyChanged("name");
             }
         }
 
@@ -57,18 +59,19 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.valueField = value;
+                this.RaisePropertyChanged("value");
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.dis.unina.it/logbus/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class param : KeyValuePair
-    {
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }
