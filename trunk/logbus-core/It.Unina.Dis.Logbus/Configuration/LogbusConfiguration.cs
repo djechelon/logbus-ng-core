@@ -18,6 +18,7 @@
 */
 
 using System.Xml.Serialization;
+using It.Unina.Dis.Logbus.Filters;
 
 namespace It.Unina.Dis.Logbus.Configuration
 {
@@ -31,16 +32,16 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("logbus", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class LogbusConfiguration
+    public partial class LogbusConfiguration : object, System.ComponentModel.INotifyPropertyChanged
     {
 
         private InboundChannelDefinition[] inchannelsField;
 
-        private customfilters customfiltersField;
+        private CustomFiltersConfiguration customfiltersField;
 
         private OutputTransportsConfiguration outtransportsField;
 
-        private It.Unina.Dis.Logbus.Filters.FilterBase corefilterField;
+        private FilterBase corefilterField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayAttribute("in-channels", IsNullable = true)]
@@ -54,12 +55,13 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.inchannelsField = value;
+                this.RaisePropertyChanged("inchannels");
             }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("custom-filters", IsNullable = true)]
-        public customfilters customfilters
+        [System.Xml.Serialization.XmlElementAttribute("custom-filters")]
+        public CustomFiltersConfiguration customfilters
         {
             get
             {
@@ -68,6 +70,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.customfiltersField = value;
+                this.RaisePropertyChanged("customfilters");
             }
         }
 
@@ -82,12 +85,13 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.outtransportsField = value;
+                this.RaisePropertyChanged("outtransports");
             }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("core-filter", IsNullable = true)]
-        public It.Unina.Dis.Logbus.Filters.FilterBase corefilter
+        public FilterBase corefilter
         {
             get
             {
@@ -96,6 +100,18 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.corefilterField = value;
+                this.RaisePropertyChanged("corefilter");
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("out-transports", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class OutputTransportsConfiguration
+    public partial class OutputTransportsConfiguration : object, System.ComponentModel.INotifyPropertyChanged
     {
 
         private AssemblyToScan[] scanassemblyField;
@@ -46,6 +46,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.scanassemblyField = value;
+                this.RaisePropertyChanged("scanassembly");
             }
         }
 
@@ -60,6 +61,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.outtransportField = value;
+                this.RaisePropertyChanged("outtransport");
             }
         }
 
@@ -74,6 +76,18 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.factoryField = value;
+                this.RaisePropertyChanged("factory");
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

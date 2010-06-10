@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("custom-filter", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class CustomFilter
+    public partial class CustomFilterDefinition : object, System.ComponentModel.INotifyPropertyChanged
     {
 
         private string nameField;
@@ -46,6 +46,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.nameField = value;
+                this.RaisePropertyChanged("name");
             }
         }
 
@@ -60,6 +61,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.descriptionField = value;
+                this.RaisePropertyChanged("description");
             }
         }
 
@@ -74,6 +76,18 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.typeField = value;
+                this.RaisePropertyChanged("type");
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

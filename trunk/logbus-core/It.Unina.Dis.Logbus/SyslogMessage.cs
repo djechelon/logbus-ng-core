@@ -130,25 +130,29 @@ namespace It.Unina.Dis.Logbus
         public static SyslogMessage Parse(string payload)
         {
             //<165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
+            //165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
             SyslogMessage ret = new SyslogMessage();
             try
             {
-                String new_payload = payload.Substring(1);
+                int pointer = 1;
+                String new_payload = payload.Substring(pointer);
                 //new_payload = 165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
-            
+
                 // Calculte prival = Facility*8 + Severity...
                 String prival = new_payload.Split('>')[0];
-                Int32 facility = 0;
-                ret.Severity = (SyslogSeverity)Math.DivRem(Int32.Parse(prival), 8, out facility);
-                ret.Facility = (SyslogFacility)facility;
-                
+                Int32 severity = 0;
+                ret.Facility = (SyslogFacility)Math.DivRem(Int32.Parse(prival), 8, out severity);
+                ret.Severity = (SyslogSeverity)severity;
+                pointer += prival.Length + 1;
+
                 // Calclate Version...
-                new_payload = new_payload.Substring(prival.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = 1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
                 ret.Version = Int32.Parse(new_payload.Substring(0, 1));
-                
+                pointer += 2;
+
                 //Calculate Timestamp...
-                new_payload = new_payload.Substring(2);
+                new_payload = payload.Substring(pointer);
                 // new_payload = 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
                 String timestamp = new_payload.Split(' ')[0];
                 // timestamp = 2003-08-24T05:14:15.000003-07:00
@@ -183,37 +187,42 @@ namespace It.Unina.Dis.Logbus
                     Int32 hour = Int32.Parse(elem2[0].Split(':')[0]);
                     Int32 minute = Int32.Parse(elem2[0].Split(':')[1]);
                     Int32 sec = Int32.Parse(elem2[0].Split(':')[2].Split('.')[0]);
-                    Int32 msec = Int32.Parse(elem2[0].Split(':')[2].Split('.')[1].Substring(0,3));
-                        
+                    Int32 msec = Int32.Parse(elem2[0].Split(':')[2].Split('.')[1].Substring(0, 3));
+
                     ret.Timestamp = new DateTime(year, month, day, hour, minute, sec, msec);
                     ret.Timestamp = ret.Timestamp.Value.AddHours(fusoH);
                     ret.Timestamp = ret.Timestamp.Value.AddHours(fusoM);
                 }
                 else
                     ret.Timestamp = null;
-                
+                pointer += timestamp.Length + 1;
+
                 //Calculate HostIP...
-                new_payload = new_payload.Substring(timestamp.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
                 ret.Host = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
-                
+                pointer += (ret.Host == null) ? 2 : ret.Host.Length + 1;
+
                 //Calculate AppName...
-                new_payload = new_payload.Substring(ret.Host.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = myproc 8710 - - %% It’s time to make the do-nuts.
                 ret.ApplicationName = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
+                pointer += (ret.ApplicationName == null) ? 2 : ret.ApplicationName.Length + 1;
 
                 //Calculate ProcID...
-                new_payload = new_payload.Substring(ret.ApplicationName.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = 8710 - - %% It’s time to make the do-nuts.
                 ret.ProcessID = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
+                pointer += (ret.ProcessID == null) ? 2 : ret.ProcessID.Length + 1;
 
                 //Calculate MessageID...
-                new_payload = new_payload.Substring(ret.ProcessID.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = - - %% It’s time to make the do-nuts.
                 ret.MessageId = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
+                pointer += (ret.MessageId == null) ? 2 : ret.MessageId.Length + 1;
 
                 //Calculate StructuredData...
-                new_payload = new_payload.Substring(ret.MessageId.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = - %% It’s time to make the do-nuts.
                 String StructuredData = new_payload.Split(' ')[0];
                 if (StructuredData != "-")
@@ -236,8 +245,10 @@ namespace It.Unina.Dis.Logbus
                 else
                     ret.Data = null;
 
+                pointer += StructuredData.Length + 1;
+
                 //Calculate Msg...
-                new_payload = new_payload.Substring(StructuredData.Length + 1);
+                new_payload = payload.Substring(pointer);
                 // new_payload = %% It’s time to make the do-nuts.
                 // Controls the presence of BOM...
                 byte[] BOM = { 0xEF, 0xBB, 0xBF };

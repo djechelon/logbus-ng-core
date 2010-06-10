@@ -34,7 +34,7 @@ namespace TestAppConfig
                 foreach (InboundChannelDefinition inch in config.inchannels)
                 {
                     Console.WriteLine("Defined inbound channel of name {0}, type {1}", inch.name, inch.type);
-                    foreach (param param in inch.param)
+                    foreach (KeyValuePair param in inch.param)
                     {
                         Console.WriteLine("Defined parameter {0}={1}", param.name, param.value);
                     }
@@ -49,7 +49,7 @@ namespace TestAppConfig
                     Console.WriteLine("Factory is {0}", config.outtransports.factory);
                     foreach (OutputTransportDefinition def in config.outtransports.outtransport)
                     {
-                        Console.WriteLine("Transport tag {0}, type {1}, factory {2}", def.name, def.type, def.factory);
+                        Console.WriteLine("Transport tag {0}, factory {2}", def.tag, def.factory);
                     }
                     foreach (AssemblyToScan ass in config.outtransports.scanassembly)
                     {

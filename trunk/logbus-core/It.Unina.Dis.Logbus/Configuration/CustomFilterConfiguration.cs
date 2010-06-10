@@ -25,10 +25,11 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
-    public partial class CustomFiltersConfiguration
+    [System.Xml.Serialization.XmlRootAttribute("custom-filters", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
+    public partial class CustomFiltersConfiguration : object, System.ComponentModel.INotifyPropertyChanged
     {
 
-        private CustomFilter[] customfilterField;
+        private CustomFilterDefinition[] customfilterField;
 
         private AssemblyToScan[] scanassemblyField;
 
@@ -36,7 +37,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("custom-filter")]
-        public CustomFilter[] customfilter
+        public CustomFilterDefinition[] customfilter
         {
             get
             {
@@ -45,6 +46,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.customfilterField = value;
+                this.RaisePropertyChanged("customfilter");
             }
         }
 
@@ -59,6 +61,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.scanassemblyField = value;
+                this.RaisePropertyChanged("scanassembly");
             }
         }
 
@@ -73,18 +76,19 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.factoryField = value;
+                this.RaisePropertyChanged("factory");
             }
         }
-    }
 
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.dis.unina.it/logbus/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("custom-filters", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = true)]
-    public partial class customfilters : CustomFiltersConfiguration
-    {
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }

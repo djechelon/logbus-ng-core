@@ -21,7 +21,7 @@ using It.Unina.Dis.Logbus.Configuration;
 using System.Runtime.Serialization;
 using System;
 
-namespace It.Unina.Dis.Logbus
+namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
     /// Configuration error for Logbus

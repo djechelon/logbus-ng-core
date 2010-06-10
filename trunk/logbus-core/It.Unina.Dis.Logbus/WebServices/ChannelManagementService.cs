@@ -18,10 +18,15 @@
 */
 
 using System.Web.Services;
+using System.Web.Services.Protocols;
+using System;
+using It.Unina.Dis.Logbus.Filters;
+using System.Globalization;
 namespace It.Unina.Dis.Logbus.WebServices
 {
+    [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
     public class ChannelManagementService
-        :WebService, IChannelManagement
+        : WebService, IChannelManagement
     {
 
         protected ILogbusController TargetLogbus
@@ -34,22 +39,55 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         public string[] ListChannels()
         {
-            throw new System.NotImplementedException();
+            int tot = TargetLogbus.AvailableChannels.Length;
+            string[] ret = new string[tot];
+            for (int i = 0; i < tot; i++)
+            {
+                ret[i] = TargetLogbus.AvailableChannels[i].ID;
+            }
+            return ret;
         }
 
         public void CreateChannel(ChannelCreationInformation description)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                TargetLogbus.CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
+            }
+            catch { throw; } //What to do?
         }
 
         public ChannelInformation GetChannelInformation(string id)
         {
-            throw new System.NotImplementedException();
+            IOutboundChannel chan = null;
+            foreach (IOutboundChannel ch in TargetLogbus.AvailableChannels)
+                if (ch.ID.Equals(id))
+                {
+                    chan = ch;
+                    break;
+                }
+
+            if (chan == null) return null;
+
+            ChannelInformation ret = new ChannelInformation()
+            {
+                id = chan.ID,
+                title = chan.Name,
+                description = chan.Description,
+                coalescenceWindow = (long)chan.CoalescenceWindowMillis,
+                filter = (FilterBase)chan.Filter,
+                clients = chan.SubscribedClients.ToString(CultureInfo.InvariantCulture)
+            };
+            return ret;
         }
 
         public void DeleteChannel(string id)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                TargetLogbus.RemoveChannel(id);
+            }
+            catch { throw; }
         }
 
         #endregion

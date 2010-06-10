@@ -17,13 +17,32 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus
 {
+    /// <summary>
+    /// Simplified interface for controlling a Logbus object
+    /// </summary>
     public interface ILogbusController
     {
+        #region Channel Management
+        IOutboundChannel[] AvailableChannels { get; }
 
-        void CreateChannel(string name, Filters.IFilter filter, string description);
+        void CreateChannel(string id, string name, Filters.IFilter filter, string description, long coalescenceWindow);
 
-        void RemoveChannel();
+        void RemoveChannel(string id);
+
+        #endregion
+
+        #region Channel Subscription
+
+        string[] AvailableTransports { get; }
+
+        string SubscribeClient(string channelId, string transportId, IDictionary<string, string> transportInstructions, out IDictionary<string, string> clientInstructions);
+
+        void RefreshClient(string clientId);
+
+        void UnsubscribeClient(string clientId);
+        #endregion
     }
 }
