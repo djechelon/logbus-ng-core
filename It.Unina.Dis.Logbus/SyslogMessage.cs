@@ -129,15 +129,12 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="FormatException">Thrown when message is not Syslog-compliant</exception>
         public static SyslogMessage Parse(string payload)
         {
-            //<165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
-            //165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
             SyslogMessage ret = new SyslogMessage();
             try
             {
                 int pointer = 1;
                 String new_payload = payload.Substring(pointer);
-                //new_payload = 165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
-
+                
                 // Calculte prival = Facility*8 + Severity...
                 String prival = new_payload.Split('>')[0];
                 Int32 severity = 0;
@@ -147,23 +144,21 @@ namespace It.Unina.Dis.Logbus
 
                 // Calclate Version...
                 new_payload = payload.Substring(pointer);
-                // new_payload = 1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
                 ret.Version = Int32.Parse(new_payload.Substring(0, 1));
                 pointer += 2;
 
                 //Calculate Timestamp...
                 new_payload = payload.Substring(pointer);
-                // new_payload = 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
                 String timestamp = new_payload.Split(' ')[0];
-                // timestamp = 2003-08-24T05:14:15.000003-07:00
+
                 if (timestamp != "-")
                 {
                     String[] elem = timestamp.Split('T');
-                    // elem[0] = 2003-08-24
+
                     Int32 year = Int32.Parse(elem[0].Split('-')[0]);
                     Int32 month = Int32.Parse(elem[0].Split('-')[1]);
                     Int32 day = Int32.Parse(elem[0].Split('-')[2]);
-                    // elem[1] = 05:14:15.000003-07:00
+
                     String[] elem2;
                     Int32 fusoH = 0;
                     Int32 fusoM = 0;
@@ -183,7 +178,6 @@ namespace It.Unina.Dis.Logbus
                     {
                         elem2 = elem[1].Split('Z');
                     }
-                    // elem2[0] = 05:14:15.000003
                     Int32 hour = Int32.Parse(elem2[0].Split(':')[0]);
                     Int32 minute = Int32.Parse(elem2[0].Split(':')[1]);
                     Int32 sec = Int32.Parse(elem2[0].Split(':')[2].Split('.')[0]);
@@ -199,46 +193,47 @@ namespace It.Unina.Dis.Logbus
 
                 //Calculate HostIP...
                 new_payload = payload.Substring(pointer);
-                // new_payload = 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.
                 ret.Host = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
                 pointer += (ret.Host == null) ? 2 : ret.Host.Length + 1;
 
                 //Calculate AppName...
                 new_payload = payload.Substring(pointer);
-                // new_payload = myproc 8710 - - %% It’s time to make the do-nuts.
                 ret.ApplicationName = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
                 pointer += (ret.ApplicationName == null) ? 2 : ret.ApplicationName.Length + 1;
 
                 //Calculate ProcID...
                 new_payload = payload.Substring(pointer);
-                // new_payload = 8710 - - %% It’s time to make the do-nuts.
                 ret.ProcessID = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
                 pointer += (ret.ProcessID == null) ? 2 : ret.ProcessID.Length + 1;
 
                 //Calculate MessageID...
                 new_payload = payload.Substring(pointer);
-                // new_payload = - - %% It’s time to make the do-nuts.
                 ret.MessageId = (new_payload.Split(' ')[0] == "-") ? null : new_payload.Split(' ')[0];
                 pointer += (ret.MessageId == null) ? 2 : ret.MessageId.Length + 1;
 
                 //Calculate StructuredData...
                 new_payload = payload.Substring(pointer);
-                String StructuredData = "";
+                String StructuredData = "[";
                 if (new_payload.StartsWith("-"))
                 {
                     ret.Data = null;
                 }
                 else
                 {
-                    // new_payload = - %% It’s time to make the do-nuts.
-                    for (int j = 0; (j < new_payload.Length || (new_payload[j] == ']' && new_payload[j] == ' ')); j++)
+                    for (int j = 1; j < new_payload.Length-1; j++)
                     {
                         StructuredData += new_payload[j];
+                        if(new_payload[j-1] == '"' && new_payload[j] == ']' && new_payload[j+1] == ' ')
+                            break;
                     }
+                    if (!StructuredData.EndsWith("]"))
+                        StructuredData += ']';
                     ret.Data = new Dictionary<string, IDictionary<string, string>>();
                     String[] elementi = StructuredData.Split('[', ']');
                     for (int i = 0; i < elementi.Length; i++)
                     {
+                        if (elementi[i].Length == 0)
+                            continue;
                         String[] SubElem = elementi[i].Split(' ');
                         String key = SubElem[0];
                         Dictionary<string, string> values = new Dictionary<string, string>();
@@ -252,16 +247,19 @@ namespace It.Unina.Dis.Logbus
                 }
                 pointer += StructuredData.Length + 1;
 
-                //Calculate Msg...
-                new_payload = payload.Substring(pointer);
-                // new_payload = %% It’s time to make the do-nuts.
-                // Controls the presence of BOM...
-                byte[] BOM = { 0xEF, 0xBB, 0xBF };
-                if (new_payload[0] == BOM[0] && new_payload[1] == BOM[1] && new_payload[2] == BOM[2])
-                    ret.Text = new_payload.Substring(3);
+                //Calculate Msg if present...
+                if (pointer >= payload.Length)
+                    ret.Text = null;
                 else
-                    ret.Text = new_payload;
-
+                {
+                    new_payload = payload.Substring(pointer);
+                    // Controls the presence of BOM...
+                    byte[] BOM = { 0xEF, 0xBB, 0xBF };
+                    if (new_payload[0] == BOM[0] && new_payload[1] == BOM[1] && new_payload[2] == BOM[2])
+                        ret.Text = new_payload.Substring(3);
+                    else
+                        ret.Text = new_payload;
+                }
                 // Return the SyslogMessage...
                 return ret;
             }
