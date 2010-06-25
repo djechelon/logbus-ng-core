@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Lord Yevon (Zighi) -->
 <xs:schema xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:altova="http://www.altova.com/xml-schema-extensions" targetNamespace="http://www.dis.unina.it/logbus-ng/filters" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:complexType name="FilterBase" abstract="true" mixed="false"/>
 	<xs:element name="filter" type="filter:FilterBase" nillable="false"/>
@@ -187,4 +186,15 @@
 		<xs:attribute name="name" type="xs:string" use="required"/>
 	</xs:complexType>
 	<xs:element name="parameter" type="filter:FilterParameter" nillable="true"/>
+	<xs:element name="And" type="filter:AndFilter"/>
+	<xs:element name="Or" type="filter:OrFilter"/>
+	<xs:element name="Not" type="filter:NotFilter"/>
+	<xs:element name="True" type="filter:TrueFilter"/>
+	<xs:element name="False" type="filter:FalseFilter"/>
+	<xs:element name="MessageRegexMatch" type="filter:MessageRegexMatchFilter"/>
+	<xs:element name="MessageRegexNotMatch" type="filter:MessageRegexNotMatchFilter"/>
+	<xs:element name="Severity" type="filter:SeverityFilter"/>
+	<xs:element name="FacilityEquals" type="filter:FacilityEqualsFilter"/>
+	<xs:element name="Property" type="filter:PropertyFilter"/>
+	<xs:element name="Custom" type="filter:CustomFilter"/>
 </xs:schema>

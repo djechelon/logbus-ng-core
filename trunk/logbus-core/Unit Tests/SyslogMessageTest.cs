@@ -354,7 +354,7 @@ namespace Unit_Tests
             SyslogSeverity level = new SyslogSeverity(); // TODO: Eseguire l'inizializzazione a un valore appropriato
             string text = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
             IDictionary<string, IDictionary<string, string>> data = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage target = new SyslogMessage(timestamp, host, facility, level, text, data);
+            SyslogMessage target = new SyslogMessage(timestamp, host, facility, level, text);
             Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
         }
     }
