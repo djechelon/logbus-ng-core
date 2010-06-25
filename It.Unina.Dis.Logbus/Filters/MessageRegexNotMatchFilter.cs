@@ -25,6 +25,7 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [System.Xml.Serialization.XmlRootAttribute("MessageRegexNotMatch", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
     public partial class MessageRegexNotMatchFilter : MessageRegexMatchFilter
     {
 
