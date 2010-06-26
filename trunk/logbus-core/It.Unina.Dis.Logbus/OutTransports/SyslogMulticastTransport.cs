@@ -29,7 +29,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             throw new System.NotImplementedException();
         }
 
-        public int ClientsSubscribed
+        public int SubscribedClients
         {
             get { throw new System.NotImplementedException(); }
         }

@@ -26,7 +26,7 @@ using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.OutChannels
 {
-    public class SimpleOutChannel
+    internal sealed class SimpleOutChannel
         : IOutboundChannel
     {
 
@@ -138,7 +138,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             worker_thread.Join();
         }
 
-        It.Unina.Dis.Logbus.Filters.IFilter IOutboundChannel.Filter
+        public It.Unina.Dis.Logbus.Filters.IFilter Filter
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get;
@@ -146,7 +146,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             set;
         }
 
-        ulong IOutboundChannel.CoalescenceWindowMillis
+        public ulong CoalescenceWindowMillis
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get;
@@ -154,13 +154,30 @@ namespace It.Unina.Dis.Logbus.OutChannels
             set;
         }
 
-        IOutboundTransportFactory IOutboundChannel.TransportFactory
+        public ITransportFactoryHelper TransportFactoryHelper
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
+            private get;
             [MethodImpl(MethodImplOptions.Synchronized)]
             set;
         }
+
+
+        public string SubscribeClient(string transportId, IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RefreshClient(string clientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnsubscribeClient(string clientId)
+        {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
 
@@ -189,5 +206,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
 
         }
+
     }
 }

@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Gets the number of clients subscribed to this transport within the channel
         /// </summary>
-        int ClientsSubscribed { get; }
+        int SubscribedClients { get; }
 
         /// <summary>
         /// Subscribes a new client to the transport within the channel
