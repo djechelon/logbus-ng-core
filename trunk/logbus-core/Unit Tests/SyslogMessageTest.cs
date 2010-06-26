@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace Unit_Tests
 {
-    
-    
+
+
     /// <summary>
     ///Classe di test per SyslogMessageTest.
     ///Creata per contenere tutti gli unit test SyslogMessageTest
@@ -65,197 +65,6 @@ namespace Unit_Tests
         #endregion
 
 
-        /// <summary>
-        ///Test per Version
-        ///</summary>
-        [TestMethod()]
-        public void VersionTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            int expected = 0; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            int actual;
-            target.Version = expected;
-            actual = target.Version;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Timestamp
-        ///</summary>
-        [TestMethod()]
-        public void TimestampTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Nullable<DateTime> expected = new Nullable<DateTime>(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Nullable<DateTime> actual;
-            target.Timestamp = expected;
-            actual = target.Timestamp;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Text
-        ///</summary>
-        [TestMethod()]
-        public void TextTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.Text = expected;
-            actual = target.Text;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Severity
-        ///</summary>
-        [TestMethod()]
-        public void SeverityTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogSeverity expected = new SyslogSeverity(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogSeverity actual;
-            target.Severity = expected;
-            actual = target.Severity;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per ProcessID
-        ///</summary>
-        [TestMethod()]
-        public void ProcessIDTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.ProcessID = expected;
-            actual = target.ProcessID;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per MessageId
-        ///</summary>
-        [TestMethod()]
-        public void MessageIdTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.MessageId = expected;
-            actual = target.MessageId;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Host
-        ///</summary>
-        [TestMethod()]
-        public void HostTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.Host = expected;
-            actual = target.Host;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Facility
-        ///</summary>
-        [TestMethod()]
-        public void FacilityTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogFacility expected = new SyslogFacility(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogFacility actual;
-            target.Facility = expected;
-            actual = target.Facility;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Data
-        ///</summary>
-        [TestMethod()]
-        public void DataTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            IDictionary<string, IDictionary<string, string>> expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            IDictionary<string, IDictionary<string, string>> actual;
-            target.Data = expected;
-            actual = target.Data;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per ApplicationName
-        ///</summary>
-        [TestMethod()]
-        public void ApplicationNameTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.ApplicationName = expected;
-            actual = target.ApplicationName;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per ToString
-        ///</summary>
-        [TestMethod()]
-        public void ToStringTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            actual = target.ToString();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per ToByteArray
-        ///</summary>
-        [TestMethod()]
-        public void ToByteArrayTest()
-        {
-            SyslogMessage target = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            byte[] expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            byte[] actual;
-            actual = target.ToByteArray();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per Parse
-        ///</summary>
-        [TestMethod()]
-        public void ParseTest1()
-        {
-            byte[] payload = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage expected = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage actual;
-            actual = SyslogMessage.Parse(payload);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
 
         /// <summary>
         ///Test per Parse
@@ -265,7 +74,7 @@ namespace Unit_Tests
         {
             string payload = @"<34>1 2003-10-11T22:14:15.003Z mymachine.example.com su - ID47 - ’su root’ failed for lonvick on /dev/pts/8";
 
-            
+
             SyslogMessage expected = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
             expected.Facility = SyslogFacility.Security;
             expected.Severity = SyslogSeverity.Critical;
@@ -340,6 +149,36 @@ namespace Unit_Tests
                 Assert.Fail("Failed parsing", ex);
             }
             Assert.IsNotNull(actual);
+
+            //Testing with escape sequences in Data
+            //RFC says that '"' and ']' in structured data values must be escaped
+            
+            /*
+             * djechelon 2010/06/26:
+             * 
+             * This is a very difficult test case, although extremely rare to occur, if not completely IMPOSSIBLE
+             * I posted this just to show that the current parser is obviously unable to detect escape sequencies
+             * 
+             * As cases like this are not supposed to occur in real-life logs (at least as soon as our test applications don't produce such logs),
+             * I don't think it's time to rewrite the parser from scratch. In case other developers want a challenge, here is it. We won't fix it.
+             * 
+             * */
+            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 escapeParentesis=""Wow \]"" escapeQuotes=""\"""" moreEscape=""\\\\\\\""""] I don't think the current parser will accept this message";
+
+            actual = null;
+
+            try
+            {
+                actual = SyslogMessage.Parse(payload);
+            }
+            catch (FormatException ex)
+            {
+                Assert.Fail("Failed parsing", ex);
+            }
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(@"Wow \]", actual.Value.Data["exampleSDID@32473"]["escapeParenthesis"]);
+            Assert.AreEqual(@"\""", actual.Value.Data["exampleSDID@32473"]["escapeQuotes"]);
+            Assert.AreEqual(@"\\\\\\\""", actual.Value.Data["exampleSDID@32473"]["moreEscape"]);
         }
 
         /// <summary>
