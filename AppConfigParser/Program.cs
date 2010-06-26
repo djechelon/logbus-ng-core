@@ -11,11 +11,11 @@ namespace TestAppConfig
         {
             object section = ConfigurationManager.GetSection("logbus");
 
-            Console.WriteLine("Trying to retrieve \"logbus\" section from App.config: {0}", (section is LogbusConfiguration) ? "success" : "fail");
-            if (section is LogbusConfiguration)
+            Console.WriteLine("Trying to retrieve \"logbus\" section from App.config: {0}", (section is LogbusCoreConfiguration) ? "success" : "fail");
+            if (section is LogbusCoreConfiguration)
             {
                 //OK, configuration was loaded;
-                LogbusConfiguration config = (LogbusConfiguration)section;
+                LogbusCoreConfiguration config = (LogbusCoreConfiguration)section;
 
                 Console.WriteLine("Parsing core filter");
                 if (config.corefilter == null)

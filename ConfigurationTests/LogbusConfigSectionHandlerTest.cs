@@ -73,7 +73,7 @@ namespace ConfigurationTests
         [TestMethod()]
         public void LogbusConfigSectionHandlerConstructorTest()
         {
-            LogbusConfigSectionHandler target = new LogbusConfigSectionHandler();
+            LogbusCoreConfigSectionHandler target = new LogbusCoreConfigSectionHandler();
             Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
 
         }
@@ -85,7 +85,7 @@ namespace ConfigurationTests
         [DeploymentItem("It.Unina.Dis.Logbus.dll")]
         public void CreateTest()
         {
-            IConfigurationSectionHandler target = new LogbusConfigSectionHandler(); // TODO: Eseguire l'inizializzazione a un valore appropriato
+            IConfigurationSectionHandler target = new LogbusCoreConfigSectionHandler(); // TODO: Eseguire l'inizializzazione a un valore appropriato
 
             object ret;
             try
@@ -95,7 +95,7 @@ namespace ConfigurationTests
                 
                 //ret = System.Configuration.ConfigurationManager.GetSection("logbus");
 
-                Assert.IsInstanceOfType(ret, typeof(LogbusConfiguration));
+                Assert.IsInstanceOfType(ret, typeof(LogbusCoreConfiguration));
             }
             catch (Exception ex)
             {

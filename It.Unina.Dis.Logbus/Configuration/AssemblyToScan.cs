@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("scan-assembly", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class AssemblyToScan : object, System.ComponentModel.INotifyPropertyChanged
+    public partial class AssemblyToScan
     {
 
         private string assemblyField;
@@ -44,7 +44,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.assemblyField = value;
-                this.RaisePropertyChanged("assembly");
             }
         }
 
@@ -59,18 +58,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.codebaseField = value;
-                this.RaisePropertyChanged("codebase");
-            }
-        }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null))
-            {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("param", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class KeyValuePair : object, System.ComponentModel.INotifyPropertyChanged
+    public partial class KeyValuePair
     {
 
         private string nameField;
@@ -44,7 +44,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.nameField = value;
-                this.RaisePropertyChanged("name");
             }
         }
 
@@ -59,18 +58,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.valueField = value;
-                this.RaisePropertyChanged("value");
-            }
-        }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null))
-            {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }

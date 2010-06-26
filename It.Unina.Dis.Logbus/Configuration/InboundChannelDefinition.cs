@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("in-channel", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
-    public partial class InboundChannelDefinition : object, System.ComponentModel.INotifyPropertyChanged
+    public partial class InboundChannelDefinition
     {
 
         private KeyValuePair[] paramField;
@@ -46,7 +46,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.paramField = value;
-                this.RaisePropertyChanged("param");
             }
         }
 
@@ -61,7 +60,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.typeField = value;
-                this.RaisePropertyChanged("type");
             }
         }
 
@@ -76,18 +74,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.nameField = value;
-                this.RaisePropertyChanged("name");
-            }
-        }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null))
-            {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
