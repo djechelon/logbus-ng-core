@@ -60,5 +60,10 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="InvalidOperationException">No factory was associated to the given ID</exception>
         /// <exception cref="ArgumentNullException">transportId is null or empty</exception>
         void RemoveFactory(string transportId);
+
+        /// <summary>
+        /// Lists currently available transports
+        /// </summary>
+        string[] AvailableTransports { get; }
     }
 }

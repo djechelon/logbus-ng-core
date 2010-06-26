@@ -17,9 +17,52 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.OutTransports
 {
     class SimpleTransportHelper
+        : Dictionary<string, IOutboundTransportFactory>, ITransportFactoryHelper
     {
+
+        #region ITransportFactoryHelper Membri di
+
+        IOutboundTransportFactory ITransportFactoryHelper.this[string transportId]
+        {
+            get
+            {
+                return this[transportId];
+            }
+            set
+            {
+                this[transportId] = value;
+            }
+        }
+
+        IOutboundTransportFactory ITransportFactoryHelper.GetFactory(string transportId)
+        {
+            return this[transportId];
+        }
+
+        void ITransportFactoryHelper.AddFactory(string transportId, IOutboundTransportFactory factory)
+        {
+            this.Add(transportId, factory);
+        }
+
+        void ITransportFactoryHelper.RemoveFactory(string transportId)
+        {
+            if (!this.Remove(transportId)) throw new LogbusException("Object not found");
+        }
+
+        string[] ITransportFactoryHelper.AvailableTransports
+        {
+            get
+            {
+                string[] ret = new string[Keys.Count];
+                Keys.CopyTo(ret, 0);
+                return ret;
+            }
+        }
+
+        #endregion
     }
 }

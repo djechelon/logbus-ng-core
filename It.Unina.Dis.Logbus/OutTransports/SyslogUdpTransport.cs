@@ -82,7 +82,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             }
         }
 
-        public int ClientsSubscribed
+        public int SubscribedClients
         {
             get { return Clients.Count; }
         }

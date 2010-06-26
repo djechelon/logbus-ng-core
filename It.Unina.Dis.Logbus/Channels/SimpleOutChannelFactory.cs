@@ -17,21 +17,18 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.OutChannels
+using System;
+namespace It.Unina.Dis.Logbus.Channels
 {
-    internal sealed class SimpleOutChannelFactory
+    class SimpleOutChannelFactory
         :IOutboundChannelFactory
     {
-
         #region IOutboundChannelFactory Membri di
 
         IOutboundChannel IOutboundChannelFactory.CreateChannel(string name, string description, It.Unina.Dis.Logbus.Filters.IFilter filter)
         {
-            IOutboundChannel ret = new SimpleOutChannel();
-            ret.Name = name;
-            ret.Description = description;
-            ret.Filter = filter;
-            return ret;
+            if (((IOutboundChannelFactory)this).TransportHelper == null) throw new NotSupportedException("Transport factory must be set before creating new channels");
+            throw new System.NotImplementedException();
         }
 
         ITransportFactoryHelper IOutboundChannelFactory.TransportHelper
