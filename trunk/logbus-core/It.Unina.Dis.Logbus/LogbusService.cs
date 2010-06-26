@@ -59,7 +59,7 @@ namespace It.Unina.Dis.Logbus
             try
             {
                 //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                Configuration = ConfigurationManager.GetSection("logbus") as LogbusConfiguration;
+                Configuration = ConfigurationManager.GetSection("logbus") as LogbusCoreConfiguration;
             }
             catch { }
         }
@@ -76,7 +76,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Gets or sets configuration for Logbus
         /// </summary>
-        public LogbusConfiguration Configuration
+        public LogbusCoreConfiguration Configuration
         {
             get;
             set;
@@ -196,7 +196,7 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
-        public void Configure(LogbusConfiguration config)
+        public void Configure(LogbusCoreConfiguration config)
         {
             Configuration = config;
             Configure();

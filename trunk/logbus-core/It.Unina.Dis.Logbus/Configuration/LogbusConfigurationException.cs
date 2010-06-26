@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus.Configuration
             : base(message, innerException) { }
 
 
-        public LogbusConfiguration ConfigurationObject
+        public object ConfigurationObject
         { get; set; }
     }
 }

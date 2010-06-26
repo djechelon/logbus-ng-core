@@ -28,7 +28,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// <summary>
     /// Configuration section handler for App.config/Web.config
     /// </summary>
-    public class LogbusConfigSectionHandler: IConfigurationSectionHandler
+    public class LogbusCoreConfigSectionHandler: IConfigurationSectionHandler
     {
        
 
@@ -52,7 +52,7 @@ namespace It.Unina.Dis.Logbus.Configuration
                     string payload = Encoding.UTF8.GetString(ms.ToArray());
 
 
-                    return new XmlSerializer(typeof(LogbusConfiguration)).Deserialize(ms) as LogbusConfiguration;
+                    return new XmlSerializer(typeof(LogbusCoreConfiguration)).Deserialize(ms) as LogbusCoreConfiguration;
                 }
             }
             catch (InvalidOperationException)

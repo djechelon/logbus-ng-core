@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9D119D96-4F98-4131-90D4-1F5FE2EC09B7}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -55,12 +55,10 @@
     <Compile Include="Configuration\KeyValuePair.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\LogbusConfigSectionHandler.cs">
+    <Compile Include="Configuration\LogbusCoreConfigSectionHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\LogbusConfiguration.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Configuration\LogbusCoreConfiguration.cs" />
     <Compile Include="Configuration\OutputTransportDefinition.cs" />
     <Compile Include="Configuration\OutputTransportsConfiguration.cs" />
     <Compile Include="Design\CustomFilterAttribute.cs" />
