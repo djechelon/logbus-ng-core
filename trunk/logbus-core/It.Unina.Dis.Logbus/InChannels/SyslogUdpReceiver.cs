@@ -104,11 +104,11 @@ namespace It.Unina.Dis.Logbus.InChannels
             if (running_thread != null && running_thread.IsAlive) throw new InvalidOperationException("Listener is already running");
             ///Configure
 
-            IpAddress = (Configuration["ip"] != null) ? Configuration[IpAddress] : null;
+            IpAddress = (Configuration["ip"] != null) ? Configuration["ip"] : null;
             if (Configuration["port"] == null) throw new LogbusException("UDP port not set");
             int portnum;
-            if (int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
-            if (Port < 1 || Port > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", Port.ToString(CultureInfo.CurrentCulture)));
+            if (!int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
+            if (portnum < 1 || portnum > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", portnum.ToString(CultureInfo.CurrentCulture)));
             Port = portnum;
 
             try
@@ -136,8 +136,8 @@ namespace It.Unina.Dis.Logbus.InChannels
 
             try
             {
+                client.Close(); //Trigger SocketException if thread is blocked into listening
                 running_thread.Join();
-                client.Close();
             }
             catch (Exception) { } //Really nothing?
         }
@@ -180,14 +180,21 @@ namespace It.Unina.Dis.Logbus.InChannels
 
             while (!Stopped)
             {
-                byte[] payload = client.Receive(ref remote_endpoint);
                 try
                 {
+                    byte[] payload = client.Receive(ref remote_endpoint);
                     SyslogMessage new_message = SyslogMessage.Parse(payload);
                     if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
                 }
+                catch (SocketException)
+                {
+                    //We are closing, or an I/O error occurred
+                    if (Stopped) //Yes, we are closing
+                        return;
+                    //else nothing yet
+                }
                 catch (FormatException) { } //We will maybe perform other actions to report malformed message
-                catch (Exception) { }
+                catch (Exception) { } //Really do nothing?
             }
         }
     }
