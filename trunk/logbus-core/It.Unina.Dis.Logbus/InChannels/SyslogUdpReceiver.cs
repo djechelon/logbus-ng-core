@@ -29,7 +29,7 @@ using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
-    internal class SyslogUdpReceiver :
+    public class SyslogUdpReceiver :
         IInboundChannel
     {
         private Dictionary<string, string> config = new Dictionary<string, string>();
@@ -64,7 +64,12 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             GC.SuppressFinalize(this);
 
-            Stop();
+            try
+            {
+                Stop();
+            }
+            catch (Exception) { }
+
             if (disposing)
             {
             }
@@ -100,10 +105,10 @@ namespace It.Unina.Dis.Logbus.InChannels
             ///Configure
 
             IpAddress = (Configuration["ip"] != null) ? Configuration[IpAddress] : null;
-            if (Configuration["port"] == null) throw new InvalidOperationException("UDP port not set");
+            if (Configuration["port"] == null) throw new LogbusException("UDP port not set");
             int portnum;
-            if (int.TryParse(Configuration["port"], out portnum)) throw new InvalidOperationException("Invalid UDP port");
-            if (Port < 1 || Port > 65535) throw new InvalidOperationException(string.Format("Invalid UDP port: {0}", Port.ToString(CultureInfo.CurrentCulture)));
+            if (int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
+            if (Port < 1 || Port > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", Port.ToString(CultureInfo.CurrentCulture)));
             Port = portnum;
 
             try
@@ -112,7 +117,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
             catch (IOException ex)
             {
-                throw new InvalidOperationException("Cannot start UDP listener", ex);
+                throw new LogbusException("Cannot start UDP listener", ex);
             }
 
             running_thread = new Thread(RunnerLoop);
@@ -170,11 +175,12 @@ namespace It.Unina.Dis.Logbus.InChannels
             Stopped = false;
 
             IPAddress address = (this.IpAddress == null) ? IPAddress.Any : IPAddress.Parse(this.IpAddress);
-            IPEndPoint ep = new IPEndPoint(address, Port);
+            IPEndPoint local_endpoint = new IPEndPoint(address, Port);
+            IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
 
             while (!Stopped)
             {
-                byte[] payload = client.Receive(ref ep);
+                byte[] payload = client.Receive(ref remote_endpoint);
                 try
                 {
                     SyslogMessage new_message = SyslogMessage.Parse(payload);
