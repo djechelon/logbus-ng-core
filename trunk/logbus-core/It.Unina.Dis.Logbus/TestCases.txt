@@ -8,3 +8,6 @@ VALID
 
 <165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 iut="3" eventSource="Application" eventID="1011"] BOMAn application event log entry...
 VALID
+
+<43>Jun 27 23:43:47 marcus syslog-ng[21655]: Connection broken to AF_INET(127.0.0.1:3588), reopening in 60 seconds
+VALID

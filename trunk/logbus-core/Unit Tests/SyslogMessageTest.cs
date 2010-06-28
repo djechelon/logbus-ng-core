@@ -150,20 +150,34 @@ namespace Unit_Tests
             }
             Assert.IsNotNull(actual);
 
+            // Test del formato 3164 BSD.....
+            payload = @"<43>Jun 27 23:43:47 marcus syslog-ng[21655]: Connection broken to AF_INET(127.0.0.1:3588), reopening in 60 seconds";
+            expected = new SyslogMessage();
+            expected.Facility = SyslogFacility.Internally;
+            expected.Severity = SyslogSeverity.Error;
+            expected.Version = 0;
+            expected.Timestamp = new DateTime(2010, 6, 27, 23, 43, 47, 0);
+            expected.Host = "marcus";
+            expected.ApplicationName = "syslog-ng";
+            expected.ProcessID = "21655";
+            expected.MessageId = null;
+            expected.Text = @"Connection broken to AF_INET(127.0.0.1:3588), reopening in 60 seconds";
+            actual = null;
+
+            try
+            {
+                actual = SyslogMessage.Parse(payload);
+            }
+            catch (FormatException ex)
+            {
+                Assert.Fail("Failed parsing", ex);
+            }
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected, actual);
+
             //Testing with escape sequences in Data
             //RFC says that '"' and ']' in structured data values must be escaped
-            
-            /*
-             * djechelon 2010/06/26:
-             * 
-             * This is a very difficult test case, although extremely rare to occur, if not completely IMPOSSIBLE
-             * I posted this just to show that the current parser is obviously unable to detect escape sequencies
-             * 
-             * As cases like this are not supposed to occur in real-life logs (at least as soon as our test applications don't produce such logs),
-             * I don't think it's time to rewrite the parser from scratch. In case other developers want a challenge, here is it. We won't fix it.
-             * 
-             * */
-            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 escapeParentesis=""Wow \]"" escapeQuotes=""\"""" moreEscape=""\\\\\\\""""] I don't think the current parser will accept this message";
+            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 escapeParentesis=""Wow\]"" escapeQuotes=""\"""" moreEscape=""\\\\\\\""""] I don't think the current parser will accept this message";
 
             actual = null;
 
@@ -176,9 +190,10 @@ namespace Unit_Tests
                 Assert.Fail("Failed parsing", ex);
             }
             Assert.IsNotNull(actual);
-            Assert.AreEqual(@"Wow \]", actual.Value.Data["exampleSDID@32473"]["escapeParenthesis"]);
-            Assert.AreEqual(@"\""", actual.Value.Data["exampleSDID@32473"]["escapeQuotes"]);
-            Assert.AreEqual(@"\\\\\\\""", actual.Value.Data["exampleSDID@32473"]["moreEscape"]);
+            IDictionary<String,String> test = actual.Value.Data["exampleSDID@32473"];
+            Assert.AreEqual("\"Wow\\]\"", test["escapeParentesis"]);
+            Assert.AreEqual("\"\\\"\"", test["escapeQuotes"]);
+            Assert.AreEqual("\"\\\\\\\\\\\\\\\"\"", test["moreEscape"]);
         }
 
         /// <summary>

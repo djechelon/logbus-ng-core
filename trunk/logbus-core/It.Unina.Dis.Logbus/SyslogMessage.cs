@@ -176,7 +176,92 @@ namespace It.Unina.Dis.Logbus
         /// <returns></returns>
         private static SyslogMessage Parse3164(string payload)
         {
-            throw new NotImplementedException();
+            SyslogMessage ret = new SyslogMessage();
+            try
+            {
+                int pointer = 1;
+                String new_payload = payload.Substring(pointer);
+
+                //Calculate prival = Facility*8 + Severity...
+                String prival = new_payload.Split('>')[0];
+                Int32 severity = 0;
+                ret.Facility = (SyslogFacility)Math.DivRem(Int32.Parse(prival), 8, out severity);
+                ret.Severity = (SyslogSeverity)severity;
+                pointer += prival.Length + 1;
+
+                //Calculate Version...
+                ret.Version = 0;
+
+                //Calculate Timestamp...
+                new_payload = payload.Substring(pointer);
+                Int32 Month = GetMonthByName(new_payload.Substring(0, 3));
+                pointer += 4;
+                new_payload = payload.Substring(pointer);
+
+                Int32 Day = 0;
+                if (new_payload[0] == ' ')
+                    Day = Int32.Parse(new_payload.Substring(1, 1));
+                else
+                    Day = Int32.Parse(new_payload.Substring(0, 2));
+                pointer += 3;
+                new_payload = payload.Substring(pointer);
+                
+                String timestamp = new_payload.Split(' ')[0];
+                Int32 hour = Int32.Parse(timestamp.Split(':')[0]);
+                Int32 minute = Int32.Parse(timestamp.Split(':')[1]);
+                Int32 sec = Int32.Parse(timestamp.Split(':')[2]);
+                ret.Timestamp = new DateTime(DateTime.Today.Year, Month, Day, hour, minute, sec, 0);
+                pointer += timestamp.Length + 1;
+
+                //Calculate HostIP...
+                new_payload = payload.Substring(pointer);
+                ret.Host = new_payload.Split(' ')[0];
+                pointer += ret.Host.Length + 1;
+
+                //Calculate AppName...
+                new_payload = payload.Substring(pointer);
+                String temp = new_payload.Split(' ')[0];
+                if (temp.Contains("["))
+                {
+                    ret.ApplicationName = temp.Split('[')[0];
+                    ret.ProcessID = temp.Split('[')[1].Split(']')[0];
+                }
+                else
+                {
+                    ret.ApplicationName = temp;
+                    ret.ProcessID = null;
+                }
+                pointer += temp.Length + 1;
+
+                
+                //Calculate MessageID...
+                ret.MessageId = null;
+                
+                //Calculate StructuredData...
+                ret.Data = null;
+
+                //Calculate Msg if present...
+                if (pointer >= payload.Length)
+                    ret.Text = null;
+                else
+                {
+                    new_payload = payload.Substring(pointer);
+                    ret.Text = new_payload;
+                }
+                //Return the SyslogMessage...
+                return ret;
+            }
+            catch (FormatException ex)
+            {
+                ex.Data.Add("Payload", payload);
+                throw ex;
+            }
+            catch (Exception e)
+            {
+                FormatException ex = new FormatException("Message not in Syslog format", e);
+                ex.Data.Add("Payload", payload);
+                throw ex;
+            }
         }
 
         /// <summary>
@@ -286,6 +371,8 @@ namespace It.Unina.Dis.Logbus
                     if (!StructuredData.EndsWith("]"))
                         StructuredData += ']';
                     ret.Data = new Dictionary<string, IDictionary<string, string>>();
+                    StructuredData = StructuredData.Replace("\\[", "@*°");
+                    StructuredData = StructuredData.Replace("\\]", "çà§");
                     String[] elementi = StructuredData.Split('[', ']');
                     for (int i = 0; i < elementi.Length; i++)
                     {
@@ -297,6 +384,10 @@ namespace It.Unina.Dis.Logbus
                         for (int k = 1; k < SubElem.Length; k++)
                         {
                             String[] SubSubElem = SubElem[k].Split('=');
+                            SubSubElem[0] = SubSubElem[0].Replace( "@*°","\\[");
+                            SubSubElem[0] = SubSubElem[0].Replace("çà§","\\]");
+                            SubSubElem[1] = SubSubElem[1].Replace("@*°","\\[");
+                            SubSubElem[1] = SubSubElem[1].Replace("çà§","\\]");
                             values.Add(SubSubElem[0], SubSubElem[1]);
                         }
                         ret.Data.Add(key, values);
@@ -395,6 +486,37 @@ namespace It.Unina.Dis.Logbus
 
             ret.Append(']');
             return ret.ToString();
+        }
+
+        private static Int32 GetMonthByName(String Month)
+        {
+            Int32 Mon = 1;
+            if (Month == "Jan")
+                Mon = 1;
+            else if (Month == "Feb")
+                Mon = 2;
+            else if (Month == "Mar")
+                Mon = 3;
+            else if (Month == "Apr")
+                Mon = 4;
+            else if (Month == "May")
+                Mon = 5;
+            else if (Month == "Jun")
+                Mon = 6;
+            else if (Month == "Jul")
+                Mon = 7;
+            else if (Month == "Aug")
+                Mon = 8;
+            else if (Month == "Sep")
+                Mon = 9;
+            else if (Month == "Oct")
+                Mon = 10;
+            else if (Month == "Nov")
+                Mon = 11;
+            else if (Month == "Dec")
+                Mon = 12;
+
+            return Mon;
         }
 
         private string Escape(string input, char[] specialChars)
