@@ -1,0 +1,1 @@
+﻿This test solution deals with log4net tests
