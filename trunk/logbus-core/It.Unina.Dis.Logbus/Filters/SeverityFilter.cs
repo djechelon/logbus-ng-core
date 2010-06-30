@@ -17,6 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
@@ -63,9 +64,43 @@ namespace It.Unina.Dis.Logbus.Filters
             }
         }
 
+        
+        /// <remarks>"Higher" severity has lower code</remarks>
         public override bool IsMatch(SyslogMessage message)
         {
-            throw new System.NotImplementedException();
+            int result = ((int)message.Severity).CompareTo((int)severity);
+            switch (comparison)
+            {
+                case ComparisonOperator.eq:
+                    {
+                        return result == 0;
+                    }
+                case ComparisonOperator.geq:
+                    {
+                        return result <= 0;
+                    }
+                case ComparisonOperator.gt:
+                    {
+                        return result < 0;
+                    }
+                case ComparisonOperator.leq:
+                    {
+                        return result >= 0;
+                    }
+                case ComparisonOperator.lt:
+                    {
+                        return result > 0;
+                    }
+                case ComparisonOperator.neq:
+                    {
+                        return result != 0;
+                    }
+                default:
+                    {
+                        throw new InvalidOperationException();
+                    }
+            }
+
         }
     }
 }

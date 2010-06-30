@@ -1,11 +1,12 @@
 ﻿using It.Unina.Dis.Logbus.Filters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
+using System;
 
 namespace Filter_Tests
 {
-    
-    
+
+
     /// <summary>
     ///Classe di test per FacilityEqualsFilterTest.
     ///Creata per contenere tutti gli unit test FacilityEqualsFilterTest
@@ -65,33 +66,30 @@ namespace Filter_Tests
 
 
         /// <summary>
-        ///Test per facility
-        ///</summary>
-        [TestMethod()]
-        public void facilityTest()
-        {
-            FacilityEqualsFilter target = new FacilityEqualsFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Facility expected = new Facility(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Facility actual;
-            target.facility = expected;
-            actual = target.facility;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
         ///Test per IsMatch
         ///</summary>
         [TestMethod()]
         public void IsMatchTest()
         {
-            FacilityEqualsFilter target = new FacilityEqualsFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage message = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool actual;
-            actual = target.IsMatch(message);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
+            Array severities = Enum.GetValues(typeof(Severity));
+
+            for (int i = 0; i < Enum.GetValues(typeof(Facility)).Length; i++)
+                for (int j = 0; j < Enum.GetValues(typeof(Facility)).Length; j++)
+                {
+                    SyslogFacility to_set = (SyslogFacility)Enum.GetValues(typeof(SyslogFacility)).GetValue(i);
+                    Facility to_match = (Facility)Enum.GetValues(typeof(Facility)).GetValue(j);
+
+                    FacilityEqualsFilter target = new FacilityEqualsFilter() { facility = to_match };
+                    //Random severity
+                    SyslogMessage message = new SyslogMessage(null, "logbus.dis.unina.it", to_set, SyslogSeverity.Info, "Hello people!");
+
+                    bool expected = i == j;
+
+                    bool actual;
+                    actual = target.IsMatch(message);
+
+                    Assert.AreEqual(expected, actual);
+                }
         }
 
         /// <summary>
@@ -100,8 +98,13 @@ namespace Filter_Tests
         [TestMethod()]
         public void FacilityEqualsFilterConstructorTest()
         {
-            FacilityEqualsFilter target = new FacilityEqualsFilter();
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            FacilityEqualsFilter target = new FacilityEqualsFilter()
+            {
+                facility = Facility.Clock2
+            };
+            Assert.IsNotNull(target);
+            Assert.IsInstanceOfType(target, typeof(FacilityEqualsFilter));
+            Assert.AreEqual(target.facility, Facility.Clock2);
         }
     }
 }

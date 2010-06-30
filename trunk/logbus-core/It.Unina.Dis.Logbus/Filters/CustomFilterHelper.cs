@@ -24,20 +24,20 @@ namespace It.Unina.Dis.Logbus.Filters
     /// Instantiates custom filters according to type and parameters
     /// </summary>
     /// <remarks>Singleton</remarks>
-    internal sealed class CustomFilterFactory
+    public sealed class CustomFilterHelper
     {
         #region Singleton control
-        private static CustomFilterFactory instance;
+        private static CustomFilterHelper instance;
 
-        static CustomFilterFactory()
+        static CustomFilterHelper()
         {
-            instance = new CustomFilterFactory();
+            instance = new CustomFilterHelper();
         }
 
         /// <summary>
         /// Returns singleton
         /// </summary>
-        public static CustomFilterFactory Instance
+        public static CustomFilterHelper Instance
         {
             get { return instance; }
         }

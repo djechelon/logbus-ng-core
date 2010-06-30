@@ -1,6 +1,7 @@
 ﻿using It.Unina.Dis.Logbus.Filters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
+using System;
 
 namespace Filter_Tests
 {
@@ -70,13 +71,13 @@ namespace Filter_Tests
         [TestMethod()]
         public void IsMatchTest()
         {
-            FalseFilter target = new FalseFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage message = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
+            FalseFilter target = new FalseFilter();
+            SyslogMessage message = new SyslogMessage(DateTime.Now, "logbus.unina.it", SyslogFacility.Kernel, SyslogSeverity.Emergency, "Please don't discard me!!");
+            
+            bool expected = false;
             bool actual;
             actual = target.IsMatch(message);
             Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
         }
 
         /// <summary>
@@ -86,7 +87,8 @@ namespace Filter_Tests
         public void FalseFilterConstructorTest()
         {
             FalseFilter target = new FalseFilter();
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            Assert.IsNotNull(target);
+            Assert.IsInstanceOfType(target, typeof(FalseFilter));
         }
     }
 }

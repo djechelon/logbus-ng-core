@@ -221,13 +221,13 @@ namespace Unit_Tests
                     target.Start();
                     Assert.Fail("It should have thrown LogbusException");
                 }
-                catch (LogbusException)
+                catch (InvalidOperationException)
                 {
                     //OK
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Assert.Fail("I expected LogbusException");
+                    Assert.Fail("I expected InvalidOperationException, found {0}", ex.GetType());
                 }
             }
 

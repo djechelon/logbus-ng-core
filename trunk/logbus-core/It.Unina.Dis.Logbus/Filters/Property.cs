@@ -30,9 +30,6 @@ namespace It.Unina.Dis.Logbus.Filters
         Timestamp,
 
         /// <remarks/>
-        Hostname,
-
-        /// <remarks/>
         Severity,
 
         /// <remarks/>
