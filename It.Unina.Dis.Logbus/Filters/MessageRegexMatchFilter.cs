@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System.Text.RegularExpressions;
+using System;
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
@@ -29,6 +31,22 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.Xml.Serialization.XmlRootAttribute("MessageRegexMatch", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
     public partial class MessageRegexMatchFilter : FilterBase
     {
+
+        public MessageRegexMatchFilter()
+        {
+            this.PropertyChanged += MessageRegexMatchFilter_PropertyChanged;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="ArgumentException" />
+        void MessageRegexMatchFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            pattern_regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.Singleline);
+        }
 
         private string patternField;
 
@@ -47,10 +65,12 @@ namespace It.Unina.Dis.Logbus.Filters
             }
         }
 
+        private Regex pattern_regex;
+
         public override bool IsMatch(SyslogMessage message)
         {
             //Review implementation and compile regex for best performance
-            return System.Text.RegularExpressions.Regex.IsMatch(message.Text, pattern);
+            return pattern_regex.IsMatch(message.Text);
         }
     }
 }

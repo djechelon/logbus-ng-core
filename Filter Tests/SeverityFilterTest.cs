@@ -64,35 +64,7 @@ namespace Filter_Tests
         #endregion
 
 
-        /// <summary>
-        ///Test per severity
-        ///</summary>
-        [TestMethod()]
-        public void severityTest()
-        {
-            SeverityFilter target = new SeverityFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Severity expected = new Severity(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Severity actual;
-            target.severity = expected;
-            actual = target.severity;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per comparison
-        ///</summary>
-        [TestMethod()]
-        public void comparisonTest()
-        {
-            SeverityFilter target = new SeverityFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            ComparisonOperator expected = new ComparisonOperator(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            ComparisonOperator actual;
-            target.comparison = expected;
-            actual = target.comparison;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
+        
 
         /// <summary>
         ///Test per IsMatch
@@ -100,13 +72,47 @@ namespace Filter_Tests
         [TestMethod()]
         public void IsMatchTest()
         {
-            SeverityFilter target = new SeverityFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage message = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool actual;
-            actual = target.IsMatch(message);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
+            {
+                SeverityFilter target = new SeverityFilter()
+                {
+                    comparison = ComparisonOperator.neq,
+                    severity = Severity.Emergency
+                };
+
+                SyslogMessage message = new SyslogMessage(null, "logbus.dis.unina.it", SyslogFacility.Cron, SyslogSeverity.Error, "Kawabongaaaaa");
+                bool expected = true;
+                bool actual;
+                actual = target.IsMatch(message);
+                Assert.AreEqual(expected, actual);
+            }
+
+            {
+                SeverityFilter target = new SeverityFilter()
+                {
+                    comparison = ComparisonOperator.geq,
+                    severity = Severity.Info
+                };
+
+                SyslogMessage message = new SyslogMessage(null, "logbus.dis.unina.it", SyslogFacility.Cron, SyslogSeverity.Error, "Kawabongaaaaa");
+                bool expected = true;
+                bool actual;
+                actual = target.IsMatch(message);
+                Assert.AreEqual(expected, actual);
+            }
+
+            {
+                SeverityFilter target = new SeverityFilter()
+                {
+                    comparison = ComparisonOperator.lt,
+                    severity = Severity.Emergency
+                };
+
+                SyslogMessage message = new SyslogMessage(null, "logbus.dis.unina.it", SyslogFacility.Cron, SyslogSeverity.Error, "Kawabongaaaaa");
+                bool expected = true;
+                bool actual;
+                actual = target.IsMatch(message);
+                Assert.AreEqual(expected, actual);
+            }
         }
 
         /// <summary>

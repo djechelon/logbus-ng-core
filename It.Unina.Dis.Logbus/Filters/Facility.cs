@@ -26,76 +26,29 @@ namespace It.Unina.Dis.Logbus.Filters
     public enum Facility
     {
 
-        /// <remarks/>
-        Kernel,
-
-        /// <remarks/>
-        User,
-
-        /// <remarks/>
-        Mail,
-
-        /// <remarks/>
-        System,
-
-        /// <remarks/>
-        Security,
-
-        /// <remarks/>
-        Internally,
-
-        /// <remarks/>
-        Printer,
-
-        /// <remarks/>
-        News,
-
-        /// <remarks/>
-        UUCP,
-
-        /// <remarks/>
-        Cron,
-
-        /// <remarks/>
-        Security2,
-
-        /// <remarks/>
-        FTP,
-
-        /// <remarks/>
-        NTP,
-
-        /// <remarks/>
-        Audit,
-
-        /// <remarks/>
-        Alert,
-
-        /// <remarks/>
-        Clock2,
-
-        /// <remarks/>
-        Local0,
-
-        /// <remarks/>
-        Local1,
-
-        /// <remarks/>
-        Local2,
-
-        /// <remarks/>
-        Local3,
-
-        /// <remarks/>
-        Local4,
-
-        /// <remarks/>
-        Local5,
-
-        /// <remarks/>
-        Local6,
-
-        /// <remarks/>
-        Local7,
+        Kernel = 0,     // kernel messages
+        User = 1,     // user-level messages
+        Mail = 2,     // mail system
+        System = 3,     // system daemons
+        Security = 4,     // security/authorization messages (note 1)
+        Internally = 5,     // messages generated internally by syslogd
+        Printer = 6,     // line printer subsystem
+        News = 7,     // network news subsystem
+        Uucp = 8,     // UUCP subsystem
+        Cron = 9,     // clock daemon (note 2) changed to cron
+        Security2 = 10,    // security/authorization messages (note 1)
+        Ftp = 11,    // FTP daemon
+        Ntp = 12,    // NTP subsystem
+        Audit = 13,    // log audit (note 1)
+        Alert = 14,    // log alert (note 1)
+        Clock2 = 15,    // clock daemon (note 2)
+        Local0 = 16,    // local use 0  (local0)
+        Local1 = 17,    // local use 1  (local1)
+        Local2 = 18,    // local use 2  (local2)
+        Local3 = 19,    // local use 3  (local3)
+        Local4 = 20,    // local use 4  (local4)
+        Local5 = 21,    // local use 5  (local5)
+        Local6 = 22,    // local use 6  (local6)
+        Local7 = 23,    // local use 7  (local7)
     }
 }

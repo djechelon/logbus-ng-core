@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{37CBC1CA-48E9-4474-A87C-656AB319018B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -46,13 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AndFilterTest.cs" />
-    <Compile Include="CustomFilterFactoryTest.cs" />
     <Compile Include="CustomFilterTest.cs" />
+    <Compile Include="ExampleCustom\CloneFalseFilter.cs" />
+    <Compile Include="ExampleCustom\CloneTrueFilter.cs" />
     <Compile Include="FacilityEqualsFilterTest.cs" />
     <Compile Include="FalseFilterTest.cs" />
-    <Compile Include="FilterBaseTest.cs" />
-    <Compile Include="FilterParameterTest.cs" />
-    <Compile Include="IFilterTest.cs" />
+    <Compile Include="FilterParserTest.cs" />
     <Compile Include="MessageRegexMatchFilterTest.cs" />
     <Compile Include="MessageRegexNotMatchFilterTest.cs" />
     <Compile Include="NotFilterTest.cs" />

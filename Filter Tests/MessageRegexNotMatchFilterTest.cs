@@ -1,6 +1,7 @@
 ﻿using It.Unina.Dis.Logbus.Filters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
+using System;
 
 namespace Filter_Tests
 {
@@ -70,13 +71,42 @@ namespace Filter_Tests
         [TestMethod()]
         public void IsMatchTest()
         {
-            MessageRegexNotMatchFilter target = new MessageRegexNotMatchFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage message = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool actual;
-            actual = target.IsMatch(message);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
+            //Simply opposite to RegexMatchFilter
+            {
+                MessageRegexMatchFilter target = new MessageRegexMatchFilter()
+                {
+                    pattern = "FFDA"
+                };
+                SyslogMessage message = new SyslogMessage(DateTime.Now, "logbus.dis.unina.it", SyslogFacility.Local6, SyslogSeverity.Info, "FFDA SST");
+                bool expected = false;
+                bool actual;
+                actual = target.IsMatch(message);
+                Assert.AreEqual(expected, actual);
+            }
+
+            {
+                MessageRegexMatchFilter target = new MessageRegexMatchFilter()
+                {
+                    pattern = @"^FFDA (SST|SEN|BIND|COA|EIS|EIE|RIS|RIE)"
+                };
+                SyslogMessage message = new SyslogMessage(DateTime.Now, "logbus.dis.unina.it", SyslogFacility.Local6, SyslogSeverity.Info, "This is FFDA SST");
+                bool expected = true;
+                bool actual;
+                actual = target.IsMatch(message);
+                Assert.AreEqual(expected, actual);
+            }
+
+            {
+                MessageRegexMatchFilter target = new MessageRegexMatchFilter()
+                {
+                    pattern = @"^FFDA (SST|SEN|BIND|COA|EIS|EIE|RIS|RIE)"
+                };
+                SyslogMessage message = new SyslogMessage(DateTime.Now, "logbus.dis.unina.it", SyslogFacility.Local6, SyslogSeverity.Info, "FFDA EIS 105995");
+                bool expected = false;
+                bool actual;
+                actual = target.IsMatch(message);
+                Assert.AreEqual(expected, actual);
+            }
         }
 
         /// <summary>
@@ -85,8 +115,12 @@ namespace Filter_Tests
         [TestMethod()]
         public void MessageRegexNotMatchFilterConstructorTest()
         {
-            MessageRegexNotMatchFilter target = new MessageRegexNotMatchFilter();
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            MessageRegexMatchFilter target = new MessageRegexNotMatchFilter();
+            Assert.IsNotNull(target);
+            Assert.IsInstanceOfType(target, typeof(MessageRegexNotMatchFilter));
+            Assert.IsInstanceOfType(target, typeof(MessageRegexMatchFilter));
+            Assert.IsInstanceOfType(target, typeof(FilterBase));
+            Assert.IsInstanceOfType(target, typeof(IFilter));
         }
     }
 }

@@ -26,28 +26,13 @@ namespace It.Unina.Dis.Logbus.Filters
     public enum Severity
     {
 
-        /// <remarks/>
-        Emergency,
-
-        /// <remarks/>
-        Alert,
-
-        /// <remarks/>
-        Critical,
-
-        /// <remarks/>
-        Error,
-
-        /// <remarks/>
-        Warning,
-
-        /// <remarks/>
-        Notice,
-
-        /// <remarks/>
-        Info,
-
-        /// <remarks/>
-        Debug,
+        Emergency = 0,    // Emergency: system is unusable
+        Alert = 1,    // Alert: action must be taken immediately
+        Critical = 2,    // Critical: critical conditions
+        Error = 3,    // Error: error conditions
+        Warning = 4,    // Warning: warning conditions
+        Notice = 5,    // Notice: normal but significant condition
+        Info = 6,    // Informational: informational messages
+        Debug = 7,    // Debug: debug-level messages
     }
 }

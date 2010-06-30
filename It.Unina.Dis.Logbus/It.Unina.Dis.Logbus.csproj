@@ -67,7 +67,7 @@
     <Compile Include="Design\TransportFactoryAttribute.cs" />
     <Compile Include="Filters\AndFilter.cs" />
     <Compile Include="Filters\CustomFilter.cs" />
-    <Compile Include="Filters\CustomFilterFactory.cs" />
+    <Compile Include="Filters\CustomFilterHelper.cs" />
     <Compile Include="Filters\FacilityEqualsFilter.cs" />
     <Compile Include="Filters\Facility.cs" />
     <Compile Include="Filters\FalseFilter.cs" />
