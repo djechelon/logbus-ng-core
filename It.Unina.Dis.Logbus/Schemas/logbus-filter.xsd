@@ -145,7 +145,6 @@
 	<xs:simpleType name="Property">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="Timestamp"/>
-			<xs:enumeration value="Hostname"/>
 			<xs:enumeration value="Severity"/>
 			<xs:enumeration value="Facility"/>
 			<xs:enumeration value="Version"/>
