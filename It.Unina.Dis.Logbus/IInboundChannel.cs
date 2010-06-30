@@ -23,18 +23,41 @@ using System.Text;
 
 namespace It.Unina.Dis.Logbus
 {
+    /// <summary>
+    /// Logbus inbound channel. Collects log messages and notifies Logbus core of new messages
+    /// </summary>
     public interface IInboundChannel
         : IDisposable
     {
 
+        /// <summary>
+        /// Descriptive name of Inbound channel
+        /// </summary>
         string Name { get; set; }
 
+        /// <summary>
+        /// Starts collecting Syslog messages
+        /// </summary>
         void Start();
 
+        /// <summary>
+        /// Stops collecting Syslog messages
+        /// </summary>
         void Stop();
 
-        event EventHandler<SyslogMessageEventArgs> MessageReceived;
+        /// <summary>
+        /// Notifies a new message has been successfully received
+        /// </summary>
+        event SyslogMessageEventHandler MessageReceived;
 
+        /// <summary>
+        /// Notifies a parse error occurred
+        /// </summary>
+        event ParseErrorEventHandler ParseError;
+
+        /// <summary>
+        /// Configures the channel according to the design contract
+        /// </summary>
         IDictionary<string, string> Configuration { get; }
 
     }

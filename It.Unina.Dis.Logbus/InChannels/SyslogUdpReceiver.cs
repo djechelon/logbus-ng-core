@@ -29,9 +29,16 @@ using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
-    public class SyslogUdpReceiver :
+    /// <summary>
+    /// Collects Syslog messages over UDP unicast channels
+    /// </summary>
+    /// <remarks>Implements RFC5426</remarks>
+    public sealed class SyslogUdpReceiver :
         IInboundChannel
     {
+        public const int DEFAULT_PORT = 514;
+
+
         private Dictionary<string, string> config = new Dictionary<string, string>();
         private UdpClient client;
         private BlockingFifoQueue<SyslogMessage> queue;
@@ -97,6 +104,10 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
 
         #region IInboundChannel Membri di
+        
+        public event SyslogMessageEventHandler MessageReceived;
+
+        public event ParseErrorEventHandler ParseError;
 
         public void Start()
         {
@@ -105,11 +116,17 @@ namespace It.Unina.Dis.Logbus.InChannels
             ///Configure
 
             IpAddress = (Configuration["ip"] != null) ? Configuration["ip"] : null;
-            if (Configuration["port"] == null) throw new LogbusException("UDP port not set");
             int portnum;
-            if (!int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
-            if (portnum < 1 || portnum > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", portnum.ToString(CultureInfo.CurrentCulture)));
-            Port = portnum;
+            if (Configuration["port"] == null)
+            {
+                Port = DEFAULT_PORT;
+            }
+            else
+            {
+                if (!int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
+                if (portnum < 1 || portnum > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", portnum.ToString(CultureInfo.CurrentCulture)));
+                Port = portnum;
+            }
 
             try
             {
@@ -142,8 +159,13 @@ namespace It.Unina.Dis.Logbus.InChannels
             catch (Exception) { } //Really nothing?
         }
 
-        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
-
+        /// <summary>
+        /// Configurable parameters:
+        /// <list type="string">
+        /// <item>ip: IP address of interface to bind the UDP listener to</item>
+        /// <item>port: UDP port on which to listen. Default is 514</item>
+        /// </list>
+        /// </summary>
         public IDictionary<string, string> Configuration
         {
             get
@@ -183,8 +205,16 @@ namespace It.Unina.Dis.Logbus.InChannels
                 try
                 {
                     byte[] payload = client.Receive(ref remote_endpoint);
-                    SyslogMessage new_message = SyslogMessage.Parse(payload);
-                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+                    try
+                    {
+                        SyslogMessage new_message = SyslogMessage.Parse(payload);
+                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+                    }
+                    catch (FormatException ex)
+                    {
+                        ParseErrorEventArgs e = new ParseErrorEventArgs(payload, ex, false);
+                        if (ParseError != null) ParseError(this, e);
+                    }
                 }
                 catch (SocketException)
                 {
@@ -193,8 +223,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                         return;
                     //else nothing yet
                 }
-                catch (FormatException) { } //We will maybe perform other actions to report malformed message
-                catch (Exception) { } //Really do nothing?
+                catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
             }
         }
     }

@@ -94,6 +94,16 @@ namespace It.Unina.Dis.Logbus
             Text = text;
         }
 
+        #region Conversion
+
+        private int PriVal
+        {
+            get
+            {
+                return (int)Facility * 8 + (int)Severity;
+            }
+        }
+
         /// <summary>
         ///	Converts the object into RFC5424 UTF-8 binary representation 
         /// </summary>
@@ -102,26 +112,56 @@ namespace It.Unina.Dis.Logbus
         /// </returns>
         public byte[] ToByteArray()
         {
-            return Encoding.UTF8.GetBytes(ToString());
+            return Encoding.UTF8.GetBytes(ToRfc5424String());
+        }
+
+        /// <summary>
+        /// Converts the object into RFC3164 string representation 
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete("You should avoid to use RFC 3164 as it's ambiguous and outdated")]
+        public string ToRfc3164String()
+        {
+            StringBuilder ret = new StringBuilder();
+
+            const string SPACE = @" ";
+
+            //Encode Prival
+            ret.AppendFormat("<{0}>", PriVal.ToString(CultureInfo.InvariantCulture));
+
+            //Encode datetime
+            //If unknown use local time
+            ret.Append((Timestamp.HasValue) ? Timestamp.Value.ToString("MMM  dd hh:mm:ss") : DateTime.Now.ToString("MMM  dd hh:mm:ss"));
+            ret.Append(SPACE);
+
+            //Encode hostname
+            ret.Append(Host);
+            ret.Append(SPACE);
+
+            //Start BODY with TAG/AppName
+            ret.Append(ApplicationName);
+            if (ProcessID != null) ret.AppendFormat("[{0}]:", ProcessID);
+            else ret.Append(SPACE); //We freely chose space. Could use other illegal chars (ambiguity!!!)
+
+            ret.Append(Text);
+
+            return ret.ToString();
         }
 
         /// <summary>
         ///	Converts the object into RFC5424 UTF-8 string representation 
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String"/>
         /// </returns>
-        public override string ToString()
+        public string ToRfc5424String()
         {
             StringBuilder ret = new StringBuilder();
-            int prival = (int)Facility * 8 + (int)Severity;
 
             const string NILVALUE = @"-";
             const string SPACE = @" ";
 
             //Prival+version
-            ret.Append("<" + prival.ToString(CultureInfo.InvariantCulture) + ">");
-            ret.Append(Version.ToString(CultureInfo.InvariantCulture));
+            ret.AppendFormat("<{0}>{1}", PriVal.ToString(CultureInfo.InvariantCulture), Version.ToString(CultureInfo.InvariantCulture));
             ret.Append(SPACE);
 
             //Timestamp
@@ -170,6 +210,60 @@ namespace It.Unina.Dis.Logbus
         }
 
         /// <summary>
+        ///	Converts the object into RFC5424 UTF-8 string representation 
+        /// </summary>
+        public override string ToString()
+        {
+            return ToRfc5424String();
+        }
+
+        private string ToStringData(string key, IDictionary<string, string> data)
+        {
+            StringBuilder ret = new StringBuilder();
+
+            ret.Append('[');
+            ret.Append(key);
+
+            List<string> elements = new List<string>();
+            foreach (KeyValuePair<string, string> kvp in data)
+            {
+                StringBuilder escape_builder = new StringBuilder();
+                elements.Add(kvp.Key + "=\"" + Escape(kvp.Value, new char[] { '"', '\\', ']' }) + "\"");
+            }
+
+            if (elements.Count > 0)
+            {
+                ret.Append(' ');
+                ret.Append(string.Join(" ", elements.ToArray()));
+            }
+
+            ret.Append(']');
+            return ret.ToString();
+        }
+
+        private string Escape(string input, char[] specialChars)
+        {
+            StringBuilder ret = new StringBuilder();
+            foreach (char c in input)
+            {
+                foreach (char comp in specialChars)
+                {
+                    if (c == comp)
+                    {
+                        ret.Append('\\');
+                        break;
+                    }
+                    ret.Append(c);
+                }
+            }
+
+            return ret.ToString();
+        }
+
+        #endregion
+
+        #region Parsing
+        /// <summary>
         /// Parses Syslog messages according to RFC3164
         /// </summary>
         /// <param name="payload"></param>
@@ -205,7 +299,7 @@ namespace It.Unina.Dis.Logbus
                     Day = Int32.Parse(new_payload.Substring(0, 2));
                 pointer += 3;
                 new_payload = payload.Substring(pointer);
-                
+
                 String timestamp = new_payload.Split(' ')[0];
                 Int32 hour = Int32.Parse(timestamp.Split(':')[0]);
                 Int32 minute = Int32.Parse(timestamp.Split(':')[1]);
@@ -233,10 +327,9 @@ namespace It.Unina.Dis.Logbus
                 }
                 pointer += temp.Length + 1;
 
-                
                 //Calculate MessageID...
                 ret.MessageId = null;
-                
+
                 //Calculate StructuredData...
                 ret.Data = null;
 
@@ -384,10 +477,10 @@ namespace It.Unina.Dis.Logbus
                         for (int k = 1; k < SubElem.Length; k++)
                         {
                             String[] SubSubElem = SubElem[k].Split('=');
-                            SubSubElem[0] = SubSubElem[0].Replace( "@*°","\\[");
-                            SubSubElem[0] = SubSubElem[0].Replace("çà§","\\]");
-                            SubSubElem[1] = SubSubElem[1].Replace("@*°","\\[");
-                            SubSubElem[1] = SubSubElem[1].Replace("çà§","\\]");
+                            SubSubElem[0] = SubSubElem[0].Replace("@*°", "\\[");
+                            SubSubElem[0] = SubSubElem[0].Replace("çà§", "\\]");
+                            SubSubElem[1] = SubSubElem[1].Replace("@*°", "\\[");
+                            SubSubElem[1] = SubSubElem[1].Replace("çà§", "\\]");
                             values.Add(SubSubElem[0], SubSubElem[1]);
                         }
                         ret.Data.Add(key, values);
@@ -464,30 +557,6 @@ namespace It.Unina.Dis.Logbus
             return Parse(System.Text.Encoding.UTF8.GetString(payload));
         }
 
-        private string ToStringData(string key, IDictionary<string, string> data)
-        {
-            StringBuilder ret = new StringBuilder();
-
-            ret.Append('[');
-            ret.Append(key);
-
-            List<string> elements = new List<string>();
-            foreach (KeyValuePair<string, string> kvp in data)
-            {
-                StringBuilder escape_builder = new StringBuilder();
-                elements.Add(kvp.Key + "=\"" + Escape(kvp.Value, new char[] { '"', '\\', ']' }) + "\"");
-            }
-
-            if (elements.Count > 0)
-            {
-                ret.Append(' ');
-                ret.Append(string.Join(" ", elements.ToArray()));
-            }
-
-            ret.Append(']');
-            return ret.ToString();
-        }
-
         private static Int32 GetMonthByName(String Month)
         {
             Int32 Mon = 1;
@@ -519,23 +588,6 @@ namespace It.Unina.Dis.Logbus
             return Mon;
         }
 
-        private string Escape(string input, char[] specialChars)
-        {
-            StringBuilder ret = new StringBuilder();
-            foreach (char c in input)
-            {
-                foreach (char comp in specialChars)
-                {
-                    if (c == comp)
-                    {
-                        ret.Append('\\');
-                        break;
-                    }
-                    ret.Append(c);
-                }
-            }
-
-            return ret.ToString();
-        }
+        #endregion
     }
 }
