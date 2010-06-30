@@ -22,27 +22,27 @@ using System;
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
-    /// Supports events related to Syslog messages
+    /// Reports information about parsing errors occurred in the system
     /// </summary>
-    public class SyslogMessageEventArgs : EventArgs
+    public sealed class ParseErrorEventArgs
+        : UnhandledExceptionEventArgs
     {
         /// <summary>
-        /// Syslog message
+        /// Object that could not be parsed
         /// </summary>
-        public SyslogMessage Message
+        /// <remarks>Usually in <see cref="System.string"/> or <see cref="System.byte[]"/> form</remarks>
+        public object Payload
         {
             get;
             set;
         }
 
-        public SyslogMessageEventArgs() : base() { }
-
-        public SyslogMessageEventArgs(SyslogMessage msg)
-            : base()
+        public ParseErrorEventArgs(object payload, object exception, bool isTerminating) :
+            base(exception, isTerminating)
         {
-            Message = msg;
+            Payload = payload;
         }
     }
 
-    public delegate void SyslogMessageEventHandler(object sender, SyslogMessageEventArgs e);
+    public delegate void ParseErrorEventHandler(object sender, ParseErrorEventArgs e);
 }

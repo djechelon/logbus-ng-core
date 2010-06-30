@@ -20,12 +20,30 @@ namespace Unit_Tests
     public class SyslogUdpReceiverRuntimeTest
     {
 
+        private TestContext testContextInstance;
+        /// <summary>
+        ///Gets or sets the test context which provides
+        ///information about and functionality for the current test run.
+        ///</summary>
+        public TestContext TestContext
+        {
+            get
+            {
+                return testContextInstance;
+            }
+            set
+            {
+                testContextInstance = value;
+            }
+        }
+
+
         private const int port = 37845;
 
         private Thread injector_thread;
         private AutoResetEvent test_finished;
-        private List<SyslogMessage> messages_to_test;
-        private int logs_sent = 0, logs_received = 0;
+
+        private int logs_sent = 0, logs_received = 0, logs_error = 0;
 
         [TestInitialize()]
         public void Init()
@@ -44,20 +62,34 @@ namespace Unit_Tests
         {
             using (SyslogUdpReceiver target = new SyslogUdpReceiver())
             {
+                TestContext.BeginTimer("RunTimer");
+
                 target.Configuration["port"] = port.ToString();
                 target.Configuration["ip"] = "127.0.0.1";
                 target.Start();
-                target.MessageReceived += new EventHandler<SyslogMessageEventArgs>(target_MessageReceived);
+                target.MessageReceived += target_MessageReceived;
+                target.ParseError += target_ParseError; //Most interesting
 
                 injector_thread.Start();
                 test_finished.WaitOne();
 
                 target.Stop();
 
-                //See if the number of sent logs matches the number of received logs
-                //Don't actually check correct parsing, just that they are parsed
-                Assert.AreEqual(logs_received, logs_sent);
+                TestContext.EndTimer("RunTimer");
+
+                TestContext.WriteLine("Summary of SyslogUdpRuntimeTest:\r\nTotal messages: {0}\r\nSuccessfully parsed: {1}\r\nFailed parsing: {2}",
+                    logs_sent, logs_received, logs_error);
+
+                Assert.AreEqual(logs_sent, logs_received + logs_error); //Integrity
+                Assert.AreEqual(0, logs_error); //Correctness
             }
+        }
+
+        void target_ParseError(object sender, ParseErrorEventArgs e)
+        {
+            string payload = Encoding.Default.GetString((byte[])e.Payload);
+            TestContext.WriteLine("Unable to parse Syslog message:\n{0}\n{1}", payload, e.ExceptionObject);
+            logs_error += 1;
         }
 
         void target_MessageReceived(object sender, SyslogMessageEventArgs e)
@@ -84,6 +116,10 @@ namespace Unit_Tests
                             byte[] raw_log = Convert.FromBase64String(base64line);
                             client.Send(raw_log, raw_log.Length, endpoint);
                             logs_sent += 1;
+
+                            //Wait a sec... otherwise UDP channel would be flooded and log message missed
+                            //Timeout can be adjusted or replaced with a semaphore
+                            Thread.Sleep(50);
                         }
                 }
 

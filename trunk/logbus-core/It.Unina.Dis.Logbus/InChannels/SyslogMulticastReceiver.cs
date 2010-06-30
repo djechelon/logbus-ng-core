@@ -42,7 +42,9 @@ namespace It.Unina.Dis.Logbus.InChannels
             throw new NotImplementedException();
         }
 
-        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
+        public event SyslogMessageEventHandler MessageReceived;
+
+        public event ParseErrorEventHandler ParseError;
 
         public System.Collections.Generic.IDictionary<string, string> Configuration
         {
@@ -59,5 +61,6 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
 
         #endregion
+
     }
 }

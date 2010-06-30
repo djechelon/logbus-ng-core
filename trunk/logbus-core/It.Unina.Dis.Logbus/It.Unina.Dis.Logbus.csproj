@@ -108,6 +108,7 @@
     <Compile Include="OutTransports\SyslogMulticastTransportFactory.cs" />
     <Compile Include="OutTransports\SyslogUdpTransport.cs" />
     <Compile Include="OutTransports\SyslogUdpTransportFactory.cs" />
+    <Compile Include="ParseErrorEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
