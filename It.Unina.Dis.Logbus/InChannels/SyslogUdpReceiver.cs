@@ -147,7 +147,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException("this");
-            if (running_thread == null || !running_thread.IsAlive) throw new InvalidOperationException("Listener is not running");
+            if (running_thread == null || Stopped) throw new InvalidOperationException("Listener is not running");
 
             Stopped = true;
 
