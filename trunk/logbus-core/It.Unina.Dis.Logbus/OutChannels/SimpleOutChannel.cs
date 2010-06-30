@@ -107,7 +107,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             set;
         }
 
-        void IOutboundChannel.SubmitMessage(SyslogMessage message)
+        void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             message_queue.Enqueue(message);
         }

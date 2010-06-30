@@ -88,7 +88,9 @@
     <Compile Include="IChannelSubscription.cs" />
     <Compile Include="IInboundChannel.cs" />
     <Compile Include="ILogBus.cs" />
+    <Compile Include="ILogCollector.cs" />
     <Compile Include="ILogbusController.cs" />
+    <Compile Include="ILogSource.cs" />
     <Compile Include="InChannels\SyslogMulticastReceiver.cs" />
     <Compile Include="InChannels\SyslogUdpReceiver.cs" />
     <Compile Include="IOutboundChannel.cs" />
@@ -127,6 +129,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WebServices\KeyValuePair.cs" />
+    <Compile Include="Wrappers\LogCollectorTie.cs" />
+    <Compile Include="Wrappers\LogSourceTie.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -141,9 +145,6 @@
     <None Include="Schemas\logbus-control.wsdl" />
     <None Include="Schemas\logbus-filter.xsd" />
     <Content Include="TestCases.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Wrappers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

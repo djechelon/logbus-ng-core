@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus
     /// This interface represents the Logbus core service
     /// </summary>
     public interface ILogBus
-        : IDisposable
+        : ILogSource, ILogCollector, IDisposable
     {
 
         #region Events
