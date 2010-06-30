@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus
     /// The clients may, if required by the transport's design contract, receive further instructions (ie. multicast group to join)
     /// </summary>
     public interface IOutboundChannel
-        : IDisposable
+        : ILogCollector, IDisposable
     {
 
         /// <summary>
@@ -54,14 +54,6 @@ namespace It.Unina.Dis.Logbus
         /// Channel's full human-readable description
         /// </summary>
         string Description { get; set; }
-
-        /// <summary>
-        /// Submits a message to the channel for possible forwarding
-        /// </summary>
-        /// <param name="message">Syslog message to forward to clients</param>
-        /// <remarks>Message will be actually forwarded only if it matches the filter</remarks>
-        /// <exception cref="LogbusException"></exception>
-        void SubmitMessage(SyslogMessage message);
 
         /// <summary>
         /// Number of subscribed clients

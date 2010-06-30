@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus
     /// Logbus inbound channel. Collects log messages and notifies Logbus core of new messages
     /// </summary>
     public interface IInboundChannel
-        : IDisposable
+        : ILogSource, IDisposable
     {
 
         /// <summary>
@@ -44,11 +44,6 @@ namespace It.Unina.Dis.Logbus
         /// Stops collecting Syslog messages
         /// </summary>
         void Stop();
-
-        /// <summary>
-        /// Notifies a new message has been successfully received
-        /// </summary>
-        event SyslogMessageEventHandler MessageReceived;
 
         /// <summary>
         /// Notifies a parse error occurred
