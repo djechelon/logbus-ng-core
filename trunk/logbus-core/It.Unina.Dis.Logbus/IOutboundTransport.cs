@@ -70,6 +70,7 @@ namespace It.Unina.Dis.Logbus
         /// <param name="clientId">ID of the client to refresh</param>
         /// <exception cref="ArgumentNullException">Argument is null</exception>
         /// <exception cref="NotSupportedException">The transport does not require refreshing</exception>
+        /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
         void RefreshClient(CLIENT_ID_TYPE clientId);
         
         /// <summary>

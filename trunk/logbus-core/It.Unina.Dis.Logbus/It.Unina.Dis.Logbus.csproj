@@ -44,8 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Channels\SimpleOutChannel.cs" />
-    <Compile Include="Channels\SimpleOutChannelFactory.cs" />
     <Compile Include="Configuration\AssemblyToScan.cs" />
     <Compile Include="Configuration\CustomFilterConfiguration.cs">
       <SubType>Code</SubType>

@@ -40,6 +40,7 @@ namespace It.Unina.Dis.Logbus
 
         string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions);
 
+        /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
         void RefreshClient(string clientId);
 
         void UnsubscribeClient(string clientId);
