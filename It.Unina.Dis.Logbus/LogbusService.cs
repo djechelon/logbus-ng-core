@@ -31,7 +31,8 @@ using System.ComponentModel;
 
 namespace It.Unina.Dis.Logbus
 {
-    public class LogbusService : MarshalByRefObject, ILogBus//, ILogbusController
+    public class LogbusService
+        : MarshalByRefObject, ILogBus, ILogbusController
     {
         private Thread hubThread;
 
@@ -81,6 +82,8 @@ namespace It.Unina.Dis.Logbus
 
         public LogbusService()
         {
+            OutboundChannels = new List<IOutboundChannel>();
+            InboundChannels = new List<IInboundChannel>();
             try
             {
                 //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
@@ -121,6 +124,7 @@ namespace It.Unina.Dis.Logbus
 
             //Core filter: if not specified then it's always true
             if (Configuration.corefilter == null) MainFilter = new TrueFilter();
+            else MainFilter = Configuration.corefilter;
 
             try
             {
@@ -176,7 +180,7 @@ namespace It.Unina.Dis.Logbus
                         {
                             Type in_chan_type = Type.GetType(def.type, true, false);
 
-                            if (!in_chan_type.IsAssignableFrom(typeof(IInboundChannel)))
+                            if (!typeof(IInboundChannel).IsAssignableFrom(in_chan_type))
                             {
                                 LogbusConfigurationException ex = new LogbusConfigurationException("Specified type for Inbound channel does not implement IInboundChannel");
                                 ex.Data["TypeName"] = def.type;
@@ -184,10 +188,11 @@ namespace It.Unina.Dis.Logbus
                             IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(in_chan_type, true);
                             try
                             {
-                                foreach (KeyValuePair param in def.param)
-                                {
-                                    channel.Configuration[param.name] = param.value;
-                                }
+                                if (def.param != null)
+                                    foreach (KeyValuePair param in def.param)
+                                    {
+                                        channel.Configuration[param.name] = param.value;
+                                    }
                             }
                             catch (NullReferenceException ex)
                             {
@@ -207,6 +212,7 @@ namespace It.Unina.Dis.Logbus
                         catch (LogbusConfigurationException ex)
                         {
                             ex.Data["TypeName"] = def.type;
+                            throw ex;
                         }
                         catch (TypeLoadException ex)
                         {
@@ -227,9 +233,9 @@ namespace It.Unina.Dis.Logbus
                         throw ex;
                     }
 
-                    InboundChannels = channels;
-                    //Inbound channels end
                 }
+                InboundChannels = channels;
+                //Inbound channels end
 
                 //Outbound transports begin
                 //For now, no other class is expected
@@ -312,15 +318,12 @@ namespace It.Unina.Dis.Logbus
                 if (e.Cancel) return;
             }
 
-            throw new NotImplementedException();
-
             try
             {
                 //Start outbound channels
+
                 foreach (IOutboundChannel chan in OutboundChannels)
-                {
                     chan.Start();
-                }
 
                 //Start main hub thread
                 HubThreadStop = false;
@@ -332,6 +335,7 @@ namespace It.Unina.Dis.Logbus
 
 
                 //Start inbound channels and read messages
+
                 foreach (IInboundChannel chan in InboundChannels)
                 {
                     chan.MessageReceived += channel_MessageReceived;
@@ -347,6 +351,7 @@ namespace It.Unina.Dis.Logbus
             }
 
             if (Started != null) Started(this, EventArgs.Empty);
+            Running = true;
         }
 
         /// <remarks>Stop is synchronous</remarks>
@@ -368,6 +373,7 @@ namespace It.Unina.Dis.Logbus
                 //Reverse-order stop
 
                 //Stop inbound channels so we won't get new messages
+
                 foreach (IInboundChannel chan in InboundChannels)
                 {
                     chan.Stop();
@@ -392,11 +398,13 @@ namespace It.Unina.Dis.Logbus
                         Thread.EndCriticalRegion();
                     }
                     hubThread.Join(); //Giving it all the time it needs
-
-                    //Finally stop the out channels
-                    foreach (IOutboundChannel chan in OutboundChannels)
-                        chan.Stop();
                 }
+                //Finally stop the out channels
+
+                foreach (IOutboundChannel chan in OutboundChannels)
+                    chan.Stop();
+
+                Running = false;
             }
             catch (Exception ex)
             {
@@ -501,12 +509,13 @@ namespace It.Unina.Dis.Logbus
 
                         //Deliver to channels
                         //Theorically, it's as faster as channels can do
-                        foreach (IOutboundChannel chan in OutboundChannels)
-                        {
-                            //Idea for the future: use Thread Pool to asynchronously deliver messages
-                            //Could lead to a threading disaster in case of large rates of messages
-                            chan.SubmitMessage(new_message);
-                        }
+                        if (OutboundChannels != null)
+                            foreach (IOutboundChannel chan in OutboundChannels)
+                            {
+                                //Idea for the future: use Thread Pool to asynchronously deliver messages
+                                //Could lead to a threading disaster in case of large rates of messages
+                                chan.SubmitMessage(new_message);
+                            }
                     }
                     finally
                     {
@@ -535,10 +544,201 @@ namespace It.Unina.Dis.Logbus
                         chan.SubmitMessage(msg);
                     }
                 }
-                
+
                 Queue = null;
             }
 
         }
+
+        #region ILogbusController Membri di
+
+        public IOutboundChannel[] AvailableChannels
+        {
+            get
+            {
+                IOutboundChannel[] ret = new IOutboundChannel[OutboundChannels.Count];
+                OutboundChannels.CopyTo(ret, 0);
+                return ret;
+            }
+        }
+
+        public void CreateChannel(string id, string name, IFilter filter, string description, long coalescenceWindow)
+        {
+            if (id.Contains(":")) throw new ArgumentException("Cannot use colon (':') in channel ID");
+
+            //First find if there is one with same ID
+            foreach (IOutboundChannel chan in OutboundChannels)
+                if (chan.ID == id)
+                {
+                    LogbusException ex = new LogbusException("Channel already exists");
+                    ex.Data.Add("channelId", id);
+                    throw ex;
+                }
+
+            IOutboundChannel new_chan = ChannelFactory.CreateChannel(name, description, filter);
+            new_chan.CoalescenceWindowMillis = (ulong)coalescenceWindow;
+            new_chan.ID = id;
+
+            OutboundChannels.Add(new_chan);
+            if (Running) new_chan.Start();
+        }
+
+        public void RemoveChannel(string id)
+        {
+            if (id.Contains(":")) throw new ArgumentException("Invalid channel ID");
+
+            IOutboundChannel to_remove = null;
+            //Find the channel
+            foreach (IOutboundChannel chan in OutboundChannels)
+                if (chan.ID == id) { to_remove = chan; break; }
+
+            if (to_remove == null)
+            {
+                LogbusException ex = new LogbusException("Channel does not exist");
+                ex.Data.Add("channelId", id);
+                throw ex;
+            }
+
+            OutboundChannels.Remove(to_remove);
+            if (Running) to_remove.Stop();
+            to_remove.Dispose();
+        }
+
+        public string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions)
+        {
+            if (string.IsNullOrEmpty(channelId)) throw new ArgumentNullException("channelId", "Channel ID cannot be null");
+            if (channelId.Contains(":")) throw new ArgumentException("Invalid channel ID");
+
+            //First find the channel
+            IOutboundChannel channel = null;
+            foreach (IOutboundChannel chan in OutboundChannels)
+                if (chan.ID == channelId) { channel = chan; break; }
+
+            if (channel == null)
+            {
+                LogbusException ex = new LogbusException("Channel does not exist");
+                ex.Data.Add("channelId", channelId);
+                throw ex;
+            }
+
+            try
+            {
+                return string.Format("{0}:{1}", channelId, channel.SubscribeClient(transportId, transportInstructions, out clientInstructions));
+            }
+            catch (LogbusException ex)
+            {
+                ex.Data.Add("channelId", channelId);
+                throw;
+            }
+            catch (Exception e)
+            {
+                LogbusException ex = new LogbusException("Could not subscribe channel", e);
+                ex.Data.Add("channelId", channelId);
+                throw ex;
+            }
+        }
+
+        public void RefreshClient(string clientId)
+        {
+            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
+            int indexof = clientId.IndexOf(':');
+            if (indexof < 0)
+            {
+                ArgumentException ex = new ArgumentException("Invalid client ID");
+                ex.Data.Add("clientId-Logbus", clientId);
+                throw ex;
+            }
+
+            string chan_name = clientId.Substring(0, indexof), chan_client_id = clientId.Substring(indexof + 1);
+            if (string.IsNullOrEmpty(chan_name))
+            {
+                ArgumentException ex = new ArgumentException("Invalid client ID");
+                ex.Data.Add("clientId-Logbus", clientId);
+                throw ex;
+            }
+
+            //First find the channel
+            IOutboundChannel channel = null;
+            foreach (IOutboundChannel chan in OutboundChannels)
+                if (chan.ID == chan_name) { channel = chan; break; }
+
+            if (channel == null)
+            {
+                LogbusException ex = new LogbusException("Channel does not exist");
+                ex.Data.Add("client-Logbus", clientId);
+                throw ex;
+            }
+
+            try
+            {
+                channel.RefreshClient(chan_client_id);
+            }
+            catch (NotSupportedException ex)
+            {
+                ex.Data.Add("client-Logbus", clientId);
+                throw;
+            }
+            catch (LogbusException ex)
+            {
+                ex.Data.Add("client-Logbus", clientId);
+                throw;
+            }
+            catch (Exception e)
+            {
+                LogbusException ex = new LogbusException("Unable to refresh client", e);
+                ex.Data.Add("client-Logbus", clientId);
+                throw;
+            }
+        }
+
+        public void UnsubscribeClient(string clientId)
+        {
+            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
+            int indexof = clientId.IndexOf(':');
+            if (indexof < 0)
+            {
+                ArgumentException ex = new ArgumentException("Invalid client ID");
+                ex.Data.Add("clientId-Logbus", clientId);
+                throw ex;
+            }
+
+            string chan_name = clientId.Substring(0, indexof), chan_client_id = clientId.Substring(indexof + 1);
+            if (string.IsNullOrEmpty(chan_name))
+            {
+                ArgumentException ex = new ArgumentException("Invalid client ID");
+                ex.Data.Add("clientId-Logbus", clientId);
+                throw ex;
+            }
+
+            //First find the channel
+            IOutboundChannel channel = null;
+            foreach (IOutboundChannel chan in OutboundChannels)
+                if (chan.ID == chan_name) { channel = chan; break; }
+
+            if (channel == null)
+            {
+                LogbusException ex = new LogbusException("Channel does not exist");
+                ex.Data.Add("client-Logbus", clientId);
+                throw ex;
+            }
+
+            try
+            {
+                channel.UnsubscribeClient(chan_client_id);
+            }
+            catch (LogbusException ex)
+            {
+                ex.Data.Add("client-Logbus", clientId);
+                throw;
+            }
+            catch (Exception e)
+            {
+                LogbusException ex = new LogbusException("Unable to refresh client", e);
+                ex.Data.Add("client-Logbus", clientId);
+                throw;
+            }
+        }
+
+        #endregion
     }
 }

@@ -203,9 +203,13 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 //Will cause deadlock if running Stop() when queue is empty!!!!!!!!!!!!!!!
 
                 SyslogMessage msg = message_queue.Dequeue();
+                if (Filter.IsMatch(msg))
+                {
+                }
             }
 
         }
 
     }
 }
+
