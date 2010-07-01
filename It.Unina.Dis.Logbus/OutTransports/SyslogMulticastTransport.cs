@@ -44,7 +44,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             get { throw new System.NotImplementedException(); }
         }
 
-        public int SubscriptionTtl
+        public long SubscriptionTtl
         {
             get { throw new System.NotImplementedException(); }
         }
