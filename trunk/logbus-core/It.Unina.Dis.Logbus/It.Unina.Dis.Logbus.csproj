@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9D119D96-4F98-4131-90D4-1F5FE2EC09B7}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -111,6 +111,7 @@
     <Compile Include="OutTransports\UdpClientExpire.cs" />
     <Compile Include="ParseErrorEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Schemas\logbus-configuration.cs" />
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />

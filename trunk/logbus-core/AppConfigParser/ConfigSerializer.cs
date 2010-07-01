@@ -28,12 +28,12 @@ namespace TestAppConfig
             };
 
 
-            XmlSerializer seria = new XmlSerializer(config.GetType(),"http://www.dis.unina.it/logbus-ng/configuration");
-            seria.Serialize(Console.Out, config);
+            XmlSerializer seria = new XmlSerializer(config.GetType());
+            seria.Serialize(Console.Out, config, config.xmlns);
             if (File.Exists("output.txt")) File.Delete("output.txt");
             using (FileStream fs = new FileStream("output.txt", FileMode.CreateNew))
             {
-                seria.Serialize(fs, config);
+                seria.Serialize(fs, config, config.xmlns);
             }
 
 
