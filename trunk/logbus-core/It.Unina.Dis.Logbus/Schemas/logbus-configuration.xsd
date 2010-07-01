@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="http://www.dis.unina.it/logbus/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:config="http://www.dis.unina.it/logbus/configuration" targetNamespace="http://www.dis.unina.it/logbus/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+<xs:schema xmlns="http://www.dis.unina.it/logbus-ng/configuration" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
 	<xs:complexType name="LogbusCoreConfiguration" abstract="false">
 		<xs:annotation>
@@ -15,6 +15,9 @@
 	</xs:complexType>
 	<xs:element name="logbus-core" type="LogbusCoreConfiguration">
 		<xs:annotation>
+			<xs:appinfo>
+				<keepNamespaceDeclarations>xmlns</keepNamespaceDeclarations>
+			</xs:appinfo>
 			<xs:documentation xml:lang="en">Main element for Logbus configuration</xs:documentation>
 		</xs:annotation>
 	</xs:element>

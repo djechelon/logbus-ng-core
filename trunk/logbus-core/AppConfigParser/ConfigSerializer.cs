@@ -18,9 +18,19 @@ namespace TestAppConfig
             LogbusCoreConfiguration config = new LogbusCoreConfiguration();
 
             config.corefilter = new FacilityEqualsFilter() { facility = Facility.Kernel };
+            OutputTransportsConfiguration out_cfg = new OutputTransportsConfiguration();
+            config.outtransports = out_cfg;
+            out_cfg.outtransport = new OutputTransportDefinition[1];
+            out_cfg.outtransport[0] = new OutputTransportDefinition()
+            {
+                factory = "Unit_Tests.TestClasses.TestTransportFactory, Unit_Tests",
+                tag = "test"
+            };
 
-            XmlSerializer seria = new XmlSerializer(typeof(LogbusCoreConfiguration));
+
+            XmlSerializer seria = new XmlSerializer(config.GetType(),"http://www.dis.unina.it/logbus-ng/configuration");
             seria.Serialize(Console.Out, config);
+            if (File.Exists("output.txt")) File.Delete("output.txt");
             using (FileStream fs = new FileStream("output.txt", FileMode.CreateNew))
             {
                 seria.Serialize(fs, config);
