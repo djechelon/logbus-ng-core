@@ -114,9 +114,10 @@ namespace It.Unina.Dis.Logbus.InChannels
             if (running_thread != null && running_thread.IsAlive) throw new InvalidOperationException("Listener is already running");
             ///Configure
 
-            IpAddress = (Configuration["ip"] != null) ? Configuration["ip"] : null;
+            if (Configuration.ContainsKey("ip")) IpAddress = Configuration["ip"];
+
             int portnum;
-            if (Configuration["port"] == null)
+            if (!Configuration.ContainsKey("port"))
             {
                 Port = DEFAULT_PORT;
             }
@@ -127,9 +128,13 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = portnum;
             }
 
+            IPEndPoint local_ep;
+            if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Loopback, Port);
+            else local_ep = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+
             try
             {
-                client = new UdpClient(Port);
+                client = new UdpClient(local_ep);
             }
             catch (IOException ex)
             {

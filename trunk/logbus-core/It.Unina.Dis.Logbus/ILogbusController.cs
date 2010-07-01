@@ -38,7 +38,7 @@ namespace It.Unina.Dis.Logbus
 
         string[] AvailableTransports { get; }
 
-        string SubscribeClient(string channelId, string transportId, IDictionary<string, string> transportInstructions, out IDictionary<string, string> clientInstructions);
+        string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions);
 
         void RefreshClient(string clientId);
 
