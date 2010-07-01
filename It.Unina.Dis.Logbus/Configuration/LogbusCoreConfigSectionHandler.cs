@@ -43,17 +43,7 @@ namespace It.Unina.Dis.Logbus.Configuration
         {
             try
             {
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    XmlWriter wr = XmlWriter.Create(ms);
-                    section.WriteTo(wr);
-                    wr.Close();
-                    ms.Seek(0, SeekOrigin.Begin);
-                    string payload = Encoding.UTF8.GetString(ms.ToArray());
-
-
-                    return new XmlSerializer(typeof(LogbusCoreConfiguration)).Deserialize(ms) as LogbusCoreConfiguration;
-                }
+                return new XmlSerializer(typeof(LogbusCoreConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {
