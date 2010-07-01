@@ -22,6 +22,7 @@ using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
@@ -33,7 +34,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
         public SyslogUdpTransport()
         {
             Disposed = false;
-            Clients = new List<UdpClient>();
+            Clients = new Dictionary<String, UdpClientExpire>();
+            clear_timer = new Timer(ClearList, null, Timeout.Infinite, 10000);
         }
 
         ~SyslogUdpTransport()
@@ -43,7 +45,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         #endregion
 
         #region Support properties#
-        private List<UdpClient> Clients
+        private Dictionary<String, UdpClientExpire> Clients
         {
             get;
             set;
@@ -56,19 +58,38 @@ namespace It.Unina.Dis.Logbus.OutTransports
         }
         #endregion
 
+        private Timer clear_timer;
+
         private UdpClient FindClient(string clientid)
         {
-            throw new NotImplementedException();
+            if (Clients.ContainsKey(clientid))
+                return Clients[clientid].Client;
+            else
+                return null;
         }
 
         #region IOutboundTransport Membri di
 
+        private void ClearList(Object Status)
+        {
+            Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
+            while (enumeratore.MoveNext())
+            {
+                DateTime expire = enumeratore.Current.Value.LastRefresh.Value;
+                TimeSpan diff = DateTime.Now.Subtract(expire);
+                if (diff.TotalMilliseconds > SubscriptionTtl)
+                    UnsubscribeClient(enumeratore.Current.Key);
+            }
+        }
+
         public void SubmitMessage(SyslogMessage message)
         {
             byte[] dgram = message.ToByteArray();
+            Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
 
-            foreach (UdpClient client in Clients)
+            while (enumeratore.MoveNext())
             {
+                UdpClient client = enumeratore.Current.Value.Client;
                 if (client != null)
                     try
                     {
@@ -89,8 +110,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-
+            if (Disposed) 
+                throw new ObjectDisposedException(GetType().FullName);
+            
             outputInstructions = null;
 
             try
@@ -111,9 +133,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 if (!IPAddress.TryParse(ipstring, out client)) throw new TransportException("Invalid IP address");
 
                 string clientid = ipstring + ":" + port;
-
-                UdpClient new_client = new UdpClient(ipstring, port);
-                Clients.Add(new_client);
+                UdpClientExpire new_client = new UdpClientExpire() { Client = new UdpClient(ipstring, port), LastRefresh = DateTime.Now };
+                Clients.Add(clientid, new_client);
 
                 return clientid;
             }
@@ -140,12 +161,13 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public void RefreshClient(string clientId)
         {
-            throw new NotImplementedException();
+            Clients[clientId].LastRefresh = DateTime.Now;
         }
 
         public void UnsubscribeClient(string clientId)
         {
-            throw new NotImplementedException();
+            Clients[clientId].Client.Close();
+            Clients.Remove(clientId);
         }
 
         public long SubscriptionTtl
@@ -168,13 +190,16 @@ namespace It.Unina.Dis.Logbus.OutTransports
             GC.SuppressFinalize(this);
             if (disposing)
             {
-                foreach (UdpClient client in Clients)
+                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
+                while (enumeratore.MoveNext())
                 {
-                    try
-                    {
-                        client.Close();
-                    }
-                    catch (SocketException) { }
+                    UdpClient client = enumeratore.Current.Value.Client;
+                    if (client != null)
+                        try
+                        {
+                            client.Close();
+                        }
+                        catch (SocketException) { }
                 }
             }
             Disposed = true;
