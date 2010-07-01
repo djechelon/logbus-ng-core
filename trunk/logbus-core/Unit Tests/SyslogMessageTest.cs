@@ -206,7 +206,7 @@ namespace Unit_Tests
                 Assert.Fail("Failed parsing", ex);
             }
             Assert.IsNotNull(actual);
-            IDictionary<String, String> test = actual.Value.Data["exampleSDID@32473"];
+            test = actual.Value.Data["exampleSDID@32473"];
             Assert.AreEqual("\"Wow \"", test["Space"]);
             Assert.AreEqual("\"a=1\"", test["Equal"]);
             Assert.AreEqual("\"---== \"", test["SpaceAndEquals"]);

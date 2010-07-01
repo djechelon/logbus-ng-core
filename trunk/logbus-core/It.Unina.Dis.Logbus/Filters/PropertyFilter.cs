@@ -41,13 +41,6 @@ namespace It.Unina.Dis.Logbus.Filters
         {
             switch (propertyName)
             {
-                case Property.Version:
-                    {
-                        int val;
-                        if (!int.TryParse(value, out val)) throw new ArgumentException("Value is incompatible with property");
-                        targetvalue = value;
-                        break;
-                    }
                 case Property.Severity:
                     {
                         try
@@ -161,11 +154,6 @@ namespace It.Unina.Dis.Logbus.Filters
                         property = message.Timestamp;
                         break;
                     }
-                case Property.Version:
-                    {
-                        property = message.Version;
-                        break;
-                    }
                 case Property.Host:
                     {
                         property = message.Host;
@@ -189,7 +177,6 @@ namespace It.Unina.Dis.Logbus.Filters
                 case Property.Data:
                     {
                         throw new NotSupportedException("Data is structured. Cannot be compared");
-                        break;
                     }
                 case Property.Text:
                     {
@@ -199,7 +186,6 @@ namespace It.Unina.Dis.Logbus.Filters
                 default:
                     {
                         throw new ArgumentException("Invalid property");
-                        break;
                     }
             }
 

@@ -34,6 +34,7 @@ namespace It.Unina.Dis.Logbus
     public struct SyslogMessage
     {
 
+
         /// <summary>
         ///	Facility that generated the message 
         /// </summary>
@@ -48,11 +49,6 @@ namespace It.Unina.Dis.Logbus
         ///	Time when the message was generated, if available 
         /// </summary>
         public DateTime? Timestamp { get; set; }
-
-        /// <summary>
-        ///	Syslog version 
-        /// </summary>
-        public int Version { get; set; }
 
         /// <summary>
         ///	Hostname that generated the message, if available 
@@ -141,7 +137,7 @@ namespace It.Unina.Dis.Logbus
             //Start BODY with TAG/AppName
             ret.Append(ApplicationName);
             if (ProcessID != null) ret.AppendFormat("[{0}]:", ProcessID);
-            else ret.Append(SPACE); //We freely chose space. Could use other illegal chars (ambiguity!!!)
+            ret.Append(SPACE);
 
             ret.Append(Text);
 
@@ -161,7 +157,7 @@ namespace It.Unina.Dis.Logbus
             const string SPACE = @" ";
 
             //Prival+version
-            ret.AppendFormat("<{0}>{1}", PriVal.ToString(CultureInfo.InvariantCulture), Version.ToString(CultureInfo.InvariantCulture));
+            ret.AppendFormat("<{0}>1", PriVal.ToString(CultureInfo.InvariantCulture));
             ret.Append(SPACE);
 
             //Timestamp
@@ -283,9 +279,6 @@ namespace It.Unina.Dis.Logbus
                 ret.Severity = (SyslogSeverity)severity;
                 pointer += prival.Length + 1;
 
-                //Calculate Version...
-                ret.Version = 0;
-
                 //Calculate Timestamp...
                 new_payload = payload.Substring(pointer);
                 Int32 Month = GetMonthByName(new_payload.Substring(0, 3));
@@ -379,7 +372,13 @@ namespace It.Unina.Dis.Logbus
 
                 //Calculate Version...
                 new_payload = payload.Substring(pointer);
-                ret.Version = Int32.Parse(new_payload.Substring(0, 1));
+                string version =new_payload.Substring(0, 1);
+                if (version != "1")
+                {
+                    NotSupportedException ex = new NotSupportedException("Only Syslog version 1 is supported");
+                    ex.Data["version"] = version;
+                    throw ex;
+                }
                 pointer += 2;
 
                 //Calculate Timestamp...

@@ -41,10 +41,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private Dictionary<string, string> config = new Dictionary<string, string>();
         private UdpClient client;
-        private BlockingFifoQueue<SyslogMessage> queue;
 
 
-        protected bool Stopped
+        private bool Stopped
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get;
@@ -57,10 +56,10 @@ namespace It.Unina.Dis.Logbus.InChannels
         #region Constructor/destructor
         public SyslogUdpReceiver() { }
 
-        protected bool Disposed
+        private bool Disposed
         {
             get;
-            private set;
+            set;
         }
         ~SyslogUdpReceiver()
         {
@@ -104,7 +103,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
 
         #region IInboundChannel Membri di
-        
+
         public event SyslogMessageEventHandler MessageReceived;
 
         public event ParseErrorEventHandler ParseError;

@@ -52,11 +52,6 @@ namespace It.Unina.Dis.Logbus
         event EventHandler Stopped;
 
         /// <summary>
-        /// A message has been forwarded to clients
-        /// </summary>
-        event EventHandler<SyslogMessageEventArgs> ForwardMessage;
-
-        /// <summary>
         /// An error occurred in the core
         /// </summary>
         event UnhandledExceptionEventHandler Error;

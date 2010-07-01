@@ -36,9 +36,6 @@ namespace It.Unina.Dis.Logbus.Filters
         Facility,
 
         /// <remarks/>
-        Version,
-
-        /// <remarks/>
         Host,
 
         /// <remarks/>

@@ -119,7 +119,7 @@ namespace Unit_Tests
 
                             //Wait a sec... otherwise UDP channel would be flooded and log message missed
                             //Timeout can be adjusted or replaced with a semaphore
-                            Thread.Sleep(50);
+                            //Thread.Sleep(50);
                         }
                 }
 
