@@ -177,7 +177,7 @@ namespace Unit_Tests
 
             //Testing with escape sequences in Data
             //RFC says that '"' and ']' in structured data values must be escaped
-            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 escapeParentesis=""Wow\]"" escapeQuotes=""\"""" moreEscape=""\\\\\\\""""] I don't think the current parser will accept this message";
+            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 escapeParentesis=""Wow\]"" escapeQuotes=""\"""" moreEscape=""\\\\\\\""""] Now it works....";
 
             actual = null;
 
@@ -194,6 +194,25 @@ namespace Unit_Tests
             Assert.AreEqual("\"Wow\\]\"", test["escapeParentesis"]);
             Assert.AreEqual("\"\\\"\"", test["escapeQuotes"]);
             Assert.AreEqual("\"\\\\\\\\\\\\\\\"\"", test["moreEscape"]);
+
+            //Testing with spaces and equals in Data
+            payload = @"<165>1 2003-10-11T22:14:15.003Z mymachine.example.com evntslog - ID47 [exampleSDID@32473 Space=""Wow "" Equal=""a=1"" SpaceAndEquals=""---== ""] I don't think the current parser will accept this message";
+
+            actual = null;
+
+            try
+            {
+                actual = SyslogMessage.Parse(payload);
+            }
+            catch (FormatException ex)
+            {
+                Assert.Fail("Failed parsing", ex);
+            }
+            Assert.IsNotNull(actual);
+            IDictionary<String, String> test = actual.Value.Data["exampleSDID@32473"];
+            Assert.AreEqual("\"Wow \"", test["Space"]);
+            Assert.AreEqual("\"a=1\"", test["Equal"]);
+            Assert.AreEqual("\"---== \"", test["SpaceAndEquals"]);
         }
 
         /// <summary>
