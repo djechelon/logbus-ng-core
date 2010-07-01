@@ -122,7 +122,7 @@ namespace Filter_Tests
         public void SeverityFilterConstructorTest()
         {
             SeverityFilter target = new SeverityFilter();
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            Assert.IsNotNull(target);
         }
     }
 }
