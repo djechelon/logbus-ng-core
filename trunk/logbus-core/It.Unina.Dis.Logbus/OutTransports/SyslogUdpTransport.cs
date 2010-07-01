@@ -108,6 +108,17 @@ namespace It.Unina.Dis.Logbus.OutTransports
             get { return Clients.Count; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputInstructions">List of input parameters (required):
+        /// <list>
+        /// <item>ip: IP address of cliennt, or of another machine that will receive logs</item>
+        /// <item>port: UDP port on which the destination will be listening</item>
+        /// </list>
+        /// </param>
+        /// <param name="outputInstructions">Always null</param>
+        /// <returns></returns>
         public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
             if (Disposed) 
