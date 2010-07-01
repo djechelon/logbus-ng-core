@@ -148,7 +148,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             throw new NotImplementedException();
         }
 
-        public int SubscriptionTtl
+        public long SubscriptionTtl
         {
             get;
             private set;

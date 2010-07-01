@@ -62,7 +62,7 @@ namespace It.Unina.Dis.Logbus
         /// Gets the subscription's time to live, in seconds
         /// </summary>
         /// <exception cref="NotSupportedException">Thrown when RequiresRefresh is <i>false</i></exception>
-        int SubscriptionTtl { get; }
+        long SubscriptionTtl { get; }
 
         /// <summary>
         /// Refreshes subscription, if required, to the specified client
