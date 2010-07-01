@@ -17,7 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
@@ -25,10 +24,22 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus/configuration", IsNullable = false)]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
+    [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
     public partial class LogbusCoreConfiguration : object, System.ComponentModel.INotifyPropertyChanged
     {
+
+        [System.Xml.Serialization.XmlNamespaceDeclarations()]
+        public System.Xml.Serialization.XmlSerializerNamespaces xmlns
+        {
+            get
+            {
+                System.Xml.Serialization.XmlSerializerNamespaces ret = new System.Xml.Serialization.XmlSerializerNamespaces();
+                ret.Add("filter", "http://www.dis.unina.it/logbus-ng/filters");
+                ret.Add("config", "http://www.dis.unina.it/logbus-ng/configuration");
+                return ret;
+            }
+        }
 
         private InboundChannelDefinition[] inchannelsField;
 
@@ -36,7 +47,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private OutputTransportsConfiguration outtransportsField;
 
-        private FilterBase corefilterField;
+        private It.Unina.Dis.Logbus.Filters.FilterBase corefilterField;
 
         private string outChannelFactoryTypeField;
 
@@ -88,7 +99,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("core-filter", IsNullable = true)]
-        public FilterBase corefilter
+        public It.Unina.Dis.Logbus.Filters.FilterBase corefilter
         {
             get
             {

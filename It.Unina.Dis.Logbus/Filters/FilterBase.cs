@@ -40,6 +40,18 @@ namespace It.Unina.Dis.Logbus.Filters
     public abstract partial class FilterBase : object, System.ComponentModel.INotifyPropertyChanged, IFilter
     {
 
+        [System.Xml.Serialization.XmlNamespaceDeclarations()]
+        public System.Xml.Serialization.XmlSerializerNamespaces Namespaces
+        {
+            get
+            {
+                System.Xml.Serialization.XmlSerializerNamespaces ret = new System.Xml.Serialization.XmlSerializerNamespaces();
+                ret.Add("filter", "http://www.dis.unina.it/logbus-ng/filters");
+                ret.Add("config", "http://www.dis.unina.it/logbus-ng/configuration");
+                return ret;
+            }
+        }
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
         protected void RaisePropertyChanged(string propertyName)
