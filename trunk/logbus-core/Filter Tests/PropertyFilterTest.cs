@@ -65,63 +65,33 @@ namespace Filter_Tests
 
 
         /// <summary>
-        ///Test per value
-        ///</summary>
-        [TestMethod()]
-        public void valueTest()
-        {
-            PropertyFilter target = new PropertyFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.value = expected;
-            actual = target.value;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per propertyName
-        ///</summary>
-        [TestMethod()]
-        public void propertyNameTest()
-        {
-            PropertyFilter target = new PropertyFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Property expected = new Property(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Property actual;
-            target.propertyName = expected;
-            actual = target.propertyName;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per comparison
-        ///</summary>
-        [TestMethod()]
-        public void comparisonTest()
-        {
-            PropertyFilter target = new PropertyFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            ComparisonOperator expected = new ComparisonOperator(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            ComparisonOperator actual;
-            target.comparison = expected;
-            actual = target.comparison;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
         ///Test per IsMatch
         ///</summary>
         [TestMethod()]
         public void IsMatchTest()
         {
-            PropertyFilter target = new PropertyFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage message = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
+            PropertyFilter target = new PropertyFilter(); 
+            SyslogMessage message = new SyslogMessage()
+            {
+                Facility = SyslogFacility.Internally,
+                Severity = SyslogSeverity.Error,
+                Text = "FFDA WOW!"
+            };
+
+            target.value = "Internally";
+            target.propertyName = Property.Facility;
+            target.comparison = ComparisonOperator.eq;
+            bool expected = true; 
             bool actual;
             actual = target.IsMatch(message);
             Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
+
+            target.value = "Alert";
+            target.propertyName = Property.Severity;
+            target.comparison = ComparisonOperator.neq;
+            expected = true; 
+            actual = target.IsMatch(message);
+            Assert.AreEqual(expected, actual);
         }
 
         /// <summary>
@@ -131,7 +101,7 @@ namespace Filter_Tests
         public void PropertyFilterConstructorTest()
         {
             PropertyFilter target = new PropertyFilter();
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            Assert.IsNotNull(target);
         }
     }
 }

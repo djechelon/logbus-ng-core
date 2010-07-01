@@ -65,33 +65,17 @@ namespace Filter_Tests
 
 
         /// <summary>
-        ///Test per filter
-        ///</summary>
-        [TestMethod()]
-        public void filterTest()
-        {
-            NotFilter target = new NotFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FilterBase expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FilterBase actual;
-            target.filter = expected;
-            actual = target.filter;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
         ///Test per IsMatch
         ///</summary>
         [TestMethod()]
         public void IsMatchTest()
         {
             NotFilter target = new NotFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage message = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool actual;
-            actual = target.IsMatch(message);
+            SyslogMessage message = new SyslogMessage(null, "logbus.dis.unina.it", SyslogFacility.Kernel, SyslogSeverity.Info, "Hello people!");
+            target.filter = new FacilityEqualsFilter() { facility = Facility.Kernel };
+            bool expected = false;
+            bool actual = target.IsMatch(message);
             Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
         }
 
         /// <summary>
@@ -101,7 +85,7 @@ namespace Filter_Tests
         public void NotFilterConstructorTest()
         {
             NotFilter target = new NotFilter();
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            Assert.IsNotNull(target);
         }
     }
 }
