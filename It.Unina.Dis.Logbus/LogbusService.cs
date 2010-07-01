@@ -334,7 +334,7 @@ namespace It.Unina.Dis.Logbus
                 //Start inbound channels and read messages
                 foreach (IInboundChannel chan in InboundChannels)
                 {
-                    chan.MessageReceived += this.MessageReceived;
+                    chan.MessageReceived += channel_MessageReceived;
                     chan.Start();
                 }
             }
@@ -420,7 +420,7 @@ namespace It.Unina.Dis.Logbus
 
         public event EventHandler Stopped;
 
-        public event EventHandler<SyslogMessageEventArgs> ForwardMessage;
+        public event SyslogMessageEventHandler MessageReceived;
 
         public event UnhandledExceptionEventHandler Error;
 
@@ -433,6 +433,11 @@ namespace It.Unina.Dis.Logbus
         {
             get;
             set;
+        }
+
+        public void SubmitMessage(SyslogMessage msg)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -465,7 +470,7 @@ namespace It.Unina.Dis.Logbus
             set;
         }
 
-        private void MessageReceived(object sender, SyslogMessageEventArgs e)
+        private void channel_MessageReceived(object sender, SyslogMessageEventArgs e)
         {
             Queue.Enqueue(e.Message);
         }
@@ -492,7 +497,7 @@ namespace It.Unina.Dis.Logbus
                         if (!MainFilter.IsMatch(new_message)) continue;
 
                         //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                        if (ForwardMessage != null) ForwardMessage(this, new SyslogMessageEventArgs(new_message));
+                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
 
                         //Deliver to channels
                         //Theorically, it's as faster as channels can do
@@ -519,7 +524,7 @@ namespace It.Unina.Dis.Logbus
                 foreach (SyslogMessage msg in left_messages)
                 {
                     //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                    if (ForwardMessage != null) ForwardMessage(this, new SyslogMessageEventArgs(msg));
+                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
 
                     //Deliver to channels
                     //Theorically, it's as faster as channels can do

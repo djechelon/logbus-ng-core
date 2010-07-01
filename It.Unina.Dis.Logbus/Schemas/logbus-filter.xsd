@@ -147,7 +147,6 @@
 			<xs:enumeration value="Timestamp"/>
 			<xs:enumeration value="Severity"/>
 			<xs:enumeration value="Facility"/>
-			<xs:enumeration value="Version"/>
 			<xs:enumeration value="Host"/>
 			<xs:enumeration value="ApplicationName"/>
 			<xs:enumeration value="ProcessID"/>

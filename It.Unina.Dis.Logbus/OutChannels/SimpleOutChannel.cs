@@ -68,7 +68,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             Dispose(false);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             ((IOutboundChannel)this).Stop();
 
@@ -80,10 +80,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
             Disposed = true;
         }
 
-        protected bool Disposed
+        private bool Disposed
         {
             get;
-            private set;
+            set;
         }
         #endregion
 
