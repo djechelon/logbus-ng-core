@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{344EB012-4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Filter Tests", "Filter Tests\Filter Tests.csproj", "{37CBC1CA-48E9-4474-A87C-656AB319018B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConfigParser", "AppConfigParser\AppConfigParser.csproj", "{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConfigTools", "AppConfigTools\AppConfigTools.csproj", "{35DDC699-F8B3-478E-9C3C-B29C93E4E54A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Tests", "Unit Tests\Unit Tests.csproj", "{93B0EBA6-3C73-45AB-A64C-C33DD12D3244}"
 EndProject
