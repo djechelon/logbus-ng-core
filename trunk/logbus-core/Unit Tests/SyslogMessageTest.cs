@@ -78,7 +78,6 @@ namespace Unit_Tests
             SyslogMessage expected = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
             expected.Facility = SyslogFacility.Security;
             expected.Severity = SyslogSeverity.Critical;
-            expected.Version = 1;
             expected.Timestamp = new DateTime(2003, 10, 11, 22, 14, 15, 3);
             expected.Host = "mymachine.example.com";
             expected.ApplicationName = "su";
@@ -103,7 +102,6 @@ namespace Unit_Tests
             expected = new SyslogMessage();
             expected.Facility = SyslogFacility.Local4;
             expected.Severity = SyslogSeverity.Notice;
-            expected.Version = 1;
             expected.Timestamp = new DateTime(2003, 08, 23, 22, 14, 15, 0);
             expected.Host = "192.0.2.1";
             expected.ApplicationName = "myproc";
@@ -155,7 +153,6 @@ namespace Unit_Tests
             expected = new SyslogMessage();
             expected.Facility = SyslogFacility.Internally;
             expected.Severity = SyslogSeverity.Error;
-            expected.Version = 0;
             expected.Timestamp = new DateTime(2010, 6, 27, 23, 43, 47, 0);
             expected.Host = "marcus";
             expected.ApplicationName = "syslog-ng";
