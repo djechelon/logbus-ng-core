@@ -318,6 +318,9 @@ namespace It.Unina.Dis.Logbus
                 if (e.Cancel) return;
             }
 
+            //First of all, init fresh queue
+            Queue = new BlockingFifoQueue<SyslogMessage>();
+
             try
             {
                 //Start outbound channels
@@ -487,9 +490,6 @@ namespace It.Unina.Dis.Logbus
 
         private void HubThreadLoop()
         {
-            //First of all, init fresh queue
-            Queue = new BlockingFifoQueue<SyslogMessage>();
-
             //Loop until end
             try
             {
@@ -556,6 +556,7 @@ namespace It.Unina.Dis.Logbus
         {
             get
             {
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
                 IOutboundChannel[] ret = new IOutboundChannel[OutboundChannels.Count];
                 OutboundChannels.CopyTo(ret, 0);
                 return ret;
@@ -564,6 +565,7 @@ namespace It.Unina.Dis.Logbus
 
         public void CreateChannel(string id, string name, IFilter filter, string description, long coalescenceWindow)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (id.Contains(":")) throw new ArgumentException("Cannot use colon (':') in channel ID");
 
             //First find if there is one with same ID
@@ -585,6 +587,7 @@ namespace It.Unina.Dis.Logbus
 
         public void RemoveChannel(string id)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (id.Contains(":")) throw new ArgumentException("Invalid channel ID");
 
             IOutboundChannel to_remove = null;
@@ -606,6 +609,7 @@ namespace It.Unina.Dis.Logbus
 
         public string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(channelId)) throw new ArgumentNullException("channelId", "Channel ID cannot be null");
             if (channelId.Contains(":")) throw new ArgumentException("Invalid channel ID");
 
@@ -640,6 +644,7 @@ namespace It.Unina.Dis.Logbus
 
         public void RefreshClient(string clientId)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
@@ -693,6 +698,7 @@ namespace It.Unina.Dis.Logbus
 
         public void UnsubscribeClient(string clientId)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)

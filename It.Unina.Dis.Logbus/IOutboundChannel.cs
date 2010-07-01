@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus
     /// The clients may, if required by the transport's design contract, receive further instructions (ie. multicast group to join)
     /// </summary>
     public interface IOutboundChannel
-        : ILogCollector, IDisposable
+        : ILogCollector, IDisposable, ILogSource
     {
 
         /// <summary>
@@ -111,6 +111,7 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="ArgumentNullException">Argument is null</exception>
         /// <exception cref="ArgumentException">Argument is invalid</exception>
         /// <exception cref="LogbusException"></exception>
+        /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
         /// <exception cref="TransportException">Exception reported by transport (ie. refresh not supported)</exception>
         void RefreshClient(CLIENT_ID_TYPE clientId);
 
