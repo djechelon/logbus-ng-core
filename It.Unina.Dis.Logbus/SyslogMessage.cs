@@ -23,6 +23,7 @@ using System.Xml;
 using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -254,6 +255,60 @@ namespace It.Unina.Dis.Logbus
             }
 
             return ret.ToString();
+        }
+
+        public static explicit operator SyslogMessage(System.Diagnostics.EventLogEntry eventLogEntry)
+        {
+            SyslogMessage message = new SyslogMessage();
+            
+
+            message.Timestamp = eventLogEntry.TimeGenerated;
+            message.Host = eventLogEntry.MachineName;
+            message.Text = eventLogEntry.Message;
+
+
+            //No "official" matching between Windows and Syslog severities exist.
+            //We are choosing by our discretion, but we plan to align to what other
+            //developers do, if we find more information about this
+            switch (eventLogEntry.EntryType)
+            {
+                case EventLogEntryType.Error:
+                    {
+                        message.Severity = SyslogSeverity.Alert;
+                        break;
+                    }
+                case EventLogEntryType.FailureAudit:
+                    {
+                        message.Severity = SyslogSeverity.Error;
+                        break;
+                    }
+                case EventLogEntryType.Information:
+                    {
+                        message.Severity = SyslogSeverity.Info;
+                        break;
+                    }
+                case EventLogEntryType.SuccessAudit:
+                    {
+                        message.Severity = SyslogSeverity.Notice;
+                        break;
+                    }
+                case EventLogEntryType.Warning:
+                    {
+                        message.Severity = SyslogSeverity.Warning;
+                        break;
+                    }
+            }
+
+            //Windows Event Log messages do not distinguish between facilities
+            //but Windows uses more than one Event Log, actually distinguishing facilities.
+            //One could assign the facility value depending on the log that originated the message
+            //http://code.google.com/p/eventlog-to-syslog/source/browse/trunk/4.0/syslog.h
+            //chooses facility 3 (System daemons)
+            message.Facility = SyslogFacility.System;
+            message.ApplicationName = eventLogEntry.Source;
+            message.MessageId = eventLogEntry.InstanceId.ToString();
+
+            return message;
         }
 
         #endregion
