@@ -81,4 +81,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y $(ProjectDir)App.config $(TargetPath).config</PostBuildEvent>
+  </PropertyGroup>
 </Project>
