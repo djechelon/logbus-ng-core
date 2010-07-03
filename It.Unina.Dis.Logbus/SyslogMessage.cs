@@ -198,7 +198,7 @@ namespace It.Unina.Dis.Logbus
             {
                 byte[] BOM = { 0xef, 0xbb, 0xbf };
                 ret.Append(SPACE);
-                ret.Append(BOM);
+                ret.Append(Encoding.UTF8.GetString(BOM));
                 ret.Append(Text);
             }
 
