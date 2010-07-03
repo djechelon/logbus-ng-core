@@ -260,7 +260,7 @@ namespace It.Unina.Dis.Logbus
         public static explicit operator SyslogMessage(System.Diagnostics.EventLogEntry eventLogEntry)
         {
             SyslogMessage message = new SyslogMessage();
-            
+
 
             message.Timestamp = eventLogEntry.TimeGenerated;
             message.Host = eventLogEntry.MachineName;
@@ -427,7 +427,7 @@ namespace It.Unina.Dis.Logbus
 
                 //Calculate Version...
                 new_payload = payload.Substring(pointer);
-                string version =new_payload.Substring(0, 1);
+                string version = new_payload.Substring(0, 1);
                 if (version != "1")
                 {
                     NotSupportedException ex = new NotSupportedException("Only Syslog version 1 is supported");
@@ -470,7 +470,10 @@ namespace It.Unina.Dis.Logbus
                     Int32 hour = Int32.Parse(elem2[0].Split(':')[0]);
                     Int32 minute = Int32.Parse(elem2[0].Split(':')[1]);
                     Int32 sec = Int32.Parse(elem2[0].Split(':')[2].Split('.')[0]);
-                    Int32 msec = Int32.Parse(elem2[0].Split(':')[2].Split('.')[1].Substring(0, 3));
+                    string msec_str = elem2[0].Split(':')[2];
+                    Int32 msec = 0;
+                    if (msec_str.IndexOf('.') > -1)
+                        msec = Int32.Parse(msec_str.Split('.')[1].Substring(0, 3));
 
                     ret.Timestamp = new DateTime(year, month, day, hour, minute, sec, msec);
                     ret.Timestamp = ret.Timestamp.Value.AddHours(fusoH);
