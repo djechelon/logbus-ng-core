@@ -132,6 +132,7 @@
     </Compile>
     <Compile Include="WebServices\KeyValuePair.cs" />
     <Compile Include="Wrappers\LogCollectorTie.cs" />
+    <Compile Include="Wrappers\LogbusControllerTie.cs" />
     <Compile Include="Wrappers\LogSourceTie.cs" />
   </ItemGroup>
   <ItemGroup>
