@@ -77,7 +77,6 @@ namespace It.Unina.Dis.Logbus
         }
         #endregion
 
-
         #region Constructor/destructor
 
         public LogbusService()
@@ -92,12 +91,17 @@ namespace It.Unina.Dis.Logbus
             catch { }
         }
 
+        public LogbusService(LogbusCoreConfiguration configuration)
+            : this()
+        {
+            Configuration = configuration;
+        }
+
         ~LogbusService()
         {
             Dispose(false);
         }
         #endregion
-
 
         #region Configuration
 
