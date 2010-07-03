@@ -80,7 +80,7 @@ namespace Unit_Tests
             }
         }
 
-        
+
 
         /// <summary>
         ///Test per SubmitMessage
@@ -100,12 +100,13 @@ namespace Unit_Tests
         [TestMethod()]
         public void GetAvailableTransportsTest()
         {
-            LogbusService target = new LogbusService(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string[] expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
+            LogbusService target = new LogbusService();
+            target.Configure(new LogbusCoreConfiguration());
+            string[] expected = new string[] { "udp" };
             string[] actual;
             actual = target.GetAvailableTransports();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
+            Assert.AreEqual(1, actual.Length);
+            Assert.AreEqual(expected[0], actual[0]);
         }
 
 

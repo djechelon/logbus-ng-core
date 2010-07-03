@@ -25,7 +25,7 @@ namespace It.Unina.Dis.Logbus
 
         IOutboundChannel CreateChannel(string name, string description, IFilter filter);
 
-        ITransportFactoryHelper TransportHelper { get; set; }
+        ITransportFactoryHelper TransportFactoryHelper { get; set; }
 
     }
 }
