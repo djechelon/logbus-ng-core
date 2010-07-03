@@ -65,7 +65,7 @@ namespace Unit_Tests
                 TestContext.BeginTimer("RunTimer");
 
                 target.Configuration["port"] = port.ToString();
-                target.Configuration["ip"] = "127.0.0.1";
+                //target.Configuration["ip"] = "127.0.0.1";
                 target.Start();
                 target.MessageReceived += target_MessageReceived;
                 target.ParseError += target_ParseError; //Most interesting

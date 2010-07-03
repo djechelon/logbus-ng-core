@@ -26,6 +26,12 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         #region ITransportFactoryHelper Membri di
 
+        public SimpleTransportHelper()
+            : base()
+        {
+            base.Add("udp", new OutTransports.SyslogUdpTransportFactory());
+        }
+
         IOutboundTransportFactory ITransportFactoryHelper.this[string transportId]
         {
             get

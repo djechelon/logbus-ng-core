@@ -70,7 +70,9 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private void Dispose(bool disposing)
         {
             if (Disposed) return;
-            ((IOutboundChannel)this).Stop();
+            if (Started)
+                ((IOutboundChannel)this).Stop();
+
 
             if (disposing)
             {
@@ -147,7 +149,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
             //Tell the thread to stop, the good way
             Started = false;
-            worker_thread.Join(5000); //Wait
+            if (worker_thread.ThreadState == ThreadState.WaitSleepJoin)
+                worker_thread.Join(5000); //Wait if the thread is already doing something "useful"
             if (worker_thread.ThreadState != ThreadState.Stopped)
             {
                 //Thread was locked. Going by brute force!!!
@@ -368,7 +371,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                                 kvp.Value.SubmitMessage(msg);
                             if (CoalescenceWindowMillis > 0)
                             {
-                                coalescence_timer = new Timer(ResetCoalescence, null,(int) CoalescenceWindowMillis, Timeout.Infinite);
+                                coalescence_timer = new Timer(ResetCoalescence, null, (int)CoalescenceWindowMillis, Timeout.Infinite);
                                 WithinCoalescenceWindow = true;
                             }
                         }
@@ -378,7 +381,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             { }
             finally
             {
-                coalescence_timer.Dispose();
+                if (coalescence_timer != null) coalescence_timer.Dispose();
                 //Someone is telling me to stop
                 //Flush and terminate
                 IEnumerable<SyslogMessage> left_messages = message_queue.FlushAndDispose();

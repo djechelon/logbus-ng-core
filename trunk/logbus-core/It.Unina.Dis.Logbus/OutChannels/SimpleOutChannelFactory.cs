@@ -31,10 +31,11 @@ namespace It.Unina.Dis.Logbus.OutChannels
             ret.Name = name;
             ret.Description = description;
             ret.Filter = filter;
+            ret.TransportFactoryHelper = TransportFactoryHelper;
             return ret;
         }
 
-        ITransportFactoryHelper IOutboundChannelFactory.TransportHelper
+        public ITransportFactoryHelper TransportFactoryHelper
         {
             get;
             set;

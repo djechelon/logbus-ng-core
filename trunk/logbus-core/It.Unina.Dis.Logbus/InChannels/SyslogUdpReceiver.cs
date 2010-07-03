@@ -159,6 +159,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 client.Close(); //Trigger SocketException if thread is blocked into listening
                 running_thread.Join();
+                running_thread = null;
             }
             catch (Exception) { } //Really nothing?
         }
@@ -223,8 +224,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                 catch (SocketException)
                 {
                     //We are closing, or an I/O error occurred
-                    if (Stopped) //Yes, we are closing
-                        return;
+                    //if (Stopped) //Yes, we are closing
+                        //return;
                     //else nothing yet
                 }
                 catch (Exception) { } //Really do nothing? Shouldn't we stop the service?

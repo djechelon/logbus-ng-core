@@ -164,97 +164,129 @@ namespace It.Unina.Dis.Logbus
 
                 //Inbound channels
                 IList<IInboundChannel> channels = new List<IInboundChannel>();
-                foreach (InboundChannelDefinition def in Configuration.inchannels)
-                {
-                    if (def == null)
+                if (Configuration.inchannels != null)
+                    foreach (InboundChannelDefinition def in Configuration.inchannels)
                     {
-                        LogbusConfigurationException ex = new LogbusConfigurationException("Found empty value in Inbound Channel definition");
-                        throw ex;
-                    }
-                    try
-                    {
-                        if (string.IsNullOrEmpty(def.type))
+                        if (def == null)
                         {
-                            LogbusConfigurationException ex = new LogbusConfigurationException("Type for Inbound channel cannot be empty");
-                            ex.Data["ChannelDefinitionObject"] = def;
+                            LogbusConfigurationException ex = new LogbusConfigurationException("Found empty value in Inbound Channel definition");
                             throw ex;
                         }
-
                         try
                         {
-                            Type in_chan_type = Type.GetType(def.type, true, false);
-
-                            if (!typeof(IInboundChannel).IsAssignableFrom(in_chan_type))
+                            if (string.IsNullOrEmpty(def.type))
                             {
-                                LogbusConfigurationException ex = new LogbusConfigurationException("Specified type for Inbound channel does not implement IInboundChannel");
-                                ex.Data["TypeName"] = def.type;
+                                LogbusConfigurationException ex = new LogbusConfigurationException("Type for Inbound channel cannot be empty");
+                                ex.Data["ChannelDefinitionObject"] = def;
+                                throw ex;
                             }
-                            IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(in_chan_type, true);
+
                             try
                             {
-                                if (def.param != null)
-                                    foreach (KeyValuePair param in def.param)
-                                    {
-                                        channel.Configuration[param.name] = param.value;
-                                    }
+                                Type in_chan_type = Type.GetType(def.type, true, false);
+
+                                if (!typeof(IInboundChannel).IsAssignableFrom(in_chan_type))
+                                {
+                                    LogbusConfigurationException ex = new LogbusConfigurationException("Specified type for Inbound channel does not implement IInboundChannel");
+                                    ex.Data["TypeName"] = def.type;
+                                }
+                                IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(in_chan_type, true);
+                                try
+                                {
+                                    if (def.param != null)
+                                        foreach (KeyValuePair param in def.param)
+                                        {
+                                            channel.Configuration[param.name] = param.value;
+                                        }
+                                }
+                                catch (NullReferenceException ex)
+                                {
+                                    throw new LogbusConfigurationException("Inbound channel instance must expose a non-null Configuration array", ex);
+                                }
+                                catch (NotSupportedException ex)
+                                {
+                                    throw new LogbusConfigurationException("Configuration parameter is not supported by channel", ex);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new LogbusConfigurationException("Error configuring inbound channel", ex);
+                                }
+
+                                channels.Add(channel);
                             }
-                            catch (NullReferenceException ex)
+                            catch (LogbusConfigurationException ex)
                             {
-                                throw new LogbusConfigurationException("Inbound channel instance must expose a non-null Configuration array", ex);
+                                ex.Data["TypeName"] = def.type;
+                                throw ex;
                             }
-                            catch (NotSupportedException ex)
+                            catch (TypeLoadException ex)
                             {
-                                throw new LogbusConfigurationException("Configuration parameter is not supported by channel", ex);
+                                LogbusConfigurationException e = new LogbusConfigurationException("Type not found for Inbound channel", ex);
+                                e.Data["TypeName"] = def.type;
+                                throw e;
                             }
                             catch (Exception ex)
                             {
-                                throw new LogbusConfigurationException("Error configuring inbound channel", ex);
+                                LogbusConfigurationException e = new LogbusConfigurationException("Cannot load specified type for Inbound channel", ex);
+                                e.Data["TypeName"] = def.type;
+                                throw e;
                             }
-
-                            channels.Add(channel);
                         }
                         catch (LogbusConfigurationException ex)
                         {
-                            ex.Data["TypeName"] = def.type;
+                            if (!string.IsNullOrEmpty(def.name)) ex.Data["ChannelName"] = def.name;
                             throw ex;
                         }
-                        catch (TypeLoadException ex)
-                        {
-                            LogbusConfigurationException e = new LogbusConfigurationException("Type not found for Inbound channel", ex);
-                            e.Data["TypeName"] = def.type;
-                            throw e;
-                        }
-                        catch (Exception ex)
-                        {
-                            LogbusConfigurationException e = new LogbusConfigurationException("Cannot load specified type for Inbound channel", ex);
-                            e.Data["TypeName"] = def.type;
-                            throw e;
-                        }
-                    }
-                    catch (LogbusConfigurationException ex)
-                    {
-                        if (!string.IsNullOrEmpty(def.name)) ex.Data["ChannelName"] = def.name;
-                        throw ex;
-                    }
 
-                }
+                    }
                 InboundChannels = channels;
                 //Inbound channels end
 
                 //Outbound transports begin
-                //For now, no other class is expected
-                TransportFactoryHelper = new OutTransports.SimpleTransportHelper();
 
-                //Add default transport factories
-                TransportFactoryHelper.AddFactory("udp", new OutTransports.SyslogUdpTransportFactory());
-                TransportFactoryHelper.AddFactory("multicast", new OutTransports.SyslogMulticastTransportFactory());
+
+
                 if (Configuration.outtransports != null)
                 {
-                    //Add more custom transports
+                    //Set factory
+                    if (!string.IsNullOrEmpty(Configuration.outtransports.factory))
+                    {
+                        try
+                        {
+                            Type factory_type = Type.GetType(Configuration.outtransports.factory);
+                            if (!typeof(ITransportFactoryHelper).IsAssignableFrom(factory_type))
+                                throw new LogbusConfigurationException("Custom transport factory must implement ITransportFactoryHelper");
 
-                    //Not yet implemented, not yet possible!
-                    throw new NotImplementedException();
+                            TransportFactoryHelper = (ITransportFactoryHelper)Activator.CreateInstance(factory_type);
+
+
+                        }
+                        catch (LogbusConfigurationException) { throw; }
+                        catch (TypeLoadException ex)
+                        {
+                            throw new LogbusConfigurationException("Custom transport factory type cannot be loaded", ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new LogbusConfigurationException("Cannot instantiate custom transport factory", ex);
+                        }
+                    }
+
+
+                    //Add more custom transports
+                    if (Configuration.outtransports.outtransport != null || Configuration.outtransports.scanassembly != null)
+                        //Not yet implemented, not yet possible!
+                        throw new NotImplementedException();
                 }
+
+                //If not previously added, add default now
+                //For now, no other class is expected
+                if (TransportFactoryHelper == null)
+                    TransportFactoryHelper = new OutTransports.SimpleTransportHelper();
+
+
+                //Tell that to the channel factory
+                ChannelFactory.TransportFactoryHelper = TransportFactoryHelper;
 
                 //Custom filters definition
                 if (Configuration.customfilters != null)
@@ -287,8 +319,7 @@ namespace It.Unina.Dis.Logbus
 
         public virtual string[] GetAvailableTransports()
         {
-            //return (TransportFactory != null) ? TransportFactory.GetAvailableTransports() : new string[0];
-            throw new NotImplementedException();
+            return TransportFactoryHelper.AvailableTransports;
         }
 
         public virtual IList<IOutboundChannel> OutboundChannels
@@ -314,6 +345,17 @@ namespace It.Unina.Dis.Logbus
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (Running) throw new InvalidOperationException("Logbus is already started");
+            if (!configured)
+            {
+                try
+                {
+                    Configure();
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException("Logbus is not yet configured", ex);
+                }
+            }
 
             if (Starting != null)
             {
@@ -391,7 +433,8 @@ namespace It.Unina.Dis.Logbus
 
                 //Tell the thread to stop, the good way
                 HubThreadStop = true;
-                hubThread.Join(5000); //Wait
+                if (hubThread.ThreadState != ThreadState.WaitSleepJoin)
+                    hubThread.Join(5000); //Wait if thread is still doing something
                 if (hubThread.ThreadState != ThreadState.Stopped)
                 {
                     //Thread was locked. Going by brute force!!!
@@ -452,7 +495,7 @@ namespace It.Unina.Dis.Logbus
 
         public void SubmitMessage(SyslogMessage msg)
         {
-            throw new NotImplementedException();
+            Queue.Enqueue(msg);
         }
 
         #endregion
