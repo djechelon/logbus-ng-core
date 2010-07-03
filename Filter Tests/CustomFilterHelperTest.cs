@@ -2,6 +2,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Reflection;
+using Filter_Tests.ExampleCustom;
+using System;
+using It.Unina.Dis.Logbus;
 
 namespace Filter_Tests
 {
@@ -100,10 +103,29 @@ namespace Filter_Tests
         [TestMethod()]
         public void ScanAssemblyAndRegisterTest()
         {
-            CustomFilterHelper_Accessor target = new CustomFilterHelper_Accessor(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            Assembly to_scan = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            target.ScanAssemblyAndRegister(to_scan);
-            Assert.Inconclusive("Impossibile verificare un metodo che non restituisce valori.");
+            /*
+* The FAKE_ON compilation flag introduces a broken custom filter into the assembly
+* If activated, trying to scan the assembly for user-defined filters
+* will lead to failure
+*/
+            CustomFilterHelper target = CustomFilterHelper.Instance;
+            Assembly to_scan = Assembly.GetAssembly(GetType());
+            try
+            {
+                target.ScanAssemblyAndRegister(to_scan);
+#if FAKE_ON
+                Assert.Fail("It should have failed");
+#else
+                Assert.IsNotNull(target["clonetrue"]);
+                Assert.IsNull(target["fake"]);
+#endif
+            }
+            catch (LogbusException) {
+#if FAKE_ON
+#else
+                Assert.Fail("It should not have failed");
+#endif
+            }
         }
 
         /// <summary>
@@ -112,17 +134,26 @@ namespace Filter_Tests
         [TestMethod()]
         public void RegisterCustomFilterTest()
         {
-            CustomFilterHelper_Accessor target = new CustomFilterHelper_Accessor(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string tag = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string typeName = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            target.RegisterCustomFilter(tag, typeName);
-            Assert.Inconclusive("Impossibile verificare un metodo che non restituisce valori.");
+            CustomFilterHelper target = CustomFilterHelper.Instance;
+            string tag = "clonetrue";
+            string typeName = typeof(CloneTrueFilter).AssemblyQualifiedName;
+
+            try
+            {
+                target.RegisterCustomFilter(tag, typeName);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Failed registering CloneTrueFilter: {0}", ex);
+            }
+
+            Assert.IsNotNull(target.BuildFilter("clonetrue", null));
         }
 
         /// <summary>
         ///Test per BuildFilter
         ///</summary>
-        [TestMethod()]
+        //[TestMethod()]
         public void BuildFilterTest()
         {
             CustomFilterHelper_Accessor target = new CustomFilterHelper_Accessor(); // TODO: Eseguire l'inizializzazione a un valore appropriato

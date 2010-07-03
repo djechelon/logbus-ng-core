@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.Design;
 
 namespace Filter_Tests.ExampleCustom
 {
+    [CustomFilterAttribute("clonetrue")]
     class CloneTrueFilter
         : ICustomFilter
     {
