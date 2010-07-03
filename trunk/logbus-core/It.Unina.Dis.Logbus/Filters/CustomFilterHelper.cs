@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 using System.IO;
+using It.Unina.Dis.Logbus.Design;
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <summary>
@@ -57,9 +58,25 @@ namespace It.Unina.Dis.Logbus.Filters
         /// Scans an assembly for user-defined filters and registers all of them
         /// </summary>
         /// <param name="to_scan"></param>
-        public void ScanAssemblyAndRegister(Assembly to_scan)
+        public void ScanAssemblyAndRegister(Assembly assemblyToScan)
         {
-            throw new NotImplementedException();
+            if (assemblyToScan == null) throw new ArgumentNullException("assemblyToScan");
+            foreach (Type t in assemblyToScan.GetTypes())
+            {
+                string typename = t.AssemblyQualifiedName;
+                object[] custom_attrs = t.GetCustomAttributes(typeof(It.Unina.Dis.Logbus.Design.CustomFilterAttribute), false);
+                if (custom_attrs == null || custom_attrs.Length < 1) continue;
+                CustomFilterAttribute attr = custom_attrs[0] as CustomFilterAttribute;
+
+                try
+                {
+                    if (attr != null) RegisterCustomFilter(attr.Name, typename);
+                }
+                catch (LogbusException)
+                {
+                    throw;
+                }
+            }
         }
 
         /// <summary>
@@ -148,6 +165,6 @@ namespace It.Unina.Dis.Logbus.Filters
             }
         }
 
-       
+
     }
 }

@@ -16,9 +16,16 @@ namespace Filter_Tests.ExampleCustom
     {
         #region ICustomFilter Membri di
 
+
+        /// <summary>
+        /// Parameters:
+        /// char: character to find
+        /// index: index where it should be
+        /// </summary>
         public IEnumerable<FilterParameter> Configuration
         {
-            set { throw new NotImplementedException(); }
+            private get;
+            set;
         }
 
         #endregion
@@ -27,7 +34,15 @@ namespace Filter_Tests.ExampleCustom
 
         public bool IsMatch(It.Unina.Dis.Logbus.SyslogMessage message)
         {
-            throw new NotImplementedException();
+            char ch = '\0'; int idx = 0;
+            foreach (FilterParameter param in Configuration)
+            {
+                //Don't handle erroneous situations: we are in test environment
+                if (param.name == "char") ch = char.Parse((string)param.value);
+                if (param.name == "index") idx = int.Parse((string)param.value);
+            }
+
+            return (message.Text.IndexOf(ch) == idx);
         }
 
         #endregion

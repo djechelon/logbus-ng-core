@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.Design;
 
 namespace Filter_Tests.ExampleCustom
 {
+
     /// <summary>
     /// This class must be refused as filter as it doesn't implement ICustomFilter
     /// </summary>
+#if FAKE_ON
+    [CustomFilterAttribute("fake")]
+#endif    
     class FakeCustomFilter
         : IFilter
     {
