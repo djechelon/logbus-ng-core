@@ -71,6 +71,7 @@
     <Compile Include="Filters\FalseFilter.cs" />
     <Compile Include="Filters\FilterBase.cs" />
     <Compile Include="Filters\FilterParameter.cs" />
+    <Compile Include="Filters\ICustomFilter.cs" />
     <Compile Include="Filters\IFilter.cs" />
     <Compile Include="Filters\ComparisonOperator.cs" />
     <Compile Include="Filters\MessageRegexMatchFilter.cs" />

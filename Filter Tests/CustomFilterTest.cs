@@ -64,35 +64,7 @@ namespace Filter_Tests
         #endregion
 
 
-        /// <summary>
-        ///Test per parameter
-        ///</summary>
-        [TestMethod()]
-        public void parameterTest()
-        {
-            CustomFilter target = new CustomFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FilterParameter[] expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FilterParameter[] actual;
-            target.parameter = expected;
-            actual = target.parameter;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per name
-        ///</summary>
-        [TestMethod()]
-        public void nameTest()
-        {
-            CustomFilter target = new CustomFilter(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string expected = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string actual;
-            target.name = expected;
-            actual = target.name;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
+        
 
         /// <summary>
         ///Test per IsMatch

@@ -6,24 +6,17 @@ using It.Unina.Dis.Logbus.Filters;
 
 namespace Filter_Tests.ExampleCustom
 {
-    class CloneTrueFilter
-        : ICustomFilter
+    /// <summary>
+    /// This class must be refused as filter as it doesn't implement ICustomFilter
+    /// </summary>
+    class FakeCustomFilter
+        : IFilter
     {
-
         #region IFilter Membri di
 
         public bool IsMatch(It.Unina.Dis.Logbus.SyslogMessage message)
         {
             return true;
-        }
-
-        #endregion
-
-        #region ICustomFilter Membri di
-
-        public IEnumerable<FilterParameter> Configuration
-        {
-            set { }
         }
 
         #endregion

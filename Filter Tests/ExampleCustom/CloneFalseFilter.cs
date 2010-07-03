@@ -7,7 +7,7 @@ using It.Unina.Dis.Logbus.Filters;
 namespace Filter_Tests.ExampleCustom
 {
     class CloneFalseFilter
-        :IFilter
+        : ICustomFilter
     {
 
         #region IFilter Membri di
@@ -15,6 +15,15 @@ namespace Filter_Tests.ExampleCustom
         bool IFilter.IsMatch(It.Unina.Dis.Logbus.SyslogMessage message)
         {
             return false;
+        }
+
+        #endregion
+
+        #region ICustomFilter Membri di
+
+        public IEnumerable<FilterParameter> Configuration
+        {
+            set { }
         }
 
         #endregion
