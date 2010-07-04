@@ -38,14 +38,14 @@
 			</xsi:complexType>
 			<xsi:complexType name="ChannelSubscriptionRequest">
 				<xsi:sequence>
-					<xsi:element name="param" type="logbus:KeyValuePair" nillable="false"/>
+					<xsi:element name="param" type="logbus:KeyValuePair" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
 				</xsi:sequence>
 				<xsi:attribute name="channel-id" type="xsi:string" use="required"/>
 				<xsi:attribute name="transport" type="xsi:string" use="required"/>
 			</xsi:complexType>
 			<xsi:complexType name="ChannelSubscriptionResponse">
 				<xsi:sequence>
-					<xsi:element name="param" type="logbus:KeyValuePair" nillable="false"/>
+					<xsi:element name="param" type="logbus:KeyValuePair" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
 				</xsi:sequence>
 				<xsi:attribute name="client-id" type="xsi:string" use="optional"/>
 			</xsi:complexType>
