@@ -22,6 +22,7 @@ namespace It.Unina.Dis.Logbus.WebServices
     /// <summary>
     /// Holds information about channel subscription
     /// </summary>
+    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -30,17 +31,15 @@ namespace It.Unina.Dis.Logbus.WebServices
     public partial class ChannelSubscriptionRequest
     {
 
-        private KeyValuePair paramField;
+        private KeyValuePair[] paramField;
 
         private string channelidField;
 
         private string transportField;
 
-        /// <summary>
-        /// Transport-specific configuration parameters
-        /// </summary>
-        /// <remarks>Defined in transport documentation</remarks>
-        public KeyValuePair param
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("param")]
+        public KeyValuePair[] param
         {
             get
             {
@@ -52,9 +51,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
         }
 
-        /// <summary>
-        /// ID of channel to subscribe to
-        /// </summary>
+        /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute("channel-id")]
         public string channelid
         {
@@ -68,9 +65,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
         }
 
-        /// <summary>
-        /// ID of transport to use
-        /// </summary>
+        /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string transport
         {
