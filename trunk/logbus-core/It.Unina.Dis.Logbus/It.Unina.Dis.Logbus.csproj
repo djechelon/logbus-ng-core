@@ -113,7 +113,8 @@
     <Compile Include="OutTransports\UdpClientExpire.cs" />
     <Compile Include="ParseErrorEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="Schemas\logbus-configuration.cs" />
+    <None Include="Schemas\logbus-configuration.xsd.cs" />
+    <None Include="Schemas\logbus-control.wsdl.cs" />
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
