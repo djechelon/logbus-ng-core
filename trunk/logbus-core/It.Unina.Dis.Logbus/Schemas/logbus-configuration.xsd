@@ -75,7 +75,6 @@
 			<xs:element ref="custom-filter" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
-		<xs:attribute ref="factory" use="optional"/>
 	</xs:complexType>
 	<xs:complexType name="CustomFilterDefinition">
 		<xs:annotation>

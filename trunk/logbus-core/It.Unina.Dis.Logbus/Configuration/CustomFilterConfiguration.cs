@@ -33,8 +33,6 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private AssemblyToScan[] scanassemblyField;
 
-        private string factoryField;
-
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("custom-filter")]
         public CustomFilterDefinition[] customfilter
@@ -60,20 +58,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.scanassemblyField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string factory
-        {
-            get
-            {
-                return this.factoryField;
-            }
-            set
-            {
-                this.factoryField = value;
             }
         }
     }
