@@ -30,15 +30,13 @@ namespace It.Unina.Dis.Logbus.WebServices
     public partial class ChannelSubscriptionResponse
     {
 
-        private KeyValuePair paramField;
+        private KeyValuePair[] paramField;
 
         private string clientidField;
 
-        /// <summary>
-        /// Client-specific configuration parameters.
-        /// Defined by transport documentation
-        /// </summary>
-        public KeyValuePair param
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("param")]
+        public KeyValuePair[] param
         {
             get
             {
@@ -50,9 +48,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
         }
 
-        /// <summary>
-        /// Client ID for future requests
-        /// </summary>
+        /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute("client-id")]
         public string clientid
         {
