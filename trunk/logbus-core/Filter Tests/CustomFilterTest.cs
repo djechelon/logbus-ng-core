@@ -74,9 +74,9 @@ namespace Filter_Tests
             TestContext.WriteLine("Type for CloneTrue: {0}", typeof(Filter_Tests.ExampleCustom.CloneTrueFilter).AssemblyQualifiedName);
             TestContext.WriteLine("Type for CloneFalse: {0}", typeof(Filter_Tests.ExampleCustom.CloneFalseFilter).AssemblyQualifiedName);
             TestContext.WriteLine("Type for CharInMessage: {0}", typeof(Filter_Tests.ExampleCustom.CharInMessageFilter).AssemblyQualifiedName);
-            CustomFilterHelper.Instance["char"] = typeof(CharInMessageFilter).AssemblyQualifiedName;
-            CustomFilterHelper.Instance["clonetrue"] = typeof(CloneTrueFilter).AssemblyQualifiedName;
-            CustomFilterHelper.Instance["clonefalse"] = typeof(CloneFalseFilter).AssemblyQualifiedName;
+            CustomFilterHelper.Instance.RegisterCustomFilter("char", typeof(CharInMessageFilter).AssemblyQualifiedName, "Char in message");
+            CustomFilterHelper.Instance.RegisterCustomFilter("clonetrue", typeof(CloneTrueFilter).AssemblyQualifiedName, "Clone of True");
+            CustomFilterHelper.Instance.RegisterCustomFilter("clonefalse", typeof(CloneFalseFilter).AssemblyQualifiedName, "Clone of False");
         }
 
         /// <summary>

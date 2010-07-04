@@ -137,10 +137,11 @@ namespace Filter_Tests
             CustomFilterHelper target = CustomFilterHelper.Instance;
             string tag = "clonetrue";
             string typeName = typeof(CloneTrueFilter).AssemblyQualifiedName;
+            string description = "Clone of True";
 
             try
             {
-                target.RegisterCustomFilter(tag, typeName);
+                target.RegisterCustomFilter(tag, typeName, description);
             }
             catch (Exception ex)
             {
