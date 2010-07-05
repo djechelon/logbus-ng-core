@@ -51,6 +51,16 @@ namespace It.Unina.Dis.Logbus.InChannels
             get { throw new NotImplementedException(); }
         }
 
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+
+        public event EventHandler Started;
+
+        public event EventHandler Stopped;
+
+        public event UnhandledExceptionEventHandler Error;
+
         #endregion
 
         #region IDisposable Membri di

@@ -30,15 +30,8 @@ namespace It.Unina.Dis.Logbus
     /// Outbound transport. Implements the delivery logic for remote clients
     /// </summary>
     public interface IOutboundTransport
-        :IDisposable
+        : ILogCollector, IDisposable
     {
-
-        /// <summary>
-        /// Sends a Syslog message to subscribed clients
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        /// <remarks>Messages have been already filtered</remarks>
-        void SubmitMessage(SyslogMessage message);
 
         /// <summary>
         /// Gets the number of clients subscribed to this transport within the channel
@@ -72,7 +65,7 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="NotSupportedException">The transport does not require refreshing</exception>
         /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
         void RefreshClient(CLIENT_ID_TYPE clientId);
-        
+
         /// <summary>
         /// Unsubscribes a client from the transport
         /// </summary>

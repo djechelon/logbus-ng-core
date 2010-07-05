@@ -188,5 +188,19 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
 
         #endregion
+
+        #region IRunnable Membri di
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+
+        public event EventHandler Started;
+
+        public event EventHandler Stopped;
+
+        public event UnhandledExceptionEventHandler Error;
+
+        #endregion
     }
 }

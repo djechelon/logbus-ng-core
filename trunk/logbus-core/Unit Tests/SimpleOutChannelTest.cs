@@ -100,22 +100,6 @@ namespace Unit_Tests
         }
 
         /// <summary>
-        ///Test per Started
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("It.Unina.Dis.Logbus.dll")]
-        public void StartedTest()
-        {
-            SimpleOutChannel_Accessor target = new SimpleOutChannel_Accessor(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool actual;
-            target.Started = expected;
-            actual = target.Started;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
         ///Test per It.Unina.Dis.Logbus.IOutboundChannel.SubscribedClients
         ///</summary>
         [TestMethod()]

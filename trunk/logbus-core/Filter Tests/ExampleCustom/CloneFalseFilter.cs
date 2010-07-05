@@ -14,7 +14,7 @@ namespace Filter_Tests.ExampleCustom
 
         #region IFilter Membri di
 
-        bool IFilter.IsMatch(It.Unina.Dis.Logbus.SyslogMessage message)
+        public bool IsMatch(It.Unina.Dis.Logbus.SyslogMessage message)
         {
             return false;
         }

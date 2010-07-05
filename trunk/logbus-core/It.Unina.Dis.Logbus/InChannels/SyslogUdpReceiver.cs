@@ -34,7 +34,7 @@ namespace It.Unina.Dis.Logbus.InChannels
     /// </summary>
     /// <remarks>Implements RFC5426</remarks>
     public sealed class SyslogUdpReceiver :
-        IInboundChannel
+        IInboundChannel, IAsyncRunnable
     {
         public const int DEFAULT_PORT = 514;
 
@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         private UdpClient client;
 
 
-        private bool Stopped
+        private bool Running
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get;
@@ -151,9 +151,9 @@ namespace It.Unina.Dis.Logbus.InChannels
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException("this");
-            if (running_thread == null || Stopped) throw new InvalidOperationException("Listener is not running");
+            if (running_thread == null || !Running) throw new InvalidOperationException("Listener is not running");
 
-            Stopped = true;
+            Running = false;
 
             try
             {
@@ -199,13 +199,13 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void RunnerLoop()
         {
-            Stopped = false;
+            Running = true;
 
             IPAddress address = (this.IpAddress == null) ? IPAddress.Any : IPAddress.Parse(this.IpAddress);
             IPEndPoint local_endpoint = new IPEndPoint(address, Port);
             IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
 
-            while (!Stopped)
+            while (Running)
             {
                 try
                 {
@@ -231,5 +231,43 @@ namespace It.Unina.Dis.Logbus.InChannels
                 catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
             }
         }
+
+        #region IRunnable Membri di
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+
+        public event EventHandler Started;
+
+        public event EventHandler Stopped;
+
+        public event UnhandledExceptionEventHandler Error;
+
+        #endregion
+
+        #region IAsyncRunnable Membri di
+
+        public IAsyncResult BeginStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EndStart(IAsyncResult result)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncResult BeginStop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EndStop(IAsyncResult result)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
