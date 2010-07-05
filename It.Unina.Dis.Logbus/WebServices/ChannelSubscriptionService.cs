@@ -24,31 +24,69 @@ namespace It.Unina.Dis.Logbus.WebServices
     public class ChannelSubscriptionService
         : WebService, IChannelSubscription
     {
+
+        #region Constructor
+
+        public ChannelSubscriptionService()
+            : base()
+        { }
+
+        public ChannelSubscriptionService(IChannelSubscription target)
+            : base()
+        {
+            TargetChannelSubscription = target;
+        }
+
+        #endregion
+
+        public virtual IChannelSubscription TargetChannelSubscription
+        {
+            get;
+            set;
+        }
+
         #region IChannelSubscription Membri di
 
+        [WebMethod()]
         public string[] ListChannels()
         {
-            throw new System.NotImplementedException();
+            return TargetChannelSubscription.ListChannels();
         }
 
+        [WebMethod()]
         public string[] GetAvailableTransports()
         {
-            throw new System.NotImplementedException();
+            return TargetChannelSubscription.GetAvailableTransports();
         }
 
+        [WebMethod()]
         public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                return TargetChannelSubscription.SubscribeChannel(request);
+            }
+            catch { throw; }
         }
 
+        [WebMethod()]
         public void UnsubscribeChannel(string id)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                TargetChannelSubscription.UnsubscribeChannel(id);
+            }
+            catch { throw; }
         }
 
+        [WebMethod()]
         public void RefreshSubscription(string id)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                TargetChannelSubscription.RefreshSubscription(id);
+            }
+            catch { throw; }
         }
 
         #endregion

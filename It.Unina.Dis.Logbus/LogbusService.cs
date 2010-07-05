@@ -32,7 +32,7 @@ using System.ComponentModel;
 namespace It.Unina.Dis.Logbus
 {
     public class LogbusService
-        : MarshalByRefObject, ILogBus, ILogbusController
+        : MarshalByRefObject, ILogBus, IChannelManagement, IChannelSubscription
     {
         private Thread hubThread;
 
@@ -242,10 +242,8 @@ namespace It.Unina.Dis.Logbus
                 InboundChannels = channels;
                 //Inbound channels end
 
+
                 //Outbound transports begin
-
-
-
                 if (Configuration.outtransports != null)
                 {
                     //Set factory
@@ -258,8 +256,6 @@ namespace It.Unina.Dis.Logbus
                                 throw new LogbusConfigurationException("Custom transport factory must implement ITransportFactoryHelper");
 
                             TransportFactoryHelper = (ITransportFactoryHelper)Activator.CreateInstance(factory_type);
-
-
                         }
                         catch (LogbusConfigurationException) { throw; }
                         catch (TypeLoadException ex)
@@ -498,118 +494,6 @@ namespace It.Unina.Dis.Logbus
             Queue.Enqueue(msg);
         }
 
-        #endregion
-
-        #region IDisposable Membri di
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            try
-            {
-                Stop();
-            }
-            catch { } //Don't propagate, ever
-            finally
-            {
-                Disposed = true;
-            }
-        }
-        #endregion
-
-        #region Channel support
-        protected IOutboundChannelFactory ChannelFactory
-        {
-            get;
-            set;
-        }
-
-        private void channel_MessageReceived(object sender, SyslogMessageEventArgs e)
-        {
-            Queue.Enqueue(e.Message);
-        }
-        #endregion
-
-
-        private void HubThreadLoop()
-        {
-            //Loop until end
-            try
-            {
-                do
-                {
-                    //Get message
-                    SyslogMessage new_message = Queue.Dequeue();
-
-                    try
-                    {
-                        Thread.BeginCriticalRegion();
-                        //Filter message
-                        if (!MainFilter.IsMatch(new_message)) continue;
-
-                        //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
-
-                        //Deliver to channels
-                        //Theorically, it's as faster as channels can do
-                        if (OutboundChannels != null)
-                            foreach (IOutboundChannel chan in OutboundChannels)
-                            {
-                                //Idea for the future: use Thread Pool to asynchronously deliver messages
-                                //Could lead to a threading disaster in case of large rates of messages
-                                chan.SubmitMessage(new_message);
-                            }
-                    }
-                    finally
-                    {
-                        Thread.EndCriticalRegion();
-                    }
-                } while (!HubThreadStop);
-            }
-            catch (ThreadAbortException) { }
-            finally
-            {
-                //Someone is telling me to stop
-
-                //Flush queue and then stop
-                IEnumerable<SyslogMessage> left_messages = Queue.FlushAndDispose();
-                foreach (SyslogMessage msg in left_messages)
-                {
-                    //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
-
-                    //Deliver to channels
-                    //Theorically, it's as faster as channels can do
-                    foreach (IOutboundChannel chan in OutboundChannels)
-                    {
-                        //Idea for the future: use Thread Pool to asynchronously deliver messages
-                        //Could lead to a threading disaster in case of large rates of messages
-                        chan.SubmitMessage(msg);
-                    }
-                }
-
-                Queue = null;
-            }
-
-        }
-
-        #region ILogbusController Membri di
-
-        public IOutboundChannel[] AvailableChannels
-        {
-            get
-            {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                IOutboundChannel[] ret = new IOutboundChannel[OutboundChannels.Count];
-                OutboundChannels.CopyTo(ret, 0);
-                return ret;
-            }
-        }
-
         public void CreateChannel(string id, string name, IFilter filter, string description, long coalescenceWindow)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -788,6 +672,220 @@ namespace It.Unina.Dis.Logbus
             {
                 LogbusException ex = new LogbusException("Unable to refresh client", e);
                 ex.Data.Add("client-Logbus", clientId);
+                throw;
+            }
+        }
+        #endregion
+
+        #region IDisposable Membri di
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            try
+            {
+                Stop();
+            }
+            catch { } //Don't propagate, ever
+            finally
+            {
+                Disposed = true;
+            }
+        }
+        #endregion
+
+        #region Channel support
+        protected IOutboundChannelFactory ChannelFactory
+        {
+            get;
+            set;
+        }
+
+        private void channel_MessageReceived(object sender, SyslogMessageEventArgs e)
+        {
+            Queue.Enqueue(e.Message);
+        }
+        #endregion
+
+
+        private void HubThreadLoop()
+        {
+            //Loop until end
+            try
+            {
+                do
+                {
+                    //Get message
+                    SyslogMessage new_message = Queue.Dequeue();
+
+                    try
+                    {
+                        Thread.BeginCriticalRegion();
+                        //Filter message
+                        if (!MainFilter.IsMatch(new_message)) continue;
+
+                        //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
+                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+
+                        //Deliver to channels
+                        //Theorically, it's as faster as channels can do
+                        if (OutboundChannels != null)
+                            foreach (IOutboundChannel chan in OutboundChannels)
+                            {
+                                //Idea for the future: use Thread Pool to asynchronously deliver messages
+                                //Could lead to a threading disaster in case of large rates of messages
+                                chan.SubmitMessage(new_message);
+                            }
+                    }
+                    finally
+                    {
+                        Thread.EndCriticalRegion();
+                    }
+                } while (!HubThreadStop);
+            }
+            catch (ThreadAbortException) { }
+            finally
+            {
+                //Someone is telling me to stop
+
+                //Flush queue and then stop
+                IEnumerable<SyslogMessage> left_messages = Queue.FlushAndDispose();
+                foreach (SyslogMessage msg in left_messages)
+                {
+                    //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
+                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
+
+                    //Deliver to channels
+                    //Theorically, it's as faster as channels can do
+                    foreach (IOutboundChannel chan in OutboundChannels)
+                    {
+                        //Idea for the future: use Thread Pool to asynchronously deliver messages
+                        //Could lead to a threading disaster in case of large rates of messages
+                        chan.SubmitMessage(msg);
+                    }
+                }
+
+                Queue = null;
+            }
+
+        }
+
+        #region IChannelManagement Membri di
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        string[] IChannelManagement.ListChannels()
+        {
+            string[] ret = new string[OutboundChannels.Count];
+            int i = 0;
+            foreach (IOutboundChannel chan in OutboundChannels)
+            {
+                ret[i] = chan.ID;
+                i++;
+            }
+            return ret;
+        }
+
+        void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.WebServices.ChannelCreationInformation description)
+        {
+            CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        It.Unina.Dis.Logbus.WebServices.ChannelInformation IChannelManagement.GetChannelInformation(string id)
+        {
+            IOutboundChannel chan = null;
+
+            foreach (IOutboundChannel ch in OutboundChannels)
+                if (ch.ID == id)
+                {
+                    chan = ch;
+                    break;
+                }
+
+            if (chan == null) return null; //Really?
+
+            return new It.Unina.Dis.Logbus.WebServices.ChannelInformation()
+            {
+                clients = chan.SubscribedClients.ToString(),
+                coalescenceWindow = (long)chan.CoalescenceWindowMillis,
+                description = chan.Description,
+                filter = chan.Filter as FilterBase,
+                id = chan.ID,
+                title = chan.Name
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        void IChannelManagement.DeleteChannel(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IChannelSubscription Membri di
+
+        string[] IChannelSubscription.ListChannels()
+        {
+            return (this as IChannelManagement).ListChannels();
+        }
+
+        string[] IChannelSubscription.GetAvailableTransports()
+        {
+            return AvailableTransports;
+        }
+
+        It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionRequest request)
+        {
+            IEnumerable<KeyValuePair<string, string>> out_params;
+            Dictionary<string, string> in_params = new Dictionary<string, string>();
+            foreach (It.Unina.Dis.Logbus.WebServices.KeyValuePair kvp in request.param)
+                in_params.Add(kvp.name, kvp.value);
+            string clientid;
+            try
+            {
+                clientid = SubscribeClient(request.channelid, request.transport, in_params, out out_params);
+            }
+            catch
+            {
+                throw;
+            }
+
+            It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionResponse ret = new It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionResponse();
+            ret.clientid = clientid;
+
+            List<It.Unina.Dis.Logbus.WebServices.KeyValuePair> lst = new List<It.Unina.Dis.Logbus.WebServices.KeyValuePair>();
+            foreach (KeyValuePair<string, string> kvp in out_params)
+                lst.Add(new It.Unina.Dis.Logbus.WebServices.KeyValuePair() { name = kvp.Key, value = kvp.Value });
+            ret.param = lst.ToArray();
+
+            return ret;
+        }
+
+        void IChannelSubscription.UnsubscribeChannel(string id)
+        {
+            try
+            {
+                UnsubscribeClient(id);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        void IChannelSubscription.RefreshSubscription(string id)
+        {
+            try
+            {
+                RefreshClient(id);
+            }
+            catch
+            {
                 throw;
             }
         }

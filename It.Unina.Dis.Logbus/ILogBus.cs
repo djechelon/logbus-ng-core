@@ -27,35 +27,8 @@ namespace It.Unina.Dis.Logbus
     /// This interface represents the Logbus core service
     /// </summary>
     public interface ILogBus
-        : ILogSource, ILogCollector, IDisposable
+        : ILogSource, ILogCollector, IRunnable, IDisposable
     {
-
-        #region Events
-        /// <summary>
-        /// Logbus is starting
-        /// </summary>
-        event EventHandler<CancelEventArgs> Starting;
-
-        /// <summary>
-        /// Logbus is stopping
-        /// </summary>
-        event EventHandler<CancelEventArgs> Stopping;
-
-        /// <summary>
-        /// Logbus has started
-        /// </summary>
-        event EventHandler Started;
-
-        /// <summary>
-        /// Logbus has stopped
-        /// </summary>
-        event EventHandler Stopped;
-
-        /// <summary>
-        /// An error occurred in the core
-        /// </summary>
-        event UnhandledExceptionEventHandler Error;
-        #endregion
 
         /// <summary>
         /// Lists the available transports by tag
@@ -78,19 +51,49 @@ namespace It.Unina.Dis.Logbus
         ITransportFactoryHelper TransportFactoryHelper { get; set; }
 
         /// <summary>
-        /// Starts Logbus
-        /// </summary>
-        void Start();
-
-        /// <summary>
-        /// Stops Logbus
-        /// </summary>
-        void Stop();
-
-        /// <summary>
         /// Core filter.
         /// Only messages matching it will be forwarded to subscribed clients
         /// </summary>
         IFilter MainFilter { get; set; }
+
+        /// <summary>
+        /// Creates a new outbound channel
+        /// </summary>
+        /// <param name="id">Unique ID of channel</param>
+        /// <param name="name">Descriptive name</param>
+        /// <param name="filter">Filter to apply</param>
+        /// <param name="description">Human-readable description</param>
+        /// <param name="coalescenceWindow">Coalescence window, in milliseconds</param>
+        void CreateChannel(string id, string name, Filters.IFilter filter, string description, long coalescenceWindow);
+
+        /// <summary>
+        /// Removes a channel
+        /// </summary>
+        /// <param name="id">ID of channel to remove</param>
+        void RemoveChannel(string id);
+
+        /// <summary>
+        /// Subscribes a new client to the channel
+        /// </summary>
+        /// <param name="channelId">ID of channel</param>
+        /// <param name="transportId">ID of transport to use</param>
+        /// <param name="transportInstructions">Transport input instructions by client</param>
+        /// <param name="clientInstructions">Client output instructions by transport</param>
+        /// <returns></returns>
+        string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions);
+
+        /// <summary>
+        /// Refreshes a client's subscription
+        /// </summary>
+        /// <param name="clientId">ID of client</param>
+        /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
+        /// <exception cref="NotSupportedException">Transport doesn't support refreshing</exception>
+        void RefreshClient(string clientId);
+
+        /// <summary>
+        /// Unsubscribes a client from a channel
+        /// </summary>
+        /// <param name="clientId">ID of client</param>
+        void UnsubscribeClient(string clientId);
     }
 }
