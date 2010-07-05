@@ -83,12 +83,12 @@
     <Compile Include="Filters\Severity.cs" />
     <Compile Include="Filters\SeverityFilter.cs" />
     <Compile Include="Filters\TrueFilter.cs" />
+    <Compile Include="IAsyncRunnable.cs" />
     <Compile Include="IChannelManagement.cs" />
     <Compile Include="IChannelSubscription.cs" />
     <Compile Include="IInboundChannel.cs" />
     <Compile Include="ILogBus.cs" />
     <Compile Include="ILogCollector.cs" />
-    <Compile Include="ILogbusController.cs" />
     <Compile Include="ILogSource.cs" />
     <Compile Include="InChannels\SyslogMulticastReceiver.cs" />
     <Compile Include="InChannels\SyslogUdpReceiver.cs" />
@@ -97,6 +97,7 @@
     <Compile Include="IOutboundChannelFactory.cs" />
     <Compile Include="IOutboundTransport.cs" />
     <Compile Include="IOutboundTransportFactory.cs" />
+    <Compile Include="IRunnable.cs" />
     <Compile Include="ITransportFactoryHelper.cs" />
     <Compile Include="Configuration\LogbusConfigurationException.cs" />
     <Compile Include="LogbusException.cs" />
@@ -133,7 +134,6 @@
     </Compile>
     <Compile Include="WebServices\KeyValuePair.cs" />
     <Compile Include="Wrappers\LogCollectorTie.cs" />
-    <Compile Include="Wrappers\LogbusControllerTie.cs" />
     <Compile Include="Wrappers\LogSourceTie.cs" />
   </ItemGroup>
   <ItemGroup>

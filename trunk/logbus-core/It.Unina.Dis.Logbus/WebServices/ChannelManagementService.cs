@@ -29,7 +29,21 @@ namespace It.Unina.Dis.Logbus.WebServices
         : WebService, IChannelManagement
     {
 
-        protected ILogbusController TargetLogbus
+        #region Constructor
+
+        public ChannelManagementService()
+            : base()
+        { }
+
+        public ChannelManagementService(IChannelManagement target)
+            : base()
+        {
+            TargetChannelManager = target;
+        }
+
+        #endregion
+
+        public virtual IChannelManagement TargetChannelManager
         {
             get;
             set;
@@ -37,55 +51,38 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelManagement Membri di
 
+        [WebMethod()]
         public string[] ListChannels()
         {
-            int tot = TargetLogbus.AvailableChannels.Length;
-            string[] ret = new string[tot];
-            for (int i = 0; i < tot; i++)
-            {
-                ret[i] = TargetLogbus.AvailableChannels[i].ID;
-            }
-            return ret;
+            return TargetChannelManager.ListChannels();
         }
 
+        [WebMethod()]
         public void CreateChannel(ChannelCreationInformation description)
         {
             try
             {
-                TargetLogbus.CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
+                TargetChannelManager.CreateChannel(description);
             }
             catch { throw; } //What to do?
         }
 
+        [WebMethod()]
         public ChannelInformation GetChannelInformation(string id)
         {
-            IOutboundChannel chan = null;
-            foreach (IOutboundChannel ch in TargetLogbus.AvailableChannels)
-                if (ch.ID.Equals(id))
-                {
-                    chan = ch;
-                    break;
-                }
-
-            if (chan == null) return null;
-
-            ChannelInformation ret = new ChannelInformation()
+            try
             {
-                id = chan.ID,
-                title = chan.Name,
-                description = chan.Description,
-                coalescenceWindow = (long)chan.CoalescenceWindowMillis,
-                filter = (FilterBase)chan.Filter,
-                clients = chan.SubscribedClients.ToString(CultureInfo.InvariantCulture)
-            };
-            return ret;
+                return TargetChannelManager.GetChannelInformation(id);
+            }
+            catch { throw; }
         }
 
+        [WebMethod()]
         public void DeleteChannel(string id)
         {
             try
             {
-                TargetLogbus.RemoveChannel(id);
+                TargetChannelManager.DeleteChannel(id);
             }
             catch { throw; }
         }

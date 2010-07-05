@@ -311,7 +311,7 @@ namespace Unit_Tests
         {
             try
             {
-                ILogbusController ctrl = Logbus as ILogbusController;
+                ILogBus ctrl = Logbus as ILogBus;
                 ctrl.CreateChannel("simple", "Simple", new TrueFilter(), "Very simple channel", 0);
                 Dictionary<string, string> input;
                 input = new Dictionary<string, string>();
@@ -402,7 +402,7 @@ namespace Unit_Tests
         {
             try
             {
-                ILogbusController ctrl = Logbus as ILogbusController;
+                ILogBus ctrl = Logbus as ILogBus;
                 ctrl.CreateChannel("simple", "Simple", new TrueFilter(), "Very simple channel", 0);
                 Dictionary<string, string> input;
                 input = new Dictionary<string, string>();
