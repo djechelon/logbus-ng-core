@@ -27,7 +27,7 @@ using It.Unina.Dis.Logbus.Utils;
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     internal sealed class SimpleOutChannel
-        : IOutboundChannel
+        : IOutboundChannel, IAsyncRunnable
     {
 
         private Dictionary<string, IOutboundTransport> transports = new Dictionary<string, IOutboundTransport>();
@@ -45,7 +45,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             set;
         }
 
-        private bool Started
+        private bool Running
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get;
@@ -70,7 +70,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private void Dispose(bool disposing)
         {
             if (Disposed) return;
-            if (Started)
+            if (Running)
                 ((IOutboundChannel)this).Stop();
 
 
@@ -114,7 +114,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Started) throw new InvalidOperationException("Channel not started");
+            if (!Running) throw new InvalidOperationException("Channel not started");
             message_queue.Enqueue(message);
         }
 
@@ -128,10 +128,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
         }
 
-        void IOutboundChannel.Start()
+        void IRunnable.Start()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (Started) throw new InvalidOperationException("Channel is already started");
+            if (Running) throw new InvalidOperationException("Channel is already started");
 
             message_queue = new BlockingFifoQueue<SyslogMessage>();
 
@@ -139,16 +139,16 @@ namespace It.Unina.Dis.Logbus.OutChannels
             worker_thread.IsBackground = true;
             worker_thread.Start();
 
-            Started = true;
+            Running = true;
         }
 
-        void IOutboundChannel.Stop()
+        void IRunnable.Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Started) throw new InvalidOperationException("Channel is not running");
+            if (!Running) throw new InvalidOperationException("Channel is not running");
 
             //Tell the thread to stop, the good way
-            Started = false;
+            Running = false;
             if (worker_thread.ThreadState == ThreadState.WaitSleepJoin)
                 worker_thread.Join(5000); //Wait if the thread is already doing something "useful"
             if (worker_thread.ThreadState != ThreadState.Stopped)
@@ -360,7 +360,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             try
             {
                 WithinCoalescenceWindow = false;
-                while (Started)
+                while (Running)
                 {
                     SyslogMessage msg = message_queue.Dequeue();
                     if (!WithinCoalescenceWindow)
@@ -403,6 +403,44 @@ namespace It.Unina.Dis.Logbus.OutChannels
             WithinCoalescenceWindow = false;
         }
 
+
+        #region IRunnable Membri di
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+
+        public event EventHandler Started;
+
+        public event EventHandler Stopped;
+
+        public event UnhandledExceptionEventHandler Error;
+
+        #endregion
+
+        #region IAsyncRunnable Membri di
+
+        IAsyncResult IAsyncRunnable.BeginStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IAsyncRunnable.EndStart(IAsyncResult result)
+        {
+            throw new NotImplementedException();
+        }
+
+        IAsyncResult IAsyncRunnable.BeginStop()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IAsyncRunnable.EndStop(IAsyncResult result)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
 

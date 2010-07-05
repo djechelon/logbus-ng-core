@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus
     /// The clients may, if required by the transport's design contract, receive further instructions (ie. multicast group to join)
     /// </summary>
     public interface IOutboundChannel
-        : ILogCollector, IDisposable, ILogSource
+        : ILogCollector, ILogSource, IRunnable, IDisposable
     {
 
         /// <summary>
@@ -59,20 +59,6 @@ namespace It.Unina.Dis.Logbus
         /// Number of subscribed clients
         /// </summary>
         int SubscribedClients { get; }
-
-        /// <summary>
-        /// Starts the channel
-        /// </summary>
-        /// <exception cref="LogbusException"></exception>
-        /// <exception cref="InvalidOperationException">Trying to start an already-started channel</exception>
-        void Start();
-
-        /// <summary>
-        /// Stops the channel
-        /// </summary>
-        /// <exception cref="LogbusException"></exception>
-        /// <exception cref="InvalidOperationException">Trying to stop a channel that was never started or already stopped</exception>
-        void Stop();
 
         /// <summary>
         /// Filter that needs to be matched by messages for actual forwarding
