@@ -52,6 +52,7 @@
     <Compile Include="ILogBusTest.cs" />
     <Compile Include="ILogTest.cs" />
     <Compile Include="IOutboundChannelTest.cs" />
+    <Compile Include="IPAddressTest.cs" />
     <Compile Include="LogbusServiceTest.cs" />
     <Compile Include="LogbusSystemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
