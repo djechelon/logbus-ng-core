@@ -37,6 +37,7 @@ namespace It.Unina.Dis.Logbus.Api
         private long ChannelTTL = 0;
         private const long MAX_REFRESH_TIME = 20000;
         private volatile bool running = false;
+        private String LogbusEndpointUrl;
 
         private void Receiver_MessageReceived(Object sender, SyslogMessageEventArgs arg)
         {
@@ -48,11 +49,13 @@ namespace It.Unina.Dis.Logbus.Api
 
         #region Constructor/Destructor
 
-        public UdpLogClientImpl(string channel_id, string LogbusEndpointUrl, bool exclusive)
+        public UdpLogClientImpl(string channel_id, string logbusEndpointUrl, bool exclusive)
         {
+            LogbusEndpointUrl = logbusEndpointUrl;
             Subscriber = new ChannelSubscription()
             {
-                Url = LogbusEndpointUrl,
+                Url = LogbusEndpointUrl + "/LogbusChannelSubscriber",
+                UserAgent = string.Format("LogbusClient/{0}", typeof(LogCollectorHelper).Assembly.GetName().Version)
             };
             Receiver = new SyslogUdpReceiver()
             {
@@ -221,7 +224,8 @@ namespace It.Unina.Dis.Logbus.Api
         {
             ChannelManagement man = new ChannelManagement()
             {
-                Url = Subscriber.Url,
+                Url = LogbusEndpointUrl + "/LogbusChannelManager",
+                UserAgent = string.Format("LogbusClient/{0}", typeof(LogCollectorHelper).Assembly.GetName().Version)
             };
             man.DeleteChannel(Id);
         }
