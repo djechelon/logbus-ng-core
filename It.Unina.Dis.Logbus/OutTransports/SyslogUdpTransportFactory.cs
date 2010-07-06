@@ -28,7 +28,10 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         IOutboundTransport IOutboundTransportFactory.CreateTransport()
         {
-            return new SyslogUdpTransport();
+            return new SyslogUdpTransport()
+            {
+                SubscriptionTtl = 10000
+            };
         }
 
         string IOutboundTransportFactory.GetConfigurationParameter(string key)

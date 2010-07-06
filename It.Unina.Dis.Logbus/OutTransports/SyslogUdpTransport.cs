@@ -35,7 +35,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             Disposed = false;
             Clients = new Dictionary<String, UdpClientExpire>();
-            clear_timer = new Timer(ClearList, null, Timeout.Infinite, 10000);
+            clear_timer = new Timer(ClearList, null, Timeout.Infinite, SubscriptionTtl);
         }
 
         ~SyslogUdpTransport()
@@ -117,14 +117,19 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// <item>port: UDP port on which the destination will be listening</item>
         /// </list>
         /// </param>
-        /// <param name="outputInstructions">Always null</param>
+        /// <param name="outputInstructions">List of client instructions:
+        /// <list>
+        /// <item>ttl: Time To Live in milliseconds</item>
+        /// </list>
+        /// </param>
         /// <returns></returns>
         public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
             if (Disposed) 
                 throw new ObjectDisposedException(GetType().FullName);
             
-            outputInstructions = null;
+            outputInstructions = new Dictionary<string,string>();
+            ((Dictionary<string, string>)outputInstructions).Add("ttl", this.SubscriptionTtl.ToString());
 
             try
             {
@@ -184,7 +189,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         public long SubscriptionTtl
         {
             get;
-            private set;
+            protected internal set;
         }
 
         #endregion
