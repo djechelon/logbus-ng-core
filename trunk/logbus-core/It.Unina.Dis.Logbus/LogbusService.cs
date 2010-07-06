@@ -365,10 +365,17 @@ namespace It.Unina.Dis.Logbus
 
             try
             {
-                //Start outbound channels
+                IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
+                int i;
 
-                foreach (IOutboundChannel chan in OutboundChannels)
-                    chan.Start();
+                //Begin async start outbound channels
+                i = 0;
+                foreach (IRunnable chan in OutboundChannels)
+                {
+                    if (chan is IAsyncRunnable) async_out[i] = ((IAsyncRunnable)chan).BeginStart();
+                    i++;
+                }
+
 
                 //Start main hub thread
                 HubThreadStop = false;
@@ -378,13 +385,31 @@ namespace It.Unina.Dis.Logbus
                 hubThread.IsBackground = true;
                 hubThread.Start();
 
+                //End async start/sync start outbound channels
+                i = 0;
+                foreach (IRunnable chan in OutboundChannels)
+                {
+                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_out[i]);
+                    else chan.Start();
+                    i++;
+                }
 
-                //Start inbound channels and read messages
-
+                //Begin start async inbound channels and read messages
+                i = 0;
                 foreach (IInboundChannel chan in InboundChannels)
                 {
                     chan.MessageReceived += channel_MessageReceived;
-                    chan.Start();
+                    if (chan is IAsyncRunnable) async_in[i] = ((IAsyncRunnable)chan).BeginStart();
+                    i++;
+                }
+
+                //End async start/sync start inbound channels
+                i = 0;
+                foreach (IRunnable chan in InboundChannels)
+                {
+                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_in[i]);
+                    else chan.Start();
+                    i++;
                 }
             }
             catch (Exception ex)
@@ -415,20 +440,40 @@ namespace It.Unina.Dis.Logbus
 
             try
             {
+                IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
+                int i;
                 //Reverse-order stop
 
-                //Stop inbound channels so we won't get new messages
-
+                //Begin async stop inbound channels
+                i = 0;
                 foreach (IInboundChannel chan in InboundChannels)
                 {
-                    chan.Stop();
                     chan.MessageReceived -= this.MessageReceived;
+                    if (chan is IAsyncRunnable) async_in[i] = ((IAsyncRunnable)chan).BeginStop();
+                    i++;
                 }
-
-                //Stop hub and let it flush messages
 
                 //Tell the thread to stop, the good way
                 HubThreadStop = true;
+
+                //Begin async stop out
+                i = 0;
+                foreach (IRunnable chan in OutboundChannels)
+                {
+                    if (chan is IAsyncRunnable) async_out[i] = ((IAsyncRunnable)chan).BeginStop();
+                    i++;
+                }
+
+                //End async stop Stop inbound channels so we won't get new messages
+                i = 0;
+                foreach (IRunnable chan in InboundChannels)
+                {
+                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(async_in[i]);
+                    else chan.Stop();
+                    i++;
+                }
+
+                //Stop hub and let it flush messages
                 if (hubThread.ThreadState != ThreadState.WaitSleepJoin)
                     hubThread.Join(5000); //Wait if thread is still doing something
                 if (hubThread.ThreadState != ThreadState.Stopped)
@@ -445,10 +490,15 @@ namespace It.Unina.Dis.Logbus
                     }
                     hubThread.Join(); //Giving it all the time it needs
                 }
-                //Finally stop the out channels
 
-                foreach (IOutboundChannel chan in OutboundChannels)
-                    chan.Stop();
+                //End async stp/sync stop out channels
+                i = 0;
+                foreach (IRunnable chan in OutboundChannels)
+                {
+                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(async_out[i]);
+                    i++;
+                }
+
 
                 Running = false;
             }
