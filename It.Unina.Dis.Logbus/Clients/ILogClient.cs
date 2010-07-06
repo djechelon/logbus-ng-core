@@ -17,25 +17,15 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 namespace It.Unina.Dis.Logbus.Api
 {
-    public interface ILog
+    /// <summary>
+    /// Wraps a client that receives log messages from Logbus-ng
+    /// </summary>
+    public interface ILogClient
+        : IRunnable, ILogSource, IDisposable
     {
-        void Debug(string message);
-
-        void Info(string message);
-
-        void Notice(string message);
-
-        void Warning(string message);
-
-        void Error(string message);
-
-        void Critical(string message);
-
-        void Alert(string message);
-
-        void Emergency(string message);
-
+        //Really nothing to add
     }
 }

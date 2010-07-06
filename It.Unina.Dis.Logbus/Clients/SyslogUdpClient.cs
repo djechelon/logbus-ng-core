@@ -36,7 +36,6 @@ namespace It.Unina.Dis.Logbus.Api
         private String Id { get; set; }
         private long ChannelTTL = 0;
         private const long MAX_REFRESH_TIME = 20000;
-        private volatile bool running = false;
         private String LogbusEndpointUrl;
 
         private void Receiver_MessageReceived(Object sender, SyslogMessageEventArgs arg)
@@ -55,7 +54,7 @@ namespace It.Unina.Dis.Logbus.Api
             Subscriber = new ChannelSubscription()
             {
                 Url = LogbusEndpointUrl + "/LogbusChannelSubscriber",
-                UserAgent = string.Format("LogbusClient/{0}", typeof(LogCollectorHelper).Assembly.GetName().Version)
+                UserAgent = string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version)
             };
             Receiver = new SyslogUdpReceiver()
             {
@@ -225,7 +224,7 @@ namespace It.Unina.Dis.Logbus.Api
             ChannelManagement man = new ChannelManagement()
             {
                 Url = LogbusEndpointUrl + "/LogbusChannelManager",
-                UserAgent = string.Format("LogbusClient/{0}", typeof(LogCollectorHelper).Assembly.GetName().Version)
+                UserAgent = string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version)
             };
             man.DeleteChannel(Id);
         }
@@ -236,7 +235,7 @@ namespace It.Unina.Dis.Logbus.Api
             try
             {
                 Stop();
-                if(ExclusiveUsage)
+                if (ExclusiveUsage)
                     DestroyChannel();
             }
             catch { }

@@ -26,9 +26,9 @@ namespace It.Unina.Dis.Logbus.Api
     /// <summary>
     /// This class provides services for Log collectors that want to subscribe to Logbus channels
     /// </summary>
-    public sealed class LogCollectorHelper
+    public sealed class ClientHelper
     {
-        private LogCollectorHelper() { }
+        private ClientHelper() { }
 
         public static string LogbusEndpointUrl
         {
@@ -41,7 +41,7 @@ namespace It.Unina.Dis.Logbus.Api
             ChannelManagement mgmt_object = new ChannelManagement()
             {
                 Url = logbusEndpointUrl,
-                UserAgent = string.Format("LogbusClient/{0}", typeof(LogCollectorHelper).Assembly.GetName().Version)
+                UserAgent = string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version)
             };
 
             ArrayList channel_ids = new ArrayList(mgmt_object.ListChannels());

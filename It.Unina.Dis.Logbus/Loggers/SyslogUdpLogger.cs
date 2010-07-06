@@ -21,30 +21,30 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Text;
-namespace It.Unina.Dis.Logbus.Utils
+namespace It.Unina.Dis.Logbus.Loggers
 {
-    internal class SyslogUdpSender
+    internal class SyslogUdpLogger
         : ILogCollector, IDisposable
     {
 
         #region Constrcutor
-        public SyslogUdpSender(string ip, int port)
+        public SyslogUdpLogger(string ip, int port)
             : this(new IPEndPoint(IPAddress.Parse(ip), port))
         {
         }
 
-        public SyslogUdpSender(IPAddress ip, int port)
+        public SyslogUdpLogger(IPAddress ip, int port)
             : this(new IPEndPoint(ip, port))
         {
         }
 
-        public SyslogUdpSender(IPEndPoint endpoint)
+        public SyslogUdpLogger(IPEndPoint endpoint)
         {
             RemoteEndPoint = endpoint;
             client = new UdpClient();
         }
 
-        ~SyslogUdpSender()
+        ~SyslogUdpLogger()
         {
             Dispose(false);
         }
