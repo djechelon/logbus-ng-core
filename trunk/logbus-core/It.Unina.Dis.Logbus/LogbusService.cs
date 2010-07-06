@@ -839,13 +839,13 @@ namespace It.Unina.Dis.Logbus
             return ret;
         }
 
-        void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.WebServices.ChannelCreationInformation description)
+        void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
         {
             CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        It.Unina.Dis.Logbus.WebServices.ChannelInformation IChannelManagement.GetChannelInformation(string id)
+        It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation IChannelManagement.GetChannelInformation(string id)
         {
             IOutboundChannel chan = null;
 
@@ -858,7 +858,7 @@ namespace It.Unina.Dis.Logbus
 
             if (chan == null) return null; //Really?
 
-            return new It.Unina.Dis.Logbus.WebServices.ChannelInformation()
+            return new It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation()
             {
                 clients = chan.SubscribedClients.ToString(),
                 coalescenceWindow = (long)chan.CoalescenceWindowMillis,
@@ -889,11 +889,11 @@ namespace It.Unina.Dis.Logbus
             return AvailableTransports;
         }
 
-        It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionRequest request)
+        It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionRequest request)
         {
             IEnumerable<KeyValuePair<string, string>> out_params;
             Dictionary<string, string> in_params = new Dictionary<string, string>();
-            foreach (It.Unina.Dis.Logbus.WebServices.KeyValuePair kvp in request.param)
+            foreach (It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair kvp in request.param)
                 in_params.Add(kvp.name, kvp.value);
             string clientid;
             try
@@ -905,12 +905,12 @@ namespace It.Unina.Dis.Logbus
                 throw;
             }
 
-            It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionResponse ret = new It.Unina.Dis.Logbus.WebServices.ChannelSubscriptionResponse();
+            It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse ret = new It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse();
             ret.clientid = clientid;
 
-            List<It.Unina.Dis.Logbus.WebServices.KeyValuePair> lst = new List<It.Unina.Dis.Logbus.WebServices.KeyValuePair>();
+            List<It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair> lst = new List<It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair>();
             foreach (KeyValuePair<string, string> kvp in out_params)
-                lst.Add(new It.Unina.Dis.Logbus.WebServices.KeyValuePair() { name = kvp.Key, value = kvp.Value });
+                lst.Add(new It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair() { name = kvp.Key, value = kvp.Value });
             ret.param = lst.ToArray();
 
             return ret;

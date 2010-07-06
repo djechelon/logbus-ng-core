@@ -20,6 +20,7 @@
 using It.Unina.Dis.Logbus.RemoteLogbus;
 using It.Unina.Dis.Logbus.Utils;
 using System.Collections;
+using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Api
 {
     /// <summary>

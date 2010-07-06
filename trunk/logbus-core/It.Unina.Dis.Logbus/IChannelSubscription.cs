@@ -17,7 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.WebServices;
+using It.Unina.Dis.Logbus.RemoteLogbus;
 
 namespace It.Unina.Dis.Logbus
 {
