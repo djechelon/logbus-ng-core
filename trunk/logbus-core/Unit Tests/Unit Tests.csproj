@@ -43,12 +43,14 @@
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ILogBusTest.cs" />
+    <Compile Include="ILogTest.cs" />
     <Compile Include="IOutboundChannelTest.cs" />
     <Compile Include="LogbusServiceTest.cs" />
     <Compile Include="LogbusSystemTest.cs" />

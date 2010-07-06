@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\ILog.cs" />
+    <Compile Include="Api\LogCollectorHelper.cs" />
+    <Compile Include="Api\LogSourceHelper.cs" />
     <Compile Include="Configuration\AssemblyToScan.cs" />
     <Compile Include="Configuration\CustomFilterConfiguration.cs">
       <SubType>Code</SubType>
@@ -123,6 +126,8 @@
     <Compile Include="SyslogMessageEventArgs.cs" />
     <Compile Include="OutTransports\TransportException.cs" />
     <Compile Include="Utils\BlockingFifoQueue.cs" />
+    <Compile Include="Utils\LogImpl.cs" />
+    <Compile Include="Utils\SyslogUdpSender.cs" />
     <Compile Include="Web References\RemoteLogbus\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
