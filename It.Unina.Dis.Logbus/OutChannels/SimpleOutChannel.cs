@@ -34,15 +34,15 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private Timer coalescence_timer;
         private Thread worker_thread;
         private BlockingFifoQueue<SyslogMessage> message_queue;
+        private object objCoalescenceLock = new object();
+        private bool inCoalescence;
 
         #region Support properties
 
         private bool WithinCoalescenceWindow
         {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
+            get { lock (objCoalescenceLock) return inCoalescence; }
+            set { lock (objCoalescenceLock) inCoalescence = value; }
         }
 
         private bool Running
@@ -60,6 +60,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         public SimpleOutChannel()
         {
+            startDelegate = new ThreadStart(Start);
+            stopDelegate = new ThreadStart(Stop);
         }
 
         ~SimpleOutChannel()
@@ -128,7 +130,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
         }
 
-        void IRunnable.Start()
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Start()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (Running) throw new InvalidOperationException("Channel is already started");
@@ -142,7 +145,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
             Running = true;
         }
 
-        void IRunnable.Stop()
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (!Running) throw new InvalidOperationException("Channel is not running");
@@ -359,7 +363,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
         {
             try
             {
-                WithinCoalescenceWindow = false;
                 while (Running)
                 {
                     SyslogMessage msg = message_queue.Dequeue();
@@ -385,6 +388,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 //Someone is telling me to stop
                 //Flush and terminate
                 IEnumerable<SyslogMessage> left_messages = message_queue.FlushAndDispose();
+                
                 if (!WithinCoalescenceWindow)
                 {
                     foreach (SyslogMessage msg in left_messages)
@@ -393,6 +397,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                             if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
                             foreach (KeyValuePair<string, IOutboundTransport> kvp in transports)
                                 kvp.Value.SubmitMessage(msg);
+                            if (CoalescenceWindowMillis > 0) break;
                         }
                 }
             }
@@ -422,23 +427,33 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         IAsyncResult IAsyncRunnable.BeginStart()
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            return startDelegate.BeginInvoke(null, null);
         }
 
         void IAsyncRunnable.EndStart(IAsyncResult result)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            startDelegate.EndInvoke(result);
         }
 
         IAsyncResult IAsyncRunnable.BeginStop()
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            return stopDelegate.BeginInvoke(null, null);
         }
 
         void IAsyncRunnable.EndStop(IAsyncResult result)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            stopDelegate.EndInvoke(result);
         }
+
+        private ThreadStart startDelegate, stopDelegate;
 
         #endregion
     }

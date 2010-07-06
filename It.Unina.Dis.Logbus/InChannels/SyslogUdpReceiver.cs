@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
 using It.Unina.Dis.Logbus.Utils;
+using System.ComponentModel;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
@@ -54,7 +55,11 @@ namespace It.Unina.Dis.Logbus.InChannels
         private Thread running_thread;
 
         #region Constructor/destructor
-        public SyslogUdpReceiver() { }
+        public SyslogUdpReceiver()
+        {
+            startDelegate = new ThreadStart(Start);
+            stopDelegate = new ThreadStart(Stop);
+        }
 
         private bool Disposed
         {
@@ -108,61 +113,6 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         public event ParseErrorEventHandler ParseError;
 
-        public void Start()
-        {
-            if (Disposed) throw new ObjectDisposedException("this");
-            if (running_thread != null && running_thread.IsAlive) throw new InvalidOperationException("Listener is already running");
-            ///Configure
-
-            if (Configuration.ContainsKey("ip")) IpAddress = Configuration["ip"];
-
-            int portnum;
-            if (!Configuration.ContainsKey("port"))
-            {
-                Port = DEFAULT_PORT;
-            }
-            else
-            {
-                if (!int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
-                if (portnum < 1 || portnum > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", portnum.ToString(CultureInfo.CurrentCulture)));
-                Port = portnum;
-            }
-
-            IPEndPoint local_ep;
-            if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Loopback, Port);
-            else local_ep = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
-
-            try
-            {
-                client = new UdpClient(local_ep);
-            }
-            catch (IOException ex)
-            {
-                throw new LogbusException("Cannot start UDP listener", ex);
-            }
-
-            running_thread = new Thread(RunnerLoop);
-            running_thread.IsBackground = true;
-            running_thread.Name = "UDPListener.RunnerLoop";
-            running_thread.Start();
-
-        }
-
-        public void Stop()
-        {
-            if (Disposed) throw new ObjectDisposedException("this");
-            if (running_thread == null || !Running) throw new InvalidOperationException("Listener is not running");
-
-            Running = false;
-
-            try
-            {
-                client.Close(); //Trigger SocketException if thread is blocked into listening
-                running_thread.Join();
-                running_thread = null;
-            }
-            catch (Exception) { } //Really nothing?
-        }
 
         /// <summary>
         /// Configurable parameters:
@@ -225,7 +175,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                 {
                     //We are closing, or an I/O error occurred
                     //if (Stopped) //Yes, we are closing
-                        //return;
+                    //return;
                     //else nothing yet
                 }
                 catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
@@ -244,30 +194,131 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         public event UnhandledExceptionEventHandler Error;
 
+        public void Start()
+        {
+            try
+            {
+                if (Disposed) throw new ObjectDisposedException("this");
+                if (running_thread != null && running_thread.IsAlive) throw new InvalidOperationException("Listener is already running");
+
+                if (Starting != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Starting(this, e);
+                    if (e.Cancel) return;
+                }
+
+                ///Configure
+
+                if (Configuration.ContainsKey("ip")) IpAddress = Configuration["ip"];
+
+                int portnum;
+                if (!Configuration.ContainsKey("port"))
+                {
+                    Port = DEFAULT_PORT;
+                }
+                else
+                {
+                    if (!int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
+                    if (portnum < 1 || portnum > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", portnum.ToString(CultureInfo.CurrentCulture)));
+                    Port = portnum;
+                }
+
+                IPEndPoint local_ep;
+                if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Loopback, Port);
+                else local_ep = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+
+                try
+                {
+                    client = new UdpClient(local_ep);
+                }
+                catch (IOException ex)
+                {
+                    throw new LogbusException("Cannot start UDP listener", ex);
+                }
+
+                running_thread = new Thread(RunnerLoop);
+                running_thread.IsBackground = true;
+                running_thread.Name = "UDPListener.RunnerLoop";
+                running_thread.Start();
+
+                if (Started != null) Started(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
+                throw;
+            }
+        }
+
+        public void Stop()
+        {
+            try
+            {
+                if (Disposed) throw new ObjectDisposedException("this");
+                if (running_thread == null || !Running) throw new InvalidOperationException("Listener is not running");
+
+                if (Stopping != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Stopping(this, e);
+                    if (e.Cancel) return;
+                }
+
+                Running = false;
+
+                try
+                {
+                    client.Close(); //Trigger SocketException if thread is blocked into listening
+                    running_thread.Join();
+                    running_thread = null;
+                }
+                catch (Exception) { } //Really nothing?
+
+                if (Stopped != null) Stopped(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
+                throw;
+            }
+        }
+
         #endregion
 
         #region IAsyncRunnable Membri di
 
-        public IAsyncResult BeginStart()
+        IAsyncResult IAsyncRunnable.BeginStart()
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            return startDelegate.BeginInvoke(null, null);
         }
 
-        public void EndStart(IAsyncResult result)
+        void IAsyncRunnable.EndStart(IAsyncResult result)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            startDelegate.EndInvoke(result);
         }
 
-        public IAsyncResult BeginStop()
+        IAsyncResult IAsyncRunnable.BeginStop()
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            return stopDelegate.BeginInvoke(null, null);
         }
 
-        public void EndStop(IAsyncResult result)
+        void IAsyncRunnable.EndStop(IAsyncResult result)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            stopDelegate.EndInvoke(result);
         }
+
+        private ThreadStart startDelegate, stopDelegate;
 
         #endregion
+
     }
 }
