@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />
+    <Content Include="TestCases.txt" />
     <Content Include="TestConfig\TestConfig.xml" />
     <EmbeddedResource Include="TestLogs\Syslog.plain.txt" />
     <EmbeddedResource Include="TestLogs\Syslog.base64.txt">
