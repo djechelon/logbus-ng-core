@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace Unit_Tests
 {
@@ -228,20 +230,43 @@ namespace Unit_Tests
             Assert.IsNotNull(actual);
         }
 
-        /// <summary>
-        ///Test per Costruttore SyslogMessage
-        ///</summary>
         [TestMethod()]
-        public void SyslogMessageConstructorTest()
+        public void SyslogParserTest_Real()
         {
-            Nullable<DateTime> timestamp = new Nullable<DateTime>(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string host = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogFacility facility = new SyslogFacility(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogSeverity level = new SyslogSeverity(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            string text = string.Empty; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            IDictionary<string, IDictionary<string, string>> data = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            SyslogMessage target = new SyslogMessage(timestamp, host, facility, level, text);
-            Assert.Inconclusive("TODO: Implementare il codice per la verifica della destinazione");
+            //Just test that messages are being parset. Stop.
+
+            using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream("Unit_Tests.TestLogs.Syslog.base64.txt"), Encoding.GetEncoding(1252)))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string base64line = sr.ReadLine();
+                    byte[] raw_log = Convert.FromBase64String(base64line);
+                    try
+                    {
+                        SyslogMessage.Parse(raw_log);
+                    }
+                    catch (FormatException ex)
+                    {
+                        Assert.Fail("Test failed: {0}", ex);
+                    }
+                }
+            }
+            using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream("Unit_Tests.TestLogs.Syslog.plain.txt"), Encoding.UTF8))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string raw_log = sr.ReadLine();
+                    try
+                    {
+                        SyslogMessage.Parse(raw_log);
+                    }
+                    catch (FormatException ex)
+                    {
+                        TestContext.WriteLine("Failed parsing: {0}", raw_log);
+                        Assert.Fail("Test failed: {0}", ex);
+                    }
+                }
+            }
         }
     }
 }
