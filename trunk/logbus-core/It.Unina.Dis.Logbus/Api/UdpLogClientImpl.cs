@@ -30,9 +30,11 @@ namespace It.Unina.Dis.Logbus.Api
         private Timer refresh_timer;
         private SyslogUdpReceiver Receiver { get; set; }
 
+        private bool ExclusiveUsage { get; set; }
+
         #region Constructor/Destructor
 
-        public UdpLogClientImpl(string channel_id, string LogbusEndpointUrl)
+        public UdpLogClientImpl(string channel_id, string LogbusEndpointUrl, bool exclusive)
         {
         }
 

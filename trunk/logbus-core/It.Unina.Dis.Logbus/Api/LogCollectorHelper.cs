@@ -59,7 +59,7 @@ namespace It.Unina.Dis.Logbus.Api
 
             mgmt_object.CreateChannel(info);
 
-            return new UdpLogClientImpl(random_id, LogbusEndpointUrl);
+            return new UdpLogClientImpl(random_id, LogbusEndpointUrl, true);
 
         }
     }
