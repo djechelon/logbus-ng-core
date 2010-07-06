@@ -17,23 +17,11 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus
+using System;
+namespace It.Unina.Dis.Logbus.Api
 {
-    public sealed class LogbusSingletonHelper
+    public interface ILogClient
+        : IRunnable, ILogSource, IDisposable
     {
-        private static LogbusService _instance;
-
-        public static ILogBus Instance
-        {
-            get
-            {
-                lock (typeof(LogbusSingletonHelper))
-                    if (_instance == null)
-                        lock (typeof(LogbusSingletonHelper))
-                            _instance = new LogbusService();
-
-                return _instance;
-            }
-        }
     }
 }
