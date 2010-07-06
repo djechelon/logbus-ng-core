@@ -170,6 +170,8 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <Content Include="TestCases.txt" />
+    <Content Include="WebServices\LogbusManagement.asmx" />
+    <Content Include="WebServices\LogbusSubscription.asmx" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
