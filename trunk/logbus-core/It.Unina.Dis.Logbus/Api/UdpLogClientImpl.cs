@@ -17,18 +17,32 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Timers;
 using It.Unina.Dis.Logbus.InChannels;
 using System;
+using System.Net;
+using It.Unina.Dis.Logbus.RemoteLogbus;
+using System.Threading;
+using System.ComponentModel;
+using System.Net.Sockets;
 namespace It.Unina.Dis.Logbus.Api
 {
     internal sealed class UdpLogClientImpl
         : ILogClient
     {
 
-        private IChannelSubscription Subcriber { get; set; }
+        private ChannelSubscription Subscriber { get; set; }
         private Timer refresh_timer;
         private SyslogUdpReceiver Receiver { get; set; }
+        private String Id { get; set; }
+        private long ChannelTTL = 0;
+        private const long MAX_REFRESH_TIME = 20000;
+        private volatile bool running = false;
+
+        private void Receiver_MessageReceived(Object sender, SyslogMessageEventArgs arg)
+        {
+            if (MessageReceived != null)
+                MessageReceived(sender, arg);
+        }
 
         private bool ExclusiveUsage { get; set; }
 
@@ -36,13 +50,69 @@ namespace It.Unina.Dis.Logbus.Api
 
         public UdpLogClientImpl(string channel_id, string LogbusEndpointUrl, bool exclusive)
         {
+            Subscriber = new ChannelSubscription()
+            {
+                Url = LogbusEndpointUrl,
+            };
+            Receiver = new SyslogUdpReceiver()
+            {
+                IpAddress = null,
+                Name = "UdpListner",
+                Port = getAvailablePort()
+            };
+            Receiver.MessageReceived += new SyslogMessageEventHandler(Receiver_MessageReceived);
+            Id = channel_id;
+
+        }
+
+        private int getAvailablePort()
+        {
+            IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
+            return ep.Port;
+        }
+
+        private String getIPAddress()
+        {
+            System.Net.IPAddress[] a = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i].AddressFamily == AddressFamily.InterNetwork)
+                {
+                    if ((a[i].ToString().Contains("localhost")) || (a[i].ToString().Contains("127.0")))
+                        continue;
+                    else
+                        return a.ToString();
+                }
+            }
+            return null;
         }
 
         ~UdpLogClientImpl()
         {
+            Dispose(false);
         }
 
         #endregion
+
+        private void RefreshChannel(Object Status)
+        {
+            try
+            {
+                if (Subscriber != null)
+                    Subscriber.RefreshSubscription(Id);
+            }
+            catch (Exception ex)
+            {
+                throw new LogbusException("Unable to Refresh", ex);
+            }
+        }
+
+        private bool Disposed
+        {
+            get;
+            set;
+        }
 
         #region IRunnable Membri di
 
@@ -58,12 +128,78 @@ namespace It.Unina.Dis.Logbus.Api
 
         public void Start()
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (Starting != null)
+                {
+                    CancelEventArgs arg = new CancelEventArgs();
+                    Starting(this, arg);
+                    if (arg.Cancel)
+                        return;
+                }
+                ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
+                {
+                    channelid = Id,
+                    transport = "udp",
+                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = Receiver.Port.ToString() }, new KeyValuePair() { name = "ip", value = getIPAddress() } }
+                };
+                ChannelSubscriptionResponse res = Subscriber.SubscribeChannel(req);
+                ChannelTTL = Int32.Parse(res.param[0].value);
+                long refreshTime = ChannelTTL - (ChannelTTL * 20 / 100);
+                refresh_timer = new Timer(RefreshChannel, null, Timeout.Infinite, (refreshTime < MAX_REFRESH_TIME) ? refreshTime : MAX_REFRESH_TIME);
+                Receiver.Start();
+                if (Started != null)
+                    Started(this, EventArgs.Empty);
+            }
+            catch (LogbusException ex)
+            {
+                if (Error != null)
+                    Error(this, new UnhandledExceptionEventArgs(ex, true));
+
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(this, new UnhandledExceptionEventArgs(ex, true));
+
+                throw new LogbusException("Unable to Subscribe Channel", ex);
+            }
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (Stopping != null)
+                {
+                    CancelEventArgs arg = new CancelEventArgs();
+                    Stopping(this, arg);
+                    if (arg.Cancel)
+                        return;
+                }
+                Subscriber.UnsubscribeChannel(Id);
+                ChannelTTL = 0;
+                if (refresh_timer != null)
+                    refresh_timer.Dispose();
+                Receiver.Stop();
+                if (Stopped != null)
+                    Stopped(this, EventArgs.Empty);
+            }
+            catch (LogbusException ex)
+            {
+                if (Error != null)
+                    Error(this, new UnhandledExceptionEventArgs(ex, true));
+
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(this, new UnhandledExceptionEventArgs(ex, true));
+
+                throw new LogbusException("Unable to Unsubscribe Channel", ex);
+            }
         }
 
         #endregion
@@ -78,7 +214,35 @@ namespace It.Unina.Dis.Logbus.Api
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Dispose(true);
+        }
+
+        private void DestroyChannel()
+        {
+            ChannelManagement man = new ChannelManagement()
+            {
+                Url = Subscriber.Url,
+            };
+            man.DeleteChannel(Id);
+        }
+
+        public void Dispose(bool disposing)
+        {
+            GC.SuppressFinalize(this);
+            try
+            {
+                Stop();
+                if(ExclusiveUsage)
+                    DestroyChannel();
+            }
+            catch { }
+
+            if (disposing)
+            {
+                Receiver.Dispose();
+                Receiver = null;
+            }
+            Disposed = true;
         }
 
         #endregion
