@@ -19,6 +19,7 @@
 
 using System.Timers;
 using It.Unina.Dis.Logbus.InChannels;
+using System;
 namespace It.Unina.Dis.Logbus.Api
 {
     internal sealed class UdpLogClientImpl
