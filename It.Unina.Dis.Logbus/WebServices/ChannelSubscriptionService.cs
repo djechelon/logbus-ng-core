@@ -18,6 +18,7 @@
 */
 
 using System.Web.Services;
+using It.Unina.Dis.Logbus.RemoteLogbus;
 namespace It.Unina.Dis.Logbus.WebServices
 {
     [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]

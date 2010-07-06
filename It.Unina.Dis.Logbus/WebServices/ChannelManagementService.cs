@@ -22,6 +22,8 @@ using System.Web.Services.Protocols;
 using System;
 using It.Unina.Dis.Logbus.Filters;
 using System.Globalization;
+using It.Unina.Dis.Logbus.RemoteLogbus;
+
 namespace It.Unina.Dis.Logbus.WebServices
 {
     [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
