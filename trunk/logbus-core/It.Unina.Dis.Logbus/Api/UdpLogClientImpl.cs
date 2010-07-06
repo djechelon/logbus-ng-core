@@ -65,7 +65,7 @@ namespace It.Unina.Dis.Logbus.Api
             };
             Receiver.MessageReceived += new SyslogMessageEventHandler(Receiver_MessageReceived);
             Id = channel_id;
-
+            ExclusiveUsage = exclusive;
         }
 
         private int getAvailablePort()
