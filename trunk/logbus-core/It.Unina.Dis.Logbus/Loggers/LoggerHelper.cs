@@ -24,10 +24,10 @@ namespace It.Unina.Dis.Logbus.Api
     /// <summary>
     /// This class provides services for Log sources (clients which generate log messages and want to send them to Logbus)
     /// </summary>
-    public sealed class LogSourceHelper
+    public sealed class LoggerHelper
     {
 
-        private LogSourceHelper() { }
+        private LoggerHelper() { }
 
         /// <summary>
         /// Creates a Log collector which uses Syslog UDP sending
@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.Api
         /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
         public static ILogCollector CreateUdpEntryPoint(IPAddress logbus_ip, int logbus_port)
         {
-            return new Utils.SyslogUdpSender(logbus_ip, logbus_port);
+            return new Loggers.SyslogUdpLogger(logbus_ip, logbus_port);
         }
 
         /// <summary>
