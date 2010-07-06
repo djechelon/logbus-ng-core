@@ -39,6 +39,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
@@ -122,6 +123,11 @@
     <Compile Include="SyslogMessageEventArgs.cs" />
     <Compile Include="OutTransports\TransportException.cs" />
     <Compile Include="Utils\BlockingFifoQueue.cs" />
+    <Compile Include="Web References\RemoteLogbus\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
     <Compile Include="WebServices\ChannelCreationInformation.cs" />
     <Compile Include="WebServices\ChannelInformation.cs" />
     <Compile Include="WebServices\ChannelManagementService.cs">
@@ -148,7 +154,40 @@
     <None Include="Schemas\logbus-configuration.xsd" />
     <None Include="Schemas\logbus-control.wsdl" />
     <None Include="Schemas\logbus-filter.xsd" />
+    <None Include="Web References\RemoteLogbus\ChannelInformation.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\RemoteLogbus\ChannelSubscriptionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\RemoteLogbus\logbus-control.wsdl" />
+    <None Include="Web References\RemoteLogbus\logbus-filter.xsd" />
+    <None Include="Web References\RemoteLogbus\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="TestCases.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="C:\Users\DJ Echelon\Documents\Visual Studio 2008\Projects\Logbus-core\It.Unina.Dis.Logbus\Schemas\logbus-control.wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\RemoteLogbus\</RelPath>
+      <UpdateFromURL>C:\Users\DJ Echelon\Documents\Visual Studio 2008\Projects\Logbus-core\It.Unina.Dis.Logbus\Schemas\logbus-control.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>
+      </CachedAppSettingsObjectName>
+      <CachedSettingsPropName>
+      </CachedSettingsPropName>
+    </WebReferenceUrl>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
