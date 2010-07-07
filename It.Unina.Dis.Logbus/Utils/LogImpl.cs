@@ -67,8 +67,7 @@ namespace It.Unina.Dis.Logbus.Utils
             msg.Data.Add("CallerData", new Dictionary<String, String>());
             msg.Data["CallerData"].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.Name);
             msg.Data["CallerData"].Add("MethodName", stackFrames[2].GetMethod().Name);
-            msg.MessageId = "ID(" + ((msg.Data["CallerData"])["ClassName"] + "::" + (msg.Data["CallerData"])["MethodName"] + ")");
-
+            
             Target.SubmitMessage(msg);
         }
 
