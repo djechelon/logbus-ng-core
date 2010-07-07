@@ -26,10 +26,15 @@ using System.Security.Cryptography;
 using System.Text;
 namespace It.Unina.Dis.Logbus.Utils
 {
-    internal class LogImpl
+    internal class SimpleLogImpl
         : ILog
     {
-        public LogImpl(SyslogFacility facility, ILogCollector target)
+        /// <summary>
+        /// Enterprise ID for StructuredData
+        /// </summary>
+        private const string ENTERPRISE_ID = "8289";
+
+        public SimpleLogImpl(SyslogFacility facility, ILogCollector target)
         {
             if (target == null) throw new ArgumentNullException("target");
 
@@ -37,7 +42,7 @@ namespace It.Unina.Dis.Logbus.Utils
             Target = target;
         }
 
-        public LogImpl(ILogCollector target)
+        public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
 
         private SyslogFacility Facility { get; set; }
@@ -64,9 +69,9 @@ namespace It.Unina.Dis.Logbus.Utils
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
             msg.Data = new Dictionary<String, IDictionary<String, String>>();
-            msg.Data.Add("CallerData", new Dictionary<String, String>());
-            msg.Data["CallerData"].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.Name);
-            msg.Data["CallerData"].Add("MethodName", stackFrames[2].GetMethod().Name);
+            msg.Data.Add("CallerData@"+ENTERPRISE_ID, new Dictionary<String, String>());
+            msg.Data["CallerData@"+ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
+            msg.Data["CallerData@"+ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
             
             Target.SubmitMessage(msg);
         }
