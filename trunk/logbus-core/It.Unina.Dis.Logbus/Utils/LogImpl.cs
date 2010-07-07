@@ -21,11 +21,27 @@ using It.Unina.Dis.Logbus.Api;
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 namespace It.Unina.Dis.Logbus.Utils
 {
     internal class LogImpl
         : ILog
     {
+
+        private String getMD5Hash(String text)
+        {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(ASCIIEncoding.ASCII.GetBytes(text));
+
+            String RightKey = "";
+            for (int i = 0; i < retVal.Length; i++)
+            {
+                RightKey += String.Format("{0:X2}", retVal[i]);
+            }
+            return RightKey.ToUpper();
+        }
 
         public LogImpl(SyslogFacility facility, ILogCollector target)
         {
@@ -43,11 +59,9 @@ namespace It.Unina.Dis.Logbus.Utils
 
         protected void Log(string message, SyslogSeverity severity)
         {
-            string host, procid, appname;
-
-            host = Environment.MachineName;
-            procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
-            appname = Process.GetCurrentProcess().ProcessName;
+            String host = Environment.MachineName;
+            String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
+            String appname = Process.GetCurrentProcess().ProcessName;
 
             SyslogMessage msg = new SyslogMessage()
             {
@@ -59,6 +73,15 @@ namespace It.Unina.Dis.Logbus.Utils
                 ProcessID = procid,
                 ApplicationName = appname
             };
+
+            // Getting the caller information(note that index is 2 because of Log is called by another local Method... 
+            StackTrace stackTrace = new StackTrace();
+            StackFrame[] stackFrames = stackTrace.GetFrames();
+            msg.Data = new Dictionary<String, IDictionary<String, String>>();
+            msg.Data.Add("CallerData", new Dictionary<String, String>());
+            msg.Data["CallerData"].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.Name);
+            msg.Data["CallerData"].Add("MethodName", stackFrames[2].GetMethod().Name);
+            msg.MessageId = "ID" + getMD5Hash(host + "::" + appname + "::" + procid + "::" + (msg.Data["CallerData"])["ClassName"] + "::" + (msg.Data["CallerData"])["MethodName"]);
 
             Target.SubmitMessage(msg);
         }
