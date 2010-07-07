@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Tests", "Unit Tests\Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4test", "Log4test\Log4test.csproj", "{8D0A3EB8-D3D7-4D1A-833A-1DDC347B6E0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logbus-configtool", "Logbus-configtool\Logbus-configtool.csproj", "{914F9490-A440-4731-97FC-7F3EB1D1B5CC}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Logbus-core2.vsmdi
@@ -50,6 +52,10 @@ Global
 		{8D0A3EB8-D3D7-4D1A-833A-1DDC347B6E0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D0A3EB8-D3D7-4D1A-833A-1DDC347B6E0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D0A3EB8-D3D7-4D1A-833A-1DDC347B6E0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{914F9490-A440-4731-97FC-7F3EB1D1B5CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{914F9490-A440-4731-97FC-7F3EB1D1B5CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{914F9490-A440-4731-97FC-7F3EB1D1B5CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{914F9490-A440-4731-97FC-7F3EB1D1B5CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
