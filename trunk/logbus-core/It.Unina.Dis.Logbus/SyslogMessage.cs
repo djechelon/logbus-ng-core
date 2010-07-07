@@ -250,8 +250,8 @@ namespace It.Unina.Dis.Logbus
                         ret.Append('\\');
                         break;
                     }
-                    ret.Append(c);
                 }
+                ret.Append(c);
             }
 
             return ret.ToString();
