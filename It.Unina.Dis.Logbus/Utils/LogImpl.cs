@@ -29,20 +29,6 @@ namespace It.Unina.Dis.Logbus.Utils
     internal class LogImpl
         : ILog
     {
-
-        private String getMD5Hash(String text)
-        {
-            MD5 md5 = new MD5CryptoServiceProvider();
-            byte[] retVal = md5.ComputeHash(ASCIIEncoding.ASCII.GetBytes(text));
-
-            String RightKey = "";
-            for (int i = 0; i < retVal.Length; i++)
-            {
-                RightKey += String.Format("{0:X2}", retVal[i]);
-            }
-            return RightKey.ToUpper();
-        }
-
         public LogImpl(SyslogFacility facility, ILogCollector target)
         {
             if (target == null) throw new ArgumentNullException("target");
@@ -81,7 +67,7 @@ namespace It.Unina.Dis.Logbus.Utils
             msg.Data.Add("CallerData", new Dictionary<String, String>());
             msg.Data["CallerData"].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.Name);
             msg.Data["CallerData"].Add("MethodName", stackFrames[2].GetMethod().Name);
-            msg.MessageId = "ID" + getMD5Hash(host + "::" + appname + "::" + procid + "::" + (msg.Data["CallerData"])["ClassName"] + "::" + (msg.Data["CallerData"])["MethodName"]);
+            msg.MessageId = "ID(" + ((msg.Data["CallerData"])["ClassName"] + "::" + (msg.Data["CallerData"])["MethodName"] + ")");
 
             Target.SubmitMessage(msg);
         }
