@@ -25,15 +25,13 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("in-channel", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class InboundChannelDefinition
+    [System.Xml.Serialization.XmlRootAttribute("logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
+    public partial class LoggerDefinition
     {
 
         private KeyValuePair[] paramField;
 
         private string typeField;
-
-        private string nameField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("param")]
@@ -62,20 +60,5 @@ namespace It.Unina.Dis.Logbus.Configuration
                 this.typeField = value;
             }
         }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string name
-        {
-            get
-            {
-                return this.nameField;
-            }
-            set
-            {
-                this.nameField = value;
-            }
-        }
     }
-
 }

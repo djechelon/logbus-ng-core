@@ -31,8 +31,14 @@ namespace It.Unina.Dis.Logbus.Utils
     {
         /// <summary>
         /// Enterprise ID for StructuredData
+        /// As of IANA official Enteprise ID list
+        /// 
+        /// 8289
+        ///     Universita' degli Studi di Napoli "Federico II"
+        ///         Francesco Palmieri
+        ///             fpalmieri&unina.it
         /// </summary>
-        private const string ENTERPRISE_ID = "8289";
+        internal const string ENTERPRISE_ID = "8289";
 
         public SimpleLogImpl(SyslogFacility facility, ILogCollector target)
         {

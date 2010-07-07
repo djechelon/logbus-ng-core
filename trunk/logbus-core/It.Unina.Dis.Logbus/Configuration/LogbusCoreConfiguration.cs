@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LogbusCoreConfiguration : object, System.ComponentModel.INotifyPropertyChanged
+    public partial class LogbusCoreConfiguration
     {
 
         [System.Xml.Serialization.XmlNamespaceDeclarations()]
@@ -65,7 +65,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.inchannelsField = value;
-                this.RaisePropertyChanged("inchannels");
             }
         }
 
@@ -80,7 +79,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.customfiltersField = value;
-                this.RaisePropertyChanged("customfilters");
             }
         }
 
@@ -95,7 +93,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.outtransportsField = value;
-                this.RaisePropertyChanged("outtransports");
             }
         }
 
@@ -110,7 +107,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.corefilterField = value;
-                this.RaisePropertyChanged("corefilter");
             }
         }
 
@@ -125,18 +121,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.outChannelFactoryTypeField = value;
-                this.RaisePropertyChanged("outChannelFactoryType");
-            }
-        }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null))
-            {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
