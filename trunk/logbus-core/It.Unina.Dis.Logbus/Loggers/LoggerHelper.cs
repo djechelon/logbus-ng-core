@@ -49,7 +49,7 @@ namespace It.Unina.Dis.Logbus.Api
         /// <remarks>Facility is set to Local4 as default value</remarks>
         public static ILog CreateUdpLogger(IPAddress logbus_ip, int logbus_port)
         {
-            return new LogImpl(CreateUdpEntryPoint(logbus_ip, logbus_port));
+            return new SimpleLogImpl(CreateUdpEntryPoint(logbus_ip, logbus_port));
         }
 
         /// <summary>
@@ -61,7 +61,19 @@ namespace It.Unina.Dis.Logbus.Api
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog CreateUdpLogger(IPAddress logbus_ip, int logbus_port, SyslogFacility facility)
         {
-            return new LogImpl(facility, CreateUdpEntryPoint(logbus_ip, logbus_port));
+            return new SimpleLogImpl(facility, CreateUdpEntryPoint(logbus_ip, logbus_port));
+        }
+
+        /// <summary>
+        /// Creates an FFDA logger that sends messages in Syslog format via UDP
+        /// </summary>
+        /// <param name="logbus_ip">IP address of logbus target</param>
+        /// <param name="logbus_port">UDP port of logbus target</param>
+        /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
+        /// <remarks>Facility is set to Local0 as default value</remarks>
+        public static FFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
+        {
+            return new FFDALogger(CreateUdpEntryPoint(logbus_ip, logbus_port));
         }
     }
 }

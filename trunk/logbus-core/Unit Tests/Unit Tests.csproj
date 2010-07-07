@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FFDALoggerTest.cs" />
     <Compile Include="ILogBusTest.cs" />
     <Compile Include="ILogTest.cs" />
     <Compile Include="IOutboundChannelTest.cs" />
