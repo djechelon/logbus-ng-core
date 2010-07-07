@@ -157,7 +157,6 @@
     <Compile Include="Wrappers\LogSourceTie.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="AUTHORS.txt" />
     <None Include="COPYING.txt" />
     <None Include="Logbus-ng.snk" />
