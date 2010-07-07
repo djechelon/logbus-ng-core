@@ -1,57 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+
 <!--
-djechelon:
-This file is for my personal reference about how ConfigSections work
+Typical XML configuration file (App.config/Web.config)
 -->
-<example>
-  <configuration>
-    <configSections>
-      <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
-      <section name="hibernate-configuration" type="NHibernate.Cfg.ConfigurationSectionHandler, NHibernate" />
-    </configSections>
 
+<configuration>
 
-    <log4net>
-      <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender" >
-        <layout type="log4net.Layout.PatternLayout">
-          <conversionPattern value="%date [%thread] %-5level %logger [%ndc] - %message%newline" />
-        </layout>
-      </appender>
-      <root>
-        <level value="INFO" />
-        <appender-ref ref="ConsoleAppender" />
-      </root>
-    </log4net>
-
-    <hibernate-configuration  xmlns="urn:nhibernate-configuration-2.2" >
-      <session-factory>
-        <property name="connection.provider">NHibernate.Connection.DriverConnectionProvider</property>
-        <property name="connection.driver_class">NHibernate.Driver.MySqlDataDriver</property>
-        <property name="connection.connection_string">
-
-        </property>
-        <property name="dialect">NHibernate.Dialect.MySQL5Dialect, NHibernate</property>
-        <property name="show_sql">true</property>
-        <!--<property name="hbm2ddl.auto">create</property>-->
-        <property name="proxyfactory.factory_class">NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle</property>
-        <property name="hbm2ddl.keywords">none</property>
-        <property name="cache.use_second_level_cache">true</property>
-        <property name="cache.default_expiration">120</property>
-        <property name="cache.provider_class">NHibernate.Caches.SysCache.SysCacheProvider, NHibernate.Caches.SysCache</property>
-      </session-factory>
-    </hibernate-configuration>
-  </configuration>
-
-  <configuration>
-    <configSections>
-      <section name="logbus" type="It.Unina.Dis.Logbus.Configuration.LogbusConfigSectionHandler, It.Unina.Dis.Logbus" />
-    </configSections>
-    <logbus xmlns="http://www.dis.unina.it/logbus-ng/configuration" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration">
-      <in-channels>
-        <in-channel config:name="udp" config:type="It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus">
-          <param config:name="port" config:value="27888"/>
-        </in-channel>
-      </in-channels>
-    </logbus>
-  </configuration>
-</example>
+  <configSections>
+    <section name="logbus-core" type="It.Unina.Dis.Logbus.Configuration.LogbusCoreConfigurationSectionHandler, It.Unina.Dis.Logbus, Culture=neutral, PublicKeyToken=9bbc6deeaedcd38f" />
+    <section name="logbus-source" type="It.Unina.Dis.Logbus.Configuration.LogbusSourceConfigurationSectionHandler, It.Unina.Dis.Logbus, Culture=neutral, PublicKeyToken=9bbc6deeaedcd38f" />
+    <section name="logbus-client" type="It.Unina.Dis.Logbus.Configuration.LogbusClientConfigurationSectionHandler, It.Unina.Dis.Logbus, Culture=neutral, PublicKeyToken=9bbc6deeaedcd38f" />
+  </configSections>
+  
+  <logbus-core xmlns="http://www.dis.unina.it/logbus-ng/configuration" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration">
+    <in-channels>
+      <in-channel config:name="udp" config:type="It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus">
+        <param config:name="port" config:value="27888"/>
+      </in-channel>
+    </in-channels>
+  </logbus-core>
+  
+  
+</configuration>

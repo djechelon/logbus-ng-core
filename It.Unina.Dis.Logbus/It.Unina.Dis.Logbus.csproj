@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9D119D96-4F98-4131-90D4-1F5FE2EC09B7}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -45,13 +45,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\InboundChannelsConfiguration.cs" />
+    <Compile Include="Configuration\LogbusClientConfiguration.cs" />
+    <Compile Include="Configuration\LogbusClientConfigurationSectionHandler.cs" />
+    <Compile Include="Configuration\LogbusEndpointDefinition.cs" />
+    <Compile Include="Configuration\LogbusEndpointDefinitionIndependent.cs" />
+    <Compile Include="Configuration\LogbusEndpointDefinitionWebApplication.cs" />
+    <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
+    <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
+    <Compile Include="Configuration\LoggerDefinition.cs" />
     <Compile Include="Loggers\ILog.cs" />
     <Compile Include="Clients\ILogClient.cs" />
     <Compile Include="Clients\ClientHelper.cs" />
     <Compile Include="Loggers\LoggerHelper.cs" />
     <Compile Include="Clients\SyslogUdpClient.cs" />
     <Compile Include="Configuration\AssemblyToScan.cs" />
-    <Compile Include="Configuration\CustomFilterConfiguration.cs">
+    <Compile Include="Configuration\CustomFiltersConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Configuration\CustomFilterDefinition.cs" />
@@ -61,7 +70,7 @@
     <Compile Include="Configuration\KeyValuePair.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\LogbusCoreConfigSectionHandler.cs">
+    <Compile Include="Configuration\LogbusCoreConfigurationSectionHandler.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Configuration\LogbusCoreConfiguration.cs" />
@@ -110,6 +119,7 @@
     <Compile Include="LogbusService.cs">
     </Compile>
     <Compile Include="LogbusSingletonHelper.cs" />
+    <Compile Include="Loggers\MultiLogger.cs" />
     <Compile Include="OutChannels\SimpleOutChannel.cs" />
     <Compile Include="OutChannels\SimpleOutChannelFactory.cs" />
     <Compile Include="OutTransports\SimpleTransportHelper.cs" />

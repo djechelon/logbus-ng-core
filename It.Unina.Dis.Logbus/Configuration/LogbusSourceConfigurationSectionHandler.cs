@@ -19,26 +19,22 @@
 
 using System.Configuration;
 using System.Xml.Serialization;
-using System.Xml;
-using System.IO;
 using System;
-using System.Text;
+using System.Xml;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
     /// Configuration section handler for App.config/Web.config
     /// </summary>
-    public class LogbusCoreConfigSectionHandler: IConfigurationSectionHandler
+    public class LogbusSourceConfigurationSectionHandler : IConfigurationSectionHandler
     {
-       
-
         #region IConfigurationSectionHandler Membri di
 
         /// <summary>
-        /// Read configuration and return a <see cref="LogbusConfiguration"/> object by design contract
+        /// Read configuration and return a <see cref="LogbusSourceConfiguration"/> object by design contract
         /// </summary>
         /// <returns></returns>
-        
+
         object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
         {
             try
