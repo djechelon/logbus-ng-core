@@ -168,19 +168,8 @@
 		<xs:annotation>
 			<xs:documentation>Defines the location of a Logbus endpoint for channel management and subscription</xs:documentation>
 		</xs:annotation>
-		<xs:choice>
-			<xs:element name="web-appplication">
-				<xs:complexType>
-					<xs:attribute ref="url" use="required"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="independent">
-				<xs:complexType>
-					<xs:attribute name="managementUrl" type="UrlType" use="required"/>
-					<xs:attribute name="subscriptionUrl" type="UrlType" use="required"/>
-				</xs:complexType>
-			</xs:element>
-		</xs:choice>
+		<xs:attribute name="subscriptionUrl" type="UrlType" use="required"/>
+		<xs:attribute name="managementUrl" type="UrlType" use="required"/>
 	</xs:complexType>
 	<xs:element name="endpoint"/>
 	<xs:simpleType name="UrlType">
