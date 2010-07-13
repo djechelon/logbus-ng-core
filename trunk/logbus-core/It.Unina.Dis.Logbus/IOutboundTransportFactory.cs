@@ -19,8 +19,6 @@
 
 using System.Collections.Generic;
 
-//For now let's try with System.Object. Maybe one day we'll switch to String
-using OUT_TRANSPORT_CONFIG_TYPE = System.String;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -39,39 +37,12 @@ namespace It.Unina.Dis.Logbus
     /// </example>
     /// </summary>
     public interface IOutboundTransportFactory
+        :IConfigurable
     {
         /// <summary>
         /// Instantiates an outbound transport to which clients must be subscribe when they subscribe to an outbound channel
         /// </summary>
         /// <returns></returns>
         IOutboundTransport CreateTransport();
-
-        /// <summary>
-        /// Gets a configuration parameter by name
-        /// </summary>
-        /// <param name="key">Name of configuration parameter</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Key is null</exception>
-        /// <exception cref="NotSupportedException">Key is not supported by this transport factory</exception>
-        OUT_TRANSPORT_CONFIG_TYPE GetConfigurationParameter(string key);
-        
-        /// <summary>
-        /// Sets a configuration parameter by key
-        /// </summary>
-        /// <param name="key">Name of configuration parameter</param>
-        /// <param name="value">Value to set. Can be null</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Key is null</exception>
-        /// <exception cref="ArgumentException">The specific transport doesn't accept such value</exception>
-        /// <exception cref="NotSupportedException">Key is not supported by this transport factory</exception>
-        void SetConfigurationParameter(string key, OUT_TRANSPORT_CONFIG_TYPE value);
-
-        /// <summary>
-        /// Gets or sets all configuration parameters in one shot
-        /// </summary>
-        /// <exception cref="ArgumentNullException">List is null</exception>
-        /// <exception cref="NotSupportedException">One of the keys is not supported</exception>
-        /// <exception cref="ArgumentException">One of the values is not accepted as valid</exception>
-        IEnumerable<KeyValuePair<string, OUT_TRANSPORT_CONFIG_TYPE>> Configuration { set; }
     }
 }

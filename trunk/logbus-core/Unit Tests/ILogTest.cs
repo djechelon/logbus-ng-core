@@ -1,5 +1,4 @@
-﻿using It.Unina.Dis.Logbus.Api;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus.Configuration;
 using System;
 using It.Unina.Dis.Logbus;
@@ -8,6 +7,7 @@ using System.Net;
 using It.Unina.Dis.Logbus.Filters;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using It.Unina.Dis.Logbus.Loggers;
 namespace Unit_Tests
 {
 

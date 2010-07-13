@@ -52,11 +52,13 @@
     <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
     <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
+    <Compile Include="IConfigurable.cs" />
     <Compile Include="Loggers\ILog.cs" />
     <Compile Include="Clients\ILogClient.cs" />
     <Compile Include="Clients\ClientHelper.cs" />
+    <Compile Include="Loggers\ILogger.cs" />
     <Compile Include="Loggers\LoggerHelper.cs" />
-    <Compile Include="Clients\SyslogUdpClient.cs" />
+    <Compile Include="Clients\UdpLogClientImpl.cs" />
     <Compile Include="Configuration\AssemblyToScan.cs" />
     <Compile Include="Configuration\CustomFiltersConfiguration.cs">
       <SubType>Code</SubType>
@@ -118,6 +120,7 @@
     </Compile>
     <Compile Include="LogbusSingletonHelper.cs" />
     <Compile Include="Loggers\MultiLogger.cs" />
+    <Compile Include="Loggers\NullLogger.cs" />
     <Compile Include="OutChannels\SimpleOutChannel.cs" />
     <Compile Include="OutChannels\SimpleOutChannelFactory.cs" />
     <Compile Include="OutTransports\SimpleTransportHelper.cs" />

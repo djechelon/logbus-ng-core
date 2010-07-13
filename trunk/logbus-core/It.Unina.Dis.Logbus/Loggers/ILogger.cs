@@ -17,15 +17,10 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System;
-namespace It.Unina.Dis.Logbus.Clients
+namespace It.Unina.Dis.Logbus.Loggers
 {
-    /// <summary>
-    /// Wraps a client that receives log messages from Logbus-ng
-    /// </summary>
-    public interface ILogClient
-        : IRunnable, ILogSource, IDisposable
+    public interface ILogger
+        :ILog, IConfigurable
     {
-        //Really nothing to add
     }
 }

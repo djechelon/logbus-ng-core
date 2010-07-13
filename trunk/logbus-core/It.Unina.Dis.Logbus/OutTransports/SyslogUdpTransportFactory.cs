@@ -34,17 +34,17 @@ namespace It.Unina.Dis.Logbus.OutTransports
             };
         }
 
-        string IOutboundTransportFactory.GetConfigurationParameter(string key)
+        string IConfigurable.GetConfigurationParameter(string key)
         {
             throw new System.NotSupportedException("Configuration not supported by UDP transport");
         }
 
-        void IOutboundTransportFactory.SetConfigurationParameter(string key, string value)
+        void IConfigurable.SetConfigurationParameter(string key, string value)
         {
             throw new System.NotSupportedException("Configuration not supported by UDP transport");
         }
 
-        System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IOutboundTransportFactory.Configuration
+        System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IConfigurable.Configuration
         {
             set { throw new System.NotSupportedException("Configuration not supported by UDP transport"); }
         }

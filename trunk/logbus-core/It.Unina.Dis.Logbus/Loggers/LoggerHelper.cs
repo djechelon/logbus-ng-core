@@ -19,7 +19,13 @@
 
 using System.Net;
 using It.Unina.Dis.Logbus.Utils;
-namespace It.Unina.Dis.Logbus.Api
+using System.Configuration;
+using It.Unina.Dis.Logbus.Configuration;
+using System;
+using It.Unina.Dis.Logbus.Loggers;
+using System.Collections.Generic;
+
+namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
     /// This class provides services for Log sources (clients which generate log messages and want to send them to Logbus)
@@ -28,6 +34,52 @@ namespace It.Unina.Dis.Logbus.Api
     {
 
         private LoggerHelper() { }
+
+        static LoggerHelper()
+        {
+            try
+            {
+                Configuration = ConfigurationManager.GetSection("logbus-source") as LogbusSourceConfiguration;
+            }
+            catch (LogbusConfigurationException) { }
+        }
+
+        public static LogbusSourceConfiguration Configuration
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Constructs a logger basing on configuration
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
+        public static ILogCollector CreateDefaultLogger()
+        {
+            if (Configuration == null) throw new InvalidOperationException("This method requires a valid logger configuration to be instanced first");
+
+            if (Configuration.logger == null || Configuration.logger.Length == 0)
+                return new NullLogger();
+            else if (Configuration.logger.Length == 1)
+            {
+                //Just one logger
+                LoggerDefinition def = Configuration.logger[0];
+                if (def == null) throw new InvalidOperationException("Invalid logger definition");
+                return CreateByDefinition(def);
+            }
+            else
+            {
+                //Need to use MultiLogger
+                MultiLogger ret = new MultiLogger();
+                List<ILogCollector> lst = new List<ILogCollector>();
+                foreach (LoggerDefinition def in Configuration.logger)
+                    lst.Add(CreateByDefinition(def));
+                ret.Collectors = lst.ToArray();
+
+                return ret;
+            }
+        }
 
         /// <summary>
         /// Creates a Log collector which uses Syslog UDP sending
@@ -74,6 +126,34 @@ namespace It.Unina.Dis.Logbus.Api
         public static FFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
         {
             return new FFDALogger(CreateUdpEntryPoint(logbus_ip, logbus_port));
+        }
+
+
+        private static ILogCollector CreateByDefinition(LoggerDefinition def)
+        {
+            if (def == null) throw new ArgumentNullException("def");
+            try
+            {
+                Type logger_type = Type.GetType(def.type);
+                if (!typeof(ILogCollector).IsAssignableFrom(logger_type))
+                {
+                    LogbusConfigurationException ex = new LogbusConfigurationException("Registered logger type does not implement ILogCollector");
+                    ex.Data.Add("type", logger_type);
+                    throw ex;
+                }
+                ILogCollector ret = Activator.CreateInstance(logger_type) as ILogCollector;
+                if (def.param != null && ret is IConfigurable)
+                {
+                    IConfigurable logger_conf = ret as IConfigurable;
+                    foreach (KeyValuePair kvp in def.param)
+                        logger_conf.SetConfigurationParameter(kvp.name, kvp.value);
+                }
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Invalid logger configuration", ex);
+            }
         }
     }
 }

@@ -113,7 +113,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 try
                 {
-                    Hostname = Configuration["host"];
+                    Hostname = GetConfigurationParameter("host");
                 }
                 catch (KeyNotFoundException)
                 {
@@ -124,7 +124,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 try
                 {
-                    LogName = Configuration["logName"];
+                    LogName = GetConfigurationParameter("logName");
                 }
                 catch (KeyNotFoundException)
                 {
@@ -158,19 +158,8 @@ namespace It.Unina.Dis.Logbus.InChannels
         [System.Obsolete("This class never raises this event. It is just required by the interface", true)]
         public event ParseErrorEventHandler ParseError;
 
-        /// <summary>
-        /// List of supported configuration parameters:
-        /// <list>
-        /// <item><c>host</c>(optional): hostname of which to collect logs (local system MUST be authorized via Windows Event Log facility).
-        /// If not set, using "."</item>
-        /// <item><c>logName</c>: name of Event Log to listen for messages</item>
-        /// </list>
-        /// </summary>
-        public System.Collections.Generic.IDictionary<string, string> Configuration
-        {
-            get;
-            private set;
-        }
+        
+        
 
         #endregion
 
@@ -200,6 +189,33 @@ namespace It.Unina.Dis.Logbus.InChannels
         public event EventHandler Stopped;
 
         public event UnhandledExceptionEventHandler Error;
+
+        #endregion
+
+        #region IConfigurable Membri di
+
+        public string GetConfigurationParameter(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetConfigurationParameter(string key, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// List of supported configuration parameters:
+        /// <list>
+        /// <item><c>host</c>(optional): hostname of which to collect logs (local system MUST be authorized via Windows Event Log facility).
+        /// If not set, using "."</item>
+        /// <item><c>logName</c>: name of Event Log to listen for messages</item>
+        /// </list>
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> Configuration
+        {
+            set { throw new NotImplementedException(); }
+        }
 
         #endregion
     }

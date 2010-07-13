@@ -17,13 +17,13 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.Api;
 using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using It.Unina.Dis.Logbus.Loggers;
 namespace It.Unina.Dis.Logbus.Utils
 {
     internal class SimpleLogImpl

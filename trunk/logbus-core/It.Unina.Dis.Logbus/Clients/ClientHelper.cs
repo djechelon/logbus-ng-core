@@ -21,7 +21,8 @@ using It.Unina.Dis.Logbus.RemoteLogbus;
 using It.Unina.Dis.Logbus.Utils;
 using System.Collections;
 using It.Unina.Dis.Logbus.Filters;
-namespace It.Unina.Dis.Logbus.Api
+
+namespace It.Unina.Dis.Logbus.Clients
 {
     /// <summary>
     /// This class provides services for Log collectors that want to subscribe to Logbus channels

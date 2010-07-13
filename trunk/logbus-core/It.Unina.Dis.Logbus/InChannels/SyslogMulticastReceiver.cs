@@ -72,5 +72,24 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #endregion
 
+
+        #region IConfigurable Membri di
+
+        public string GetConfigurationParameter(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetConfigurationParameter(string key, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IConfigurable.Configuration
+        {
+            set { throw new NotImplementedException(); }
+        }
+
+        #endregion
     }
 }

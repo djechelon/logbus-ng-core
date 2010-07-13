@@ -17,15 +17,19 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System;
-namespace It.Unina.Dis.Logbus.Clients
+namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
-    /// Wraps a client that receives log messages from Logbus-ng
+    /// A logger that doesn't log to anything.
+    /// Needed for internal purposes
     /// </summary>
-    public interface ILogClient
-        : IRunnable, ILogSource, IDisposable
+    internal class NullLogger
+    : ILogCollector
     {
-        //Really nothing to add
+        #region ILogCollector Membri di
+
+        void ILogCollector.SubmitMessage(SyslogMessage message) { }
+
+        #endregion
     }
 }
