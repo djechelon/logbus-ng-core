@@ -856,6 +856,7 @@ namespace It.Unina.Dis.Logbus
         [MethodImpl(MethodImplOptions.Synchronized)]
         It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation IChannelManagement.GetChannelInformation(string id)
         {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
             IOutboundChannel chan = null;
 
             foreach (IOutboundChannel ch in OutboundChannels)
@@ -881,7 +882,19 @@ namespace It.Unina.Dis.Logbus
         [MethodImpl(MethodImplOptions.Synchronized)]
         void IChannelManagement.DeleteChannel(string id)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
+            IOutboundChannel chan = null;
+
+            foreach (IOutboundChannel ch in OutboundChannels)
+                if (ch.ID == id)
+                {
+                    chan = ch;
+                    break;
+                }
+
+            if (chan.SubscribedClients > 0) throw new InvalidOperationException("Unable to delete channels to which there are still subscribed clients");
+            chan.Stop();
+            OutboundChannels.Remove(chan);
         }
 
         #endregion
