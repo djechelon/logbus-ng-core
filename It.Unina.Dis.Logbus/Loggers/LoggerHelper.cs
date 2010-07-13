@@ -55,7 +55,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
-        public static ILogCollector CreateDefaultLogger()
+        public static ILogCollector CreateDefaultCollector()
         {
             if (Configuration == null) throw new InvalidOperationException("This method requires a valid logger configuration to be instanced first");
 
@@ -87,9 +87,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbus_ip">IP address of logbus target</param>
         /// <param name="logbus_port">UDP port of logbus target</param>
         /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateUdpEntryPoint(IPAddress logbus_ip, int logbus_port)
+        public static ILogCollector CreateUdpCollector(IPAddress logbus_ip, int logbus_port)
         {
-            return new Loggers.SyslogUdpLogger(logbus_ip, logbus_port);
+            return new SyslogUdpLogger(logbus_ip, logbus_port);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <remarks>Facility is set to Local4 as default value</remarks>
         public static ILog CreateUdpLogger(IPAddress logbus_ip, int logbus_port)
         {
-            return new SimpleLogImpl(CreateUdpEntryPoint(logbus_ip, logbus_port));
+            return new SimpleLogImpl(CreateUdpCollector(logbus_ip, logbus_port));
         }
 
         /// <summary>
@@ -113,7 +113,17 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog CreateUdpLogger(IPAddress logbus_ip, int logbus_port, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUdpEntryPoint(logbus_ip, logbus_port));
+            return new SimpleLogImpl(facility, CreateUdpCollector(logbus_ip, logbus_port));
+        }
+
+        /// <summary>
+        /// Creates a logger with default configuration
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Configuration is not set or invalid</exception>
+        public static ILog CreateDefaultLogger()
+        {
+            return new SimpleLogImpl(CreateDefaultCollector());
         }
 
         /// <summary>
@@ -125,7 +135,17 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <remarks>Facility is set to Local0 as default value</remarks>
         public static FFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
         {
-            return new FFDALogger(CreateUdpEntryPoint(logbus_ip, logbus_port));
+            return new FFDALogger(CreateUdpCollector(logbus_ip, logbus_port));
+        }
+
+        /// <summary>
+        /// Creates an FFDA logger with the default logger
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
+        public static FFDALogger CreateFFDALogger()
+        {
+            return new FFDALogger(CreateDefaultCollector());
         }
 
 
@@ -134,7 +154,15 @@ namespace It.Unina.Dis.Logbus.Loggers
             if (def == null) throw new ArgumentNullException("def");
             try
             {
-                Type logger_type = Type.GetType(def.type);
+                string typename = def.type;
+                if (typename.IndexOf('.') < 0)
+                {
+                    //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
+                    string namespc = "It.Unina.Dis.Logbus.Loggers";
+                    string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
+                    typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
+                }
+                Type logger_type = Type.GetType(typename);
                 if (!typeof(ILogCollector).IsAssignableFrom(logger_type))
                 {
                     LogbusConfigurationException ex = new LogbusConfigurationException("Registered logger type does not implement ILogCollector");
