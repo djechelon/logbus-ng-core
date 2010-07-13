@@ -30,6 +30,15 @@ namespace It.Unina.Dis.Logbus.Utils
     /// <summary>
     /// Provides FFDA-specific logging services using the underlying Logbus-ng infrastructure
     /// </summary>
+    /// <remarks>
+    /// FFDA messages have the following costraints:
+    /// <list>
+    /// <item>Facility defaults to Local0</item>
+    /// <item>Severity equals to Info or Error</item>
+    /// <item>MessageID equals to <c>FFDA</c></item>
+    /// <item>Text matches regular expression <c>^(SST|SEN|RIS|RIE|EIS|EIE|COA)[-]?</c></item>
+    /// </list>
+    /// </remarks>
     public class FFDALogger
     {
         #region Constructor
@@ -245,8 +254,8 @@ namespace It.Unina.Dis.Logbus.Utils
             StackFrame[] stackFrames = stackTrace.GetFrames();
             msg.Data = new Dictionary<String, IDictionary<String, String>>();
             msg.Data.Add("CallerData@" + SimpleLogImpl.ENTERPRISE_ID, new Dictionary<String, String>());
-            msg.Data["CallerData@" + SimpleLogImpl.ENTERPRISE_ID].Add("ClassName", stackFrames[3].GetMethod().DeclaringType.FullName);
-            msg.Data["CallerData@" + SimpleLogImpl.ENTERPRISE_ID].Add("MethodName", stackFrames[3].GetMethod().Name);
+            msg.Data["CallerData@" + SimpleLogImpl.ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
+            msg.Data["CallerData@" + SimpleLogImpl.ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
 
             Target.SubmitMessage(msg);
         }
