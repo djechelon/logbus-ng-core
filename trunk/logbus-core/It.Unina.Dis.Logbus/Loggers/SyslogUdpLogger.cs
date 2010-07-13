@@ -21,6 +21,8 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Text;
+using System.Globalization;
+using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.Loggers
 {
     internal class SyslogUdpLogger
@@ -28,7 +30,7 @@ namespace It.Unina.Dis.Logbus.Loggers
     {
 
         #region Constrcutor
-        public SyslogUdpLogger() { }
+        public SyslogUdpLogger() { client = new UdpClient(); }
 
         public SyslogUdpLogger(string ip, int port)
             : this(new IPEndPoint(IPAddress.Parse(ip), port))
@@ -43,7 +45,6 @@ namespace It.Unina.Dis.Logbus.Loggers
         public SyslogUdpLogger(IPEndPoint endpoint)
         {
             RemoteEndPoint = endpoint;
-            client = new UdpClient();
         }
 
         ~SyslogUdpLogger()
@@ -59,11 +60,24 @@ namespace It.Unina.Dis.Logbus.Loggers
         }
 
         private UdpClient client;
+        private IPAddress remote_addr;
+        private int port;
 
         #region ILogCollector Membri di
 
         public void SubmitMessage(SyslogMessage message)
         {
+            if (RemoteEndPoint == null)
+            {
+                if (port == 0 || remote_addr == null)
+                    throw new InvalidOperationException("Logger is not configured");
+                else
+                {
+                    RemoteEndPoint = new IPEndPoint(remote_addr, port);
+                }
+            }
+
+
             byte[] payload = Encoding.UTF8.GetBytes(message.ToRfc5424String());
             try
             {
@@ -88,7 +102,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             GC.SuppressFinalize(this);
             if (disposing && client != null) client.Close();
-            
+
             client = null;
             RemoteEndPoint = null;
         }
@@ -98,17 +112,67 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         public string GetConfigurationParameter(string key)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key", "Key cannot be null");
+            switch (key)
+            {
+                case "ip":
+                    return (remote_addr == null) ? null : remote_addr.ToString();
+                case "port":
+                    return port.ToString(CultureInfo.InvariantCulture);
+                default:
+                    {
+                        NotSupportedException ex = new NotSupportedException("Invalid key");
+                        ex.Data.Add("key", key);
+                        throw ex;
+                    }
+            }
         }
 
         public void SetConfigurationParameter(string key, string value)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key", "Key cannot be null");
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("value", "Value cannot be null");
+            switch (key)
+            {
+                case "ip":
+                    {
+                        try
+                        {
+                            remote_addr = IPAddress.Parse(value);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new ArgumentException("Invalid IP address for remote endpoint", "value", ex);
+                        }
+                        break;
+                    }
+                case "port":
+                    {
+                        try
+                        {
+                            port = int.Parse(value);
+                            if (port < 0 || port > 65535) throw new ArgumentOutOfRangeException("value", port, "Port must be between 0 and 65535");
+                        }
+                        catch (ArgumentOutOfRangeException) { throw; }
+                        catch (Exception ex)
+                        {
+                            throw new ArgumentException("Port must be integer", "value", ex);
+                        }
+                        break;
+                    }
+                default:
+                    throw new NotSupportedException("Invalid key");
+
+            }
         }
 
         public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
         {
-            set { throw new NotImplementedException(); }
+            set
+            {
+                foreach (KeyValuePair<string, string> kvp in value)
+                    SetConfigurationParameter(kvp.Key, kvp.Value);
+            }
         }
 
         #endregion

@@ -183,12 +183,21 @@ namespace It.Unina.Dis.Logbus
 
                             try
                             {
-                                Type in_chan_type = Type.GetType(def.type, true, false);
+                                string typename = def.type;
+                                if (typename.IndexOf('.') < 0)
+                                {
+                                    //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
+                                    string namespc = "It.Unina.Dis.Logbus.InChannels";
+                                    string assemblyname = GetType().Assembly.GetName().ToString();
+                                    typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
+                                }
+
+                                Type in_chan_type = Type.GetType(typename, true, false);
 
                                 if (!typeof(IInboundChannel).IsAssignableFrom(in_chan_type))
                                 {
                                     LogbusConfigurationException ex = new LogbusConfigurationException("Specified type for Inbound channel does not implement IInboundChannel");
-                                    ex.Data["TypeName"] = def.type;
+                                    ex.Data["TypeName"] = typename;
                                 }
                                 IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(in_chan_type, true);
                                 try

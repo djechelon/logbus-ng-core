@@ -41,7 +41,7 @@ namespace It.Unina.Dis.Logbus
         /// <param name="value">Value to set. Can be null</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Key is null</exception>
-        /// <exception cref="ArgumentException">The specific transport doesn't accept such value</exception>
+        /// <exception cref="ArgumentException">Value not accepted/supported</exception>
         /// <exception cref="NotSupportedException">Key is not supported by this transport factory</exception>
         void SetConfigurationParameter(string key, string value);
 

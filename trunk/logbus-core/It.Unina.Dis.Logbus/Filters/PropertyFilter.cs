@@ -39,47 +39,52 @@ namespace It.Unina.Dis.Logbus.Filters
 
         void PropertyFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            switch (propertyName)
-            {
-                case Property.Severity:
-                    {
-                        try
+            if (e.PropertyName == "propertyName") prop_set = true;
+            else if (e.PropertyName == "comparison") cmp_set = true;
+            else if (e.PropertyName == "value") val_set = true;
+
+            if (val_set && prop_set && cmp_set)
+                switch (propertyName)
+                {
+                    case Property.Severity:
                         {
-                            targetvalue = Enum.Parse(typeof(Severity), value);
+                            try
+                            {
+                                targetvalue = Enum.Parse(typeof(Severity), value);
+                            }
+                            catch { throw new ArgumentException("Value is incompatible with property"); }
+                            break;
                         }
-                        catch { throw new ArgumentException("Value is incompatible with property"); }
-                        break;
-                    }
-                case Property.Facility:
-                    {
-                        try
+                    case Property.Facility:
                         {
-                            targetvalue = Enum.Parse(typeof(Facility), value);
+                            try
+                            {
+                                targetvalue = Enum.Parse(typeof(Facility), value);
+                            }
+                            catch { throw new ArgumentException("Value is incompatible with property"); }
+                            break;
                         }
-                        catch { throw new ArgumentException("Value is incompatible with property"); }
-                        break;
-                    }
-                case Property.Timestamp:
-                    {
-                        DateTime val;
-                        if (!DateTime.TryParse(value, out val)) throw new ArgumentException("Value is incompatible with property");
-                        targetvalue = val;
-                        break;
-                    }
-                case Property.Host:
-                case Property.ApplicationName:
-                case Property.MessageID:
-                case Property.ProcessID:
-                case Property.Text:
-                    {
-                        targetvalue = value;
-                        break;
-                    }
-                case Property.Data:
-                    {
-                        throw new NotSupportedException();
-                    }
-            }
+                    case Property.Timestamp:
+                        {
+                            DateTime val;
+                            if (!DateTime.TryParse(value, out val)) throw new ArgumentException("Value is incompatible with property");
+                            targetvalue = val;
+                            break;
+                        }
+                    case Property.Host:
+                    case Property.ApplicationName:
+                    case Property.MessageID:
+                    case Property.ProcessID:
+                    case Property.Text:
+                        {
+                            targetvalue = value;
+                            break;
+                        }
+                    case Property.Data:
+                        {
+                            throw new NotSupportedException();
+                        }
+                }
         }
 
         private string valueField;
@@ -318,5 +323,7 @@ namespace It.Unina.Dis.Logbus.Filters
             }
             throw new InvalidProgramException("Software bug!");
         }
+
+        private bool prop_set = false, cmp_set = false, val_set = false;
     }
 }

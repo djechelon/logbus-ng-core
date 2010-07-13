@@ -225,7 +225,7 @@ namespace It.Unina.Dis.Logbus
             foreach (KeyValuePair<string, string> kvp in data)
             {
                 StringBuilder escape_builder = new StringBuilder();
-                elements.Add(kvp.Key + "=\"" + Escape(kvp.Value, new char[] { '"', '\\', ']' }) + "\"");
+                elements.Add(string.Format(@"{0}=""{1}""", kvp.Key, Escape(kvp.Value, new char[] { '"', '\\', ']' })));
             }
 
             if (elements.Count > 0)
