@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus
     /// Logbus inbound channel. Collects log messages and notifies Logbus core of new messages
     /// </summary>
     public interface IInboundChannel
-        : ILogSource, IRunnable, IDisposable
+        : ILogSource, IRunnable, IConfigurable, IDisposable
     {
 
         /// <summary>
@@ -39,11 +39,6 @@ namespace It.Unina.Dis.Logbus
         /// Notifies a parse error occurred
         /// </summary>
         event ParseErrorEventHandler ParseError;
-
-        /// <summary>
-        /// Configures the channel according to the design contract
-        /// </summary>
-        IDictionary<string, string> Configuration { get; }
 
     }
 }

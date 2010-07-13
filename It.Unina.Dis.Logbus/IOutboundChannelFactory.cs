@@ -20,12 +20,25 @@
 using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus
 {
+    /// <summary>
+    /// Factory for Outbound Channels. Can be overriden in Logbus core
+    /// </summary>
     public interface IOutboundChannelFactory
     {
-
+        /// <summary>
+        /// Creates a new channel instance
+        /// </summary>
+        /// <param name="name">Channel name</param>
+        /// <param name="description">Channel description</param>
+        /// <param name="filter">Channel filter</param>
+        /// <returns>A new instance of a class that implements IOutboundChannel</returns>
+        /// <exception cref="InvalidOperationException">Factory helper is not set</exception>
         IOutboundChannel CreateChannel(string name, string description, IFilter filter);
 
-        ITransportFactoryHelper TransportFactoryHelper { get; set; }
+        /// <summary>
+        /// Sets the Factory helper, needed for channel creation
+        /// </summary>
+        ITransportFactoryHelper TransportFactoryHelper { set; }
 
     }
 }

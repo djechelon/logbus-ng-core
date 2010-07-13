@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using It.Unina.Dis.Logbus.Api;
 using System.Net;
 using System.Diagnostics;
 using System.Globalization;

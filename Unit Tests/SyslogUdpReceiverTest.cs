@@ -97,8 +97,8 @@ namespace Unit_Tests
 
                 try
                 {
-                    target.Configuration["port"] = "HELL0";
-                    target.Configuration["ip"] = "656.33.21.0";
+                    target.SetConfigurationParameter("port", "HELL0");
+                    target.SetConfigurationParameter("ip", "656.33.21.0");
                     //target.Configuration.Add(new KeyValuePair<string, string>("port", "37888"));
                     //target.Configuration.Add(new KeyValuePair<string, string>("ip", "127.0.0.1"));
                     target.Start();
@@ -120,8 +120,8 @@ namespace Unit_Tests
 
                 try
                 {
-                    target.Configuration["port"] = "37888";
-                    target.Configuration["ip"] = "127.0.0.1";
+                    target.SetConfigurationParameter("port", "37888");
+                    target.SetConfigurationParameter("ip", "127.0.0.1");
                     //target.Configuration.Add(new KeyValuePair<string, string>("port", "37888"));
                     //target.Configuration.Add(new KeyValuePair<string, string>("ip", "127.0.0.1"));
                     target.Start();
@@ -140,8 +140,8 @@ namespace Unit_Tests
 
                 try
                 {
-                    target.Configuration["port"] = "37888";
-                    target.Configuration["ip"] = "127.0.0.1";
+                    target.SetConfigurationParameter("port", "37888");
+                    target.SetConfigurationParameter("ip", "127.0.0.1");
                     //target.Configuration.Add(new KeyValuePair<string, string>("port", "37888"));
                     //target.Configuration.Add(new KeyValuePair<string, string>("ip", "127.0.0.1"));
                     target.Start();
@@ -189,8 +189,8 @@ namespace Unit_Tests
             {
                 using (SyslogUdpReceiver target = new SyslogUdpReceiver())
                 {
-                    target.Configuration["port"] = "37889";
-                    target.Configuration["ip"] = "127.0.0.1";
+                    target.SetConfigurationParameter("port", "37889");
+                    target.SetConfigurationParameter("ip", "127.0.0.1");
                     target.Start();
                     target.Stop();
                 }
@@ -213,8 +213,8 @@ namespace Unit_Tests
             {
                 try
                 {
-                    target.Configuration["port"] = "37888";
-                    target.Configuration["ip"] = "127.0.0.1";
+                    target.SetConfigurationParameter("port", "37888");
+                    target.SetConfigurationParameter("ip", "127.0.0.1");
                     //target.Configuration.Add(new KeyValuePair<string, string>("port", "37888"));
                     //target.Configuration.Add(new KeyValuePair<string, string>("ip", "127.0.0.1"));
                     target.Start();
@@ -234,8 +234,8 @@ namespace Unit_Tests
             //OK test
             using (SyslogUdpReceiver target = new SyslogUdpReceiver())
             {
-                target.Configuration["port"] = "37889";
-                target.Configuration["ip"] = "127.0.0.1";
+                target.SetConfigurationParameter("port", "37889");
+                target.SetConfigurationParameter("ip", "127.0.0.1");
                 target.Start();
             }
             //OK
@@ -266,7 +266,7 @@ namespace Unit_Tests
                 target.IpAddress = expected;
                 actual = target.IpAddress;
                 Assert.AreEqual(expected, actual);
-                Assert.AreEqual(expected, target.Configuration["ip"]);
+                Assert.AreEqual(expected, target.GetConfigurationParameter("ip"));
             }
         }
 
@@ -283,7 +283,7 @@ namespace Unit_Tests
                 target.Port = expected;
                 actual = target.Port;
                 Assert.AreEqual(expected, actual);
-                Assert.AreEqual(expected.ToString(), target.Configuration["port"]);
+                Assert.AreEqual(expected.ToString(), target.GetConfigurationParameter("port"));
             }
         }
 

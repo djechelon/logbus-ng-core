@@ -24,10 +24,12 @@ using System.Text;
 namespace It.Unina.Dis.Logbus.Loggers
 {
     internal class SyslogUdpLogger
-        : ILogCollector, IDisposable
+        : ILogCollector, IConfigurable, IDisposable
     {
 
         #region Constrcutor
+        public SyslogUdpLogger() { }
+
         public SyslogUdpLogger(string ip, int port)
             : this(new IPEndPoint(IPAddress.Parse(ip), port))
         {
@@ -90,6 +92,25 @@ namespace It.Unina.Dis.Logbus.Loggers
             client = null;
             RemoteEndPoint = null;
         }
+        #endregion
+
+        #region IConfigurable Membri di
+
+        public string GetConfigurationParameter(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetConfigurationParameter(string key, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        {
+            set { throw new NotImplementedException(); }
+        }
+
         #endregion
     }
 }

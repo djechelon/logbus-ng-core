@@ -196,7 +196,7 @@ namespace It.Unina.Dis.Logbus
                                     if (def.param != null)
                                         foreach (KeyValuePair param in def.param)
                                         {
-                                            channel.Configuration[param.name] = param.value;
+                                            channel.SetConfigurationParameter(param.name, param.value);
                                         }
                                 }
                                 catch (NullReferenceException ex)

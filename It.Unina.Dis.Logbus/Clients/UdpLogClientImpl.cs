@@ -24,7 +24,8 @@ using It.Unina.Dis.Logbus.RemoteLogbus;
 using System.Threading;
 using System.ComponentModel;
 using System.Net.Sockets;
-namespace It.Unina.Dis.Logbus.Api
+
+namespace It.Unina.Dis.Logbus.Clients
 {
     internal sealed class UdpLogClientImpl
         : ILogClient

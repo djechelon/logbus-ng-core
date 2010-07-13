@@ -114,21 +114,6 @@ namespace It.Unina.Dis.Logbus.InChannels
         public event ParseErrorEventHandler ParseError;
 
 
-        /// <summary>
-        /// Configurable parameters:
-        /// <list type="string">
-        /// <item>ip: IP address of interface to bind the UDP listener to</item>
-        /// <item>port: UDP port on which to listen. Default is 514</item>
-        /// </list>
-        /// </summary>
-        public IDictionary<string, string> Configuration
-        {
-            get
-            {
-                return config;
-            }
-        }
-
         public string Name
         {
             get;
@@ -208,22 +193,11 @@ namespace It.Unina.Dis.Logbus.InChannels
                     if (e.Cancel) return;
                 }
 
-                ///Configure
-
-                if (Configuration.ContainsKey("ip")) IpAddress = Configuration["ip"];
-
-                int portnum;
-                if (!Configuration.ContainsKey("port"))
+                if (Port==0)
                 {
                     Port = DEFAULT_PORT;
                 }
-                else
-                {
-                    if (!int.TryParse(Configuration["port"], out portnum)) throw new LogbusException("Invalid UDP port");
-                    if (portnum < 1 || portnum > 65535) throw new LogbusException(string.Format("Invalid UDP port: {0}", portnum.ToString(CultureInfo.CurrentCulture)));
-                    Port = portnum;
-                }
-
+                
                 IPEndPoint local_ep;
                 if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Loopback, Port);
                 else local_ep = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
@@ -320,5 +294,53 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #endregion
 
+
+        #region IConfigurable Membri di
+
+        public string GetConfigurationParameter(string key)
+        {
+            switch (key)
+            {
+                case "ip":
+                    return IpAddress;
+                case "port":
+                    return Port.ToString(CultureInfo.InvariantCulture);
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter is not supported");
+                    }
+            }
+        }
+
+        public void SetConfigurationParameter(string key, string value)
+        {
+            switch (key)
+            {
+                case "ip":
+                    {
+                        IpAddress = value;
+                        break;
+                    }
+                case "port":
+                    {
+                        Port = int.Parse(value);
+                        break;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter is not supported");
+                    }
+            }
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> Configuration
+        {
+            set {
+                foreach (KeyValuePair<string, string> kvp in value)
+                    SetConfigurationParameter(kvp.Key, kvp.Value);
+            }
+        }
+
+        #endregion
     }
 }

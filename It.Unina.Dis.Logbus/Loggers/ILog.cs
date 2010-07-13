@@ -17,7 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.Api
+namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
     /// Provides logging services at a very high level
