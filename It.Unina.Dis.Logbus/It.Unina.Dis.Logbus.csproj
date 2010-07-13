@@ -49,8 +49,6 @@
     <Compile Include="Configuration\LogbusClientConfiguration.cs" />
     <Compile Include="Configuration\LogbusClientConfigurationSectionHandler.cs" />
     <Compile Include="Configuration\LogbusEndpointDefinition.cs" />
-    <Compile Include="Configuration\LogbusEndpointDefinitionIndependent.cs" />
-    <Compile Include="Configuration\LogbusEndpointDefinitionWebApplication.cs" />
     <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
     <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
@@ -167,6 +165,7 @@
     <None Include="Schemas\logbus-configuration.xsd" />
     <None Include="Schemas\logbus-control.wsdl" />
     <None Include="Schemas\logbus-filter.xsd" />
+    <None Include="Schemas\make-config.bat" />
     <None Include="Web References\RemoteLogbus\ChannelInformation.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>

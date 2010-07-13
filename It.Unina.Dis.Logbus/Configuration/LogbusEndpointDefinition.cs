@@ -28,20 +28,35 @@ namespace It.Unina.Dis.Logbus.Configuration
     public partial class LogbusEndpointDefinition
     {
 
-        private object itemField;
+        private string subscriptionUrlField;
+
+        private string managementUrlField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("independent", typeof(LogbusEndpointDefinitionIndependent), Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        [System.Xml.Serialization.XmlElementAttribute("web-appplication", typeof(LogbusEndpointDefinitionWebappplication), Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public object Item
+        [System.Xml.Serialization.XmlAttributeAttribute(DataType = "anyURI")]
+        public string subscriptionUrl
         {
             get
             {
-                return this.itemField;
+                return this.subscriptionUrlField;
             }
             set
             {
-                this.itemField = value;
+                this.subscriptionUrlField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute(DataType = "anyURI")]
+        public string managementUrl
+        {
+            get
+            {
+                return this.managementUrlField;
+            }
+            set
+            {
+                this.managementUrlField = value;
             }
         }
     }
