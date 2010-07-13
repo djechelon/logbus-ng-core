@@ -45,6 +45,7 @@
     </Reference>
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -64,6 +65,7 @@
     <Compile Include="SyslogUdpReceiverRuntimeTest.cs" />
     <Compile Include="SyslogUdpReceiverTest.cs" />
     <Compile Include="TestClasses\TestTransportFactory.cs" />
+    <Compile Include="WebServiceActivatorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />
