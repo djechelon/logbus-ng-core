@@ -68,7 +68,7 @@ namespace It.Unina.Dis.Logbus
         /// <param name="id">Client ID as returned by SubscribeChannel</param>
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#UnsubscribeChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
-        void UnsubscribeChannel(string id);
+        void UnsubscribeChannel(string clientId);
 
         /// <summary>
         /// Refreshes client subscription, if required by transport
@@ -76,6 +76,6 @@ namespace It.Unina.Dis.Logbus
         /// <param name="id">ID of client as returned by SubscribeChannel</param>
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#RefreshSubscription", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
-        void RefreshSubscription(string id);
+        void RefreshSubscription(string clientId);
     }
 }

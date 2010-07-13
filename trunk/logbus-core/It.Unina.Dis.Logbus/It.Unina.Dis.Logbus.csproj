@@ -41,6 +41,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -154,6 +158,12 @@
     <Compile Include="WebServices\ChannelSubscriptionService.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WebServices\HttpListenerLibrary.cs" />
+    <Compile Include="WebServices\WebServiceActivator.cs" />
+    <Compile Include="Wrappers\ChannelManagementTie.cs" />
+    <Compile Include="Wrappers\ChannelSubscriptionTie.cs" />
+    <Compile Include="Wrappers\Logbus2SoapAdapter.cs" />
+    <Compile Include="Wrappers\LogBusTie.cs" />
     <Compile Include="Wrappers\LogCollectorTie.cs" />
     <Compile Include="Wrappers\LogSourceTie.cs" />
   </ItemGroup>
@@ -181,8 +191,8 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="WebServices\LogbusManagement.asmx" />
-    <Content Include="WebServices\LogbusSubscription.asmx" />
+    <EmbeddedResource Include="WebServices\LogbusManagement.asmx" />
+    <EmbeddedResource Include="WebServices\LogbusSubscription.asmx" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
