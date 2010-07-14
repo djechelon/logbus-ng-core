@@ -73,7 +73,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
             ctr = new HttpListenerController(prefixes, "/", app_path);
             adapter = new Logbus2SoapAdapter(target);
-            HostingEnvironment.RegisterObject(adapter);
+
             ctr.Start();
 
             /*
@@ -165,6 +165,10 @@ namespace It.Unina.Dis.Logbus.WebServices
             if (!Assembly.GetExecutingAssembly().GlobalAssemblyCache)
             {
                 //Deploy assembly too
+                string codebase = Assembly.GetExecutingAssembly().Location;
+                string bindir = Path.Combine(fullpath, "bin");
+                Directory.CreateDirectory(bindir);
+                File.Copy(codebase, Path.Combine(bindir, Path.GetFileName(codebase)));
             }
 
             //Return the path
