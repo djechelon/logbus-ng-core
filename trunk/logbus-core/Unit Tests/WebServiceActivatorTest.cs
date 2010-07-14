@@ -1,6 +1,7 @@
 ﻿using It.Unina.Dis.Logbus.WebServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
+using System.Threading;
 
 namespace Unit_Tests
 {
@@ -63,22 +64,6 @@ namespace Unit_Tests
         //
         #endregion
 
-
-        /// <summary>
-        ///Test per instance
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("It.Unina.Dis.Logbus.dll")]
-        public void instanceTest()
-        {
-            WebServiceActivator expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            WebServiceActivator actual;
-            WebServiceActivator_Accessor.instance = expected;
-            actual = WebServiceActivator_Accessor.instance;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
         
         /// <summary>
         ///Test per Stop
@@ -98,10 +83,10 @@ namespace Unit_Tests
         [TestMethod()]
         public void StartTest()
         {
-            ILogBus service = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            int httpPort = 0; // TODO: Eseguire l'inizializzazione a un valore appropriato
+            ILogBus service = LogbusSingletonHelper.Instance;
+            int httpPort = 8065; // TODO: Eseguire l'inizializzazione a un valore appropriato
             WebServiceActivator.Start(service, httpPort);
-            Assert.Inconclusive("Impossibile verificare un metodo che non restituisce valori.");
+            Thread.Sleep(Timeout.Infinite);
         }
 
        

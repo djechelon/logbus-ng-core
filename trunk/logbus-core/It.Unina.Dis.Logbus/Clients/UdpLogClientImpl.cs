@@ -24,6 +24,9 @@ using It.Unina.Dis.Logbus.RemoteLogbus;
 using System.Threading;
 using System.ComponentModel;
 using System.Net.Sockets;
+using It.Unina.Dis.Logbus.Filters;
+using System.Collections;
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -31,41 +34,76 @@ namespace It.Unina.Dis.Logbus.Clients
         : ILogClient
     {
 
-        private ChannelSubscription Subscriber { get; set; }
         private Timer refresh_timer;
         private SyslogUdpReceiver Receiver { get; set; }
         private String Id { get; set; }
         private long ChannelTTL = 0;
         private const long MAX_REFRESH_TIME = 20000;
-        private String LogbusEndpointUrl;
-
-        private void Receiver_MessageReceived(Object sender, SyslogMessageEventArgs arg)
-        {
-            if (MessageReceived != null)
-                MessageReceived(sender, arg);
-        }
-
+        private FilterBase filter;
         private bool ExclusiveUsage { get; set; }
 
         #region Constructor/Destructor
-
-        public UdpLogClientImpl(string channel_id, string logbusEndpointUrl, bool exclusive)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="manager"></param>
+        /// <param name="subscription"></param>
+        /// <exception cref="LogbusException">Thrown when an error prevents to create a new channel</exception>
+        public UdpLogClientImpl(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
         {
-            LogbusEndpointUrl = logbusEndpointUrl;
-            Subscriber = new ChannelSubscription()
+            ExclusiveUsage = true;
+            ChannelManager = manager;
+            ChannelSubscriber = subscription;
+            this.filter = filter;
+
+            ArrayList channel_ids = new ArrayList(manager.ListChannels());
+            do
             {
-                Url = LogbusEndpointUrl + "/LogbusChannelSubscriber",
-                UserAgent = string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version)
-            };
-            Receiver = new SyslogUdpReceiver()
+                Id = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
+            } while (channel_ids.Contains(Id));
+
+            Init();
+        }
+
+        public UdpLogClientImpl(string channel_id, IChannelSubscription subscription)
+        {
+            ExclusiveUsage = false;
+
+            Init();
+        }
+
+        private void Init()
+        {
+            if (ExclusiveUsage)
             {
-                IpAddress = null,
-                Name = "UdpListner",
-                Port = getAvailablePort()
-            };
-            Receiver.MessageReceived += new SyslogMessageEventHandler(Receiver_MessageReceived);
-            Id = channel_id;
-            ExclusiveUsage = exclusive;
+                //Create channel
+                ChannelCreationInformation info = new ChannelCreationInformation()
+                {
+                    coalescenceWindow = 0,
+                    description = "Channel created by LogCollector",
+                    filter = filter,
+                    title = "AutoChannel",
+                    id = Id
+                };
+
+                try
+                {
+                    ChannelManager.CreateChannel(info);
+                }
+                catch (Exception ex)
+                {
+                    throw new LogbusException("Unable to create a new channel", ex);
+                }
+
+                Receiver = new SyslogUdpReceiver()
+                {
+                    IpAddress = null,
+                    Name = "UdpListner",
+                    Port = getAvailablePort()
+                };
+                Receiver.MessageReceived += MessageReceived;
+            }
         }
 
         private int getAvailablePort()
@@ -85,10 +123,11 @@ namespace It.Unina.Dis.Logbus.Clients
                     if ((a[i].ToString().Contains("localhost")) || (a[i].ToString().Contains("127.0")))
                         continue;
                     else
-                        return a.ToString();
+                        return a[i].ToString();
                 }
+                else if (a[i].AddressFamily == AddressFamily.InterNetworkV6 && !a[i].IsIPv6LinkLocal && !a[i].IsIPv6SiteLocal) return a[i].ToString();
             }
-            return null;
+            throw new LogbusException("Unable to determine the IP address of current host");
         }
 
         ~UdpLogClientImpl()
@@ -98,12 +137,21 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #endregion
 
+        #region Public properties
+
+        public IChannelManagement ChannelManager
+        { get; set; }
+
+        public IChannelSubscription ChannelSubscriber
+        { get; set; }
+
+        #endregion
+
         private void RefreshChannel(Object Status)
         {
             try
             {
-                if (Subscriber != null)
-                    Subscriber.RefreshSubscription(Id);
+                ChannelSubscriber.RefreshSubscription(Id);
             }
             catch (Exception ex)
             {
@@ -146,11 +194,12 @@ namespace It.Unina.Dis.Logbus.Clients
                     transport = "udp",
                     param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = Receiver.Port.ToString() }, new KeyValuePair() { name = "ip", value = getIPAddress() } }
                 };
-                ChannelSubscriptionResponse res = Subscriber.SubscribeChannel(req);
+                ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 ChannelTTL = Int32.Parse(res.param[0].value);
                 long refreshTime = ChannelTTL - (ChannelTTL * 20 / 100);
                 refresh_timer = new Timer(RefreshChannel, null, Timeout.Infinite, (refreshTime < MAX_REFRESH_TIME) ? refreshTime : MAX_REFRESH_TIME);
                 Receiver.Start();
+
                 if (Started != null)
                     Started(this, EventArgs.Empty);
             }
@@ -181,7 +230,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     if (arg.Cancel)
                         return;
                 }
-                Subscriber.UnsubscribeChannel(Id);
+                ChannelSubscriber.UnsubscribeChannel(Id);
                 ChannelTTL = 0;
                 if (refresh_timer != null)
                     refresh_timer.Dispose();
@@ -222,12 +271,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void DestroyChannel()
         {
-            ChannelManagement man = new ChannelManagement()
-            {
-                Url = LogbusEndpointUrl + "/LogbusChannelManager",
-                UserAgent = string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version)
-            };
-            man.DeleteChannel(Id);
+            ChannelManager.DeleteChannel(Id);
         }
 
         public void Dispose(bool disposing)
