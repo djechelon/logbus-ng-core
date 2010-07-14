@@ -26,11 +26,16 @@ namespace It.Unina.Dis.Logbus.WebServices
         : WebService, IChannelSubscription
     {
 
+        public const string APPLICATION_KEY = "Logbus.ChannelSubscription";
+
         #region Constructor
 
         public ChannelSubscriptionService()
             : base()
-        { }
+        {
+            if (Application[APPLICATION_KEY] != null)
+                TargetChannelSubscription = Application[APPLICATION_KEY] as IChannelSubscription;
+        }
 
         public ChannelSubscriptionService(IChannelSubscription target)
             : base()

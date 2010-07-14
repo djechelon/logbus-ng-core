@@ -31,11 +31,16 @@ namespace It.Unina.Dis.Logbus.WebServices
         : WebService, IChannelManagement
     {
 
+        public const string APPLICATION_KEY = "Logbus.ChannelManagement";
+
         #region Constructor
 
         public ChannelManagementService()
             : base()
-        { }
+        {
+            if (Application[APPLICATION_KEY] != null)
+                TargetChannelManager = Application[APPLICATION_KEY] as IChannelManagement;
+        }
 
         public ChannelManagementService(IChannelManagement target)
             : base()
