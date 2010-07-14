@@ -26,6 +26,7 @@ using System.Web.Hosting;
 using System.Web;
 using System.IO;
 using System.Reflection;
+using System.Text;
 namespace It.Unina.Dis.Logbus.WebServices
 {
     /// <summary>
@@ -134,32 +135,23 @@ namespace It.Unina.Dis.Logbus.WebServices
             //Copy .asmx files from assembly to directory
             string resname_mgm = "It.Unina.Dis.Logbus.WebServices.LogbusManagement.asmx", resname_sub = "It.Unina.Dis.Logbus.WebServices.LogbusSubscription.asmx";
             string mgm_fname = "LogbusManagement.asmx", sub_fname = "LogbusSubscription.asmx";
-            using (BinaryReader br = new BinaryReader(GetType().Assembly.GetManifestResourceStream(resname_mgm)))
             {
-                using (BinaryWriter bw = new BinaryWriter(File.Create(Path.Combine(fullpath, mgm_fname))))
-                {
-                    int readbytes, position = 0;
-                    do
-                    {
-                        byte[] buffer = new byte[1024];
-                        readbytes = br.Read(buffer, position, 1024);
-                        bw.Write(buffer, 0, readbytes);
-                    } while (readbytes > 0);
-                }
+                string ws_declaration;
+                using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream(resname_mgm), Encoding.Default))
+                    ws_declaration = string.Format(sr.ReadToEnd(), typeof(ChannelManagementService).AssemblyQualifiedName);
+
+                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(fullpath, mgm_fname)), Encoding.Default))
+                    bw.Write(ws_declaration);
             }
 
-            using (BinaryReader br = new BinaryReader(GetType().Assembly.GetManifestResourceStream(resname_sub)))
+
             {
-                using (BinaryWriter bw = new BinaryWriter(File.Create(Path.Combine(fullpath, sub_fname))))
-                {
-                    int readbytes, position = 0;
-                    do
-                    {
-                        byte[] buffer = new byte[1024];
-                        readbytes = br.Read(buffer, position, 1024);
-                        bw.Write(buffer, 0, readbytes);
-                    } while (readbytes > 0);
-                }
+                string ws_declaration;
+                using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream(resname_sub), Encoding.Default))
+                    ws_declaration = string.Format(sr.ReadToEnd(), typeof(ChannelSubscriptionService).AssemblyQualifiedName);
+
+                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(fullpath, sub_fname)), Encoding.Default))
+                    bw.Write(ws_declaration);
             }
 
             if (!Assembly.GetExecutingAssembly().GlobalAssemblyCache)
