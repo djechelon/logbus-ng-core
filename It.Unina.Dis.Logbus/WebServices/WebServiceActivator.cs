@@ -25,6 +25,7 @@ using It.Unina.Dis.Logbus.Wrappers;
 using System.Web.Hosting;
 using System.Web;
 using System.IO;
+using System.Reflection;
 namespace It.Unina.Dis.Logbus.WebServices
 {
     /// <summary>
@@ -40,6 +41,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         private WebServiceActivator(ILogBus instance, int port)
         {
+            target = instance; httpPort = port;
         }
 
         ~WebServiceActivator()
@@ -158,6 +160,11 @@ namespace It.Unina.Dis.Logbus.WebServices
                         bw.Write(buffer, 0, readbytes);
                     } while (readbytes > 0);
                 }
+            }
+
+            if (!Assembly.GetExecutingAssembly().GlobalAssemblyCache)
+            {
+                //Deploy assembly too
             }
 
             //Return the path

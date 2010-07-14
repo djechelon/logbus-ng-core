@@ -84,12 +84,14 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
             catch (Exception ex)
             {
-                EventLog myLog = new EventLog();
+                throw;
+                /*EventLog myLog = new EventLog();
                 myLog.Source = "HttpListenerController";
                 if (null != ex.InnerException)
                     myLog.WriteEntry(ex.InnerException.ToString(), EventLogEntryType.Error);
                 else
                     myLog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
+                 */ 
             }
         }
     }

@@ -21,6 +21,9 @@ using It.Unina.Dis.Logbus.RemoteLogbus;
 using It.Unina.Dis.Logbus.Utils;
 using System.Collections;
 using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.Configuration;
+using System.Configuration;
+using System;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -29,40 +32,137 @@ namespace It.Unina.Dis.Logbus.Clients
     /// </summary>
     public sealed class ClientHelper
     {
+        static ClientHelper()
+        {
+            try
+            {
+                Configuration = ConfigurationManager.GetSection("logbus-client") as LogbusClientConfiguration;
+            }
+            catch { }
+        }
+
+
         private ClientHelper() { }
 
-        public static string LogbusEndpointUrl
+        /// <summary>
+        /// Gets or sets the global client configuration
+        /// </summary>
+        /// <remarks>By default, it's loaded from App.config</remarks>
+        public static LogbusClientConfiguration Configuration
         {
             get;
             set;
         }
 
-        public static ILogClient GetUdpClient(string logbusEndpointUrl, FilterBase filter)
+        private static string UserAgent
         {
-            ChannelManagement mgmt_object = new ChannelManagement()
+            get
             {
-                Url = logbusEndpointUrl,
-                UserAgent = string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version)
+                return string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version);
+            }
+        }
+
+        /// <summary>
+        /// Creates a default Channel Manager basing on configuration
+        /// </summary>
+        /// <returns></returns>
+        public static IChannelManagement CreateChannelManager()
+        {
+            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.managementUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+            return new ChannelManagement()
+            {
+                Url = Configuration.endpoint.managementUrl,
+                UserAgent = UserAgent
             };
+        }
 
-            ArrayList channel_ids = new ArrayList(mgmt_object.ListChannels());
-            string random_id;
-            do
+        /// <summary>
+        /// Creates a Channel Manager bound to the given SOAP endpoint
+        /// </summary>
+        /// <param name="endpointUrl"></param>
+        /// <returns></returns>
+        public static IChannelManagement CreateChannelManager(string endpointUrl)
+        {
+            return new ChannelManagement()
             {
-                random_id = Randomizer.RandomAlphanumericString(5);
-            } while (channel_ids.Contains(random_id));
+                Url = endpointUrl,
+                UserAgent = UserAgent
+            };
+        }
 
-            ChannelCreationInformation info = new ChannelCreationInformation();
-            info.coalescenceWindow = 0;
-            info.description = "Channel created by LogCollector";
-            info.filter = filter;
-            info.title = "AutoChannel";
-            info.id = random_id;
+        /// <summary>
+        /// Creates a default Channel Subscriber basing on configuration
+        /// </summary>
+        /// <returns></returns>
+        public static IChannelSubscription CreateChannelSubscriber()
+        {
+            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+            return new ChannelSubscription()
+            {
+                Url = Configuration.endpoint.subscriptionUrl,
+                UserAgent = UserAgent
+            };
+        }
 
-            mgmt_object.CreateChannel(info);
+        /// <summary>
+        /// Creates a Channel Subscriber bound to the given SOAP endpoint
+        /// </summary>
+        /// <param name="endpointUrl"></param>
+        /// <returns></returns>
+        public static IChannelSubscription CreateChannelSubscriber(string endpointUrl)
+        {
+            return new ChannelSubscription()
+            {
+                Url = endpointUrl,
+                UserAgent = UserAgent
+            };
+        }
 
-            return new UdpLogClientImpl(random_id, LogbusEndpointUrl, true);
+        /// <summary>
+        /// Creates a UDP log listener with the given filter
+        /// </summary>
+        /// <param name="manager">Management entpoint</param>
+        /// <param name="subscription">Subscription endpoint</param>
+        /// <param name="filter">Log filter to apply</param>
+        /// <returns></returns>
+        public static ILogClient GetUdpClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
+        {
+            return new UdpLogClientImpl(filter, manager, subscription);
+        }
 
+        /// <summary>
+        /// Creates a UDP log listener that connects to the given channel
+        /// </summary>
+        /// <param name="channelId">ID of already-created channel</param>
+        /// <param name="subscription">Subscription endpoint</param>
+        /// <returns></returns>
+        public static ILogClient GetUdpClient(string channelId, IChannelSubscription subscription)
+        {
+            return new UdpLogClientImpl(channelId, subscription);
+        }
+
+        /// <summary>
+        /// Creates a UDP log listener that connects to the given channel
+        /// </summary>
+        /// <param name="channelId">ID of already-created channel</param>
+        /// <returns></returns>
+        /// <remarks>Logbus client must be configured</remarks>
+        /// <exception cref="LogbusException">Logbus is not configured</exception>
+        public static ILogClient GetUdpClient(string channelId)
+        {
+            return GetUdpClient(channelId, CreateChannelSubscriber());
+        }
+
+        public static ILogClient GetDefaultClient(FilterBase filter)
+        {
+            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) || string.IsNullOrEmpty(Configuration.endpoint.managementUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+
+            string mgm_endpoint = Configuration.endpoint.managementUrl, sub_endpoint = Configuration.endpoint.subscriptionUrl;
+
+            IChannelManagement mgm_object = new ChannelManagement() { Url = mgm_endpoint, UserAgent = UserAgent };
+            IChannelSubscription sub_object = new ChannelSubscription() { Url = sub_endpoint, UserAgent = UserAgent };
+
+            return new UdpLogClientImpl(filter, mgm_object, sub_object);
         }
     }
 }
