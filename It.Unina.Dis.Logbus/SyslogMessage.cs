@@ -538,7 +538,7 @@ namespace It.Unina.Dis.Logbus
                             SubSubElem[0] = SubSubElem[0].Replace("çà§", "\\]");
                             SubSubElem[1] = SubSubElem[1].Replace("@*°", "\\[");
                             SubSubElem[1] = SubSubElem[1].Replace("çà§", "\\]");
-                            values.Add(SubSubElem[0], SubSubElem[1]);
+                            values.Add(SubSubElem[0], SubSubElem[1].Substring(1,SubSubElem[1].Length-2));
                         }
                         ret.Data.Add(key, values);
                     }
