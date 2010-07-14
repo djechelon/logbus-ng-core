@@ -113,7 +113,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// </summary>
         /// <param name="inputInstructions">List of input parameters (required):
         /// <list>
-        /// <item>ip: IP address of cliennt, or of another machine that will receive logs</item>
+        /// <item>ip: IP address of client, or of another machine that will receive logs</item>
         /// <item>port: UDP port on which the destination will be listening</item>
         /// </list>
         /// </param>
