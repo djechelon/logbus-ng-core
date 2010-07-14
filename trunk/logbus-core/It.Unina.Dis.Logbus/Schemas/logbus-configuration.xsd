@@ -171,7 +171,7 @@
 		<xs:attribute name="subscriptionUrl" type="UrlType" use="required"/>
 		<xs:attribute name="managementUrl" type="UrlType" use="required"/>
 	</xs:complexType>
-	<xs:element name="endpoint"/>
+	<xs:element name="endpoint" type="LogbusEndpointDefinition"/>
 	<xs:simpleType name="UrlType">
 		<xs:restriction base="xs:anyURI">
 			<xs:pattern value="http://.*"/>
