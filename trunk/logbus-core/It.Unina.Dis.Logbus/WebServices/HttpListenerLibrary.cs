@@ -57,6 +57,12 @@ namespace It.Unina.Dis.Logbus.WebServices
         public void Start()
         {
             _listening = true;
+
+            _listener = (HttpListenerWrapper)ApplicationHost.CreateApplicationHost(
+                    typeof(HttpListenerWrapper), _virtualDir, _physicalDir);
+            _listener.Configure(_prefixes, _virtualDir, _physicalDir);
+            _listener.Start();
+
             _pump = new Thread(new ThreadStart(Pump));
             _pump.Start();
         }
@@ -74,16 +80,12 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
             try
             {
-                _listener = (HttpListenerWrapper)ApplicationHost.CreateApplicationHost(
-                    typeof(HttpListenerWrapper), _virtualDir, _physicalDir);
-                _listener.Configure(_prefixes, _virtualDir, _physicalDir);
-                _listener.Start();
-
                 while (_listening)
                     _listener.ProcessRequest();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                Stop();
                 throw;
                 /*EventLog myLog = new EventLog();
                 myLog.Source = "HttpListenerController";
@@ -91,7 +93,15 @@ namespace It.Unina.Dis.Logbus.WebServices
                     myLog.WriteEntry(ex.InnerException.ToString(), EventLogEntryType.Error);
                 else
                     myLog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
-                 */ 
+                 */
+            }
+        }
+
+        public AppDomain Domain
+        {
+            get
+            {
+                return _listener.Domain;   
             }
         }
     }
@@ -126,9 +136,17 @@ namespace It.Unina.Dis.Logbus.WebServices
                 new HttpListenerWorkerRequest(ctx, _virtualDir, _physicalDir);
             HttpRuntime.ProcessRequest(workerRequest);
         }
+
+        public AppDomain Domain
+        {
+            get
+            {
+                return Thread.GetDomain();
+            }
+        }
     }
 
-    internal class HttpListenerWorkerRequest : HttpWorkerRequest 
+    internal class HttpListenerWorkerRequest : HttpWorkerRequest
     {
         private HttpListenerContext _context;
         private string _virtualDir;
@@ -275,7 +293,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                     return _context.Request.Headers[GetKnownRequestHeaderName(index)];
             }
         }
-         public override string GetServerVariable(string name)
+        public override string GetServerVariable(string name)
         {
             // TODO: vet this list
             switch (name)

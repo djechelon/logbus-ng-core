@@ -76,18 +76,16 @@ namespace It.Unina.Dis.Logbus.WebServices
             adapter = new Logbus2SoapAdapter(target);
 
             ctr.Start();
-
-            /*
-            mgm_service = new ChannelManagementService(new Logbus2SoapAdapter(target));
-            sub_service = new ChannelSubscriptionService(new Logbus2SoapAdapter(target));
-            */
-
+            //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
+            object wrapper = (target is MarshalByRefObject) ? target : new LogBusTie(target);
+            ctr.Domain.SetData("Logbus", wrapper);
         }
 
         private void StopService()
         {
             ctr.Stop();
             adapter.Stop(true);
+            UninstallRuntime(physical_path);
         }
 
 
@@ -110,7 +108,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         }
 
         /// <summary>
-        /// 
+        /// Stops the HTTP/WebService listener that is currently enabled for controlling Logbus
         /// </summary>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void Stop()
@@ -123,6 +121,11 @@ namespace It.Unina.Dis.Logbus.WebServices
             finally { instance = null; }
         }
 
+        /// <summary>
+        /// Installs the ASP.NET runtime needed for WS responder
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>Uninstall method must be called upon dispose, otherwise junk files would be left in the file system</remarks>
         private string InstallRuntime()
         {
             string dirname = Path.GetRandomFileName();
@@ -131,28 +134,31 @@ namespace It.Unina.Dis.Logbus.WebServices
 
             //Create temporary directory for ASP.NET
             Directory.CreateDirectory(fullpath);
+            physical_path = fullpath;
 
             //Copy .asmx files from assembly to directory
-            string resname_mgm = "It.Unina.Dis.Logbus.WebServices.LogbusManagement.asmx", resname_sub = "It.Unina.Dis.Logbus.WebServices.LogbusSubscription.asmx";
+            string resname_mgm = "It.Unina.Dis.Logbus.WebServices.LogbusManagement.asmx",
+                resname_sub = "It.Unina.Dis.Logbus.WebServices.LogbusSubscription.asmx";
+            //resname_asax = "It.Unina.Dis.Logbus.WebServices.Global.asax";
             string mgm_fname = "LogbusManagement.asmx", sub_fname = "LogbusSubscription.asmx";
             {
                 string ws_declaration;
                 using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream(resname_mgm), Encoding.Default))
                     ws_declaration = string.Format(sr.ReadToEnd(), typeof(ChannelManagementService).AssemblyQualifiedName);
 
-                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(fullpath, mgm_fname)), Encoding.Default))
+                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(physical_path, mgm_fname)), Encoding.Default))
                     bw.Write(ws_declaration);
             }
-
 
             {
                 string ws_declaration;
                 using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream(resname_sub), Encoding.Default))
                     ws_declaration = string.Format(sr.ReadToEnd(), typeof(ChannelSubscriptionService).AssemblyQualifiedName);
 
-                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(fullpath, sub_fname)), Encoding.Default))
+                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(physical_path, sub_fname)), Encoding.Default))
                     bw.Write(ws_declaration);
             }
+
 
             if (!Assembly.GetExecutingAssembly().GlobalAssemblyCache)
             {
@@ -167,12 +173,13 @@ namespace It.Unina.Dis.Logbus.WebServices
             return fullpath;
         }
 
+        /// <summary>
+        /// Uninstalls the ASP.NET files needed for WS responder
+        /// </summary>
+        /// <param name="path"></param>
         private void UninstallRuntime(string path)
         {
-            DirectoryInfo info = new DirectoryInfo(path);
-            foreach (FileInfo fi in info.GetFiles())
-                fi.Delete();
-            info.Delete();
+            Directory.Delete(path, true);
         }
     }
 }
