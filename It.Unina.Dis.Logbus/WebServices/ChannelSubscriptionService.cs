@@ -19,6 +19,8 @@
 
 using System.Web.Services;
 using It.Unina.Dis.Logbus.RemoteLogbus;
+using System.Threading;
+using It.Unina.Dis.Logbus.Wrappers;
 namespace It.Unina.Dis.Logbus.WebServices
 {
     [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
@@ -35,6 +37,17 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
             if (Application[APPLICATION_KEY] != null)
                 TargetChannelSubscription = Application[APPLICATION_KEY] as IChannelSubscription;
+            else
+            {
+                object AppDomainData = Thread.GetDomain().GetData("Logbus");
+                if (AppDomainData !=null)
+                    try
+                    {
+                        TargetChannelSubscription = (AppDomainData is IChannelSubscription) ?
+                            AppDomainData as IChannelSubscription : new Logbus2SoapAdapter((ILogBus)AppDomainData);
+                    }
+                    catch { }
+            }
         }
 
         public ChannelSubscriptionService(IChannelSubscription target)

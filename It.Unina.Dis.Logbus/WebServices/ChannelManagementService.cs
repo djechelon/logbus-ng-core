@@ -23,6 +23,8 @@ using System;
 using It.Unina.Dis.Logbus.Filters;
 using System.Globalization;
 using It.Unina.Dis.Logbus.RemoteLogbus;
+using System.Threading;
+using It.Unina.Dis.Logbus.Wrappers;
 
 namespace It.Unina.Dis.Logbus.WebServices
 {
@@ -40,6 +42,17 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
             if (Application[APPLICATION_KEY] != null)
                 TargetChannelManager = Application[APPLICATION_KEY] as IChannelManagement;
+            else
+            {
+                object AppDomainData = Thread.GetDomain().GetData("Logbus");
+                if (AppDomainData != null)
+                    try
+                    {
+                        TargetChannelManager = (AppDomainData is IChannelManagement) ?
+                            AppDomainData as IChannelManagement : new Logbus2SoapAdapter((ILogBus)AppDomainData);
+                    }
+                    catch { }
+            }
         }
 
         public ChannelManagementService(IChannelManagement target)

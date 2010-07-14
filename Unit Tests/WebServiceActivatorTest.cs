@@ -2,11 +2,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
 using System.Threading;
+using System.Security.Principal;
 
 namespace Unit_Tests
 {
-    
-    
+
+
     /// <summary>
     ///Classe di test per WebServiceActivatorTest.
     ///Creata per contenere tutti gli unit test WebServiceActivatorTest
@@ -64,18 +65,6 @@ namespace Unit_Tests
         //
         #endregion
 
-        
-        /// <summary>
-        ///Test per Stop
-        ///</summary>
-        [TestMethod()]
-        public void StopTest()
-        {
-            WebServiceActivator.Stop();
-            Assert.Inconclusive("Impossibile verificare un metodo che non restituisce valori.");
-        }
-
-        
 
         /// <summary>
         ///Test per Start
@@ -83,12 +72,19 @@ namespace Unit_Tests
         [TestMethod()]
         public void StartTest()
         {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            if (!principal.IsInRole(WindowsBuiltInRole.Administrator)) Assert.Fail("You must be running this test as an Administrator");
+
+
             ILogBus service = LogbusSingletonHelper.Instance;
             int httpPort = 8065; // TODO: Eseguire l'inizializzazione a un valore appropriato
             WebServiceActivator.Start(service, httpPort);
             Thread.Sleep(Timeout.Infinite);
+            WebServiceActivator.Stop();
+
         }
 
-       
+
     }
 }
