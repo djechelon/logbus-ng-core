@@ -20,7 +20,7 @@
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -29,10 +29,10 @@ namespace It.Unina.Dis.Logbus.Configuration
     public partial class LogbusClientConfiguration
     {
 
-        private object endpointField;
+        private LogbusEndpointDefinition endpointField;
 
         /// <remarks/>
-        public object endpoint
+        public LogbusEndpointDefinition endpoint
         {
             get
             {
