@@ -41,7 +41,7 @@ namespace It.Unina.Dis.Logbus.Configuration
         {
             try
             {
-                return new XmlSerializer(typeof(LogbusCoreConfiguration)).Deserialize(new XmlNodeReader(section));
+                return new XmlSerializer(typeof(LogbusSourceConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {
