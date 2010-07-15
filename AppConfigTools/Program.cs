@@ -9,7 +9,7 @@ namespace TestAppConfig
     {
         static void Main(string[] args)
         {
-            object section = ConfigurationManager.GetSection("logbus-core");
+            object section = ConfigurationManager.GetSection("logbus-source");
 
             Console.WriteLine("Trying to retrieve \"logbus\" section from App.config: {0}", (section is LogbusCoreConfiguration) ? "success" : "fail");
             if (section is LogbusCoreConfiguration)
