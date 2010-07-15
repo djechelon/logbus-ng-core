@@ -136,10 +136,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             Running = true;
 
-            IPAddress address = (this.IpAddress == null) ? IPAddress.Any : IPAddress.Parse(this.IpAddress);
-            IPEndPoint local_endpoint = new IPEndPoint(address, Port);
             IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
-
             while (Running)
             {
                 try
@@ -193,13 +190,13 @@ namespace It.Unina.Dis.Logbus.InChannels
                     if (e.Cancel) return;
                 }
 
-                if (Port==0)
+                if (Port == 0)
                 {
                     Port = DEFAULT_PORT;
                 }
-                
+
                 IPEndPoint local_ep;
-                if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Loopback, Port);
+                if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Any, Port);
                 else local_ep = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
                 try
@@ -335,7 +332,8 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         public IEnumerable<KeyValuePair<string, string>> Configuration
         {
-            set {
+            set
+            {
                 foreach (KeyValuePair<string, string> kvp in value)
                     SetConfigurationParameter(kvp.Key, kvp.Value);
             }
