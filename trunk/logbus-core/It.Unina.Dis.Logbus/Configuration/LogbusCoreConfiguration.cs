@@ -26,22 +26,8 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LogbusCoreConfiguration
+    public partial class LogbusCoreConfiguration : XmlnsSupport
     {
-
-        [System.Xml.Serialization.XmlNamespaceDeclarations()]
-        public System.Xml.Serialization.XmlSerializerNamespaces xmlns
-        {
-            get
-            {
-                System.Xml.Serialization.XmlSerializerNamespaces ret = new System.Xml.Serialization.XmlSerializerNamespaces();
-                ret.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                ret.Add("xsd", "http://www.w3.org/2001/XMLSchema");
-                ret.Add("filter", "http://www.dis.unina.it/logbus-ng/filters");
-                ret.Add("config", "http://www.dis.unina.it/logbus-ng/configuration");
-                return ret;
-            }
-        }
 
         private InboundChannelDefinition[] inchannelsField;
 
