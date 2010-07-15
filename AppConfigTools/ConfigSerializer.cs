@@ -17,23 +17,15 @@ namespace TestAppConfig
         {
             LogbusCoreConfiguration config = new LogbusCoreConfiguration();
 
-            config.corefilter = new FacilityEqualsFilter() { facility = Facility.Kernel };
-            OutputTransportsConfiguration out_cfg = new OutputTransportsConfiguration();
-            config.outtransports = out_cfg;
-            out_cfg.outtransport = new OutputTransportDefinition[1];
-            out_cfg.outtransport[0] = new OutputTransportDefinition()
-            {
-                factory = "Unit_Tests.TestClasses.TestTransportFactory, Unit_Tests",
-                tag = "test"
-            };
+            config.corefilter = new FacilityEqualsFilter() { facility = Facility.Security };
 
 
-            XmlSerializer seria = new XmlSerializer(config.GetType());
+            XmlSerializer seria = new XmlSerializer(typeof(LogbusCoreConfiguration), "http://www.dis.unina.it/logbus-ng/configuration");
             seria.Serialize(Console.Out, config, config.xmlns);
             if (File.Exists("output.txt")) File.Delete("output.txt");
-            using (FileStream fs = new FileStream("output.txt", FileMode.CreateNew))
+            using (StreamWriter sw = new StreamWriter(new FileStream("output.txt", FileMode.CreateNew), Encoding.UTF8))
             {
-                seria.Serialize(fs, config, config.xmlns);
+                seria.Serialize(sw, config, config.xmlns);
             }
 
 
