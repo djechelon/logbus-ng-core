@@ -19,6 +19,7 @@
 
 namespace It.Unina.Dis.Logbus.Configuration
 {
+    [System.SerializableAttribute()]
     public abstract class XmlnsSupport
     {
         [System.Xml.Serialization.XmlNamespaceDeclarations()]
