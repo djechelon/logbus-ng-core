@@ -39,7 +39,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             try
             {
-                Configuration = ConfigurationManager.GetSection("logbus-source") as LogbusSourceConfiguration;
+                Configuration = ConfigurationHelper.SourceConfiguration;
             }
             catch (LogbusConfigurationException) { }
         }

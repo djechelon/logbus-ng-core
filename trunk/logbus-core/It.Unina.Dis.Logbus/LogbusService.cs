@@ -83,12 +83,8 @@ namespace It.Unina.Dis.Logbus
         {
             OutboundChannels = new List<IOutboundChannel>();
             InboundChannels = new List<IInboundChannel>();
-            try
-            {
-                //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                Configuration = ConfigurationManager.GetSection("logbus") as LogbusCoreConfiguration;
-            }
-            catch { }
+
+            Configuration = ConfigurationHelper.CoreConfiguration;
         }
 
         public LogbusService(LogbusCoreConfiguration configuration)

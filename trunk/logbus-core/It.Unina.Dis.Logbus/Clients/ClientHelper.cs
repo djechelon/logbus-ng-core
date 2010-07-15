@@ -36,7 +36,7 @@ namespace It.Unina.Dis.Logbus.Clients
         {
             try
             {
-                Configuration = ConfigurationManager.GetSection("logbus-client") as LogbusClientConfiguration;
+                Configuration = ConfigurationHelper.ClientConfiguration;
             }
             catch { }
         }
