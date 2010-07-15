@@ -27,6 +27,7 @@ using System.Net.Sockets;
 using It.Unina.Dis.Logbus.Filters;
 using System.Collections;
 using It.Unina.Dis.Logbus.Utils;
+using System.Globalization;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -35,12 +36,14 @@ namespace It.Unina.Dis.Logbus.Clients
     {
 
         private Timer refresh_timer;
-        private SyslogUdpReceiver Receiver { get; set; }
+        private UdpClient client;
         private String Id { get; set; }
         private long ChannelTTL = 0;
         private const long MAX_REFRESH_TIME = 20000;
         private FilterBase filter;
         private bool ExclusiveUsage { get; set; }
+        private bool Running { get; set; }
+        private Thread running_thread;
 
         #region Constructor/Destructor
         /// <summary>
@@ -98,20 +101,6 @@ namespace It.Unina.Dis.Logbus.Clients
                     throw new LogbusException("Unable to create a new channel", ex);
                 }
             }
-            
-            Receiver = new SyslogUdpReceiver()
-            {
-                IpAddress = null,
-                Name = "UdpListner",
-                Port = getAvailablePort()
-            };
-            Receiver.MessageReceived += MessageReceived;
-        }
-
-        private int getAvailablePort()
-        {
-            IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
-            return ep.Port;
         }
 
         private String getIPAddress()
@@ -181,6 +170,8 @@ namespace It.Unina.Dis.Logbus.Clients
 
         public void Start()
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().ToString());
+            if (Running) throw new NotSupportedException("Client is already running");
             try
             {
                 if (Starting != null)
@@ -190,17 +181,35 @@ namespace It.Unina.Dis.Logbus.Clients
                     if (arg.Cancel)
                         return;
                 }
+                int port;
+                client = new UdpClient(0);
+                EndPoint ep = client.Client.LocalEndPoint;
+                if (ep is IPEndPoint)
+                {
+                    IPEndPoint ipe = (IPEndPoint)ep;
+                    port = ipe.Port;
+                }
+                else
+                {
+                    throw new NotSupportedException("Only IP networks are supported");
+                }
+
+                running_thread = new Thread(RunnerLoop);
+                running_thread.IsBackground = true;
+                running_thread.Start();
+
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
                 {
                     channelid = Id,
                     transport = "udp",
-                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = Receiver.Port.ToString() }, new KeyValuePair() { name = "ip", value = getIPAddress() } }
+                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = getIPAddress() } }
                 };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 ChannelTTL = Int32.Parse(res.param[0].value);
                 long refreshTime = ChannelTTL - (ChannelTTL * 20 / 100);
                 refresh_timer = new Timer(RefreshChannel, null, Timeout.Infinite, (refreshTime < MAX_REFRESH_TIME) ? refreshTime : MAX_REFRESH_TIME);
-                Receiver.Start();
+
+                Running = true;
 
                 if (Started != null)
                     Started(this, EventArgs.Empty);
@@ -223,6 +232,8 @@ namespace It.Unina.Dis.Logbus.Clients
 
         public void Stop()
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().ToString());
+            if (!Running) throw new NotSupportedException("Client is not running");
             try
             {
                 if (Stopping != null)
@@ -236,7 +247,17 @@ namespace It.Unina.Dis.Logbus.Clients
                 ChannelTTL = 0;
                 if (refresh_timer != null)
                     refresh_timer.Dispose();
-                Receiver.Stop();
+
+                try
+                {
+                    client.Close(); //Trigger SocketException if thread is blocked into listening
+                    running_thread.Join();
+                    running_thread = null;
+                }
+                catch (Exception) { } //Really nothing?
+
+                Running = false;
+
                 if (Stopped != null)
                     Stopped(this, EventArgs.Empty);
             }
@@ -289,12 +310,41 @@ namespace It.Unina.Dis.Logbus.Clients
 
             if (disposing)
             {
-                Receiver.Dispose();
-                Receiver = null;
+                client.Close();
+                client = null;
             }
             Disposed = true;
         }
 
         #endregion
+
+        private void RunnerLoop()
+        {
+            IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
+            while (true)
+            {
+                try
+                {
+                    byte[] payload = client.Receive(ref remote_endpoint);
+                    try
+                    {
+                        SyslogMessage new_message = SyslogMessage.Parse(payload);
+                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+                    }
+                    catch (FormatException)
+                    {
+                        //Skip
+                    }
+                }
+                catch (SocketException)
+                {
+                    //We are closing, or an I/O error occurred
+                    //if (Stopped) //Yes, we are closing
+                    //return;
+                    //else nothing yet
+                }
+                catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
+            }
+        }
     }
 }
