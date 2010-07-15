@@ -125,7 +125,7 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="subscription">Subscription endpoint</param>
         /// <param name="filter">Log filter to apply</param>
         /// <returns></returns>
-        public static ILogClient GetUdpClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
+        public static ILogClient CreateDefaultClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
         {
             return new UdpLogClientImpl(filter, manager, subscription);
         }
@@ -136,24 +136,28 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="channelId">ID of already-created channel</param>
         /// <param name="subscription">Subscription endpoint</param>
         /// <returns></returns>
-        public static ILogClient GetUdpClient(string channelId, IChannelSubscription subscription)
+        public static ILogClient CreateDefaultClient(string channelId, IChannelSubscription subscription)
         {
             return new UdpLogClientImpl(channelId, subscription);
         }
 
+        
         /// <summary>
-        /// Creates a UDP log listener that connects to the given channel
+        /// Creates a client that listens to the specified channel using the default subscription endpoint
         /// </summary>
-        /// <param name="channelId">ID of already-created channel</param>
+        /// <param name="channelId"></param>
         /// <returns></returns>
-        /// <remarks>Logbus client must be configured</remarks>
-        /// <exception cref="LogbusException">Logbus is not configured</exception>
-        public static ILogClient GetUdpClient(string channelId)
+        public static ILogClient CreateDefaultClient(string channelId)
         {
-            return GetUdpClient(channelId, CreateChannelSubscriber());
+            return new UdpLogClientImpl(channelId, CreateChannelSubscriber());
         }
 
-        public static ILogClient GetDefaultClient(FilterBase filter)
+        /// <summary>
+        /// Creates a client that listens to the newly created channel according to the specified filter
+        /// </summary>
+        /// <param name="filter">Filter for </param>
+        /// <returns></returns>
+        public static ILogClient CreateDefaultClient(FilterBase filter)
         {
             if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) || string.IsNullOrEmpty(Configuration.endpoint.managementUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
 
