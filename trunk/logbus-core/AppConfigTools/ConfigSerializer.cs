@@ -15,12 +15,9 @@ namespace TestAppConfig
     {
         public static void Main(string[] args)
         {
-            LogbusCoreConfiguration config = new LogbusCoreConfiguration();
-
-            config.corefilter = new FacilityEqualsFilter() { facility = Facility.Security };
-
-
-            XmlSerializer seria = new XmlSerializer(typeof(LogbusCoreConfiguration), "http://www.dis.unina.it/logbus-ng/configuration");
+            LogbusClientConfiguration config = new LogbusClientConfiguration();
+            config.endpoint = new LogbusEndpointDefinition() { managementUrl = "http://127.0.0.1:8065/LogbusManagement.asmx", subscriptionUrl = "http://127.0.0.1:8065/LogbusSubscription.asmx" };
+            XmlSerializer seria = new XmlSerializer(typeof(LogbusClientConfiguration), "http://www.dis.unina.it/logbus-ng/configuration");
             seria.Serialize(Console.Out, config, config.xmlns);
             if (File.Exists("output.txt")) File.Delete("output.txt");
             using (StreamWriter sw = new StreamWriter(new FileStream("output.txt", FileMode.CreateNew), Encoding.UTF8))

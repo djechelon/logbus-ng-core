@@ -12,7 +12,7 @@
     <AssemblyName>TestAppConfig</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <StartupObject>TestAppConfig.Program</StartupObject>
+    <StartupObject>TestAppConfig.ConfigSerializer</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
