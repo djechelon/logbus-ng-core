@@ -69,6 +69,8 @@ namespace It.Unina.Dis.Logbus.Clients
         public UdpLogClientImpl(string channel_id, IChannelSubscription subscription)
         {
             ExclusiveUsage = false;
+            Id = channel_id;
+            ChannelSubscriber = subscription;
 
             Init();
         }
@@ -95,15 +97,15 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     throw new LogbusException("Unable to create a new channel", ex);
                 }
-
-                Receiver = new SyslogUdpReceiver()
-                {
-                    IpAddress = null,
-                    Name = "UdpListner",
-                    Port = getAvailablePort()
-                };
-                Receiver.MessageReceived += MessageReceived;
             }
+            
+            Receiver = new SyslogUdpReceiver()
+            {
+                IpAddress = null,
+                Name = "UdpListner",
+                Port = getAvailablePort()
+            };
+            Receiver.MessageReceived += MessageReceived;
         }
 
         private int getAvailablePort()
