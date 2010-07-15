@@ -141,6 +141,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Schemas\logbus-configuration.xsd.cs" />
     <None Include="Schemas\logbus-control.wsdl.cs" />
+    <None Include="Schemas\logbus-filter.cs">
+      <DependentUpon>logbus-filter.xsd</DependentUpon>
+    </None>
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
