@@ -57,6 +57,7 @@
     <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
     <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
+    <Compile Include="Configuration\XmlnsSupport.cs" />
     <Compile Include="IConfigurable.cs" />
     <Compile Include="LogbusDaemon.cs">
       <SubType>Component</SubType>

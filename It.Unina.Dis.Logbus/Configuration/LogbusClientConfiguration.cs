@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("logbus-client", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LogbusClientConfiguration
+    public partial class LogbusClientConfiguration : XmlnsSupport
     {
 
         private LogbusEndpointDefinition endpointField;

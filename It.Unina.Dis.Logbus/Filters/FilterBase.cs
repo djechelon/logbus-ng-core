@@ -37,21 +37,8 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
     [System.Xml.Serialization.XmlRootAttribute("filter", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public abstract partial class FilterBase : object, System.ComponentModel.INotifyPropertyChanged, IFilter
+    public abstract partial class FilterBase : It.Unina.Dis.Logbus.Configuration.XmlnsSupport, System.ComponentModel.INotifyPropertyChanged, IFilter
     {
-
-        [System.Xml.Serialization.XmlNamespaceDeclarations()]
-        public System.Xml.Serialization.XmlSerializerNamespaces xmlns
-        {
-            get
-            {
-                System.Xml.Serialization.XmlSerializerNamespaces ret = new System.Xml.Serialization.XmlSerializerNamespaces();
-                ret.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                ret.Add("xsd", "http://www.w3.org/2001/XMLSchema");
-                ret.Add("filter", "http://www.dis.unina.it/logbus-ng/filters");
-                return ret;
-            }
-        }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
