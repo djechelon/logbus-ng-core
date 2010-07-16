@@ -11,6 +11,7 @@ using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.Filters;
 using System.Xml.Serialization;
 using System.Xml;
+using It.Unina.Dis.Logbus.FFDA;
 
 namespace Unit_Tests
 {
@@ -118,7 +119,7 @@ namespace Unit_Tests
                 LoggerHelper.Configuration = source_config;
 
                 //Send what we want: 2 FFDA messages
-                FFDALogger logger = LoggerHelper.CreateFFDALogger();
+                FFDALogger logger = FFDAHelper.CreateFFDALogger();
                 logger.LogSST();
                 logger.LogSEN();
 

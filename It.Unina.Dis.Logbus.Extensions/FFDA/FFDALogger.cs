@@ -24,8 +24,9 @@ using System.Net;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using It.Unina.Dis.Logbus.Loggers;
 
-namespace It.Unina.Dis.Logbus.Utils
+namespace It.Unina.Dis.Logbus.FFDA
 {
     /// <summary>
     /// Provides FFDA-specific logging services using the underlying Logbus-ng infrastructure
@@ -34,12 +35,15 @@ namespace It.Unina.Dis.Logbus.Utils
     /// FFDA messages have the following costraints:
     /// <list>
     /// <item>Facility defaults to Local0</item>
-    /// <item>Severity equals to Info or Error</item>
+    /// <item>Severity equals to Info or Alert</item>
     /// <item>MessageID equals to <c>FFDA</c></item>
-    /// <item>Text matches regular expression <c>^(SST|SEN|RIS|RIE|EIS|EIE|COA)[-]?</c></item>
+    /// <item>Text matches regular expression <c>^(SST|SEN|RIS|RIE|EIS|EIE|COA|CMP)[-]?</c></item>
     /// </list>
+    /// The COA message is a special message that is triggered <b>only</b> by an external entity that detects a failure in a monitored entity
+    /// Use the CMP message to report about self-detect failures
     /// </remarks>
     public class FFDALogger
+        : SimpleLogImpl
     {
         #region Constructor
         /// <summary>
@@ -48,6 +52,7 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <param name="facility">Syslog facility that will be used for all the messages</param>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(SyslogFacility facility, ILogCollector target)
+            : base(facility, target)
         {
             if (target == null) throw new ArgumentNullException("target");
 
@@ -60,12 +65,10 @@ namespace It.Unina.Dis.Logbus.Utils
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(ILogCollector target)
-            : this(SyslogFacility.Local0, target) { }
+            : base(SyslogFacility.Local0, target) { }
 
         #endregion
 
-        private SyslogFacility Facility { get; set; }
-        private ILogCollector Target { get; set; }
         private string GetFlow()
         {
             if (FlowId == null)
@@ -167,26 +170,6 @@ namespace It.Unina.Dis.Logbus.Utils
         }
 
         /// <summary>
-        /// Logs the event of a Computational Alert
-        /// </summary>
-        public void LogCOA()
-        {
-            Log("COA", SyslogSeverity.Error);
-        }
-
-        /// <summary>
-        /// Logs the event of an identified Computational Alert
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
-        public void LogCOA(string id)
-        {
-            if (id != null)
-                Log("COA-" + id, SyslogSeverity.Error);
-            else
-                Log("COA", SyslogSeverity.Error);
-        }
-
-        /// <summary>
         /// Logs the event of a Resource Interaction Start
         /// </summary>
         public void LogRIS()
@@ -201,7 +184,7 @@ namespace It.Unina.Dis.Logbus.Utils
         public void LogRIS(string id)
         {
             if (id != null)
-                Log("RIS-" + id, SyslogSeverity.Info); 
+                Log("RIS-" + id, SyslogSeverity.Info);
             else
                 Log("RIS", SyslogSeverity.Info);
         }
@@ -227,37 +210,48 @@ namespace It.Unina.Dis.Logbus.Utils
         }
 
         /// <summary>
-        /// Construct and delivers a Syslog message to the underlying logger
+        /// Logs the event of a Complaint
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="severity"></param>
-        protected virtual void Log(string message, SyslogSeverity severity)
+        public void LogCMP()
         {
-            String host = Environment.MachineName;
-            String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
-            String appname = Process.GetCurrentProcess().ProcessName;
-
-            SyslogMessage msg = new SyslogMessage()
-            {
-                Severity = severity,
-                Facility = Facility,
-                Text = message,
-                Timestamp = DateTime.Now,
-                Host = host,
-                ProcessID = procid,
-                MessageId = "FFDA",
-                ApplicationName = appname
-            };
-
-            // Getting the caller information(note that index is 2 because of Log is called by another local Method... 
-            StackTrace stackTrace = new StackTrace();
-            StackFrame[] stackFrames = stackTrace.GetFrames();
-            msg.Data = new Dictionary<String, IDictionary<String, String>>();
-            msg.Data.Add("CallerData@" + SimpleLogImpl.ENTERPRISE_ID, new Dictionary<String, String>());
-            msg.Data["CallerData@" + SimpleLogImpl.ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
-            msg.Data["CallerData@" + SimpleLogImpl.ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
-
-            Target.SubmitMessage(msg);
+            Log("CMP", SyslogSeverity.Info);
         }
+
+        /// <summary>
+        /// Logs the event of an identified Complaint
+        /// </summary>
+        /// <param name="id">Identification for the current service instance</param>
+        /// <remarks>Never use Exception.Message as id: if you need to log such message, use another logger!</remarks>
+        public void LogCMP(string id)
+        {
+            if (id != null)
+                Log("CMP-" + id, SyslogSeverity.Info);
+            else
+                Log("CMP", SyslogSeverity.Info);
+        }
+
+        /// <summary>
+        /// Logs the event of a Computational Alert
+        /// </summary>
+        /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
+        public void LogCOA()
+        {
+            Log("COA", SyslogSeverity.Alert);
+        }
+
+        /// <summary>
+        /// Logs the event of an identified Computational Alert
+        /// </summary>
+        /// <param name="id">Identification for the current service instance</param>
+        /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
+        public void LogCOA(string id)
+        {
+            if (id != null)
+                Log("COA-" + id, SyslogSeverity.Alert);
+            else
+                Log("COA", SyslogSeverity.Alert);
+        }
+
+
     }
 }
