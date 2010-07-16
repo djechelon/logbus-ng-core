@@ -23,10 +23,9 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using It.Unina.Dis.Logbus.Loggers;
-namespace It.Unina.Dis.Logbus.Utils
+namespace It.Unina.Dis.Logbus.Loggers
 {
-    internal class SimpleLogImpl
+    public class SimpleLogImpl
         : ILog
     {
         /// <summary>
@@ -38,7 +37,7 @@ namespace It.Unina.Dis.Logbus.Utils
         ///         Francesco Palmieri
         ///             fpalmieri&unina.it
         /// </summary>
-        internal const string ENTERPRISE_ID = "8289";
+        public const string ENTERPRISE_ID = "8289";
 
         public SimpleLogImpl(SyslogFacility facility, ILogCollector target)
         {
@@ -51,10 +50,10 @@ namespace It.Unina.Dis.Logbus.Utils
         public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
 
-        private SyslogFacility Facility { get; set; }
-        private ILogCollector Target { get; set; }
+        protected SyslogFacility Facility { get; set; }
+        protected ILogCollector Target { get; set; }
 
-        protected void Log(string message, SyslogSeverity severity)
+        protected virtual void Log(string message, SyslogSeverity severity)
         {
             String host = Environment.MachineName;
             String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);

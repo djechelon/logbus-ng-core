@@ -126,28 +126,6 @@ namespace It.Unina.Dis.Logbus.Loggers
             return new SimpleLogImpl(CreateDefaultCollector());
         }
 
-        /// <summary>
-        /// Creates an FFDA logger that sends messages in Syslog format via UDP
-        /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
-        /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
-        /// <remarks>Facility is set to Local0 as default value</remarks>
-        public static FFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
-        {
-            return new FFDALogger(CreateUdpCollector(logbus_ip, logbus_port));
-        }
-
-        /// <summary>
-        /// Creates an FFDA logger with the default logger
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
-        public static FFDALogger CreateFFDALogger()
-        {
-            return new FFDALogger(CreateDefaultCollector());
-        }
-
 
         private static ILogCollector CreateByDefinition(LoggerDefinition def)
         {

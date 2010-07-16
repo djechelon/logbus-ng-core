@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="FFDALoggerTest.cs" />
     <Compile Include="FFDASystemTest.cs" />
+    <Compile Include="FFDATest.cs" />
     <Compile Include="ILogBusTest.cs" />
     <Compile Include="ILogTest.cs" />
     <Compile Include="IOutboundChannelTest.cs" />
@@ -76,6 +77,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\It.Unina.Dis.Logbus.Extensions\It.Unina.Dis.Logbus.Extensions.csproj">
+      <Project>{E434F2C2-6113-4C91-903D-642A51D9759B}</Project>
+      <Name>It.Unina.Dis.Logbus.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\It.Unina.Dis.Logbus\It.Unina.Dis.Logbus.csproj">
       <Project>{9D119D96-4F98-4131-90D4-1F5FE2EC09B7}</Project>
       <Name>It.Unina.Dis.Logbus</Name>

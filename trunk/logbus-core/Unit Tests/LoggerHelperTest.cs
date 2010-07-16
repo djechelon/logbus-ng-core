@@ -98,34 +98,6 @@ namespace Unit_Tests
         }
 
         /// <summary>
-        ///Test per CreateFFDALogger
-        ///</summary>
-        [TestMethod()]
-        public void CreateFFDALoggerTest1()
-        {
-            FFDALogger expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FFDALogger actual;
-            actual = LoggerHelper.CreateFFDALogger();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
-        ///Test per CreateFFDALogger
-        ///</summary>
-        [TestMethod()]
-        public void CreateFFDALoggerTest()
-        {
-            IPAddress logbus_ip = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            int logbus_port = 0; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FFDALogger expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            FFDALogger actual;
-            actual = LoggerHelper.CreateFFDALogger(logbus_ip, logbus_port);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
-        /// <summary>
         ///Test per CreateDefaultCollector
         ///</summary>
         [TestMethod()]

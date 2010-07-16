@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using It.Unina.Dis.Logbus.Utils;
 using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.FFDA;
 namespace Unit_Tests
 {
 
@@ -119,7 +120,7 @@ namespace Unit_Tests
         {
             try
             {
-                FFDALogger logger = LoggerHelper.CreateFFDALogger(IPAddress.Loopback, SOURCE_PORT);
+                FFDALogger logger = FFDAHelper.CreateFFDALogger(IPAddress.Loopback, SOURCE_PORT);
 
                 logger.LogSST();
                 logger.LogSEN();
