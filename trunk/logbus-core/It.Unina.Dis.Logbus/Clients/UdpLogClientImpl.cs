@@ -28,6 +28,7 @@ using It.Unina.Dis.Logbus.Filters;
 using System.Collections;
 using It.Unina.Dis.Logbus.Utils;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -103,24 +104,6 @@ namespace It.Unina.Dis.Logbus.Clients
             }
         }
 
-        private String getIPAddress()
-        {
-            System.Net.IPAddress[] a = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
-
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (a[i].AddressFamily == AddressFamily.InterNetwork)
-                {
-                    if ((a[i].ToString().Contains("localhost")) || (a[i].ToString().Contains("127.0")))
-                        continue;
-                    else
-                        return a[i].ToString();
-                }
-                else if (a[i].AddressFamily == AddressFamily.InterNetworkV6 && !a[i].IsIPv6LinkLocal && !a[i].IsIPv6SiteLocal) return a[i].ToString();
-            }
-            throw new LogbusException("Unable to determine the IP address of current host");
-        }
-
         ~UdpLogClientImpl()
         {
             Dispose(false);
@@ -182,7 +165,9 @@ namespace It.Unina.Dis.Logbus.Clients
                         return;
                 }
                 int port;
-                client = new UdpClient(0);
+                //Decide on which address to listen
+                IPAddress local_ip = getIPAddress();
+                client = new UdpClient(new IPEndPoint(local_ip, 0));
                 EndPoint ep = client.Client.LocalEndPoint;
                 if (ep is IPEndPoint)
                 {
@@ -202,7 +187,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     channelid = Id,
                     transport = "udp",
-                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = getIPAddress() } }
+                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = local_ip.ToString() } }
                 };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 ChannelTTL = Int32.Parse(res.param[0].value);
@@ -346,5 +331,90 @@ namespace It.Unina.Dis.Logbus.Clients
                 catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
             }
         }
+
+        /// <summary>
+        /// Selects the best IP address to use for listening
+        /// </summary>
+        /// <returns></returns>
+        private IPAddress getIPAddress()
+        {
+            /* Maybe we don't currently need this
+            //Try to get some information on the remote Logbus host
+            if (ChannelSubscriber is ChannelSubscription)
+            {
+                try
+                {
+                    ChannelSubscription cs = ChannelSubscriber as ChannelSubscription;
+                    string hostname = Regex.Match(cs.Url, "^(?<protocol>https?)://(?<host>[-A-Z0-9.]+)(?<port>:[0-9]{1,5})?(?<file>/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(?<parameters>\\?[-A-Z0-9+&@#/%=~_|!:,.;]*)?",
+                        RegexOptions.IgnoreCase).Groups["host"].Value;
+                    IPAddress host_ip = Dns.GetHostAddresses(hostname)[0];
+
+                    //If we are contacting a local host, tell to use loopback
+                    if (host_ip.Equals(IPAddress.Loopback)) return IPAddress.Loopback;
+
+                    //Just force a routing table lookup, we don't need more
+                    UdpClient fake_client = new UdpClient();
+                    fake_client.Connect(hostname, 65534);
+                    return ((IPEndPoint)fake_client.Client.LocalEndPoint).Address;
+
+                }
+                catch { } //Never mind...
+            }
+            //Else never mind...
+            */
+
+            //All IPs available on this machine
+            System.Net.IPAddress[] a = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
+
+            IPAddress preferred_v4 = null, preferred_v6 = null, ret = null;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i].AddressFamily == AddressFamily.InterNetwork)
+                {
+                    if (a[i].ToString().Contains("localhost"))
+                        continue;
+                    else if (a[i].GetAddressBytes()[0] == 0 ||
+                        a[i].GetAddressBytes()[0] == 255 ||
+                        a[i].GetAddressBytes()[0] == 240 ||
+                        (a[i].GetAddressBytes()[0] == 203 && a[i].GetAddressBytes()[1] == 0 && a[i].GetAddressBytes()[2] == 113) ||
+                        (a[i].GetAddressBytes()[0] == 198 && a[i].GetAddressBytes()[1] == 51 && a[i].GetAddressBytes()[2] == 100) ||
+                        (a[i].GetAddressBytes()[0] == 198 && ((a[i].GetAddressBytes()[1] | 1) & 18) != 0) ||
+                        (a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 0 && a[i].GetAddressBytes()[2] == 2) ||
+                        (a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 0 && a[i].GetAddressBytes()[2] == 0) ||
+                        (a[i].GetAddressBytes()[0] == 198 && a[i].GetAddressBytes()[1] == 51 && a[i].GetAddressBytes()[2] == 100))
+                        //No network interface should return this
+                        continue;
+                    else if (a[i].GetAddressBytes()[0] == 255)
+                        //No network interface should return this
+                        continue;
+                    else if (a[i].GetAddressBytes()[0] == 127)
+                        //Local address. We don't want to use it
+                        continue;
+                    else if ((a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 168) ||
+                        a[i].GetAddressBytes()[0] == 169 && a[i].GetAddressBytes()[1] == 254 ||
+                        a[i].GetAddressBytes()[0] == 10)
+                    {
+                        //Local-scope address. While we don't like these, they could be our only choice
+                        if (preferred_v4 == null) preferred_v4 = a[i];
+                    }
+                    else if (preferred_v4 == null)
+                        preferred_v4 = a[i];
+                }
+                else if (a[i].AddressFamily == AddressFamily.InterNetworkV6)
+                    if (a[i].IsIPv6LinkLocal)
+                        //We dont' like link local addresses
+                        continue;
+                    else if (preferred_v6 == null) preferred_v6 = a[i];
+            }
+
+            //Workaround: we must currently prefer IPv4 over IPv6
+            if (preferred_v4 != null) ret = preferred_v4;
+            if (preferred_v6 != null && ret == null) ret = preferred_v6;
+
+            if (ret != null) return ret;
+            throw new LogbusException("Unable to determine the IP address of current host");
+        }
+
     }
 }
