@@ -19,8 +19,11 @@
 
 namespace It.Unina.Dis.Logbus.Loggers
 {
+    /// <summary>
+    /// Marks a class as a valid Logger implementation
+    /// </summary>
     public interface ILogger
-        :ILog, IConfigurable
+        : ILogCollector, IConfigurable
     {
     }
 }

@@ -62,6 +62,7 @@
     <Compile Include="LogbusDaemon.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Loggers\ConsoleLogger.cs" />
     <Compile Include="Loggers\ILog.cs" />
     <Compile Include="Clients\ILogClient.cs" />
     <Compile Include="Clients\ClientHelper.cs" />
