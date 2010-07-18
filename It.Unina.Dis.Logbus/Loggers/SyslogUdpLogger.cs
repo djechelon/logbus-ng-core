@@ -43,6 +43,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         }
 
         public SyslogUdpLogger(IPEndPoint endpoint)
+            : this()
         {
             RemoteEndPoint = endpoint;
         }
