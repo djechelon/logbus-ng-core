@@ -57,7 +57,11 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
         public static ILogCollector CreateDefaultCollector()
         {
-            if (Configuration == null) throw new InvalidOperationException("This method requires a valid logger configuration to be instanced first");
+            if (Configuration == null)
+            {
+                //Use the console appender
+                return new ConsoleLogger();
+            }
 
             if (Configuration.logger == null || Configuration.logger.Length == 0)
                 return new NullLogger();
@@ -141,24 +145,22 @@ namespace It.Unina.Dis.Logbus.Loggers
                     typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                 }
                 Type logger_type = Type.GetType(typename);
-                if (!typeof(ILogCollector).IsAssignableFrom(logger_type))
+                if (!typeof(ILogger).IsAssignableFrom(logger_type))
                 {
                     LogbusConfigurationException ex = new LogbusConfigurationException("Registered logger type does not implement ILogCollector");
                     ex.Data.Add("type", logger_type);
                     throw ex;
                 }
-                ILogCollector ret = Activator.CreateInstance(logger_type) as ILogCollector;
-                if (def.param != null && ret is IConfigurable)
-                {
-                    IConfigurable logger_conf = ret as IConfigurable;
+                ILogger ret = Activator.CreateInstance(logger_type) as ILogger;
+                if (def.param != null)
                     foreach (KeyValuePair kvp in def.param)
-                        logger_conf.SetConfigurationParameter(kvp.name, kvp.value);
-                }
+                        ret.SetConfigurationParameter(kvp.name, kvp.value);
+
                 return ret;
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Invalid logger configuration", ex);
+                throw new LogbusConfigurationException("Invalid logger configuration", ex);
             }
         }
     }
