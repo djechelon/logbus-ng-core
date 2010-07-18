@@ -88,6 +88,14 @@ namespace It.Unina.Dis.Logbus.WebServices
             UninstallRuntime(physical_path);
         }
 
+        /// <summary>
+        /// Starts an HTTP/WebService listener on the given port, controlling the default Logbus service instance
+        /// </summary>
+        /// <param name="httpPort">port to listen on</param>
+        public static void Start(int httpPort)
+        {
+            Start(LogbusSingletonHelper.Instance, httpPort);
+        }
 
         /// <summary>
         /// Starts an HTTP/WebService listener on the given port that controls the given Logbus service
