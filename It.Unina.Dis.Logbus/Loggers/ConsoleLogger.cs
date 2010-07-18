@@ -19,6 +19,11 @@
 
 namespace It.Unina.Dis.Logbus.Loggers
 {
+    /// <summary>
+    /// Outputs log messages to the console according to a standard output format:
+    /// {timestamp} - {severity}: {message}
+    /// Timestamp is formatted according to the yyyy-MM-dd-hh-mm-ss format
+    /// </summary>
     internal sealed class ConsoleLogger
         : ILogger
     {
