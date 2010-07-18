@@ -1,0 +1,13 @@
+﻿Logbus-ng Release Notes
+
+version 1.0
+*WindowsEventLogListener is not supported
+*MulticastUdpReceiver is not supported
+*It is recommended to deploy Logbus-ng into the GAC
+*FFDA is part of the new Logbus Extensions package, released separately
+*UdpLogClientImpl (default) prefers IPv4 over IPv6.
+	This is a workaround for computers with virtual network cards that may assign a version 6
+	address while the machine is not connected to the IPv6 Internet
+*Running a client on a computer with multiple network cards, on some network topologies,
+	might prevent the client itself from working
+*Unfortunately, Core and Client components won't run in Mono 2.6 because of two bugs

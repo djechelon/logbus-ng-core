@@ -363,6 +363,23 @@ namespace It.Unina.Dis.Logbus.Clients
             //Else never mind...
             */
 
+            /*
+             *  This mechanism might not work in the following scenario:
+             *  -Client node is connected to LAN and WAN with 2 network cards
+             *  -Logbus is listening on a computer that can access only LAN
+             *  
+             *  In this case, client tries to use WAN address for listening,
+             *  but Logbus won't be able to send datagrams to it.
+             *  This is a structural bug in the getIPAddress logic that may be
+             *  solved by the above commented code, but...
+             *  
+             *  The above code, that implements a backup choice algorithm
+             *  that forces the system's routing table to be activated, works
+             *  by assuming that Logbus HTTP endpoint coincides with the host
+             *  that actually sends UDP datagrams. While this happens 99% of
+             *  times, it's not the only possible scenario.
+            */
+
             //All IPs available on this machine
             System.Net.IPAddress[] a = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
 
