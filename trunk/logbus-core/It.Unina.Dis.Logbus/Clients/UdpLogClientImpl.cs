@@ -38,13 +38,13 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private Timer refresh_timer;
         private UdpClient client;
-        private String Id { get; set; }
         private long ChannelTTL = 0;
         private const long MAX_REFRESH_TIME = 20000;
         private FilterBase filter;
         private bool ExclusiveUsage { get; set; }
         private bool Running { get; set; }
         private Thread running_thread;
+        private string clientId, channelId;
 
         #region Constructor/Destructor
         /// <summary>
@@ -64,16 +64,16 @@ namespace It.Unina.Dis.Logbus.Clients
             ArrayList channel_ids = new ArrayList(manager.ListChannels());
             do
             {
-                Id = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
-            } while (channel_ids.Contains(Id));
+                channelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
+            } while (channel_ids.Contains(channelId));
 
             Init();
         }
 
-        public UdpLogClientImpl(string channel_id, IChannelSubscription subscription)
+        public UdpLogClientImpl(string channelId, IChannelSubscription subscription)
         {
             ExclusiveUsage = false;
-            Id = channel_id;
+            this.channelId = channelId;
             ChannelSubscriber = subscription;
 
             Init();
@@ -90,7 +90,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     description = "Channel created by LogCollector",
                     filter = filter,
                     title = "AutoChannel",
-                    id = Id
+                    id = channelId
                 };
 
                 try
@@ -125,7 +125,7 @@ namespace It.Unina.Dis.Logbus.Clients
         {
             try
             {
-                ChannelSubscriber.RefreshSubscription(Id);
+                ChannelSubscriber.RefreshSubscription(Status as string);
             }
             catch (Exception ex)
             {
@@ -182,17 +182,19 @@ namespace It.Unina.Dis.Logbus.Clients
                 running_thread = new Thread(RunnerLoop);
                 running_thread.IsBackground = true;
                 running_thread.Start();
+                
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
                 {
-                    channelid = Id,
+                    channelid = channelId,
                     transport = "udp",
                     param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = local_ip.ToString() } }
                 };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
+                clientId = res.clientid;
                 ChannelTTL = Int32.Parse(res.param[0].value);
                 long refreshTime = ChannelTTL - (ChannelTTL * 20 / 100);
-                refresh_timer = new Timer(RefreshChannel, null, Timeout.Infinite, (refreshTime < MAX_REFRESH_TIME) ? refreshTime : MAX_REFRESH_TIME);
+                refresh_timer = new Timer(RefreshChannel, channelId, Timeout.Infinite, (refreshTime < MAX_REFRESH_TIME) ? refreshTime : MAX_REFRESH_TIME);
 
                 Running = true;
 
@@ -228,7 +230,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     if (arg.Cancel)
                         return;
                 }
-                ChannelSubscriber.UnsubscribeChannel(Id);
+                ChannelSubscriber.UnsubscribeChannel(channelId);
                 ChannelTTL = 0;
                 if (refresh_timer != null)
                     refresh_timer.Dispose();
@@ -279,7 +281,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void DestroyChannel()
         {
-            ChannelManager.DeleteChannel(Id);
+            ChannelManager.DeleteChannel(channelId);
         }
 
         public void Dispose(bool disposing)
