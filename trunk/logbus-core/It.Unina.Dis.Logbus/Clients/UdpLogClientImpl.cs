@@ -186,7 +186,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
                 {
-                    channelid = channelId,
+                    channelid = this.channelId,
                     transport = "udp",
                     param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = local_ip.ToString() } }
                 };
@@ -198,7 +198,7 @@ namespace It.Unina.Dis.Logbus.Clients
                         if (long.TryParse(kvp.value, out ChannelTTL)) break;
                 long refreshTime = Math.Min(ChannelTTL * 4 / 5, MAX_REFRESH_TIME); //80% of the max TTL, but not over max TTL
 
-                refresh_timer = new Timer(RefreshChannel, channelId, refreshTime, refreshTime);
+                refresh_timer = new Timer(RefreshChannel, clientId, refreshTime, refreshTime);
 
                 Running = true;
 
