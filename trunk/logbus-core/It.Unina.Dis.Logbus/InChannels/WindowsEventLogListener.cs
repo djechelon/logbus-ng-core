@@ -1,4 +1,4 @@
-﻿/*
+/*
  *                  Logbus-ng project
  *    ©2010 Logbus Reasearch Team - Some rights reserved
  *
@@ -155,12 +155,8 @@ namespace It.Unina.Dis.Logbus.InChannels
             log = null;
         }
 
-        [System.Obsolete("This class never raises this event. It is just required by the interface", true)]
         public event ParseErrorEventHandler ParseError;
-
-        
-        
-
+		
         #endregion
 
         #region ILogSource Membri di
