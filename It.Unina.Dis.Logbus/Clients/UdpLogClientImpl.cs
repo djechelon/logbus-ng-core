@@ -230,11 +230,18 @@ namespace It.Unina.Dis.Logbus.Clients
                     if (arg.Cancel)
                         return;
                 }
-                ChannelSubscriber.UnsubscribeChannel(channelId);
-                ChannelTTL = 0;
+
+                //Stop refreshing
                 if (refresh_timer != null)
                     refresh_timer.Dispose();
 
+                try
+                {
+                    ChannelSubscriber.UnsubscribeChannel(clientId);
+                }
+                catch (LogbusException) { }
+                clientId = null;
+                
                 try
                 {
                     client.Close(); //Trigger SocketException if thread is blocked into listening
@@ -248,18 +255,12 @@ namespace It.Unina.Dis.Logbus.Clients
                 if (Stopped != null)
                     Stopped(this, EventArgs.Empty);
             }
-            catch (LogbusException ex)
-            {
-                if (Error != null)
-                    Error(this, new UnhandledExceptionEventArgs(ex, true));
-
-                throw ex;
-            }
             catch (Exception ex)
             {
                 if (Error != null)
                     Error(this, new UnhandledExceptionEventArgs(ex, true));
 
+                if (ex is LogbusException) throw ex;
                 throw new LogbusException("Unable to Unsubscribe Channel", ex);
             }
         }
