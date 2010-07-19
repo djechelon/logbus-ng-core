@@ -28,7 +28,6 @@ using It.Unina.Dis.Logbus.Wrappers;
 
 namespace It.Unina.Dis.Logbus.WebServices
 {
-    [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
     public class ChannelManagementService
         : WebService, IChannelManagement
     {
@@ -71,13 +70,11 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelManagement Membri di
 
-        [WebMethod()]
         public string[] ListChannels()
         {
             return TargetChannelManager.ListChannels();
         }
 
-        [WebMethod()]
         public void CreateChannel(ChannelCreationInformation description)
         {
             try
@@ -87,7 +84,6 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; } //What to do?
         }
 
-        [WebMethod()]
         public ChannelInformation GetChannelInformation(string id)
         {
             try
@@ -97,7 +93,6 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
-        [WebMethod()]
         public void DeleteChannel(string id)
         {
             try
