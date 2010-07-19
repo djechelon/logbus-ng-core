@@ -23,7 +23,6 @@ using System.Threading;
 using It.Unina.Dis.Logbus.Wrappers;
 namespace It.Unina.Dis.Logbus.WebServices
 {
-    [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
     public class ChannelSubscriptionService
         : WebService, IChannelSubscription
     {
@@ -66,19 +65,16 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelSubscription Membri di
 
-        [WebMethod()]
         public string[] ListChannels()
         {
             return TargetChannelSubscription.ListChannels();
         }
 
-        [WebMethod()]
         public string[] GetAvailableTransports()
         {
             return TargetChannelSubscription.GetAvailableTransports();
         }
 
-        [WebMethod()]
         public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request)
         {
             try
@@ -88,7 +84,6 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
-        [WebMethod()]
         public void UnsubscribeChannel(string id)
         {
             try
@@ -98,7 +93,6 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
-        [WebMethod()]
         public void RefreshSubscription(string id)
         {
             try
