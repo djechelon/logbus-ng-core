@@ -182,7 +182,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 running_thread = new Thread(RunnerLoop);
                 running_thread.IsBackground = true;
                 running_thread.Start();
-                
+
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
                 {
@@ -193,8 +193,9 @@ namespace It.Unina.Dis.Logbus.Clients
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 clientId = res.clientid;
                 ChannelTTL = Int32.Parse(res.param[0].value);
-                long refreshTime = ChannelTTL - (ChannelTTL * 20 / 100);
-                refresh_timer = new Timer(RefreshChannel, channelId, Timeout.Infinite, (refreshTime < MAX_REFRESH_TIME) ? refreshTime : MAX_REFRESH_TIME);
+                long refreshTime = Math.Min(ChannelTTL - (ChannelTTL * 20 / 100), MAX_REFRESH_TIME);
+
+                refresh_timer = new Timer(RefreshChannel, channelId, refreshTime, refreshTime);
 
                 Running = true;
 
@@ -241,7 +242,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 catch (LogbusException) { }
                 clientId = null;
-                
+
                 try
                 {
                     client.Close(); //Trigger SocketException if thread is blocked into listening
