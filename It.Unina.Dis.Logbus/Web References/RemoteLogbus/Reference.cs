@@ -27,7 +27,6 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="ChannelManagement", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
     public partial class ChannelManagement : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelManagement {
         
         private System.Threading.SendOrPostCallback ListChannelsOperationCompleted;
@@ -225,7 +224,6 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="ChannelSubscription", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
     public partial class ChannelSubscription : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelSubscription {
         
         private System.Threading.SendOrPostCallback ListChannelsOperationCompleted;
