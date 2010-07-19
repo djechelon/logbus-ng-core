@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Results>
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="file:///C:/Users/DJ Echelon/Documents/Visual Studio 2008/Projects/Logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-filter.xsd" filename="logbus-filter.xsd" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="file:///C:/Users/DJ Echelon/Documents/Visual Studio 2008/Projects/Logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-control.wsdl" filename="logbus-control.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://logbus-ng.svn.sourceforge.net/viewvc/logbus-ng/trunk/logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-control.wsdl?revision=101" filename="logbus-control.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://logbus-ng.svn.sourceforge.net/viewvc/logbus-ng/trunk/logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-filter.xsd" filename="logbus-filter.xsd" />
   </Results>
 </DiscoveryClientResultsFile>

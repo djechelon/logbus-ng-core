@@ -28,6 +28,8 @@ using It.Unina.Dis.Logbus.Wrappers;
 
 namespace It.Unina.Dis.Logbus.WebServices
 {
+    [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
+    [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelManagement", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
     public class ChannelManagementService
         : WebService, IChannelManagement
     {
@@ -70,11 +72,21 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelManagement Membri di
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#ListChannels", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("list")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
         public string[] ListChannels()
         {
             return TargetChannelManager.ListChannels();
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#CreateChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+#endif
         public void CreateChannel(ChannelCreationInformation description)
         {
             try
@@ -84,6 +96,11 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; } //What to do?
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#GetChannelInformation", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+        [return: System.Xml.Serialization.XmlElementAttribute("info")]
+#endif
         public ChannelInformation GetChannelInformation(string id)
         {
             try
@@ -93,6 +110,10 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#DeleteChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+#endif
         public void DeleteChannel(string id)
         {
             try

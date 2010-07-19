@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
 using System.Threading;
 using System.Security.Principal;
+using It.Unina.Dis.Logbus.Configuration;
 
 namespace Unit_Tests
 {
@@ -76,12 +77,14 @@ namespace Unit_Tests
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             if (!principal.IsInRole(WindowsBuiltInRole.Administrator)) Assert.Fail("You must be running this test as an Administrator");
 
-
-            ILogBus service = LogbusSingletonHelper.Instance;
+            LogbusCoreConfiguration config = new LogbusCoreConfiguration();
+            ILogBus service = new LogbusService(config);
+            service.Start();
             int httpPort = 8065; // TODO: Eseguire l'inizializzazione a un valore appropriato
             WebServiceActivator.Start(service, httpPort);
             Thread.Sleep(Timeout.Infinite);
             WebServiceActivator.Stop();
+            service.Stop();
 
         }
 
