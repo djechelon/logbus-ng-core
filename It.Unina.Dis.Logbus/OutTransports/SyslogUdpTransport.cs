@@ -35,7 +35,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             Disposed = false;
             Clients = new Dictionary<String, UdpClientExpire>();
-            clear_timer = new Timer(ClearList, null, Timeout.Infinite, SubscriptionTtl);
+            clear_timer = new Timer(ClearList, null, SubscriptionTtl, SubscriptionTtl);
         }
 
         ~SyslogUdpTransport()
