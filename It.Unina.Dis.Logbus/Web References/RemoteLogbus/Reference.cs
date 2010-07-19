@@ -20,17 +20,13 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     using System.Web.Services.Protocols;
     using System;
     using System.Xml.Serialization;
-	using It.Unina.Dis.Logbus.Filters;
     
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-#if MONO
-#else
     [System.Web.Services.WebServiceBindingAttribute(Name="ChannelManagement", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
     public partial class ChannelManagement : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelManagement {
         
         private System.Threading.SendOrPostCallback ListChannelsOperationCompleted;
@@ -228,10 +224,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-#if MONO
-#else
     [System.Web.Services.WebServiceBindingAttribute(Name="ChannelSubscription", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
     public partial class ChannelSubscription : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelSubscription {
         
         private System.Threading.SendOrPostCallback ListChannelsOperationCompleted;
@@ -475,7 +468,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         private long coalescenceWindowField;
         
-        private FilterBase filterField;
+        private It.Unina.Dis.Logbus.Filters.FilterBase filterField;
         
         /// <remarks/>
         public string id {
@@ -520,7 +513,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-        public FilterBase filter {
+        public It.Unina.Dis.Logbus.Filters.FilterBase filter {
             get {
                 return this.filterField;
             }
@@ -529,7 +522,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
             }
         }
     }
-       
+    
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
@@ -666,7 +659,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         private string clientsField;
         
-        private FilterBase filterField;
+        private It.Unina.Dis.Logbus.Filters.FilterBase filterField;
         
         /// <remarks/>
         public string id {
@@ -722,7 +715,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-        public FilterBase filter {
+        public It.Unina.Dis.Logbus.Filters.FilterBase filter {
             get {
                 return this.filterField;
             }

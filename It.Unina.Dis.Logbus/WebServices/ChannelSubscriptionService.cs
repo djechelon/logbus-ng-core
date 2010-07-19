@@ -23,6 +23,10 @@ using System.Threading;
 using It.Unina.Dis.Logbus.Wrappers;
 namespace It.Unina.Dis.Logbus.WebServices
 {
+#if MONO
+    [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelSubscription", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
+#endif
     public class ChannelSubscriptionService
         : WebService, IChannelSubscription
     {
@@ -39,7 +43,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             else
             {
                 object AppDomainData = Thread.GetDomain().GetData("Logbus");
-                if (AppDomainData !=null)
+                if (AppDomainData != null)
                     try
                     {
                         TargetChannelSubscription = (AppDomainData is IChannelSubscription) ?
@@ -65,16 +69,33 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelSubscription Membri di
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#ListChannels", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("list")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
         public string[] ListChannels()
         {
             return TargetChannelSubscription.ListChannels();
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#GetAvailableTransports", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("list")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
         public string[] GetAvailableTransports()
         {
             return TargetChannelSubscription.GetAvailableTransports();
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#SubscribeChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+        [return: System.Xml.Serialization.XmlElementAttribute("client-config")]
+#endif
         public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request)
         {
             try
@@ -84,6 +105,10 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#UnsubscribeChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+#endif
         public void UnsubscribeChannel(string id)
         {
             try
@@ -93,6 +118,10 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#RefreshSubscription", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+#endif
         public void RefreshSubscription(string id)
         {
             try

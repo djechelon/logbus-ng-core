@@ -27,11 +27,10 @@ namespace It.Unina.Dis.Logbus
         {
             get
             {
-                lock (typeof(LogbusSingletonHelper))
-                    if (_instance == null)
-                        lock (typeof(LogbusSingletonHelper))
+                if (_instance == null)
+                    lock (typeof(LogbusSingletonHelper))
+                        if (_instance == null)
                             _instance = new LogbusService();
-
                 return _instance;
             }
         }

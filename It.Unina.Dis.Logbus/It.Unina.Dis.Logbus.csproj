@@ -145,10 +145,10 @@
     <Compile Include="ParseErrorEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Schemas\logbus-configuration.xsd.cs" />
-    <None Include="Schemas\logbus-control.wsdl.cs" />
     <None Include="Schemas\logbus-filter.cs">
       <DependentUpon>logbus-filter.xsd</DependentUpon>
     </None>
+    <None Include="Schemas\logbus-control.cs" />
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
@@ -190,6 +190,19 @@
     <None Include="Schemas\logbus-control.wsdl" />
     <None Include="Schemas\logbus-filter.xsd" />
     <None Include="Schemas\make-config.bat" />
+    <EmbeddedResource Include="WebServices\LogbusManagement.asmx" />
+    <EmbeddedResource Include="WebServices\LogbusSubscription.asmx" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Changes.txt" />
+    <None Include="Release.txt" />
+    <None Include="Schemas\make-wsdl-skeleton.bat" />
     <None Include="Web References\RemoteLogbus\ChannelInformation.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -202,20 +215,12 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <EmbeddedResource Include="WebServices\LogbusManagement.asmx" />
-    <EmbeddedResource Include="WebServices\LogbusSubscription.asmx" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferences Include="Web References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferenceUrl Include="C:\Users\DJ Echelon\Documents\Visual Studio 2008\Projects\Logbus-core\It.Unina.Dis.Logbus\Schemas\logbus-control.wsdl">
+    <WebReferenceUrl Include="http://logbus-ng.svn.sourceforge.net/viewvc/logbus-ng/trunk/logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-control.wsdl%3frevision=101">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\RemoteLogbus\</RelPath>
-      <UpdateFromURL>C:\Users\DJ Echelon\Documents\Visual Studio 2008\Projects\Logbus-core\It.Unina.Dis.Logbus\Schemas\logbus-control.wsdl</UpdateFromURL>
+      <UpdateFromURL>http://logbus-ng.svn.sourceforge.net/viewvc/logbus-ng/trunk/logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-control.wsdl%3frevision=101</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -225,10 +230,6 @@
       <CachedSettingsPropName>
       </CachedSettingsPropName>
     </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Changes.txt" />
-    <None Include="Release.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -240,7 +241,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

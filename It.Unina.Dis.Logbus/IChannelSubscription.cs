@@ -24,9 +24,12 @@ namespace It.Unina.Dis.Logbus
     /// <summary>
     /// Manages subscription to Logbus channels
     /// </summary>
+#if MONO
+#else
     [System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelSubscription", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
     [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
+#endif
     public interface IChannelSubscription
     {
 
@@ -34,10 +37,13 @@ namespace It.Unina.Dis.Logbus
         /// Lists the available channels by their unique IDs
         /// </summary>
         /// <returns>List of channel IDs</returns>
+#if MONO
+#else
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#ListChannels", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
         [return: System.Xml.Serialization.XmlArrayAttribute("list")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
         string[] ListChannels();
 
         /// <summary>
@@ -46,10 +52,13 @@ namespace It.Unina.Dis.Logbus
         /// <returns>List of IDs of outbound transports</returns>
         /// <remarks>Clients must be aware of transport semantics, as defined in documentation.
         /// Clients must choose only transport they are natively compiled for and that are supported by the server</remarks>
+#if MONO
+#else
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#GetAvailableTransports", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
         [return: System.Xml.Serialization.XmlArrayAttribute("list")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
         string[] GetAvailableTransports();
 
         /// <summary>
@@ -57,25 +66,34 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="request">Subscription Information</param>
         /// <returns>Client ID (for future request) and client instructions</returns>
+#if MONO
+#else
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#SubscribeChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
         [return: System.Xml.Serialization.XmlElementAttribute("client-config")]
+#endif
         ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request);
 
         /// <summary>
         /// Unsubscribes from a channel
         /// </summary>
         /// <param name="id">Client ID as returned by SubscribeChannel</param>
+#if MONO
+#else
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#UnsubscribeChannel", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
-        void UnsubscribeChannel(string clientId);
+#endif
+        void UnsubscribeChannel(string id);
 
         /// <summary>
         /// Refreshes client subscription, if required by transport
         /// </summary>
         /// <param name="id">ID of client as returned by SubscribeChannel</param>
+#if MONO
+#else
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#RefreshSubscription", RequestNamespace = "", ResponseNamespace = "", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
-        void RefreshSubscription(string clientId);
+#endif
+        void RefreshSubscription(string id);
     }
 }
