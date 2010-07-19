@@ -72,34 +72,40 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         private void ClearList(Object Status)
         {
-            Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
-            while (enumeratore.MoveNext())
+            lock (Clients)
             {
-                DateTime expire = enumeratore.Current.Value.LastRefresh.Value;
-                TimeSpan diff = DateTime.Now.Subtract(expire);
-                if (diff.TotalMilliseconds > SubscriptionTtl)
-                    UnsubscribeClient(enumeratore.Current.Key);
+                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
+                while (enumeratore.MoveNext())
+                {
+                    DateTime expire = enumeratore.Current.Value.LastRefresh.Value;
+                    TimeSpan diff = DateTime.Now.Subtract(expire);
+                    if (diff.TotalMilliseconds > SubscriptionTtl)
+                        UnsubscribeClient(enumeratore.Current.Key);
+                }
             }
         }
 
         public void SubmitMessage(SyslogMessage message)
         {
             byte[] dgram = message.ToByteArray();
-            Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
-
-            while (enumeratore.MoveNext())
+            lock (Clients)
             {
-                UdpClient client = enumeratore.Current.Value.Client;
-                if (client != null)
-                    try
-                    {
-                        client.Send(dgram, dgram.Length);
-                    }
-                    catch (SocketException)
-                    {
-                        //What to do????
-                        //For now, ignore and lose message
-                    }
+                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
+
+                while (enumeratore.MoveNext())
+                {
+                    UdpClient client = enumeratore.Current.Value.Client;
+                    if (client != null)
+                        try
+                        {
+                            client.Send(dgram, dgram.Length);
+                        }
+                        catch (SocketException)
+                        {
+                            //What to do????
+                            //For now, ignore and lose message
+                        }
+                }
             }
         }
 
@@ -125,10 +131,10 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// <returns></returns>
         public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
-            if (Disposed) 
+            if (Disposed)
                 throw new ObjectDisposedException(GetType().FullName);
-            
-            outputInstructions = new Dictionary<string,string>();
+
+            outputInstructions = new Dictionary<string, string>();
             ((Dictionary<string, string>)outputInstructions).Add("ttl", this.SubscriptionTtl.ToString());
 
             try
@@ -150,7 +156,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
                 string clientid = ipstring + ":" + port;
                 UdpClientExpire new_client = new UdpClientExpire() { Client = new UdpClient(ipstring, port), LastRefresh = DateTime.Now };
-                Clients.Add(clientid, new_client);
+                lock (Clients)
+                    Clients.Add(clientid, new_client);
 
                 return clientid;
             }
@@ -177,13 +184,27 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public void RefreshClient(string clientId)
         {
-            Clients[clientId].LastRefresh = DateTime.Now;
+            lock (Clients)
+                if (Clients.ContainsKey(clientId))
+                    Clients[clientId].LastRefresh = DateTime.Now;
+                else
+                    throw new TransportException("Client not subscribed");
         }
 
         public void UnsubscribeClient(string clientId)
         {
-            Clients[clientId].Client.Close();
-            Clients.Remove(clientId);
+            lock (Clients)
+            {
+                try
+                {
+                    Clients[clientId].Client.Close();
+                    Clients.Remove(clientId);
+                }
+                catch (Exception ex)
+                {
+                    throw new TransportException("Unable to unsubscribe client", ex);
+                }
+            }
         }
 
         public long SubscriptionTtl
@@ -206,16 +227,19 @@ namespace It.Unina.Dis.Logbus.OutTransports
             GC.SuppressFinalize(this);
             if (disposing)
             {
-                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
-                while (enumeratore.MoveNext())
+                lock (Clients)
                 {
-                    UdpClient client = enumeratore.Current.Value.Client;
-                    if (client != null)
-                        try
-                        {
-                            client.Close();
-                        }
-                        catch (SocketException) { }
+                    Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
+                    while (enumeratore.MoveNext())
+                    {
+                        UdpClient client = enumeratore.Current.Value.Client;
+                        if (client != null)
+                            try
+                            {
+                                client.Close();
+                            }
+                            catch (SocketException) { }
+                    }
                 }
             }
             Disposed = true;
