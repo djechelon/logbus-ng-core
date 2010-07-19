@@ -195,7 +195,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 ChannelTTL = MAX_REFRESH_TIME;
                 foreach (KeyValuePair kvp in res.param)
                     if (kvp.name == "ttl")
-                        if (int.TryParse(kvp.value, out ChannelTTL)) break;
+                        if (long.TryParse(kvp.value, out ChannelTTL)) break;
                 long refreshTime = Math.Min(ChannelTTL * 4 / 5, MAX_REFRESH_TIME); //80% of the max TTL, but not over max TTL
 
                 refresh_timer = new Timer(RefreshChannel, channelId, refreshTime, refreshTime);
