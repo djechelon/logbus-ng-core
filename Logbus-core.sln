@@ -32,6 +32,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "It.Unina.Dis.Logbus.Extensi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogbusWebapp", "LogbusWebapp\LogbusWebapp.csproj", "{BFB27842-B100-49A7-B027-10D1EBB7A991}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{91913588-1D2B-41C1-9549-88174FDA91E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoWarningClient", "Samples\DemoWarningClient\DemoWarningClient.csproj", "{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogbusDaemon", "Samples\LogbusDaemon\LogbusDaemon.csproj", "{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomMessagePump", "Samples\RandomMessagePump\RandomMessagePump.csproj", "{7DA7302D-1CF4-4971-80AB-1320521CFFF1}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Logbus-core4.vsmdi
@@ -95,9 +103,38 @@ Global
 		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Mono Release|Any CPU.Build.0 = Release|Any CPU
 		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Mono Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Mono Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Mono Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Mono Release|Any CPU.Build.0 = Release|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Mono Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Mono Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Mono Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Mono Release|Any CPU.Build.0 = Release|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Mono Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Mono Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Mono Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Mono Release|Any CPU.Build.0 = Release|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA53E3AB-5659-40FD-9DCE-0BCE20D53170} = {91913588-1D2B-41C1-9549-88174FDA91E2}
+		{20F1FDBB-3221-4F9A-AC83-9D75CDF143F9} = {91913588-1D2B-41C1-9549-88174FDA91E2}
+		{7DA7302D-1CF4-4971-80AB-1320521CFFF1} = {91913588-1D2B-41C1-9549-88174FDA91E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = .
