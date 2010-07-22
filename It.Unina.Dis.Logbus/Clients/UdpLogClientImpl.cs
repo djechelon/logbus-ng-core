@@ -61,7 +61,9 @@ namespace It.Unina.Dis.Logbus.Clients
             ChannelSubscriber = subscription;
             this.filter = filter;
 
-            ArrayList channel_ids = new ArrayList(manager.ListChannels());
+            string[] ch_ids_string = manager.ListChannels();
+            ArrayList channel_ids = new ArrayList((ch_ids_string != null) ? ch_ids_string : new string[0]);
+
             do
             {
                 channelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
