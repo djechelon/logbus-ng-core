@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logbus-configtool", "Logbus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "It.Unina.Dis.Logbus.Extensions", "It.Unina.Dis.Logbus.Extensions\It.Unina.Dis.Logbus.Extensions.csproj", "{E434F2C2-6113-4C91-903D-642A51D9759B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogbusWebapp", "LogbusWebapp\LogbusWebapp.csproj", "{BFB27842-B100-49A7-B027-10D1EBB7A991}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Logbus-core4.vsmdi
@@ -85,6 +87,14 @@ Global
 		{E434F2C2-6113-4C91-903D-642A51D9759B}.Mono Release|Any CPU.Build.0 = Mono Release|Any CPU
 		{E434F2C2-6113-4C91-903D-642A51D9759B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E434F2C2-6113-4C91-903D-642A51D9759B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Mono Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Mono Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Mono Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Mono Release|Any CPU.Build.0 = Release|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB27842-B100-49A7-B027-10D1EBB7A991}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
