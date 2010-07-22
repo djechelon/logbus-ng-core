@@ -332,8 +332,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     //We are closing, or an I/O error occurred
                     //if (Stopped) //Yes, we are closing
-                    //return;
-                    //else nothing yet
+                    return;
                 }
                 catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
             }
