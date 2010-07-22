@@ -1,4 +1,4 @@
 ﻿Logbus-ng Change Log
 
-version 1.0
+version 1.2
 First public release
