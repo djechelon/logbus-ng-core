@@ -888,6 +888,8 @@ namespace It.Unina.Dis.Logbus
                     break;
                 }
 
+            if (chan == null) throw new LogbusException("Channel not found");
+
             if (chan.SubscribedClients > 0) throw new InvalidOperationException("Unable to delete channels to which there are still subscribed clients");
             chan.Stop();
             OutboundChannels.Remove(chan);
