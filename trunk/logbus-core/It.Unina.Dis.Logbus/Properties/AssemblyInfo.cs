@@ -32,6 +32,6 @@ using System.Runtime.InteropServices;
 // È possibile specificare tutti i valori oppure impostare i valori predefiniti per i numeri relativi alla build e alla revisione 
 // utilizzando l'asterisco (*) come descritto di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.39.0")]
+[assembly: AssemblyVersion("1.2.40.0")]
 [assembly: AssemblyFileVersion("1.0")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Unit Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100594067d9fdc058dad4c54462bf04b8b09d9e56e43d8bb16d5b87350c398826b1ab88eb2b1e3ca197db88a6ef8c194c91a5ce5304cc2a137f9c80cfdfd98767877d057464dae22ff694884b5ef27c1681690643d4a9d3300ec70df9f16c4fced2f0083e1b6a35303a850bddc30cef2bf7a7a744ef6f2d64b2be609f3fa80540ae")]
