@@ -346,8 +346,28 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <returns></returns>
         private IPAddress getIPAddress()
         {
-            /* Maybe we don't currently need this
-            //Try to get some information on the remote Logbus host
+            
+            /*
+             * If client is using OUR proxy, ie. no one re-implemented the
+             * subscription interface with another mechanism like CORBA or
+             * Remoting, we know where the Logbus web listener is located.
+             * 
+             * By creating a fake UDP client, we want C# to activate the
+             * system's routing tables (unavailable from language) to find
+             * the interface that is used to connect to Logbus. In scenarios
+             * in which a machine is connected both to LAN(s) and WAN, Logbus
+             * might either be in one of the LANs or in the WAN. If we chose
+             * the WAN address (see below) as favourite address, we might
+             * do an error, as that address won't work in the case Logbus
+             * server has only LAN access.
+             * 
+             * This method to find the local address doesn't work in the
+             * following scenario:
+             * Logbus HTTP listener and the node that will actually send
+             * the Syslog messages are deployed into different machines
+             * that run in different subnets, especially if they have WAN
+             * access. We will fix this situation too, but it's very rare.
+            */ 
             if (ChannelSubscriber is ChannelSubscription)
             {
                 try
@@ -368,11 +388,11 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 catch { } //Never mind...
             }
-            //Else never mind...
-            */
+            //Else try to find the best WAN address to use
+            
 
             /*
-             *  This mechanism might not work in the following scenario:
+             *  The following mechanism might not work in the following scenario:
              *  -Client node is connected to LAN and WAN with 2 network cards
              *  -Logbus is listening on a computer that can access only LAN
              *  
@@ -392,6 +412,7 @@ namespace It.Unina.Dis.Logbus.Clients
             System.Net.IPAddress[] a = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
 
             IPAddress preferred_v4 = null, preferred_v6 = null, ret = null;
+            bool wan_found = false;
 
             for (int i = 0; i < a.Length; i++)
             {
@@ -421,9 +442,13 @@ namespace It.Unina.Dis.Logbus.Clients
                         a[i].GetAddressBytes()[0] == 10)
                     {
                         //Local-scope address. While we don't like these, they could be our only choice
-                        if (preferred_v4 == null) preferred_v4 = a[i];
+                        if (preferred_v4 == null && !wan_found)
+                        {
+                            preferred_v4 = a[i];
+                            wan_found = true;
+                        }
                     }
-                    else if (preferred_v4 == null)
+                    else if (!wan_found && preferred_v4 == null)
                         preferred_v4 = a[i];
                 }
                 else if (a[i].AddressFamily == AddressFamily.InterNetworkV6)
