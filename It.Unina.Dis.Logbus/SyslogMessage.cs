@@ -128,7 +128,7 @@ namespace It.Unina.Dis.Logbus
 
             //Encode datetime
             //If unknown use local time
-            ret.Append((Timestamp.HasValue) ? Timestamp.Value.ToString("MMM  dd hh:mm:ss") : DateTime.Now.ToString("MMM  dd hh:mm:ss"));
+            ret.Append((Timestamp.HasValue) ? Timestamp.Value.ToString("MMM  dd HH:mm:ss", CultureInfo.InvariantCulture) : DateTime.Now.ToString("MMM  dd HH:mm:ss", CultureInfo.InvariantCulture));
             ret.Append(SPACE);
 
             //Encode hostname
@@ -162,8 +162,8 @@ namespace It.Unina.Dis.Logbus
             ret.Append(SPACE);
 
             //Timestamp
-            const string TIMESTAMP_FORMAT = @"yyyy-MM-dd\Thh:mm:ss\Z";
-            ret.Append((Timestamp == null) ? NILVALUE : Timestamp.Value.ToString(TIMESTAMP_FORMAT));
+            const string TIMESTAMP_FORMAT = @"yyyy-MM-dd\THH:mm:ss\Z";
+            ret.Append((Timestamp == null) ? NILVALUE : Timestamp.Value.ToString(TIMESTAMP_FORMAT, CultureInfo.InvariantCulture));
             ret.Append(SPACE);
 
             //Hostname
@@ -538,7 +538,7 @@ namespace It.Unina.Dis.Logbus
                             SubSubElem[0] = SubSubElem[0].Replace("çà§", "\\]");
                             SubSubElem[1] = SubSubElem[1].Replace("@*°", "\\[");
                             SubSubElem[1] = SubSubElem[1].Replace("çà§", "\\]");
-                            values.Add(SubSubElem[0], SubSubElem[1].Substring(1,SubSubElem[1].Length-2));
+                            values.Add(SubSubElem[0], SubSubElem[1].Substring(1, SubSubElem[1].Length - 2));
                         }
                         ret.Data.Add(key, values);
                     }
