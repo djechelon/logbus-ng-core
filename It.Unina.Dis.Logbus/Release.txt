@@ -1,6 +1,6 @@
 ﻿Logbus-ng Release Notes
 
-version 1.0
+version 1.2
 *WindowsEventLogListener is not supported
 *MulticastUdpReceiver is not supported
 *It is recommended to deploy Logbus-ng into the GAC
