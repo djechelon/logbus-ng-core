@@ -86,11 +86,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
 #endif
-        public void CreateChannel(ChannelCreationInformation description)
+        public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation)
         {
             try
             {
-                TargetChannelManager.CreateChannel(description);
+                TargetChannelManager.CreateChannel(channelcreation);
             }
             catch { throw; } //What to do?
         }
@@ -100,11 +100,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
-        public ChannelInformation GetChannelInformation(string id)
+        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
         {
             try
             {
-                return TargetChannelManager.GetChannelInformation(id);
+                return TargetChannelManager.GetChannelInformation(message);
             }
             catch { throw; }
         }
@@ -113,11 +113,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
 #endif
-        public void DeleteChannel(string id)
+        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
         {
             try
             {
-                TargetChannelManager.DeleteChannel(id);
+                TargetChannelManager.DeleteChannel(message);
             }
             catch { throw; }
         }
