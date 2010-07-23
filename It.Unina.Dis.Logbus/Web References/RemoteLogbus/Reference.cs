@@ -20,6 +20,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     using System.Web.Services.Protocols;
     using System;
     using System.Xml.Serialization;
+    using It.Unina.Dis.Logbus.Filters;
     
     
     /// <remarks/>
@@ -87,9 +88,8 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         public event DeleteChannelCompletedEventHandler DeleteChannelCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#ListChannels", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("list")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
         public string[] ListChannels() {
             object[] results = this.Invoke("ListChannels", new object[0]);
             return ((string[])(results[0]));
@@ -116,24 +116,24 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#CreateChannel", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        public void CreateChannel(ChannelCreationInformation description) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation) {
             this.Invoke("CreateChannel", new object[] {
-                        description});
+                        channelcreation});
         }
         
         /// <remarks/>
-        public void CreateChannelAsync(ChannelCreationInformation description) {
-            this.CreateChannelAsync(description, null);
+        public void CreateChannelAsync(ChannelCreationInformation channelcreation) {
+            this.CreateChannelAsync(channelcreation, null);
         }
         
         /// <remarks/>
-        public void CreateChannelAsync(ChannelCreationInformation description, object userState) {
+        public void CreateChannelAsync(ChannelCreationInformation channelcreation, object userState) {
             if ((this.CreateChannelOperationCompleted == null)) {
                 this.CreateChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCreateChannelOperationCompleted);
             }
             this.InvokeAsync("CreateChannel", new object[] {
-                        description}, this.CreateChannelOperationCompleted, userState);
+                        channelcreation}, this.CreateChannelOperationCompleted, userState);
         }
         
         private void OnCreateChannelOperationCompleted(object arg) {
@@ -144,26 +144,26 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#GetChannelInformation", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        [return: System.Xml.Serialization.XmlElementAttribute("info")]
-        public ChannelInformation GetChannelInformation(string id) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string message) {
             object[] results = this.Invoke("GetChannelInformation", new object[] {
-                        id});
+                        message});
             return ((ChannelInformation)(results[0]));
         }
         
         /// <remarks/>
-        public void GetChannelInformationAsync(string id) {
-            this.GetChannelInformationAsync(id, null);
+        public void GetChannelInformationAsync(string message) {
+            this.GetChannelInformationAsync(message, null);
         }
         
         /// <remarks/>
-        public void GetChannelInformationAsync(string id, object userState) {
+        public void GetChannelInformationAsync(string message, object userState) {
             if ((this.GetChannelInformationOperationCompleted == null)) {
                 this.GetChannelInformationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetChannelInformationOperationCompleted);
             }
             this.InvokeAsync("GetChannelInformation", new object[] {
-                        id}, this.GetChannelInformationOperationCompleted, userState);
+                        message}, this.GetChannelInformationOperationCompleted, userState);
         }
         
         private void OnGetChannelInformationOperationCompleted(object arg) {
@@ -174,24 +174,24 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#DeleteChannel", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        public void DeleteChannel(string id) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string message) {
             this.Invoke("DeleteChannel", new object[] {
-                        id});
+                        message});
         }
         
         /// <remarks/>
-        public void DeleteChannelAsync(string id) {
-            this.DeleteChannelAsync(id, null);
+        public void DeleteChannelAsync(string message) {
+            this.DeleteChannelAsync(message, null);
         }
         
         /// <remarks/>
-        public void DeleteChannelAsync(string id, object userState) {
+        public void DeleteChannelAsync(string message, object userState) {
             if ((this.DeleteChannelOperationCompleted == null)) {
                 this.DeleteChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteChannelOperationCompleted);
             }
             this.InvokeAsync("DeleteChannel", new object[] {
-                        id}, this.DeleteChannelOperationCompleted, userState);
+                        message}, this.DeleteChannelOperationCompleted, userState);
         }
         
         private void OnDeleteChannelOperationCompleted(object arg) {
@@ -290,9 +290,8 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         public event RefreshSubscriptionCompletedEventHandler RefreshSubscriptionCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#ListChannels", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("list")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
         public string[] ListChannels() {
             object[] results = this.Invoke("ListChannels", new object[0]);
             return ((string[])(results[0]));
@@ -319,9 +318,8 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#GetAvailableTransports", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("list")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableTransports", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
         public string[] GetAvailableTransports() {
             object[] results = this.Invoke("GetAvailableTransports", new object[0]);
             return ((string[])(results[0]));
@@ -348,26 +346,26 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#SubscribeChannel", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        [return: System.Xml.Serialization.XmlElementAttribute("client-config")]
-        public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#SubscribeChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("channel-sub-response", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        public ChannelSubscriptionResponse SubscribeChannel([System.Xml.Serialization.XmlElementAttribute("channel-sub-request", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] ChannelSubscriptionRequest channelsubrequest) {
             object[] results = this.Invoke("SubscribeChannel", new object[] {
-                        request});
+                        channelsubrequest});
             return ((ChannelSubscriptionResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SubscribeChannelAsync(ChannelSubscriptionRequest request) {
-            this.SubscribeChannelAsync(request, null);
+        public void SubscribeChannelAsync(ChannelSubscriptionRequest channelsubrequest) {
+            this.SubscribeChannelAsync(channelsubrequest, null);
         }
         
         /// <remarks/>
-        public void SubscribeChannelAsync(ChannelSubscriptionRequest request, object userState) {
+        public void SubscribeChannelAsync(ChannelSubscriptionRequest channelsubrequest, object userState) {
             if ((this.SubscribeChannelOperationCompleted == null)) {
                 this.SubscribeChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSubscribeChannelOperationCompleted);
             }
             this.InvokeAsync("SubscribeChannel", new object[] {
-                        request}, this.SubscribeChannelOperationCompleted, userState);
+                        channelsubrequest}, this.SubscribeChannelOperationCompleted, userState);
         }
         
         private void OnSubscribeChannelOperationCompleted(object arg) {
@@ -378,24 +376,24 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#UnsubscribeChannel", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        public void UnsubscribeChannel(string id) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#UnsubscribeChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void UnsubscribeChannel([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string clientid) {
             this.Invoke("UnsubscribeChannel", new object[] {
-                        id});
+                        clientid});
         }
         
         /// <remarks/>
-        public void UnsubscribeChannelAsync(string id) {
-            this.UnsubscribeChannelAsync(id, null);
+        public void UnsubscribeChannelAsync(string clientid) {
+            this.UnsubscribeChannelAsync(clientid, null);
         }
         
         /// <remarks/>
-        public void UnsubscribeChannelAsync(string id, object userState) {
+        public void UnsubscribeChannelAsync(string clientid, object userState) {
             if ((this.UnsubscribeChannelOperationCompleted == null)) {
                 this.UnsubscribeChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUnsubscribeChannelOperationCompleted);
             }
             this.InvokeAsync("UnsubscribeChannel", new object[] {
-                        id}, this.UnsubscribeChannelOperationCompleted, userState);
+                        clientid}, this.UnsubscribeChannelOperationCompleted, userState);
         }
         
         private void OnUnsubscribeChannelOperationCompleted(object arg) {
@@ -406,24 +404,24 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("urn:#RefreshSubscription", RequestNamespace="", ResponseNamespace="", Use=System.Web.Services.Description.SoapBindingUse.Literal)]
-        public void RefreshSubscription(string id) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void RefreshSubscription([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string clientid) {
             this.Invoke("RefreshSubscription", new object[] {
-                        id});
+                        clientid});
         }
         
         /// <remarks/>
-        public void RefreshSubscriptionAsync(string id) {
-            this.RefreshSubscriptionAsync(id, null);
+        public void RefreshSubscriptionAsync(string clientid) {
+            this.RefreshSubscriptionAsync(clientid, null);
         }
         
         /// <remarks/>
-        public void RefreshSubscriptionAsync(string id, object userState) {
+        public void RefreshSubscriptionAsync(string clientid, object userState) {
             if ((this.RefreshSubscriptionOperationCompleted == null)) {
                 this.RefreshSubscriptionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRefreshSubscriptionOperationCompleted);
             }
             this.InvokeAsync("RefreshSubscription", new object[] {
-                        id}, this.RefreshSubscriptionOperationCompleted, userState);
+                        clientid}, this.RefreshSubscriptionOperationCompleted, userState);
         }
         
         private void OnRefreshSubscriptionOperationCompleted(object arg) {
@@ -468,7 +466,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         private long coalescenceWindowField;
         
-        private It.Unina.Dis.Logbus.Filters.FilterBase filterField;
+        private FilterBase filterField;
         
         /// <remarks/>
         public string id {
@@ -513,7 +511,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-        public It.Unina.Dis.Logbus.Filters.FilterBase filter {
+        public FilterBase filter {
             get {
                 return this.filterField;
             }
@@ -659,7 +657,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         private string clientsField;
         
-        private It.Unina.Dis.Logbus.Filters.FilterBase filterField;
+        private FilterBase filterField;
         
         /// <remarks/>
         public string id {
@@ -715,7 +713,7 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-        public It.Unina.Dis.Logbus.Filters.FilterBase filter {
+        public FilterBase filter {
             get {
                 return this.filterField;
             }

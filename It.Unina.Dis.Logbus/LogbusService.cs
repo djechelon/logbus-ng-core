@@ -846,6 +846,7 @@ namespace It.Unina.Dis.Logbus
 
         void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
         {
+            if (description == null) throw new ArgumentNullException("description");
             CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
         }
 
