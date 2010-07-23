@@ -216,9 +216,6 @@
     <EmbeddedResource Include="WebServices\LogbusSubscription.asmx" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
@@ -239,10 +236,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://logbus-ng.svn.sourceforge.net/viewvc/logbus-ng/trunk/logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-control.wsdl%3frevision=101">
+    <WebReferenceUrl Include="http://www.zighinetto.org/upload/logbus-control.wsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\RemoteLogbus\</RelPath>
-      <UpdateFromURL>http://logbus-ng.svn.sourceforge.net/viewvc/logbus-ng/trunk/logbus-core/It.Unina.Dis.Logbus/Schemas/logbus-control.wsdl%3frevision=101</UpdateFromURL>
+      <UpdateFromURL>http://www.zighinetto.org/upload/logbus-control.wsdl</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
