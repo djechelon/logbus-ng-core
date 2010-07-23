@@ -94,11 +94,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#SubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-sub-response", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
-        public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request)
+        public ChannelSubscriptionResponse SubscribeChannel([System.Xml.Serialization.XmlElementAttribute("channel-sub-request", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelSubscriptionRequest channelsubrequest)
         {
             try
             {
-                return TargetChannelSubscription.SubscribeChannel(request);
+                return TargetChannelSubscription.SubscribeChannel(channelsubrequest);
             }
             catch { throw; }
         }
@@ -107,11 +107,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#UnsubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
 #endif
-        public void UnsubscribeChannel(string id)
+        public void UnsubscribeChannel([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid)
         {
             try
             {
-                TargetChannelSubscription.UnsubscribeChannel(id);
+                TargetChannelSubscription.UnsubscribeChannel(clientid);
             }
             catch { throw; }
         }
@@ -120,11 +120,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
 #endif
-        public void RefreshSubscription(string id)
+        public void RefreshSubscription([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid)
         {
             try
             {
-                TargetChannelSubscription.RefreshSubscription(id);
+                TargetChannelSubscription.RefreshSubscription(clientid);
             }
             catch { throw; }
         }
