@@ -17,12 +17,20 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System.Diagnostics;
+using System;
 namespace It.Unina.Dis.Logbus
 {
+    /// <summary>
+    /// Provides a default instance of Logbus
+    /// </summary>
     public sealed class LogbusSingletonHelper
     {
-        private static LogbusService _instance;
+        private static ILogBus _instance;
 
+        /// <summary>
+        /// Gets the default instance of Logbus service
+        /// </summary>
         public static ILogBus Instance
         {
             get

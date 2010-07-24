@@ -25,7 +25,10 @@ using System.Security.Cryptography;
 using System.Text;
 namespace It.Unina.Dis.Logbus.Loggers
 {
-    public class SimpleLogImpl
+    /// <summary>
+    /// Simple ILog implementation
+    /// </summary>
+    internal sealed class SimpleLogImpl
         : ILog
     {
         /// <summary>
@@ -37,7 +40,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         ///         Francesco Palmieri
         ///             fpalmieri&unina.it
         /// </summary>
-        public const string ENTERPRISE_ID = "8289";
+        internal const string ENTERPRISE_ID = "8289";
 
         public SimpleLogImpl(SyslogFacility facility, ILogCollector target)
         {
@@ -50,10 +53,10 @@ namespace It.Unina.Dis.Logbus.Loggers
         public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
 
-        protected SyslogFacility Facility { get; set; }
-        protected ILogCollector Target { get; set; }
+        private SyslogFacility Facility { get; set; }
+        private ILogCollector Target { get; set; }
 
-        protected virtual void Log(string message, SyslogSeverity severity)
+        internal static void Log(string message, SyslogSeverity severity, SyslogFacility Facility, ILogCollector Target)
         {
             String host = Environment.MachineName;
             String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
@@ -74,10 +77,11 @@ namespace It.Unina.Dis.Logbus.Loggers
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
             msg.Data = new Dictionary<String, IDictionary<String, String>>();
-            msg.Data.Add("CallerData@"+ENTERPRISE_ID, new Dictionary<String, String>());
-            msg.Data["CallerData@"+ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
-            msg.Data["CallerData@"+ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
-            
+            msg.Data.Add("CallerData@" + ENTERPRISE_ID, new Dictionary<String, String>());
+            msg.Data["CallerData@" + ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
+            msg.Data["CallerData@" + ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
+            msg.Data["CallerData@" + ENTERPRISE_ID].Add("AssemblyName", stackFrames[2].GetMethod().DeclaringType.Assembly.GetName().Name);
+
             Target.SubmitMessage(msg);
         }
 
@@ -85,42 +89,42 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         void ILog.Debug(string message)
         {
-            Log(message, SyslogSeverity.Debug);
+            Log(message, SyslogSeverity.Debug, Facility, Target);
         }
 
         void ILog.Info(string message)
         {
-            Log(message, SyslogSeverity.Info);
+            Log(message, SyslogSeverity.Info, Facility, Target);
         }
 
         void ILog.Notice(string message)
         {
-            Log(message, SyslogSeverity.Notice);
+            Log(message, SyslogSeverity.Notice, Facility, Target);
         }
 
         void ILog.Warning(string message)
         {
-            Log(message, SyslogSeverity.Warning);
+            Log(message, SyslogSeverity.Warning, Facility, Target);
         }
 
         void ILog.Error(string message)
         {
-            Log(message, SyslogSeverity.Error);
+            Log(message, SyslogSeverity.Error, Facility, Target);
         }
 
         void ILog.Critical(string message)
         {
-            Log(message, SyslogSeverity.Critical);
+            Log(message, SyslogSeverity.Critical, Facility, Target);
         }
 
         void ILog.Alert(string message)
         {
-            Log(message, SyslogSeverity.Alert);
+            Log(message, SyslogSeverity.Alert, Facility, Target);
         }
 
         void ILog.Emergency(string message)
         {
-            Log(message, SyslogSeverity.Emergency);
+            Log(message, SyslogSeverity.Emergency, Facility, Target);
         }
 
         #endregion

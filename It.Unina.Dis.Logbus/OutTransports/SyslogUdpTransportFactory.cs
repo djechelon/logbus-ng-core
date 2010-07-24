@@ -17,12 +17,17 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.Globalization;
+using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.OutTransports
 {
     [Design.TransportFactory("udp", Name = "RFC5426 transport", Description = "Syslog over UDP transport according to RFC5426")]
-    class SyslogUdpTransportFactory
+    internal sealed class SyslogUdpTransportFactory
         : IOutboundTransportFactory
     {
+
+        private long defaultTTL = 20000;
 
         #region IOutboundTransportFactory Membri di
 
@@ -30,23 +35,51 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             return new SyslogUdpTransport()
             {
-                SubscriptionTtl = 10000
+                SubscriptionTtl = defaultTTL
             };
         }
 
         string IConfigurable.GetConfigurationParameter(string key)
         {
-            throw new System.NotSupportedException("Configuration not supported by UDP transport");
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
+
+            switch (key)
+            {
+                case "ttl":
+                    {
+                        return defaultTTL.ToString(CultureInfo.InvariantCulture);
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter not supported by UDP transport");
+                    }
+            }
         }
 
         void IConfigurable.SetConfigurationParameter(string key, string value)
         {
-            throw new System.NotSupportedException("Configuration not supported by UDP transport");
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
+
+            switch (key)
+            {
+                case "ttl":
+                    {
+                        if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out defaultTTL)) throw new InvalidOperationException("Invalid value for ttl");
+                        break;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter not supported by UDP transport");
+                    }
+            }
         }
 
         System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IConfigurable.Configuration
         {
-            set { throw new System.NotSupportedException("Configuration not supported by UDP transport"); }
+            set
+            {
+                foreach (KeyValuePair<string, string> kvp in value) ((IConfigurable)this).SetConfigurationParameter(kvp.Key, kvp.Value);
+            }
         }
 
         #endregion

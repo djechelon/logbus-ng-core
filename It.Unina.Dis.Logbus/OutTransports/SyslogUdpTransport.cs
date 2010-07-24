@@ -44,7 +44,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         }
         #endregion
 
-        #region Support properties#
+        #region Support properties
         private Dictionary<String, UdpClientExpire> Clients
         {
             get;

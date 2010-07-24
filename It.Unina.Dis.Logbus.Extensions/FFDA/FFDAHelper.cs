@@ -21,6 +21,9 @@ using It.Unina.Dis.Logbus.Loggers;
 using System.Net;
 namespace It.Unina.Dis.Logbus.FFDA
 {
+    /// <summary>
+    /// Creates FFDA loggers
+    /// </summary>
     public sealed class FFDAHelper
     {
         /// <summary>
@@ -43,6 +46,18 @@ namespace It.Unina.Dis.Logbus.FFDA
         public static FFDALogger CreateFFDALogger()
         {
             return new FFDALogger(LoggerHelper.CreateDefaultCollector());
+        }
+
+        /// <summary>
+        /// Creates an FFDA logger by logger name
+        /// </summary>
+        /// <param name="loggerName"></param>
+        /// <returns></returns>
+        /// <exception cref="LogbusException">Logger is not found</exception>
+        /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
+        public static FFDALogger CreateFFDALogger(string loggerName)
+        {
+            return new FFDALogger(LoggerHelper.CreateCollectorByName(loggerName));
         }
     }
 }

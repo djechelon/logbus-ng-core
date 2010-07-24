@@ -23,9 +23,13 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System;
 using It.Unina.Dis.Logbus.Utils;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus.OutChannels
 {
+    /// <summary>
+    /// Simple implementation of IOutboundChannel
+    /// </summary>
     internal sealed class SimpleOutChannel
         : IOutboundChannel, IAsyncRunnable
     {
@@ -34,27 +38,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private Timer coalescence_timer;
         private Thread worker_thread;
         private BlockingFifoQueue<SyslogMessage> message_queue;
-        private object objCoalescenceLock = new object();
-        private bool inCoalescence;
+        
+        private volatile bool withinCoalescenceWindow;
+        private volatile bool running;
 
-        #region Support properties
-
-        private bool WithinCoalescenceWindow
-        {
-            get { lock (objCoalescenceLock) return inCoalescence; }
-            set { lock (objCoalescenceLock) inCoalescence = value; }
-        }
-
-        private bool Running
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
-
-
-        #endregion
 
         #region Constructor/Destructor
 
@@ -72,7 +59,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private void Dispose(bool disposing)
         {
             if (Disposed) return;
-            if (Running)
+            if (running)
                 ((IOutboundChannel)this).Stop();
 
 
@@ -101,13 +88,13 @@ namespace It.Unina.Dis.Logbus.OutChannels
             set;
         }
 
-        string IOutboundChannel.Name
+        public string Name
         {
             get;
             set;
         }
 
-        string IOutboundChannel.Description
+        public string Description
         {
             get;
             set;
@@ -116,7 +103,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Running) throw new InvalidOperationException("Channel not started");
+            if (!running) throw new InvalidOperationException("Channel not started");
             message_queue.Enqueue(message);
         }
 
@@ -134,7 +121,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void Start()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (Running) throw new InvalidOperationException("Channel is already started");
+            if (running) throw new InvalidOperationException("Channel is already started");
 
             message_queue = new BlockingFifoQueue<SyslogMessage>();
 
@@ -142,17 +129,17 @@ namespace It.Unina.Dis.Logbus.OutChannels
             worker_thread.IsBackground = true;
             worker_thread.Start();
 
-            Running = true;
+            running = true;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Running) throw new InvalidOperationException("Channel is not running");
+            if (!running) throw new InvalidOperationException("Channel is not running");
 
             //Tell the thread to stop, the good way
-            Running = false;
+            running = false;
             if (worker_thread.ThreadState == ThreadState.WaitSleepJoin)
                 worker_thread.Join(5000); //Wait if the thread is already doing something "useful"
             if (worker_thread.ThreadState != ThreadState.Stopped)
@@ -363,10 +350,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
         {
             try
             {
-                while (Running)
+                while (running)
                 {
                     SyslogMessage msg = message_queue.Dequeue();
-                    if (!WithinCoalescenceWindow)
+                    if (!withinCoalescenceWindow)
                         if (Filter.IsMatch(msg))
                         {
                             if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
@@ -375,7 +362,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                             if (CoalescenceWindowMillis > 0)
                             {
                                 coalescence_timer = new Timer(ResetCoalescence, null, (int)CoalescenceWindowMillis, Timeout.Infinite);
-                                WithinCoalescenceWindow = true;
+                                withinCoalescenceWindow = true;
                             }
                         }
                 }
@@ -389,7 +376,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 //Flush and terminate
                 IEnumerable<SyslogMessage> left_messages = message_queue.FlushAndDispose();
                 
-                if (!WithinCoalescenceWindow)
+                if (!withinCoalescenceWindow)
                 {
                     foreach (SyslogMessage msg in left_messages)
                         if (Filter.IsMatch(msg))
@@ -405,9 +392,14 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         private void ResetCoalescence(object state)
         {
-            WithinCoalescenceWindow = false;
+            withinCoalescenceWindow = false;
         }
 
+        private ILog Log
+        {
+            get;
+            set;
+        }
 
         #region IRunnable Membri di
 

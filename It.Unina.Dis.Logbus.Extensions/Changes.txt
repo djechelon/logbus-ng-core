@@ -1,0 +1,3 @@
+﻿Logbus-ng Extensions Change Log
+
+[TODO]

@@ -57,32 +57,51 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
         public static ILogCollector CreateDefaultCollector()
         {
-            if (Configuration == null)
+            if (Configuration != null && Configuration.logger != null || Configuration.logger.Length > 0)
             {
-                //Use the console appender
-                return new ConsoleLogger();
-            }
-
-            if (Configuration.logger == null || Configuration.logger.Length == 0)
-                return new NullLogger();
-            else if (Configuration.logger.Length == 1)
-            {
-                //Just one logger
-                LoggerDefinition def = Configuration.logger[0];
-                if (def == null) throw new InvalidOperationException("Invalid logger definition");
-                return CreateByDefinition(def);
-            }
-            else
-            {
-                //Need to use MultiLogger
-                MultiLogger ret = new MultiLogger();
-                List<ILogCollector> lst = new List<ILogCollector>();
+                //Try to find the first logger marked default
                 foreach (LoggerDefinition def in Configuration.logger)
-                    lst.Add(CreateByDefinition(def));
-                ret.Collectors = lst.ToArray();
-
-                return ret;
+                {
+                    if (def.@default) return CreateByDefinition(def);
+                }
             }
+            //Else get default
+            return new ConsoleLogger();
+        }
+
+        /// <summary>
+        /// Creates a logger by name
+        /// </summary>
+        /// <param name="loggerName">Name of logger</param>
+        /// <returns></returns>
+        /// <remarks>There are special well-known loggers:
+        /// <list>
+        /// <item><code>Logbus</code><description>Logger that forwards messages to the current Logbus instance</description></item>
+        /// </list></remarks>
+        public static ILogCollector CreateCollectorByName(string loggerName)
+        {
+            if (string.IsNullOrEmpty(loggerName)) throw new ArgumentNullException("loggerName");
+
+            if (Configuration != null && Configuration.logger != null || Configuration.logger.Length > 0)
+            {
+                //Try to find the first logger marked default
+                foreach (LoggerDefinition def in Configuration.logger)
+                {
+                    if (def.name == loggerName) return CreateByDefinition(def);
+                }
+            }
+            //Let's see if the logger name is well-knwon
+            switch (loggerName)
+            {
+                case "Logbus":
+                    {
+                        return new LogbusLogger();
+                    }
+            }
+            //Else throw error: logger is not defined in configuration
+            throw new LogbusException(string.Format("Logger {0} not found", loggerName));
+
+
         }
 
         /// <summary>
@@ -130,6 +149,15 @@ namespace It.Unina.Dis.Logbus.Loggers
             return new SimpleLogImpl(CreateDefaultCollector());
         }
 
+        /// <summary>
+        /// Creates a logger by logger name
+        /// </summary>
+        /// <param name="loggerName"></param>
+        /// <returns></returns>
+        public static ILog CreateLoggerByName(string loggerName)
+        {
+            return new SimpleLogImpl(CreateCollectorByName(loggerName));
+        }
 
         private static ILogCollector CreateByDefinition(LoggerDefinition def)
         {
@@ -145,16 +173,16 @@ namespace It.Unina.Dis.Logbus.Loggers
                     typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                 }
                 Type logger_type = Type.GetType(typename);
-                if (!typeof(ILogger).IsAssignableFrom(logger_type))
+                if (!typeof(ILogCollector).IsAssignableFrom(logger_type))
                 {
                     LogbusConfigurationException ex = new LogbusConfigurationException("Registered logger type does not implement ILogCollector");
                     ex.Data.Add("type", logger_type);
                     throw ex;
                 }
-                ILogger ret = Activator.CreateInstance(logger_type) as ILogger;
-                if (def.param != null)
+                ILogCollector ret = Activator.CreateInstance(logger_type) as ILogCollector;
+                if (def.param != null && ret is IConfigurable)
                     foreach (KeyValuePair kvp in def.param)
-                        ret.SetConfigurationParameter(kvp.name, kvp.value);
+                        ((IConfigurable)ret).SetConfigurationParameter(kvp.name, kvp.value);
 
                 return ret;
             }

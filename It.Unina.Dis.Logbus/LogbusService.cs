@@ -28,10 +28,14 @@ using It.Unina.Dis.Logbus.Utils;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 using System.ComponentModel;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus
 {
-    public class LogbusService
+    /// <summary>
+    /// Default implementation of ILogBus
+    /// </summary>
+    internal class LogbusService
         : MarshalByRefObject, ILogBus, IChannelManagement, IChannelSubscription
     {
         private Thread hubThread;
@@ -79,20 +83,29 @@ namespace It.Unina.Dis.Logbus
 
         #region Constructor/destructor
 
-        public LogbusService()
+        /// <summary>
+        /// Initializes the LogbusService
+        /// </summary>
+        internal LogbusService()
         {
             OutboundChannels = new List<IOutboundChannel>();
             InboundChannels = new List<IInboundChannel>();
-
-            Configuration = ConfigurationHelper.CoreConfiguration;
+            Log = LoggerHelper.CreateLoggerByName("Logbus");
         }
 
-        public LogbusService(LogbusCoreConfiguration configuration)
+        /// <summary>
+        /// Initializes the LogbusService with a given configuration
+        /// </summary>
+        /// <param name="configuration"></param>
+        internal LogbusService(LogbusCoreConfiguration configuration)
             : this()
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Destructor for LogbusService
+        /// </summary>
         ~LogbusService()
         {
             Dispose(false);
@@ -119,7 +132,7 @@ namespace It.Unina.Dis.Logbus
         public void Configure()
         {
             if (configured) throw new InvalidOperationException("Logbus is already configured. If you want to re-configure the service, you need a new instance of the service");
-
+            if (Configuration == null) Configuration = ConfigurationHelper.CoreConfiguration;
             if (Configuration == null) throw new NotSupportedException("Cannot configure Logbus as configuration is empty");
 
             //Core filter: if not specified then it's always true
@@ -309,6 +322,10 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        /// <summary>
+        /// Configures Logbus service with the given configuration object
+        /// </summary>
+        /// <param name="config">Configuration values</param>
         public void Configure(LogbusCoreConfiguration config)
         {
             Configuration = config;
@@ -318,133 +335,161 @@ namespace It.Unina.Dis.Logbus
 
         #region ILogBus Membri di
 
+        /// <summary>
+        /// Implements ILogBus.GetAvailableTransports
+        /// </summary>
+        /// <returns></returns>
         public virtual string[] GetAvailableTransports()
         {
             return TransportFactoryHelper.AvailableTransports;
         }
 
+        /// <summary>
+        /// Implements ILogBus.OutboundChannels
+        /// </summary>
         public virtual IList<IOutboundChannel> OutboundChannels
         {
             get;
             protected set;
         }
 
+        /// <summary>
+        /// Implements ILogBus.InboundChannels
+        /// </summary>
         public virtual IList<IInboundChannel> InboundChannels
         {
             get;
             protected set;
         }
 
+        /// <summary>
+        /// Implements ILogBus.MainFilter
+        /// </summary>
         public virtual IFilter MainFilter
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Implements IRunnable.Start
+        /// </summary>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Start()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (Running) throw new InvalidOperationException("Logbus is already started");
-            if (!configured)
+            try
             {
+                Log.Info("LogbusService starting");
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                if (Running) throw new InvalidOperationException("Logbus is already started");
+                if (!configured)
+                {
+                    try
+                    {
+                        Configure();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException("Logbus is not yet configured", ex);
+                    }
+                }
+
+                if (Starting != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Starting(this, e);
+                    if (e.Cancel) return;
+                }
+
+                //First of all, init fresh queue
+                Queue = new BlockingFifoQueue<SyslogMessage>();
+
                 try
                 {
-                    Configure();
+                    IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
+                    int i;
+
+                    //Begin async start outbound channels
+                    i = 0;
+                    foreach (IRunnable chan in OutboundChannels)
+                    {
+                        if (chan is IAsyncRunnable) async_out[i] = ((IAsyncRunnable)chan).BeginStart();
+                        i++;
+                    }
+
+
+                    //Start main hub thread
+                    HubThreadStop = false;
+                    hubThread = new Thread(this.HubThreadLoop);
+                    hubThread.Name = "LogbusService.HubThreadLoop";
+                    hubThread.Priority = ThreadPriority.Normal;
+                    hubThread.IsBackground = true;
+                    hubThread.Start();
+
+                    //End async start/sync start outbound channels
+                    i = 0;
+                    foreach (IRunnable chan in OutboundChannels)
+                    {
+                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_out[i]);
+                        else chan.Start();
+                        i++;
+                    }
+
+                    //Begin start async inbound channels and read messages
+                    i = 0;
+                    foreach (IInboundChannel chan in InboundChannels)
+                    {
+                        chan.MessageReceived += channel_MessageReceived;
+                        if (chan is IAsyncRunnable) async_in[i] = ((IAsyncRunnable)chan).BeginStart();
+                        i++;
+                    }
+
+                    //End async start/sync start inbound channels
+                    i = 0;
+                    foreach (IRunnable chan in InboundChannels)
+                    {
+                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_in[i]);
+                        else chan.Start();
+                        i++;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException("Logbus is not yet configured", ex);
-                }
-            }
+                    LogbusException e = new LogbusException("Cannot start Logbus", ex);
+                    if (Error != null) Error(this, new UnhandledExceptionEventArgs(e, true));
+                    throw e;
 
-            if (Starting != null)
+                }
+
+                if (Started != null) Started(this, EventArgs.Empty);
+                Running = true;
+                Log.Info("LogbusService started");
+            }
+            catch
             {
-                CancelEventArgs e = new CancelEventArgs();
-                Starting(this, e);
-                if (e.Cancel) return;
+                Log.Error("LogbusService start failed");
+                throw;
             }
-
-            //First of all, init fresh queue
-            Queue = new BlockingFifoQueue<SyslogMessage>();
-
-            try
-            {
-                IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
-                int i;
-
-                //Begin async start outbound channels
-                i = 0;
-                foreach (IRunnable chan in OutboundChannels)
-                {
-                    if (chan is IAsyncRunnable) async_out[i] = ((IAsyncRunnable)chan).BeginStart();
-                    i++;
-                }
-
-
-                //Start main hub thread
-                HubThreadStop = false;
-                hubThread = new Thread(this.HubThreadLoop);
-                hubThread.Name = "LogbusService.HubThreadLoop";
-                hubThread.Priority = ThreadPriority.Normal;
-                hubThread.IsBackground = true;
-                hubThread.Start();
-
-                //End async start/sync start outbound channels
-                i = 0;
-                foreach (IRunnable chan in OutboundChannels)
-                {
-                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_out[i]);
-                    else chan.Start();
-                    i++;
-                }
-
-                //Begin start async inbound channels and read messages
-                i = 0;
-                foreach (IInboundChannel chan in InboundChannels)
-                {
-                    chan.MessageReceived += channel_MessageReceived;
-                    if (chan is IAsyncRunnable) async_in[i] = ((IAsyncRunnable)chan).BeginStart();
-                    i++;
-                }
-
-                //End async start/sync start inbound channels
-                i = 0;
-                foreach (IRunnable chan in InboundChannels)
-                {
-                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_in[i]);
-                    else chan.Start();
-                    i++;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogbusException e = new LogbusException("Cannot start Logbus", ex);
-                if (Error != null) Error(this, new UnhandledExceptionEventArgs(e, true));
-                throw e;
-
-            }
-
-            if (Started != null) Started(this, EventArgs.Empty);
-            Running = true;
         }
 
+        /// <summary>Implements IRunnable.Stop</summary>
         /// <remarks>Stop is synchronous</remarks>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Stop()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Running) throw new InvalidOperationException("Logbus is not started");
-
-            if (Stopping != null)
-            {
-                CancelEventArgs e = new CancelEventArgs();
-                Stopping(this, e);
-                if (e.Cancel) return;
-            }
-
             try
             {
+                Log.Info("LogbusService stopping");
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                if (!Running) throw new InvalidOperationException("Logbus is not started");
+
+                if (Stopping != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Stopping(this, e);
+                    if (e.Cancel) return;
+                }
+
                 IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
                 int i;
                 //Reverse-order stop
@@ -506,49 +551,79 @@ namespace It.Unina.Dis.Logbus
 
 
                 Running = false;
+
+                if (Stopped != null) Stopped(this, EventArgs.Empty);
+                Log.Info("LogbusService stopped");
             }
             catch (Exception ex)
             {
-                LogbusException e = new LogbusException("Could not stop Logbus. Hub is in an inconsistent state!", ex);
+                Log.Error("LogbusService stop failed");
 
+                LogbusException e = new LogbusException("Could not stop Logbus", ex);
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(e, true));
-
                 throw e;
             }
-
-
-            if (Stopped != null) Stopped(this, EventArgs.Empty);
         }
 
-
+        /// <summary>
+        /// Implements IRunnable.Starting
+        /// </summary>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
 
+        /// <summary>
+        /// Implements IRunnable.Stopping
+        /// </summary>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
 
+        /// <summary>
+        /// Implements IRunnable.Started
+        /// </summary>
         public event EventHandler Started;
 
+        /// <summary>
+        /// Implements IRunnable.Starting
+        /// </summary>
         public event EventHandler Stopped;
 
+        /// <summary>
+        /// Implements ILogSource.MessageReceived
+        /// </summary>
         public event SyslogMessageEventHandler MessageReceived;
 
+        /// <summary>
+        /// Implements IRunnable.Error
+        /// </summary>
         public event UnhandledExceptionEventHandler Error;
 
+        /// <summary>
+        /// Implements ILogBus.AvailableTransports
+        /// </summary>
         public string[] AvailableTransports
         {
             get { return TransportFactoryHelper.AvailableTransports; }
         }
 
+        /// <summary>
+        /// Implements ILogBus.TransportFactoryHelper
+        /// </summary>
         public ITransportFactoryHelper TransportFactoryHelper
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Implements ILogCollector.SubmitMessage
+        /// </summary>
+        /// <param name="msg"></param>
         public void SubmitMessage(SyslogMessage msg)
         {
             Queue.Enqueue(msg);
         }
 
+        /// <summary>
+        /// Implements ILogBus.CreateChannel
+        /// </summary>
         public void CreateChannel(string id, string name, IFilter filter, string description, long coalescenceWindow)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -569,8 +644,12 @@ namespace It.Unina.Dis.Logbus
 
             OutboundChannels.Add(new_chan);
             if (Running) new_chan.Start();
+            Log.Info(string.Format("New channel created: {0}", id));
         }
 
+        /// <summary>
+        /// Implements ILogBus.DeleteChannel
+        /// </summary>
         public void RemoveChannel(string id)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -583,6 +662,7 @@ namespace It.Unina.Dis.Logbus
 
             if (to_remove == null)
             {
+                Log.Warning(string.Format("Failed to remove channel {0}", id));
                 LogbusException ex = new LogbusException("Channel does not exist");
                 ex.Data.Add("channelId", id);
                 throw ex;
@@ -591,8 +671,12 @@ namespace It.Unina.Dis.Logbus
             OutboundChannels.Remove(to_remove);
             if (Running) to_remove.Stop();
             to_remove.Dispose();
+            Log.Info(string.Format("Channel removed: {0}", id));
         }
 
+        /// <summary>
+        /// Implements ILogBus.SubscribeClient
+        /// </summary>
         public string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -628,6 +712,9 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        /// <summary>
+        /// Implements ILogBus.RefreshClient
+        /// </summary>
         public void RefreshClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -682,6 +769,9 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        /// <summary>
+        /// Implements ILogBus.UnsubscribeClient
+        /// </summary>
         public void UnsubscribeClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -765,69 +855,6 @@ namespace It.Unina.Dis.Logbus
             Queue.Enqueue(e.Message);
         }
         #endregion
-
-
-        private void HubThreadLoop()
-        {
-            //Loop until end
-            try
-            {
-                do
-                {
-                    //Get message
-                    SyslogMessage new_message = Queue.Dequeue();
-
-                    try
-                    {
-                        Thread.BeginCriticalRegion();
-                        //Filter message
-                        if (!MainFilter.IsMatch(new_message)) continue;
-
-                        //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
-
-                        //Deliver to channels
-                        //Theorically, it's as faster as channels can do
-                        if (OutboundChannels != null)
-                            foreach (IOutboundChannel chan in OutboundChannels)
-                            {
-                                //Idea for the future: use Thread Pool to asynchronously deliver messages
-                                //Could lead to a threading disaster in case of large rates of messages
-                                chan.SubmitMessage(new_message);
-                            }
-                    }
-                    finally
-                    {
-                        Thread.EndCriticalRegion();
-                    }
-                } while (!HubThreadStop);
-            }
-            catch (ThreadAbortException) { }
-            finally
-            {
-                //Someone is telling me to stop
-
-                //Flush queue and then stop
-                IEnumerable<SyslogMessage> left_messages = Queue.FlushAndDispose();
-                foreach (SyslogMessage msg in left_messages)
-                {
-                    //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
-
-                    //Deliver to channels
-                    //Theorically, it's as faster as channels can do
-                    foreach (IOutboundChannel chan in OutboundChannels)
-                    {
-                        //Idea for the future: use Thread Pool to asynchronously deliver messages
-                        //Could lead to a threading disaster in case of large rates of messages
-                        chan.SubmitMessage(msg);
-                    }
-                }
-
-                Queue = null;
-            }
-
-        }
 
         #region IChannelManagement Membri di
 
@@ -961,6 +988,76 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        #endregion
+
+        #region Support
+
+        private void HubThreadLoop()
+        {
+            //Loop until end
+            try
+            {
+                do
+                {
+                    //Get message
+                    SyslogMessage new_message = Queue.Dequeue();
+
+                    try
+                    {
+                        Thread.BeginCriticalRegion();
+                        //Filter message
+                        if (!MainFilter.IsMatch(new_message)) continue;
+
+                        //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
+                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+
+                        //Deliver to channels
+                        //Theorically, it's as faster as channels can do
+                        if (OutboundChannels != null)
+                            foreach (IOutboundChannel chan in OutboundChannels)
+                            {
+                                //Idea for the future: use Thread Pool to asynchronously deliver messages
+                                //Could lead to a threading disaster in case of large rates of messages
+                                chan.SubmitMessage(new_message);
+                            }
+                    }
+                    finally
+                    {
+                        Thread.EndCriticalRegion();
+                    }
+                } while (!HubThreadStop);
+            }
+            catch (ThreadAbortException) { }
+            finally
+            {
+                //Someone is telling me to stop
+
+                //Flush queue and then stop
+                IEnumerable<SyslogMessage> left_messages = Queue.FlushAndDispose();
+                foreach (SyslogMessage msg in left_messages)
+                {
+                    //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
+                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
+
+                    //Deliver to channels
+                    //Theorically, it's as faster as channels can do
+                    foreach (IOutboundChannel chan in OutboundChannels)
+                    {
+                        //Idea for the future: use Thread Pool to asynchronously deliver messages
+                        //Could lead to a threading disaster in case of large rates of messages
+                        chan.SubmitMessage(msg);
+                    }
+                }
+
+                Queue = null;
+            }
+        }
+
+        private ILog Log
+        {
+            get;
+            set;
+        }
         #endregion
     }
 }
