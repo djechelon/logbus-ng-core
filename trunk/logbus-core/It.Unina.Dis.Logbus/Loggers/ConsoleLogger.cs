@@ -25,7 +25,7 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// Timestamp is formatted according to the yyyy-MM-dd-HH:mm:ss format
     /// </summary>
     internal sealed class ConsoleLogger
-        : ILogger
+        : ILogCollector
     {
         #region ILogCollector Membri di
 
@@ -37,25 +37,6 @@ namespace It.Unina.Dis.Logbus.Loggers
                 System.Enum.GetName(typeof(SyslogSeverity), message.Severity),
                 message.Text
              );
-        }
-
-        #endregion
-
-        #region IConfigurable Membri di
-
-        string IConfigurable.GetConfigurationParameter(string key)
-        {
-            throw new System.NotSupportedException("Configuration is not supported");
-        }
-
-        void IConfigurable.SetConfigurationParameter(string key, string value)
-        {
-            throw new System.NotSupportedException("Configuration is not supported");
-        }
-
-        System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IConfigurable.Configuration
-        {
-            set { throw new System.NotSupportedException("Configuration is not supported"); }
         }
 
         #endregion

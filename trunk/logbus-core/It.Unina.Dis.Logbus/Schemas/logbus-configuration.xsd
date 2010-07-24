@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
 <xs:schema xmlns="http://www.dis.unina.it/logbus-ng/configuration" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
+	<xs:annotation>
+		<xs:documentation>Begin common section</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="KeyValuePair">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Basic and language-idependent definition of KVP</xs:documentation>
+		</xs:annotation>
+		<xs:attribute ref="name" use="required"/>
+		<xs:attribute ref="value" use="optional"/>
+	</xs:complexType>
+	<xs:element name="param" type="KeyValuePair">
+		<xs:annotation>
+			<xs:documentation>Holds a KVP</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:attribute name="type" type="ClassType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:attribute name="name" type="xs:string"/>
+	<xs:attribute name="value" type="xs:string"/>
+	<xs:attribute name="default" type="xs:boolean">
+		<xs:annotation>
+			<xs:documentation>Marks if the entity is to be considered default or not</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:simpleType name="ClassType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-zA-Z0-9]{1}[a-zA-Z0-9_.]+(, [a-zA-Z0-9]{1}[a-zA-Z0-9_.]+)?(, Culture=[a-zA-Z-]*)?(, PublicKeyToken=[0-9a-fA-F]{16})?"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:annotation>
+		<xs:documentation>Begin core section</xs:documentation>
+	</xs:annotation>
 	<xs:complexType name="LogbusCoreConfiguration" abstract="false">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Main type for Logbus configuration, bound to IConfigurationSectionHandler</xs:documentation>
@@ -13,6 +49,7 @@
 		</xs:sequence>
 		<xs:attribute ref="outChannelFactoryType"/>
 	</xs:complexType>
+	<xs:element name="core-filter" type="filter:FilterBase" nillable="true"/>
 	<xs:element name="logbus-core" type="LogbusCoreConfiguration">
 		<xs:annotation>
 			<xs:appinfo>
@@ -41,34 +78,6 @@
 		<xs:attribute ref="name" use="optional"/>
 	</xs:complexType>
 	<xs:element name="in-channel" type="InboundChannelDefinition"/>
-	<xs:complexType name="KeyValuePair">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Basic and language-idependent definition of KVP</xs:documentation>
-		</xs:annotation>
-		<xs:attribute ref="name" use="required"/>
-		<xs:attribute ref="value" use="optional"/>
-	</xs:complexType>
-	<xs:element name="param" type="KeyValuePair">
-		<xs:annotation>
-			<xs:documentation>Holds a KVP</xs:documentation>
-		</xs:annotation>
-	</xs:element>
-	<xs:attribute name="name" type="xs:string">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Name of entity</xs:documentation>
-		</xs:annotation>
-	</xs:attribute>
-	<xs:attribute name="value" type="xs:string"/>
-	<xs:simpleType name="ClassType">
-		<xs:restriction base="xs:string">
-			<xs:pattern value="[a-zA-Z0-9]{1}[a-zA-Z0-9_.]+(, [a-zA-Z0-9]{1}[a-zA-Z0-9_.]+)?(, Culture=[a-zA-Z-]*)?(, PublicKeyToken=[0-9a-fA-F]{16})?"/>
-		</xs:restriction>
-	</xs:simpleType>
-	<xs:attribute name="type" type="ClassType">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"</xs:documentation>
-		</xs:annotation>
-	</xs:attribute>
 	<xs:complexType name="CustomFiltersConfiguration">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Configure Custom Filters</xs:documentation>
@@ -110,6 +119,7 @@
 		<xs:attribute ref="factory" use="optional"/>
 	</xs:complexType>
 	<xs:attribute name="factory" type="xs:string"/>
+	<xs:element name="out-transports" type="OutputTransportsConfiguration"/>
 	<xs:complexType name="OutputTransportDefinition">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Defines an Outbound Transport</xs:documentation>
@@ -121,10 +131,8 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:element name="out-transports" type="OutputTransportsConfiguration"/>
-	<xs:element name="out-transport" type="OutputTransportDefinition"/>
-	<xs:element name="core-filter" type="filter:FilterBase" nillable="true"/>
 	<xs:attribute name="tag" type="xs:string"/>
+	<xs:element name="out-transport" type="OutputTransportDefinition"/>
 	<xs:attribute name="outChannelFactoryType" type="xs:string">
 		<xs:annotation>
 			<xs:documentation>.NET Type to use for creating Outbound Channel (must implement IOutboundChannelFactory)</xs:documentation>
@@ -150,6 +158,8 @@
 			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute ref="type" use="required"/>
+		<xs:attribute ref="name" use="required"/>
+		<xs:attribute ref="default"/>
 	</xs:complexType>
 	<xs:element name="logger" type="LoggerDefinition"/>
 	<xs:annotation>

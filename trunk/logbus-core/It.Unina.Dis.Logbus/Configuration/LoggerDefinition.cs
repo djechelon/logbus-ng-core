@@ -33,6 +33,12 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private string typeField;
 
+        private string nameField;
+
+        private bool defaultField;
+
+        private bool defaultFieldSpecified;
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("param")]
         public KeyValuePair[] param
@@ -58,6 +64,48 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.typeField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        public string name
+        {
+            get
+            {
+                return this.nameField;
+            }
+            set
+            {
+                this.nameField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        public bool @default
+        {
+            get
+            {
+                return this.defaultField;
+            }
+            set
+            {
+                this.defaultField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool defaultSpecified
+        {
+            get
+            {
+                return this.defaultFieldSpecified;
+            }
+            set
+            {
+                this.defaultFieldSpecified = value;
             }
         }
     }

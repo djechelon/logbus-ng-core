@@ -22,7 +22,7 @@ using System.Net.Sockets;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    class UdpClientExpire
+    internal class UdpClientExpire
     {
         public UdpClient Client
         {

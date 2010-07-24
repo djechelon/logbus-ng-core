@@ -26,7 +26,7 @@ using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.Loggers
 {
     internal sealed class SyslogUdpLogger
-        : ILogger, IDisposable
+        : ILogCollector, IConfigurable, IDisposable
     {
 
         #region Constrcutor

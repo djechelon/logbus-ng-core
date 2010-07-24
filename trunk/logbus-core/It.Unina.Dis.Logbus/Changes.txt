@@ -1,4 +1,16 @@
 ﻿Logbus-ng Change Log
 
+SVN trunk
+*Major changes in Logger configuration: loggers can have names, and a default logger
+	can be specified. If none, ConsoleLogger is assumed
+*Default "well-known" logger LogbusLogger, named "Logbus"
+*MultiLogger is not supported any more as configuration semantics changed
+*LogbusService is no more publicly visible, and the only way to instantiate it as the
+	default implementation of ILogBus is through LogbusSingletonHelper. Configuration
+	MUST be set prior to this via App.Config or ConfigurationHelper.CoreConfiguration
+	property
+*All Logbus-related entities can log their major events to the Logbus logger
+*Default TTL for UDP outbound transport is 20 seconds
+
 version 1.3.1
 First public release

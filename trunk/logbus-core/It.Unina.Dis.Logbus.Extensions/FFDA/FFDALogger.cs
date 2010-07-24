@@ -42,8 +42,7 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// The COA message is a special message that is triggered <b>only</b> by an external entity that detects a failure in a monitored entity
     /// Use the CMP message to report about self-detect failures
     /// </remarks>
-    public class FFDALogger
-        : SimpleLogImpl
+    public sealed class FFDALogger
     {
         #region Constructor
         /// <summary>
@@ -52,7 +51,6 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="facility">Syslog facility that will be used for all the messages</param>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(SyslogFacility facility, ILogCollector target)
-            : base(facility, target)
         {
             if (target == null) throw new ArgumentNullException("target");
 
@@ -65,36 +63,19 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(ILogCollector target)
-            : base(SyslogFacility.Local0, target) { }
+            : this(SyslogFacility.Local0, target) { }
 
         #endregion
 
-        private string GetFlow()
-        {
-            if (FlowId == null)
-                return Thread.CurrentThread.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            else
-                return FlowId.GetHashCode().ToString(CultureInfo.InvariantCulture);
-        }
-
-        /// <summary>
-        /// Uniquely identifies the current control flow.
-        /// </summary>
-        /// <remarks>
-        /// Used to trace messages from different entities/nodes that are related by the execution of a single distributed operation, such as a transaction
-        /// </remarks>
-        public object FlowId
-        {
-            get;
-            set;
-        }
+        private SyslogFacility Facility { get; set; }
+        private ILogCollector Target { get; set; }
 
         /// <summary>
         /// Logs the event of Service Start
         /// </summary>
         public void LogSST()
         {
-            Log("SST", SyslogSeverity.Info);
+            SimpleLogImpl.Log("SST", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -104,9 +85,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogSST(string id)
         {
             if (id != null)
-                Log("SST-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("SST-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("SST", SyslogSeverity.Info);
+                SimpleLogImpl.Log("SST", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -114,7 +95,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         public void LogSEN()
         {
-            Log("SEN", SyslogSeverity.Info);
+            SimpleLogImpl.Log("SEN", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -124,9 +105,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogSEN(string id)
         {
             if (id != null)
-                Log("SEN-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("SEN-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("SEN", SyslogSeverity.Info);
+                SimpleLogImpl.Log("SEN", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -134,7 +115,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         public void LogEIS()
         {
-            Log("EIS", SyslogSeverity.Info);
+            SimpleLogImpl.Log("EIS", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -144,9 +125,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogEIS(string id)
         {
             if (id != null)
-                Log("EIS-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("EIS-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("EIS", SyslogSeverity.Info);
+                SimpleLogImpl.Log("EIS", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -154,7 +135,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         public void LogEIE()
         {
-            Log("EIE", SyslogSeverity.Info);
+            SimpleLogImpl.Log("EIE", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -164,9 +145,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogEIE(string id)
         {
             if (id != null)
-                Log("EIE-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("EIE-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("EIE", SyslogSeverity.Info);
+                SimpleLogImpl.Log("EIE", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -174,7 +155,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         public void LogRIS()
         {
-            Log("RIS", SyslogSeverity.Info);
+            SimpleLogImpl.Log("RIS", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -184,9 +165,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogRIS(string id)
         {
             if (id != null)
-                Log("RIS-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("RIS-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("RIS", SyslogSeverity.Info);
+                SimpleLogImpl.Log("RIS", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -194,7 +175,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         public void LogRIE()
         {
-            Log("RIE", SyslogSeverity.Info);
+            SimpleLogImpl.Log("RIE", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -204,9 +185,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogRIE(string id)
         {
             if (id != null)
-                Log("RIE-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("RIE-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("RIE", SyslogSeverity.Info);
+                SimpleLogImpl.Log("RIE", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -214,7 +195,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         public void LogCMP()
         {
-            Log("CMP", SyslogSeverity.Info);
+            SimpleLogImpl.Log("CMP", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -225,9 +206,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogCMP(string id)
         {
             if (id != null)
-                Log("CMP-" + id, SyslogSeverity.Info);
+                SimpleLogImpl.Log("CMP-" + id, SyslogSeverity.Info, Facility, Target);
             else
-                Log("CMP", SyslogSeverity.Info);
+                SimpleLogImpl.Log("CMP", SyslogSeverity.Info, Facility, Target);
         }
 
         /// <summary>
@@ -236,7 +217,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
         public void LogCOA()
         {
-            Log("COA", SyslogSeverity.Alert);
+            SimpleLogImpl.Log("COA", SyslogSeverity.Alert, Facility, Target);
         }
 
         /// <summary>
@@ -247,11 +228,10 @@ namespace It.Unina.Dis.Logbus.FFDA
         public void LogCOA(string id)
         {
             if (id != null)
-                Log("COA-" + id, SyslogSeverity.Alert);
+                SimpleLogImpl.Log("COA-" + id, SyslogSeverity.Alert, Facility, Target);
             else
-                Log("COA", SyslogSeverity.Alert);
+                SimpleLogImpl.Log("COA", SyslogSeverity.Alert, Facility, Target);
         }
-
 
     }
 }
