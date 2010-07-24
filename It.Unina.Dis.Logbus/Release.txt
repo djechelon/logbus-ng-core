@@ -1,6 +1,6 @@
 ﻿Logbus-ng Release Notes
 
-version 1.2
+version 1.3.1
 *WindowsEventLogListener is not supported
 *MulticastUdpReceiver is not supported
 *It is recommended to deploy Logbus-ng into the GAC
@@ -10,4 +10,4 @@ version 1.2
 	address while the machine is not connected to the IPv6 Internet
 *Running a client on a computer with multiple network cards, on some network topologies,
 	might prevent the client itself from working
-*Unfortunately, Core and Client components won't run in Mono 2.6 because of two bugs
+*Clients have no way to tell what are the custom filters available on the server
