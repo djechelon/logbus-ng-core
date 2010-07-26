@@ -69,7 +69,7 @@ namespace It.Unina.Dis.Logbus
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
-        ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message);
+        ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string channelid);
 
         /// <summary>
         /// Deletes a channel by ID
@@ -80,6 +80,6 @@ namespace It.Unina.Dis.Logbus
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
 #endif
-        void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message);
+        void DeleteChannel([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid);
     }
 }

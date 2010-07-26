@@ -119,7 +119,7 @@ namespace Unit_Tests
                 LoggerHelper.Configuration = source_config;
 
                 //Send what we want: 2 FFDA messages
-                FFDALogger logger = FFDAHelper.CreateFFDALogger();
+                IFFDALogger logger = FFDAHelper.CreateFFDALogger();
                 logger.LogSST();
                 logger.LogSEN();
 

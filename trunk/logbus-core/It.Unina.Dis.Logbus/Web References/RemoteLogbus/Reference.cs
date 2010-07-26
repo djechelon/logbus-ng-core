@@ -146,24 +146,24 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string message) {
+        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string channelid) {
             object[] results = this.Invoke("GetChannelInformation", new object[] {
-                        message});
+                        channelid});
             return ((ChannelInformation)(results[0]));
         }
         
         /// <remarks/>
-        public void GetChannelInformationAsync(string message) {
-            this.GetChannelInformationAsync(message, null);
+        public void GetChannelInformationAsync(string channelid) {
+            this.GetChannelInformationAsync(channelid, null);
         }
         
         /// <remarks/>
-        public void GetChannelInformationAsync(string message, object userState) {
+        public void GetChannelInformationAsync(string channelid, object userState) {
             if ((this.GetChannelInformationOperationCompleted == null)) {
                 this.GetChannelInformationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetChannelInformationOperationCompleted);
             }
             this.InvokeAsync("GetChannelInformation", new object[] {
-                        message}, this.GetChannelInformationOperationCompleted, userState);
+                        channelid}, this.GetChannelInformationOperationCompleted, userState);
         }
         
         private void OnGetChannelInformationOperationCompleted(object arg) {
@@ -175,23 +175,23 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string message) {
+        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string channelid) {
             this.Invoke("DeleteChannel", new object[] {
-                        message});
+                        channelid});
         }
         
         /// <remarks/>
-        public void DeleteChannelAsync(string message) {
-            this.DeleteChannelAsync(message, null);
+        public void DeleteChannelAsync(string channelid) {
+            this.DeleteChannelAsync(channelid, null);
         }
         
         /// <remarks/>
-        public void DeleteChannelAsync(string message, object userState) {
+        public void DeleteChannelAsync(string channelid, object userState) {
             if ((this.DeleteChannelOperationCompleted == null)) {
                 this.DeleteChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteChannelOperationCompleted);
             }
             this.InvokeAsync("DeleteChannel", new object[] {
-                        message}, this.DeleteChannelOperationCompleted, userState);
+                        channelid}, this.DeleteChannelOperationCompleted, userState);
         }
         
         private void OnDeleteChannelOperationCompleted(object arg) {
@@ -236,6 +236,10 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         private System.Threading.SendOrPostCallback UnsubscribeChannelOperationCompleted;
         
         private System.Threading.SendOrPostCallback RefreshSubscriptionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetAvailableFiltersOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DescribeFilterOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -288,6 +292,12 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         
         /// <remarks/>
         public event RefreshSubscriptionCompletedEventHandler RefreshSubscriptionCompleted;
+        
+        /// <remarks/>
+        public event GetAvailableFiltersCompletedEventHandler GetAvailableFiltersCompleted;
+        
+        /// <remarks/>
+        public event DescribeFilterCompletedEventHandler DescribeFilterCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -432,6 +442,64 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableFilters", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        public string[] GetAvailableFilters() {
+            object[] results = this.Invoke("GetAvailableFilters", new object[0]);
+            return ((string[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetAvailableFiltersAsync() {
+            this.GetAvailableFiltersAsync(null);
+        }
+        
+        /// <remarks/>
+        public void GetAvailableFiltersAsync(object userState) {
+            if ((this.GetAvailableFiltersOperationCompleted == null)) {
+                this.GetAvailableFiltersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAvailableFiltersOperationCompleted);
+            }
+            this.InvokeAsync("GetAvailableFilters", new object[0], this.GetAvailableFiltersOperationCompleted, userState);
+        }
+        
+        private void OnGetAvailableFiltersOperationCompleted(object arg) {
+            if ((this.GetAvailableFiltersCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetAvailableFiltersCompleted(this, new GetAvailableFiltersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("filter-description", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+        public FilterDescription DescribeFilter([System.Xml.Serialization.XmlElementAttribute("filter-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string filterid) {
+            object[] results = this.Invoke("DescribeFilter", new object[] {
+                        filterid});
+            return ((FilterDescription)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DescribeFilterAsync(string filterid) {
+            this.DescribeFilterAsync(filterid, null);
+        }
+        
+        /// <remarks/>
+        public void DescribeFilterAsync(string filterid, object userState) {
+            if ((this.DescribeFilterOperationCompleted == null)) {
+                this.DescribeFilterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDescribeFilterOperationCompleted);
+            }
+            this.InvokeAsync("DescribeFilter", new object[] {
+                        filterid}, this.DescribeFilterOperationCompleted, userState);
+        }
+        
+        private void OnDescribeFilterOperationCompleted(object arg) {
+            if ((this.DescribeFilterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DescribeFilterCompleted(this, new DescribeFilterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -517,6 +585,53 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
             }
             set {
                 this.filterField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class FilterDescription {
+        
+        private string descriptionField;
+        
+        private string idField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        public string description {
+            get {
+                return this.descriptionField;
+            }
+            set {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
             }
         }
     }
@@ -724,6 +839,41 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
+    public partial class FilterParameter {
+        
+        private object valueField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public object value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void ListChannelsCompletedEventHandler(object sender, ListChannelsCompletedEventArgs e);
     
@@ -842,6 +992,58 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void RefreshSubscriptionCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    public delegate void GetAvailableFiltersCompletedEventHandler(object sender, GetAvailableFiltersCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetAvailableFiltersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetAvailableFiltersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    public delegate void DescribeFilterCompletedEventHandler(object sender, DescribeFilterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DescribeFilterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DescribeFilterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public FilterDescription Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((FilterDescription)(this.results[0]));
+            }
+        }
+    }
 }
 
 #pragma warning restore 1591

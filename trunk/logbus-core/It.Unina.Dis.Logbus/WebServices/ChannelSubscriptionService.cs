@@ -129,6 +129,37 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableFilters", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
+        public string[] GetAvailableFilters()
+        {
+            return TargetChannelSubscription.GetAvailableFilters();
+        }
+
+        /// <summary>
+        /// Describes a custom filter
+        /// </summary>
+        /// <param name="filterid">ID of custom filter</param>
+        /// <returns></returns>
+#if MONO
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("filter-description", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
+        public FilterDescription DescribeFilter([System.Xml.Serialization.XmlElementAttribute("filter-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string filterid)
+        {
+            try
+            {
+                return TargetChannelSubscription.DescribeFilter(filterid);
+            }
+            catch
+            {
+                throw;
+            }
+        }
         #endregion
     }
 }

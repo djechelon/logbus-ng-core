@@ -28,21 +28,9 @@ using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus.FFDA
 {
-    /// <summary>
-    /// Provides FFDA-specific logging services using the underlying Logbus-ng infrastructure
-    /// </summary>
-    /// <remarks>
-    /// FFDA messages have the following costraints:
-    /// <list>
-    /// <item>Facility defaults to Local0</item>
-    /// <item>Severity equals to Info or Alert</item>
-    /// <item>MessageID equals to <c>FFDA</c></item>
-    /// <item>Text matches regular expression <c>^(SST|SEN|RIS|RIE|EIS|EIE|COA|CMP)[-]?</c></item>
-    /// </list>
-    /// The COA message is a special message that is triggered <b>only</b> by an external entity that detects a failure in a monitored entity
-    /// Use the CMP message to report about self-detect failures
-    /// </remarks>
-    public sealed class FFDALogger
+    
+    internal sealed class FFDALogger
+        : SimpleLogImpl, IFFDALogger
     {
         #region Constructor
         /// <summary>
@@ -51,186 +39,136 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="facility">Syslog facility that will be used for all the messages</param>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(SyslogFacility facility, ILogCollector target)
-        {
-            if (target == null) throw new ArgumentNullException("target");
-
-            Facility = facility;
-            Target = target;
-        }
+            : base(facility, target)
+        { }
 
         /// <summary>
         /// Initializes the FFDA logger with the concrete underlying logger
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(ILogCollector target)
-            : this(SyslogFacility.Local0, target) { }
+            : base(SyslogFacility.Local0, target) { }
 
         #endregion
 
-        private SyslogFacility Facility { get; set; }
-        private ILogCollector Target { get; set; }
-
-        /// <summary>
-        /// Logs the event of Service Start
-        /// </summary>
+        
         public void LogSST()
         {
-            SimpleLogImpl.Log("SST", SyslogSeverity.Info, Facility, Target);
+            Log("SST", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Service Start
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
+        
         public void LogSST(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("SST-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("SST-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("SST", SyslogSeverity.Info, Facility, Target);
+                Log("SST", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of a Service End
-        /// </summary>
+        
         public void LogSEN()
         {
-            SimpleLogImpl.Log("SEN", SyslogSeverity.Info, Facility, Target);
+            Log("SEN", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Service End
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
+        
         public void LogSEN(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("SEN-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("SEN-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("SEN", SyslogSeverity.Info, Facility, Target);
+                Log("SEN", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an Entity Interaction Start
-        /// </summary>
+        
         public void LogEIS()
         {
-            SimpleLogImpl.Log("EIS", SyslogSeverity.Info, Facility, Target);
+            Log("EIS", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Entity Interaction Start
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
+        
         public void LogEIS(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("EIS-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("EIS-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("EIS", SyslogSeverity.Info, Facility, Target);
+                Log("EIS", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an Entity Interaction End
-        /// </summary>
+       
         public void LogEIE()
         {
-            SimpleLogImpl.Log("EIE", SyslogSeverity.Info, Facility, Target);
+            Log("EIE", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Entity Interaction End
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
+        
         public void LogEIE(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("EIE-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("EIE-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("EIE", SyslogSeverity.Info, Facility, Target);
+                Log("EIE", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of a Resource Interaction Start
-        /// </summary>
+        
         public void LogRIS()
         {
-            SimpleLogImpl.Log("RIS", SyslogSeverity.Info, Facility, Target);
+            Log("RIS", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Resource Interaction Start
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
+        
         public void LogRIS(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("RIS-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("RIS-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("RIS", SyslogSeverity.Info, Facility, Target);
+                Log("RIS", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of a Resource Interaction End
-        /// </summary>
+        
         public void LogRIE()
         {
-            SimpleLogImpl.Log("RIE", SyslogSeverity.Info, Facility, Target);
+            Log("RIE", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Resource Interaction End
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
+        
         public void LogRIE(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("RIE-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("RIE-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("RIE", SyslogSeverity.Info, Facility, Target);
+                Log("RIE", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of a Complaint
-        /// </summary>
+        
         public void LogCMP()
         {
-            SimpleLogImpl.Log("CMP", SyslogSeverity.Info, Facility, Target);
+            Log("CMP", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Complaint
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
-        /// <remarks>Never use Exception.Message as id: if you need to log such message, use another logger!</remarks>
+        
         public void LogCMP(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("CMP-" + id, SyslogSeverity.Info, Facility, Target);
+                Log("CMP-" + id, SyslogSeverity.Info);
             else
-                SimpleLogImpl.Log("CMP", SyslogSeverity.Info, Facility, Target);
+                Log("CMP", SyslogSeverity.Info);
         }
 
-        /// <summary>
-        /// Logs the event of a Computational Alert
-        /// </summary>
-        /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
+        
         public void LogCOA()
         {
-            SimpleLogImpl.Log("COA", SyslogSeverity.Alert, Facility, Target);
+            Log("COA", SyslogSeverity.Alert);
         }
 
-        /// <summary>
-        /// Logs the event of an identified Computational Alert
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
-        /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
+        
         public void LogCOA(string id)
         {
             if (id != null)
-                SimpleLogImpl.Log("COA-" + id, SyslogSeverity.Alert, Facility, Target);
+                Log("COA-" + id, SyslogSeverity.Alert);
             else
-                SimpleLogImpl.Log("COA", SyslogSeverity.Alert, Facility, Target);
+                Log("COA", SyslogSeverity.Alert);
         }
 
     }

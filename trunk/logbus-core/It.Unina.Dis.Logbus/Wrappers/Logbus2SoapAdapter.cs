@@ -20,14 +20,22 @@
 using System.Web.Hosting;
 namespace It.Unina.Dis.Logbus.Wrappers
 {
+    /// <summary>
+    /// Adapts the interface of ILogBus to SOAP callers
+    /// </summary>
     public sealed class Logbus2SoapAdapter
-        : System.MarshalByRefObject, IChannelManagement, IChannelSubscription, IRegisteredObject
+        : System.MarshalByRefObject, IChannelManagement, IChannelSubscription
     {
 
         private ILogBus target;
 
+        /// <summary>
+        /// Initializes the wrapper with a properly initialized target
+        /// </summary>
+        /// <param name="targetInstance">Logbus service</param>
         public Logbus2SoapAdapter(ILogBus targetInstance)
         {
+            if (targetInstance == null) throw new System.ArgumentNullException("targetInstance");
             target = targetInstance;
         }
 
@@ -157,15 +165,16 @@ namespace It.Unina.Dis.Logbus.Wrappers
             }
         }
 
-        #endregion
-
-        #region IRegisteredObject Membri di
-
-        public void Stop(bool immediate)
+        string[] IChannelSubscription.GetAvailableFilters()
         {
-            HostingEnvironment.UnregisterObject(this);
+            throw new System.NotImplementedException();
         }
 
+        It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription IChannelSubscription.DescribeFilter(string filterid)
+        {
+            throw new System.NotImplementedException();
+        }
         #endregion
+
     }
 }

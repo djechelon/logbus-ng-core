@@ -66,23 +66,6 @@ namespace Unit_Tests
         //
         #endregion
 
-
-        /// <summary>
-        ///Test per WithinCoalescenceWindow
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("It.Unina.Dis.Logbus.dll")]
-        public void WithinCoalescenceWindowTest()
-        {
-            SimpleOutChannel_Accessor target = new SimpleOutChannel_Accessor(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool expected = false; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            bool actual;
-            target.WithinCoalescenceWindow = expected;
-            actual = target.WithinCoalescenceWindow;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verificare la correttezza del metodo di test.");
-        }
-
         /// <summary>
         ///Test per TransportFactoryHelper
         ///</summary>

@@ -44,6 +44,9 @@ namespace It.Unina.Dis.Logbus.Loggers
             catch (LogbusConfigurationException) { }
         }
 
+        /// <summary>
+        /// Gets or sets global source configuration
+        /// </summary>
         public static LogbusSourceConfiguration Configuration
         {
             get;
@@ -82,7 +85,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             if (string.IsNullOrEmpty(loggerName)) throw new ArgumentNullException("loggerName");
 
-            if (Configuration != null && Configuration.logger != null || Configuration.logger.Length > 0)
+            if (Configuration != null && Configuration.logger != null && Configuration.logger.Length > 0)
             {
                 //Try to find the first logger marked default
                 foreach (LoggerDefinition def in Configuration.logger)
