@@ -33,7 +33,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="logbus_port">UDP port of logbus target</param>
         /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
         /// <remarks>Facility is set to Local0 as default value</remarks>
-        public static FFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
+        public static IFFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
         {
             return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_ip, logbus_port));
         }
@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
-        public static FFDALogger CreateFFDALogger()
+        public static IFFDALogger CreateFFDALogger()
         {
             return new FFDALogger(LoggerHelper.CreateDefaultCollector());
         }
@@ -55,7 +55,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <returns></returns>
         /// <exception cref="LogbusException">Logger is not found</exception>
         /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
-        public static FFDALogger CreateFFDALogger(string loggerName)
+        public static IFFDALogger CreateFFDALogger(string loggerName)
         {
             return new FFDALogger(LoggerHelper.CreateCollectorByName(loggerName));
         }

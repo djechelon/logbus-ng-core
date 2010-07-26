@@ -25,6 +25,12 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// <remarks>The interface reminds the log4net.ILog interface</remarks>
     public interface ILog
     {
+
+        /// <summary>
+        /// Logger name
+        /// </summary>
+        string EntityName { get; set; }
+
         /// <summary>
         /// Logs a debug message
         /// </summary>

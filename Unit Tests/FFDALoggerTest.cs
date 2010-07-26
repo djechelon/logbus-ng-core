@@ -120,7 +120,7 @@ namespace Unit_Tests
         {
             try
             {
-                FFDALogger logger = FFDAHelper.CreateFFDALogger(IPAddress.Loopback, SOURCE_PORT);
+                IFFDALogger logger = FFDAHelper.CreateFFDALogger(IPAddress.Loopback, SOURCE_PORT);
 
                 logger.LogSST();
                 logger.LogSEN();

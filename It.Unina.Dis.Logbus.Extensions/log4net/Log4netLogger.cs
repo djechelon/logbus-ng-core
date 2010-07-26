@@ -23,6 +23,7 @@ using log4net;
 using It.Unina.Dis.Logbus.RemoteLogbus;
 using System.Collections.Generic;
 using log4net.Core;
+using System.Globalization;
 namespace It.Unina.Dis.Logbus.log4net
 {
     /// <summary>
@@ -43,14 +44,67 @@ namespace It.Unina.Dis.Logbus.log4net
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            throw new NotImplementedException();
+            if (logger == null) logger = LogManager.GetLogger(GetType()).Logger;
 
             LoggingEventData ld = new LoggingEventData();
             ld.TimeStamp = message.Timestamp.Value;
+            ld.Message = message.Text;
+            ld.ThreadName = System.Threading.Thread.CurrentThread.Name;
+
+            switch (message.Severity)
+            {
+                case SyslogSeverity.Debug:
+                    {
+                        ld.Level = Level.Debug;
+                        break;
+                    }
+                case SyslogSeverity.Info:
+                    {
+                        ld.Level = Level.Info;
+                        break;
+                    }
+                case SyslogSeverity.Notice:
+                    {
+                        ld.Level = Level.Notice;
+                        break;
+                    }
+                case SyslogSeverity.Warning:
+                    {
+                        ld.Level = Level.Warn;
+                        break;
+                    }
+                case SyslogSeverity.Error:
+                    {
+                        ld.Level = Level.Error;
+                        break;
+                    }
+                case SyslogSeverity.Alert:
+                    {
+                        ld.Level = Level.Alert;
+                        break;
+                    }
+                case SyslogSeverity.Critical:
+                    {
+                        ld.Level = Level.Critical;
+                        break;
+                    }
+                case SyslogSeverity.Emergency:
+                    {
+                        ld.Level = Level.Emergency;
+                        break;
+                    }
+            }
 
             LoggingEvent le = new LoggingEvent(ld);
 
-            logger.Log(le);
+            try
+            {
+                logger.Log(le);
+            }
+            catch (global::log4net.Core.LogException ex)
+            {
+                throw new LogbusException("Unable to log", ex);
+            }
         }
 
         #endregion
@@ -95,7 +149,7 @@ namespace It.Unina.Dis.Logbus.log4net
         {
             set
             {
-                foreach (KeyValuePair<string,string> kvp in value)
+                foreach (KeyValuePair<string, string> kvp in value)
                 {
                     ((IConfigurable)this).SetConfigurationParameter(kvp.Key, kvp.Value);
                 }

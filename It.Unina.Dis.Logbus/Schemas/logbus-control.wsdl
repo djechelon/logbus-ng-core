@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl">
 	<wsdl:types>
 		<xsi:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -48,14 +49,24 @@
 				</xsi:sequence>
 				<xsi:attribute name="client-id" type="xsi:string" use="optional"/>
 			</xsi:complexType>
+			<xsi:complexType name="FilterDescription">
+				<xsi:sequence>
+					<xsi:element name="description" type="xsi:string"/>
+				</xsi:sequence>
+				<xsi:attribute name="id" type="xsi:string"/>
+				<xsi:attribute name="name" type="xsi:string"/>
+			</xsi:complexType>
 			<xsi:element name="kvp" type="logbus:KeyValuePair"/>
 			<xsi:element name="string-array" type="logbus:StringArray"/>
+			<xsi:element name="channel-id" type="xsi:string"/>
 			<xsi:element name="channel-info" type="logbus:ChannelInformation"/>
 			<xsi:element name="channel-creation" type="logbus:ChannelCreationInformation"/>
 			<xsi:element name="channel-sub-request" type="logbus:ChannelSubscriptionRequest"/>
 			<xsi:element name="channel-sub-response" type="logbus:ChannelSubscriptionResponse"/>
 			<xsi:element name="message" type="xsi:string"/>
 			<xsi:element name="client-id" type="xsi:string"/>
+			<xsi:element name="filter-id" type="xsi:string"/>
+			<xsi:element name="filter-description" type="logbus:FilterDescription"/>
 		</xsi:schema>
 	</wsdl:types>
 	<wsdl:message name="ChannelList">
@@ -76,7 +87,7 @@
 		<wsdl:part name="message" element="logbus:message"/>
 	</wsdl:message>
 	<wsdl:message name="ChannelID">
-		<wsdl:part name="id" element="logbus:message"/>
+		<wsdl:part name="id" element="logbus:channel-id"/>
 	</wsdl:message>
 	<wsdl:message name="ChannelNotEmptyException">
 		<wsdl:part name="clients" type="xs:integer"/>
@@ -113,6 +124,16 @@
 	<wsdl:message name="RefreshResponse"/>
 	<wsdl:message name="RefreshRequest">
 		<wsdl:part name="id" element="logbus:client-id"/>
+	</wsdl:message>
+	<wsdl:message name="GetAvailableFiltersRequest"/>
+	<wsdl:message name="GetAvailableFiltersResponse">
+		<wsdl:part name="filters-list" element="logbus:string-array"/>
+	</wsdl:message>
+	<wsdl:message name="DescribeFilterRequest">
+		<wsdl:part name="filter-id" element="logbus:filter-id"/>
+	</wsdl:message>
+	<wsdl:message name="DescribeFilterResponse">
+		<wsdl:part name="description" element="logbus:filter-description"/>
 	</wsdl:message>
 	<wsdl:portType name="ChannelManagement">
 		<wsdl:documentation>Manages outbound channels for the Logbus service</wsdl:documentation>
@@ -159,7 +180,7 @@
 			<wsdl:fault name="ChannelNotEmptyException" message="logbus:ChannelNotEmptyException">
 				<wsdl:documentation>Channel is not empty. Clients must unsubscribe</wsdl:documentation>
 			</wsdl:fault>
-			<wsdl:fault name="FaultName" message="logbus:NotFoundException"/>
+			<wsdl:fault name="NotFoundException" message="logbus:NotFoundException"/>
 		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:portType name="ChannelSubscription">
@@ -199,6 +220,15 @@
 			<wsdl:output message="logbus:RefreshResponse"/>
 			<wsdl:fault name="NotFoundException" message="logbus:NotFoundException"/>
 			<wsdl:fault name="NotSupportedException" message="logbus:NotSupportedException"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetAvailableFilters">
+			<wsdl:input message="logbus:GetAvailableFiltersRequest"/>
+			<wsdl:output message="logbus:GetAvailableFiltersResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="DescribeFilter">
+			<wsdl:input message="logbus:DescribeFilterRequest"/>
+			<wsdl:output message="logbus:DescribeFilterResponse"/>
+			<wsdl:fault name="NotFoundException" message="logbus:NotFoundException"/>
 		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:binding name="ChannelManagement" type="logbus:ChannelManagement">
@@ -262,7 +292,7 @@
 			<wsdl:fault name="ChannelNotEmptyException">
 				<soap:fault name="ChannelNotEmptyException" use="literal"/>
 			</wsdl:fault>
-			<wsdl:fault name="FaultName">
+			<wsdl:fault name="NotFoundException">
 				<soap:fault name="FaultName" use="literal"/>
 			</wsdl:fault>
 		</wsdl:operation>
@@ -328,6 +358,25 @@
 			<wsdl:fault name="NotSupportedException">
 				<soap:fault name="NotSupportedException" use="literal"/>
 			</wsdl:fault>
+		</wsdl:operation>
+		<wsdl:operation name="GetAvailableFilters">
+			<soap:operation soapAction="urn:#GetAvailableFilters"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="DescribeFilter">
+			<soap:operation soapAction="urn:#DescribeFilter"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="NotFoundException"/>
 		</wsdl:operation>
 	</wsdl:binding>
 </wsdl:definitions>

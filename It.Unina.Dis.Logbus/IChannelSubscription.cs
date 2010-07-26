@@ -93,5 +93,30 @@ namespace It.Unina.Dis.Logbus
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
 #endif
         void RefreshSubscription([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid);
+
+        /// <summary>
+        /// Lists the available custom filters on the server by their IDs
+        /// </summary>
+        /// <returns></returns>
+#if MONO
+#else
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableFilters", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
+        string[] GetAvailableFilters();
+
+        /// <summary>
+        /// Describes a custom filter
+        /// </summary>
+        /// <param name="filterid">ID of custom filter</param>
+        /// <returns></returns>
+#if MONO
+#else
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("filter-description", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
+        FilterDescription DescribeFilter([System.Xml.Serialization.XmlElementAttribute("filter-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string filterid);
     }
 }

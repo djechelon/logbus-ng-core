@@ -988,6 +988,15 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        string[] IChannelSubscription.GetAvailableFilters()
+        {
+            throw new NotImplementedException();
+        }
+
+        It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription IChannelSubscription.DescribeFilter(string filterid)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region Support

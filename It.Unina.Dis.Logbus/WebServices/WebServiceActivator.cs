@@ -84,7 +84,6 @@ namespace It.Unina.Dis.Logbus.WebServices
         private void StopService()
         {
             ctr.Stop();
-            adapter.Stop(true);
             UninstallRuntime(physical_path);
         }
 

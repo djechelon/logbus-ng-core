@@ -57,6 +57,16 @@ namespace It.Unina.Dis.Logbus.Wrappers
             target.RefreshSubscription(id);
         }
 
+        public string[] GetAvailableFilters()
+        {
+            return target.GetAvailableFilters();
+        }
+
+        public It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription DescribeFilter(string filterid)
+        {
+            return target.DescribeFilter(filterid);
+        }
+
         #endregion
     }
 }

@@ -28,7 +28,7 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// <summary>
     /// Simple ILog implementation
     /// </summary>
-    internal sealed class SimpleLogImpl
+    internal class SimpleLogImpl
         : ILog
     {
         /// <summary>
@@ -53,10 +53,10 @@ namespace It.Unina.Dis.Logbus.Loggers
         public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
 
-        private SyslogFacility Facility { get; set; }
-        private ILogCollector Target { get; set; }
+        protected SyslogFacility Facility { get; set; }
+        protected ILogCollector Target { get; set; }
 
-        internal static void Log(string message, SyslogSeverity severity, SyslogFacility Facility, ILogCollector Target)
+        protected virtual void Log(string message, SyslogSeverity severity)
         {
             String host = Environment.MachineName;
             String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
@@ -81,50 +81,57 @@ namespace It.Unina.Dis.Logbus.Loggers
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("AssemblyName", stackFrames[2].GetMethod().DeclaringType.Assembly.GetName().Name);
+            if (!string.IsNullOrEmpty(EntityName)) msg.Data["CallerData@" + ENTERPRISE_ID].Add("EntityName", EntityName);
 
             Target.SubmitMessage(msg);
         }
 
         #region ILog Membri di
 
+        public string EntityName
+        {
+            get;
+            set;
+        }
+
         void ILog.Debug(string message)
         {
-            Log(message, SyslogSeverity.Debug, Facility, Target);
+            Log(message, SyslogSeverity.Debug);
         }
 
         void ILog.Info(string message)
         {
-            Log(message, SyslogSeverity.Info, Facility, Target);
+            Log(message, SyslogSeverity.Info);
         }
 
         void ILog.Notice(string message)
         {
-            Log(message, SyslogSeverity.Notice, Facility, Target);
+            Log(message, SyslogSeverity.Notice);
         }
 
         void ILog.Warning(string message)
         {
-            Log(message, SyslogSeverity.Warning, Facility, Target);
+            Log(message, SyslogSeverity.Warning);
         }
 
         void ILog.Error(string message)
         {
-            Log(message, SyslogSeverity.Error, Facility, Target);
+            Log(message, SyslogSeverity.Error);
         }
 
         void ILog.Critical(string message)
         {
-            Log(message, SyslogSeverity.Critical, Facility, Target);
+            Log(message, SyslogSeverity.Critical);
         }
 
         void ILog.Alert(string message)
         {
-            Log(message, SyslogSeverity.Alert, Facility, Target);
+            Log(message, SyslogSeverity.Alert);
         }
 
         void ILog.Emergency(string message)
         {
-            Log(message, SyslogSeverity.Emergency, Facility, Target);
+            Log(message, SyslogSeverity.Emergency);
         }
 
         #endregion
