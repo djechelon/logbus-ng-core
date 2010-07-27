@@ -88,9 +88,14 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         internal LogbusService()
         {
+            LogbusSingletonHelper.Instance = this;
+
             OutboundChannels = new List<IOutboundChannel>();
             InboundChannels = new List<IInboundChannel>();
             Log = LoggerHelper.CreateLoggerByName("Logbus");
+
+            //Init fresh queue
+            Queue = new BlockingFifoQueue<SyslogMessage>();
         }
 
         /// <summary>
@@ -400,9 +405,6 @@ namespace It.Unina.Dis.Logbus
                     Starting(this, e);
                     if (e.Cancel) return;
                 }
-
-                //First of all, init fresh queue
-                Queue = new BlockingFifoQueue<SyslogMessage>();
 
                 try
                 {
@@ -1042,7 +1044,7 @@ namespace It.Unina.Dis.Logbus
                 //Someone is telling me to stop
 
                 //Flush queue and then stop
-                IEnumerable<SyslogMessage> left_messages = Queue.FlushAndDispose();
+                IEnumerable<SyslogMessage> left_messages = Queue.Flush();
                 foreach (SyslogMessage msg in left_messages)
                 {
                     //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
@@ -1057,8 +1059,6 @@ namespace It.Unina.Dis.Logbus
                         chan.SubmitMessage(msg);
                     }
                 }
-
-                Queue = null;
             }
         }
 

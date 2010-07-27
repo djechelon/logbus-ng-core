@@ -41,6 +41,10 @@ namespace It.Unina.Dis.Logbus
                             _instance = new LogbusService();
                 return _instance;
             }
+            internal set
+            {
+                _instance = value;
+            }
         }
     }
 }
