@@ -33,10 +33,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         IOutboundTransport IOutboundTransportFactory.CreateTransport()
         {
-            return new SyslogUdpTransport()
-            {
-                SubscriptionTtl = defaultTTL
-            };
+            return new SyslogUdpTransport(defaultTTL);
         }
 
         string IConfigurable.GetConfigurationParameter(string key)
