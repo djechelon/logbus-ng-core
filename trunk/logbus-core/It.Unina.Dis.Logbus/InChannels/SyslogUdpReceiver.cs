@@ -37,24 +37,27 @@ namespace It.Unina.Dis.Logbus.InChannels
     public sealed class SyslogUdpReceiver :
         IInboundChannel, IAsyncRunnable
     {
+        /// <summary>
+        /// Default port to listen
+        /// </summary>
         public const int DEFAULT_PORT = 514;
 
+        /// <summary>
+        /// Number of worker threads concurrently listening for datagrams
+        /// </summary>
+        public const int WORKER_THREADS = 4;
 
         private Dictionary<string, string> config = new Dictionary<string, string>();
         private UdpClient client;
+        private volatile bool running;
 
-
-        private bool Running
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
-
-        private Thread running_thread;
+        private Thread[] running_threads;
 
         #region Constructor/destructor
+
+        /// <summary>
+        /// Initializes a new instance of SyslogUdpReceiver
+        /// </summary>
         public SyslogUdpReceiver()
         {
             startDelegate = new ThreadStart(Start);
@@ -66,6 +69,10 @@ namespace It.Unina.Dis.Logbus.InChannels
             get;
             set;
         }
+
+        /// <summary>
+        /// Default destructor. Releases resources
+        /// </summary>
         ~SyslogUdpReceiver()
         {
             Dispose(false);
@@ -124,6 +131,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region IDisposable Membri di
 
+        /// <summary>
+        /// Implements IDisposable.Dispose
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -134,10 +144,8 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void RunnerLoop()
         {
-            Running = true;
-
             IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
-            while (Running)
+            while (running)
             {
                 try
                 {
@@ -166,22 +174,40 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region IRunnable Membri di
 
+        /// <summary>
+        /// Implements IRunnable.Starting
+        /// </summary>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
 
+        /// <summary>
+        /// Implements IRunnable.Stopping
+        /// </summary>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
 
+        /// <summary>
+        /// Implements IRunnable.Started
+        /// </summary>
         public event EventHandler Started;
 
+        /// <summary>
+        /// Implements IRunnable.Stopped
+        /// </summary>
         public event EventHandler Stopped;
 
+        /// <summary>
+        /// Implements IRunnable.Error
+        /// </summary>
         public event UnhandledExceptionEventHandler Error;
 
+        /// <summary>
+        /// Implements IRunnable.Start
+        /// </summary>
         public void Start()
         {
             try
             {
-                if (Disposed) throw new ObjectDisposedException("this");
-                if (running_thread != null && running_thread.IsAlive) throw new InvalidOperationException("Listener is already running");
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                if (running) throw new InvalidOperationException("Listener is already running");
 
                 if (Starting != null)
                 {
@@ -208,10 +234,14 @@ namespace It.Unina.Dis.Logbus.InChannels
                     throw new LogbusException("Cannot start UDP listener", ex);
                 }
 
-                running_thread = new Thread(RunnerLoop);
-                running_thread.IsBackground = true;
-                running_thread.Name = "UDPListener.RunnerLoop";
-                running_thread.Start();
+                running_threads = new Thread[WORKER_THREADS];
+                for (int i = 0; i < WORKER_THREADS; i++)
+                {
+                    running_threads[i] = new Thread(RunnerLoop);
+                    running_threads[i].IsBackground = true;
+                    running_threads[i].Name = string.Format(CultureInfo.InvariantCulture, "UDPListener.RunnerLoop[{0}]", i);
+                    running_threads[i].Start();
+                }
 
                 if (Started != null) Started(this, EventArgs.Empty);
             }
@@ -222,12 +252,15 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
+        /// <summary>
+        /// Implements IRunnable.Stop
+        /// </summary>
         public void Stop()
         {
             try
             {
-                if (Disposed) throw new ObjectDisposedException("this");
-                if (running_thread == null || !Running) throw new InvalidOperationException("Listener is not running");
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                if (!running) throw new InvalidOperationException("Listener is not running");
 
                 if (Stopping != null)
                 {
@@ -236,13 +269,14 @@ namespace It.Unina.Dis.Logbus.InChannels
                     if (e.Cancel) return;
                 }
 
-                Running = false;
+                running = false;
 
                 try
                 {
                     client.Close(); //Trigger SocketException if thread is blocked into listening
-                    running_thread.Join();
-                    running_thread = null;
+                    for (int i = 0; i < WORKER_THREADS; i++)
+                        running_threads[i].Join();
+                    running_threads = null;
                 }
                 catch (Exception) { } //Really nothing?
 
@@ -291,11 +325,16 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #endregion
 
-
         #region IConfigurable Membri di
 
+        /// <summary>
+        /// Implements IConfigurable.GetConfigurationParameter
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public string GetConfigurationParameter(string key)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             switch (key)
             {
                 case "ip":
@@ -309,8 +348,12 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
+        /// <summary>
+        /// Implements IConfigurable.SetConfigurationParameter
+        /// </summary>
         public void SetConfigurationParameter(string key, string value)
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             switch (key)
             {
                 case "ip":
@@ -330,10 +373,14 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
+        /// <summary>
+        /// Implements IConfigurable.Configuration
+        /// </summary>
         public IEnumerable<KeyValuePair<string, string>> Configuration
-        {
+        { 
             set
             {
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
                 foreach (KeyValuePair<string, string> kvp in value)
                     SetConfigurationParameter(kvp.Key, kvp.Value);
             }
