@@ -81,14 +81,14 @@ namespace It.Unina.Dis.Logbus.Loggers
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("AssemblyName", stackFrames[2].GetMethod().DeclaringType.Assembly.GetName().Name);
-            if (!string.IsNullOrEmpty(EntityName)) msg.Data["CallerData@" + ENTERPRISE_ID].Add("EntityName", EntityName);
+            if (!string.IsNullOrEmpty(LogName)) msg.Data["CallerData@" + ENTERPRISE_ID].Add("LogName", LogName);
 
             Target.SubmitMessage(msg);
         }
 
         #region ILog Membri di
 
-        public string EntityName
+        public string LogName
         {
             get;
             set;
