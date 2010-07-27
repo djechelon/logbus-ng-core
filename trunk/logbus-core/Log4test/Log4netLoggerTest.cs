@@ -77,6 +77,7 @@ namespace Log4test
         [DeploymentItem("It.Unina.Dis.Logbus.Extensions.dll")]
         public void SubmitMessageTest()
         {
+            log4net.Config.XmlConfigurator.Configure();
             ILog logger = LoggerHelper.CreateLoggerByName("log4net");
 
             logger.Info("Info message");
