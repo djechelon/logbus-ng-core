@@ -92,6 +92,20 @@ namespace It.Unina.Dis.Logbus.Utils
             get { return the_queue.Count; }
         }
 
+        public T[] Flush()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            lock (the_queue)
+            {
+                T[] ret = the_queue.ToArray();
+                the_queue.Clear();
+                //Note: we will need to change the behaviour soon
+                sema = new Semaphore(0, int.MaxValue);
+                return ret;
+            }
+        }
+
         public T[] FlushAndDispose()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -111,13 +125,12 @@ namespace It.Unina.Dis.Logbus.Utils
             }
         }
 
-
         #region IDisposable Membri di
 
         private void Dispose(bool disposing)
         {
             GC.SuppressFinalize(this);
-            
+
             sema.Close();
             if (disposing)
             {
