@@ -167,19 +167,19 @@ namespace It.Unina.Dis.Logbus
             ret.Append(SPACE);
 
             //Hostname
-            ret.Append((Host == null) ? NILVALUE : Host);
+            ret.Append((Host == null) ? NILVALUE : Format5424(Host, 255));
             ret.Append(SPACE);
 
             //AppName
-            ret.Append((ApplicationName == null) ? NILVALUE : ApplicationName);
+            ret.Append((ApplicationName == null) ? NILVALUE : Format5424(ApplicationName, 48));
             ret.Append(SPACE);
 
             //procName
-            ret.Append((ProcessID == null) ? NILVALUE : ProcessID);
+            ret.Append((ProcessID == null) ? NILVALUE : Format5424(ProcessID, 128));
             ret.Append(SPACE);
 
             //msgID
-            ret.Append((MessageId == null) ? NILVALUE : MessageId);
+            ret.Append((MessageId == null) ? NILVALUE : Format5424(MessageId, 32));
             ret.Append(SPACE);
 
             //Structured Data			
@@ -204,6 +204,20 @@ namespace It.Unina.Dis.Logbus
 
 
             return ret.ToString();
+        }
+
+        private string Format5424(string input, int maxLength)
+        {
+            if (string.IsNullOrEmpty(input)) throw new ArgumentNullException("input");
+            StringBuilder output = new StringBuilder();
+            int len = Math.Min(maxLength, input.Length);
+            char[] buffer = input.ToCharArray();
+
+            for (int i = 0; i < len; i++)
+                if (buffer[i] >= 32 && buffer[i] <= 126) output.Append(buffer[i]);
+                else len++;
+
+            return output.ToString();
         }
 
         /// <summary>
@@ -387,6 +401,8 @@ namespace It.Unina.Dis.Logbus
                 else
                 {
                     new_payload = payload.Substring(pointer);
+                    if (new_payload.EndsWith("\r\n")) new_payload = new_payload.Substring(0, new_payload.Length - 2);
+                    else if (new_payload.EndsWith("\n")) new_payload = new_payload.Substring(0, new_payload.Length - 1);
                     ret.Text = new_payload;
                 }
                 //Return the SyslogMessage...
@@ -551,6 +567,8 @@ namespace It.Unina.Dis.Logbus
                 else
                 {
                     new_payload = payload.Substring(pointer);
+                    if (new_payload.EndsWith("\r\n")) new_payload = new_payload.Substring(0, new_payload.Length - 2);
+                    else if (new_payload.EndsWith("\n")) new_payload = new_payload.Substring(0, new_payload.Length - 1);
                     //Controls the presence of BOM...
                     byte[] BOM = { 0xef, 0xbb, 0xbf };
                     if (new_payload[0] == BOM[0] && new_payload[1] == BOM[1] && new_payload[2] == BOM[2])
