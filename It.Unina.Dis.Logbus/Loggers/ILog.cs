@@ -27,9 +27,9 @@ namespace It.Unina.Dis.Logbus.Loggers
     {
 
         /// <summary>
-        /// Logger name
+        /// Symbolic name of log
         /// </summary>
-        string EntityName { get; set; }
+        string LogName { get; set; }
 
         /// <summary>
         /// Logs a debug message

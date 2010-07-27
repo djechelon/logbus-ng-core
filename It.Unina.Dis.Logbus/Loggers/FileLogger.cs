@@ -23,82 +23,86 @@ using System.Collections.Generic;
 using System.Text;
 namespace It.Unina.Dis.Logbus
 {
-	public class FileLogger : ILogCollector, IConfigurable
-	{
+    public class FileLogger : ILogCollector, IConfigurable
+    {
 
-		private string filePath;
+        private string filePath;
 
-		#region ILogCollector Membri di
-		void ILogCollector.SubmitMessage (SyslogMessage message)
-		{
-			using (TextWriter tw = new StreamWriter(File.Open(filePath,FileMode.Append),Encoding.UTF8))
-			{
-				tw.WriteLine(message.ToRfc5424String());
-			}
-		}
+        #region ILogCollector Membri di
+        void ILogCollector.SubmitMessage(SyslogMessage message)
+        {
+            using (TextWriter tw = new StreamWriter(File.Open(filePath, FileMode.Append), Encoding.UTF8))
+            {
+                tw.WriteLine(message.ToRfc5424String());
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region IConfigurable Membri di
+        #region IConfigurable Membri di
 
-		public string GetConfigurationParameter (string key)
-		{
-			if (string.IsNullOrEmpty (key))
-				throw new ArgumentNullException ("key", "Key cannot be null");
-			switch (key) {
-			case "filePath":
-		return filePath;
-			default:				
-				{
-					NotSupportedException ex = new NotSupportedException ("Invalid key");
-					ex.Data.Add ("key", key);
-					throw ex;
-				}
-			}
-		}
+        public string GetConfigurationParameter(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException("key", "Key cannot be null");
+            switch (key)
+            {
+                case "filePath":
+                    return filePath;
+                default:
+                    {
+                        NotSupportedException ex = new NotSupportedException("Invalid key");
+                        ex.Data.Add("key", key);
+                        throw ex;
+                    }
+            }
+        }
 
-		public void SetConfigurationParameter (string key, string value)
-		{
-			if (string.IsNullOrEmpty (key))
-				throw new ArgumentNullException ("key", "Key cannot be null");
-			if (string.IsNullOrEmpty (value))
-				throw new ArgumentNullException ("value", "Value cannot be null");
-			switch (key) {
-			
-			case "filePath":
-				
-				
-				
-				{
-					if (string.IsNullOrEmpty (value))
-						throw new ArgumentNullException ("value");
-					try {
-						new System.IO.FileInfo (value);
-						filePath = value;
-					} catch (Exception ex) {
-						throw new LogbusException ("File path error", ex);
-					}
-					
-					break;
-				}
+        public void SetConfigurationParameter(string key, string value)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException("key", "Key cannot be null");
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentNullException("value", "Value cannot be null");
+            switch (key)
+            {
 
-			default:
-				
-				
-				throw new NotSupportedException ("Invalid key");
-				
-			}
-		}
+                case "filePath":
+                    {
+                        if (string.IsNullOrEmpty(value))
+                            throw new ArgumentNullException("value");
+                        try
+                        {
+                            new System.IO.FileInfo(value);
+                            filePath = value;
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new LogbusException("File path error", ex);
+                        }
 
-		public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration {
-			set {
-				foreach (KeyValuePair<string, string> kvp in value)
-					SetConfigurationParameter (kvp.Key, kvp.Value);
-			}
-		}
-		
-		#endregion
-		
-	}
+                        break;
+                    }
+
+                default:
+
+
+                    throw new NotSupportedException("Invalid key");
+
+            }
+        }
+
+        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        {
+            set
+            {
+                foreach (KeyValuePair<string, string> kvp in value)
+                    SetConfigurationParameter(kvp.Key, kvp.Value);
+            }
+        }
+
+        #endregion
+
+    }
 }
 
