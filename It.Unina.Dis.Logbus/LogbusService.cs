@@ -38,48 +38,28 @@ namespace It.Unina.Dis.Logbus
     internal class LogbusService
         : MarshalByRefObject, ILogBus, IChannelManagement, IChannelSubscription
     {
-        private Thread hubThread;
-
+        private Thread[] hubThreads;
+        private const int WORKER_THREADS = 4;
         private bool configured = false;
 
+        /// <summary>
+        /// Returns if Logbus is running or not
+        /// </summary>
+        private volatile bool running;
 
+        /// <summary>
+        /// If true, hub thread is going to stop
+        /// </summary>
+        private volatile bool hubThreadStop;
 
-        #region Support fields
+        protected BlockingFifoQueue<SyslogMessage>[] queues;
+
         //http://stackoverflow.com/questions/668440/handling-objectdisposedexception-correctly-in-an-idisposable-class-hierarchy
         protected bool Disposed
         {
             get;
             private set;
         }
-
-        /// <summary>
-        /// Returns if Logbus is running or not
-        /// </summary>
-        public bool Running
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            private set;
-        }
-
-        /// <summary>
-        /// If true, hub thread is going to stop
-        /// </summary>
-        private bool HubThreadStop
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
-
-        protected BlockingFifoQueue<SyslogMessage> Queue
-        {
-            get;
-            set;
-        }
-        #endregion
 
         #region Constructor/destructor
 
@@ -94,8 +74,10 @@ namespace It.Unina.Dis.Logbus
             InboundChannels = new List<IInboundChannel>();
             Log = LoggerHelper.CreateLoggerByName("Logbus");
 
-            //Init fresh queue
-            Queue = new BlockingFifoQueue<SyslogMessage>();
+            //Init fresh queues
+            queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
+            for (int i = 0; i < WORKER_THREADS; i++)
+                queues[i] = new BlockingFifoQueue<SyslogMessage>();
         }
 
         /// <summary>
@@ -386,7 +368,7 @@ namespace It.Unina.Dis.Logbus
             {
                 Log.Info("LogbusService starting");
                 if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                if (Running) throw new InvalidOperationException("Logbus is already started");
+                if (running) throw new InvalidOperationException("Logbus is already started");
                 if (!configured)
                 {
                     try
@@ -419,14 +401,18 @@ namespace It.Unina.Dis.Logbus
                         i++;
                     }
 
+                    hubThreadStop = false;
 
-                    //Start main hub thread
-                    HubThreadStop = false;
-                    hubThread = new Thread(this.HubThreadLoop);
-                    hubThread.Name = "LogbusService.HubThreadLoop";
-                    hubThread.Priority = ThreadPriority.Normal;
-                    hubThread.IsBackground = true;
-                    hubThread.Start();
+                    //Start hub threads
+                    hubThreads = new Thread[WORKER_THREADS];
+                    for (i = 0; i < WORKER_THREADS; i++)
+                    {
+                        hubThreads[i] = new Thread(this.HubThreadLoop);
+                        hubThreads[i].Name = string.Format("LogbusService.HubThreadLoop[{0}]", i);
+                        hubThreads[i].Priority = ThreadPriority.Normal;
+                        hubThreads[i].IsBackground = true;
+                        hubThreads[i].Start(queues[i]);
+                    }
 
                     //End async start/sync start outbound channels
                     i = 0;
@@ -464,7 +450,7 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 if (Started != null) Started(this, EventArgs.Empty);
-                Running = true;
+                running = true;
                 Log.Info("LogbusService started");
             }
             catch
@@ -483,7 +469,7 @@ namespace It.Unina.Dis.Logbus
             {
                 Log.Info("LogbusService stopping");
                 if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                if (!Running) throw new InvalidOperationException("Logbus is not started");
+                if (!running) throw new InvalidOperationException("Logbus is not started");
 
                 if (Stopping != null)
                 {
@@ -506,7 +492,7 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 //Tell the thread to stop, the good way
-                HubThreadStop = true;
+                hubThreadStop = true;
 
                 //Begin async stop out
                 i = 0;
@@ -526,21 +512,18 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 //Stop hub and let it flush messages
-                if (hubThread.ThreadState != ThreadState.WaitSleepJoin)
-                    hubThread.Join(5000); //Wait if thread is still doing something
-                if (hubThread.ThreadState != ThreadState.Stopped)
+                for (i = 0; i < WORKER_THREADS; i++)
                 {
-                    //Thread was locked. Going by brute force!!!
-                    try
+                    if (hubThreads[i].ThreadState != ThreadState.WaitSleepJoin)
+                        hubThreads[i].Join(500); //Wait if thread is still doing something
+                    if (hubThreads[i].ThreadState != ThreadState.Stopped)
                     {
-                        Thread.BeginCriticalRegion();
-                        hubThread.Abort();
+                        //Thread was locked. Going by brute force!!!
+                        hubThreads[i].Abort();
+
+
+                        hubThreads[i].Join(); //Giving it all the time it needs
                     }
-                    finally
-                    {
-                        Thread.EndCriticalRegion();
-                    }
-                    hubThread.Join(); //Giving it all the time it needs
                 }
 
                 //End async stp/sync stop out channels
@@ -552,7 +535,7 @@ namespace It.Unina.Dis.Logbus
                 }
 
 
-                Running = false;
+                running = false;
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
                 Log.Info("LogbusService stopped");
@@ -620,7 +603,8 @@ namespace It.Unina.Dis.Logbus
         /// <param name="msg"></param>
         public void SubmitMessage(SyslogMessage msg)
         {
-            Queue.Enqueue(msg);
+            //Pick a random queue. Don't need to use the Random class
+            queues[Environment.TickCount % WORKER_THREADS].Enqueue(msg);
         }
 
         /// <summary>
@@ -645,7 +629,7 @@ namespace It.Unina.Dis.Logbus
             new_chan.ID = id;
 
             OutboundChannels.Add(new_chan);
-            if (Running) new_chan.Start();
+            if (running) new_chan.Start();
             Log.Info(string.Format("New channel created: {0}", id));
         }
 
@@ -671,7 +655,7 @@ namespace It.Unina.Dis.Logbus
             }
 
             OutboundChannels.Remove(to_remove);
-            if (Running) to_remove.Stop();
+            if (running) to_remove.Stop();
             to_remove.Dispose();
             Log.Info(string.Format("Channel removed: {0}", id));
         }
@@ -854,7 +838,7 @@ namespace It.Unina.Dis.Logbus
 
         private void channel_MessageReceived(object sender, SyslogMessageEventArgs e)
         {
-            Queue.Enqueue(e.Message);
+            SubmitMessage(e.Message);
         }
         #endregion
 
@@ -1003,15 +987,16 @@ namespace It.Unina.Dis.Logbus
 
         #region Support
 
-        private void HubThreadLoop()
+        private void HubThreadLoop(object queue)
         {
+            BlockingFifoQueue<SyslogMessage> local_queue = (BlockingFifoQueue<SyslogMessage>)queue;
             //Loop until end
             try
             {
                 do
                 {
                     //Get message
-                    SyslogMessage new_message = Queue.Dequeue();
+                    SyslogMessage new_message = local_queue.Dequeue();
 
                     try
                     {
@@ -1036,7 +1021,7 @@ namespace It.Unina.Dis.Logbus
                     {
                         Thread.EndCriticalRegion();
                     }
-                } while (!HubThreadStop);
+                } while (!hubThreadStop);
             }
             catch (ThreadAbortException) { }
             finally
@@ -1044,7 +1029,7 @@ namespace It.Unina.Dis.Logbus
                 //Someone is telling me to stop
 
                 //Flush queue and then stop
-                IEnumerable<SyslogMessage> left_messages = Queue.Flush();
+                IEnumerable<SyslogMessage> left_messages = local_queue.Flush();
                 foreach (SyslogMessage msg in left_messages)
                 {
                     //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
