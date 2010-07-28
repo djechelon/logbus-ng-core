@@ -570,11 +570,10 @@ namespace It.Unina.Dis.Logbus
                     if (new_payload.EndsWith("\r\n")) new_payload = new_payload.Substring(0, new_payload.Length - 2);
                     else if (new_payload.EndsWith("\n")) new_payload = new_payload.Substring(0, new_payload.Length - 1);
 
-                    //Controls the presence of BOM...
-                    byte[] BOM = Encoding.UTF8.GetPreamble();
+                    byte[] BOM = { 0xef, 0xbb, 0xbf }, utf8string = Encoding.UTF8.GetBytes(new_payload);
 
-                    if (Array.IndexOf(Encoding.UTF8.GetBytes(new_payload.ToCharArray(0, BOM.Length)), BOM, 0) > -1)
-                        ret.Text = new_payload.Substring(BOM.Length);
+                    if (BOM[0] == utf8string[0] && BOM[1] == utf8string[1] && BOM[2] == utf8string[2])
+                        ret.Text = Encoding.UTF8.GetString(utf8string, 3, utf8string.Length - 3); //Cut BOM
                     else
                         ret.Text = new_payload;
                 }
