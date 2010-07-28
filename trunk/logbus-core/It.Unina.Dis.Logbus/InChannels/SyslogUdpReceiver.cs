@@ -234,6 +234,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                     throw new LogbusException("Cannot start UDP listener", ex);
                 }
 
+                running = true;
+
                 running_threads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
