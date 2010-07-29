@@ -20,6 +20,9 @@
 using System;
 namespace It.Unina.Dis.Logbus.Wrappers
 {
+    /// <summary>
+    /// Proxy to ILogBus
+    /// </summary>
     public class LogBusTie
         : MarshalByRefObject, ILogBus
     {
@@ -36,6 +39,8 @@ namespace It.Unina.Dis.Logbus.Wrappers
             target.Starting += Starting;
             target.Stopped += Stopped;
             target.Stopping += Stopping;
+            target.OutChannelCreated += OutChannelCreated;
+            target.OutChannelDeleted += OutChannelDeleted;
         }
 
         #region ILogBus Membri di
@@ -104,6 +109,9 @@ namespace It.Unina.Dis.Logbus.Wrappers
             target.UnsubscribeClient(clientId);
         }
 
+        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs> OutChannelCreated;
+
+        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
         #endregion
 
         #region ILogSource Membri di
@@ -153,5 +161,6 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         #endregion
+
     }
 }

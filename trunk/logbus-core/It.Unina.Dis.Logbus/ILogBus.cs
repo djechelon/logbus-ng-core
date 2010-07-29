@@ -57,6 +57,16 @@ namespace It.Unina.Dis.Logbus
         IFilter MainFilter { get; set; }
 
         /// <summary>
+        /// A new channel has been created
+        /// </summary>
+        event EventHandler<OutChannels.OutChannelCreationEventArgs> OutChannelCreated;
+
+        /// <summary>
+        /// An existing channel has been deleted
+        /// </summary>
+        event EventHandler<OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
+
+        /// <summary>
         /// Creates a new outbound channel
         /// </summary>
         /// <param name="id">Unique ID of channel</param>
