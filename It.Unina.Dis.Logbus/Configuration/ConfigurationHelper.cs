@@ -20,10 +20,16 @@
 using System.Configuration;
 namespace It.Unina.Dis.Logbus.Configuration
 {
+    /// <summary>
+    /// Helper class that provides configuration objects
+    /// </summary>
     public sealed class ConfigurationHelper
     {
         private ConfigurationHelper() { }
 
+        /// <summary>
+        /// Configuration for core facility
+        /// </summary>
         public static LogbusCoreConfiguration CoreConfiguration
         {
             get
@@ -37,6 +43,9 @@ namespace It.Unina.Dis.Logbus.Configuration
             }
         }
 
+        /// <summary>
+        /// Configuration for log sources
+        /// </summary>
         public static LogbusSourceConfiguration SourceConfiguration
         {
             get
@@ -50,6 +59,9 @@ namespace It.Unina.Dis.Logbus.Configuration
             }
         }
 
+        /// <summary>
+        /// Configuration for monitor clients
+        /// </summary>
         public static LogbusClientConfiguration ClientConfiguration
         {
             get
