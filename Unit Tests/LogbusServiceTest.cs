@@ -117,23 +117,20 @@ namespace Unit_Tests
         [TestMethod()]
         public void ConfigureTest()
         {
-            //Manual configuration
-            using (LogbusService target = new LogbusService())
-            {
-                LogbusCoreConfiguration config = new LogbusCoreConfiguration();
+            LogbusCoreConfiguration config = new LogbusCoreConfiguration();
 
-                config.corefilter = new FacilityEqualsFilter() { facility = Facility.Kernel };
-                config.inchannels = new InboundChannelDefinition[]
+            config.corefilter = new FacilityEqualsFilter() { facility = Facility.Kernel };
+            config.inchannels = new InboundChannelDefinition[]
                 {
                     new InboundChannelDefinition()
                     {
                          name="udp",
                          type="It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus"
-                             
                     }
                 };
-                target.Configure(config);
-
+            //Manual configuration
+            using (ILogBus target = new LogbusService(config))
+            {
                 Assert.AreEqual(1, target.InboundChannels.Count);
                 Assert.IsInstanceOfType(target.MainFilter, typeof(FacilityEqualsFilter));
             }

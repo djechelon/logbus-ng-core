@@ -42,6 +42,9 @@ namespace It.Unina.Dis.Logbus
         private const int WORKER_THREADS = 4;
         private bool configured = false;
 
+        private List<IInboundChannel> in_chans;
+        private List<IOutboundChannel> out_chans;
+
         /// <summary>
         /// Returns if Logbus is running or not
         /// </summary>
@@ -70,8 +73,8 @@ namespace It.Unina.Dis.Logbus
         {
             LogbusSingletonHelper.Instance = this;
 
-            OutboundChannels = new List<IOutboundChannel>();
-            InboundChannels = new List<IInboundChannel>();
+            out_chans = new List<IOutboundChannel>();
+            in_chans = new List<IInboundChannel>();
             Log = LoggerHelper.CreateLoggerByName("Logbus");
 
             //Init fresh queues
@@ -159,7 +162,7 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 //Inbound channels
-                IList<IInboundChannel> channels = new List<IInboundChannel>();
+                List<IInboundChannel> channels = new List<IInboundChannel>();
                 if (Configuration.inchannels != null)
                     foreach (InboundChannelDefinition def in Configuration.inchannels)
                     {
@@ -244,7 +247,7 @@ namespace It.Unina.Dis.Logbus
                         }
 
                     }
-                InboundChannels = channels;
+                in_chans = channels;
                 //Inbound channels end
 
 
@@ -332,21 +335,35 @@ namespace It.Unina.Dis.Logbus
         }
 
         /// <summary>
-        /// Implements ILogBus.OutboundChannels
+        /// List of available outbound channels
         /// </summary>
-        public virtual IList<IOutboundChannel> OutboundChannels
+        protected virtual List<IOutboundChannel> OutboundChannels
         {
-            get;
-            protected set;
+            get { return out_chans; }
+        }
+
+        IList<IOutboundChannel> ILogBus.OutboundChannels
+        {
+            get
+            {
+                return out_chans.AsReadOnly();
+            }
         }
 
         /// <summary>
-        /// Implements ILogBus.InboundChannels
+        /// List of available inbound channels
         /// </summary>
-        public virtual IList<IInboundChannel> InboundChannels
+        protected virtual IList<IInboundChannel> InboundChannels
         {
-            get;
-            protected set;
+            get { return in_chans; }
+        }
+
+        IList<IInboundChannel> ILogBus.InboundChannels
+        {
+            get
+            {
+                return in_chans.AsReadOnly();
+            }
         }
 
         /// <summary>
@@ -357,6 +374,17 @@ namespace It.Unina.Dis.Logbus
             get;
             set;
         }
+
+        /// <summary>
+        /// Implements ILogBus.OutChannelCreated
+        /// </summary>
+        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs> OutChannelCreated;
+
+        /// <summary>
+        /// Implements ILogBus.OutChannelDeleted
+        /// </summary>
+        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
+
 
         /// <summary>
         /// Implements IRunnable.Start
@@ -631,6 +659,8 @@ namespace It.Unina.Dis.Logbus
             OutboundChannels.Add(new_chan);
             if (running) new_chan.Start();
             Log.Info(string.Format("New channel created: {0}", id));
+
+            if (OutChannelCreated != null) OutChannelCreated(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs(new_chan));
         }
 
         /// <summary>
@@ -658,6 +688,8 @@ namespace It.Unina.Dis.Logbus
             if (running) to_remove.Stop();
             to_remove.Dispose();
             Log.Info(string.Format("Channel removed: {0}", id));
+
+            if (OutChannelDeleted != null) OutChannelDeleted(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs(id));
         }
 
         /// <summary>
