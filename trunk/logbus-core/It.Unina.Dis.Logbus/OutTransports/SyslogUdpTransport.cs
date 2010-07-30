@@ -227,10 +227,10 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 lock (Clients)
                 {
                     foreach (KeyValuePair<string, UdpClientExpire> kvp in Clients)
-                        if (kvp.Value != null)
+                        if (kvp.Value != null && kvp.Value.Client != null)
                             try
                             {
-                                kvp.Value.Close();
+                                kvp.Value.Client.Close();
                             }
                             catch (SocketException)
                             { }
