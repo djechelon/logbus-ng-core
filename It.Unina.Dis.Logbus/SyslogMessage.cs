@@ -24,6 +24,7 @@ using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Net;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -81,6 +82,14 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         public string Text { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of SyslogMessage with common fields
+        /// </summary>
+        /// <param name="timestamp">Time message was generated</param>
+        /// <param name="host">Host that generated the message</param>
+        /// <param name="facility">Facility of the message</param>
+        /// <param name="level">Severity of message</param>
+        /// <param name="text">Text message</param>
         public SyslogMessage(DateTime? timestamp, string host, SyslogFacility facility, SyslogSeverity level, string text)
             : this()
         {
@@ -89,6 +98,24 @@ namespace It.Unina.Dis.Logbus
             Facility = facility;
             Severity = level;
             Text = text;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of SyslogMessage and auto-completes some parameters
+        /// </summary>
+        /// <param name="facility">Facility of the message</param>
+        /// <param name="severity">Severity of message</param>
+        /// <param name="text">Text message</param>
+        public SyslogMessage(SyslogFacility facility, SyslogSeverity severity, string text)
+            : this()
+        {
+            Facility = facility;
+            Severity = severity;
+            Text = text;
+            Timestamp = DateTime.Now;
+            Host = Dns.GetHostName();
+            ProcessID = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
+            ApplicationName = Process.GetCurrentProcess().ProcessName;
         }
 
         #region Conversion
