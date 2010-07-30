@@ -103,7 +103,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!running) throw new InvalidOperationException("Channel not started");
             message_queue.Enqueue(message);
         }
 
