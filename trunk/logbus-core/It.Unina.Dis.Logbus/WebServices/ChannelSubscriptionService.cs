@@ -93,8 +93,10 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#SubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-sub-response", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         public ChannelSubscriptionResponse SubscribeChannel([System.Xml.Serialization.XmlElementAttribute("channel-sub-request", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelSubscriptionRequest channelsubrequest)
+#else
+        public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest channelsubrequest)
+#endif
         {
             try
             {
@@ -106,8 +108,10 @@ namespace It.Unina.Dis.Logbus.WebServices
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#UnsubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-#endif
         public void UnsubscribeChannel([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid)
+#else
+        public void UnsubscribeChannel( string clientid)
+#endif  
         {
             try
             {
@@ -119,8 +123,10 @@ namespace It.Unina.Dis.Logbus.WebServices
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-#endif
         public void RefreshSubscription([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid)
+#else
+        public void RefreshSubscription(string clientid)
+#endif
         {
             try
             {
@@ -148,8 +154,10 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("filter-description", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         public FilterDescription DescribeFilter([System.Xml.Serialization.XmlElementAttribute("filter-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string filterid)
+#else
+        public FilterDescription DescribeFilter(string filterid)
+#endif
         {
             try
             {

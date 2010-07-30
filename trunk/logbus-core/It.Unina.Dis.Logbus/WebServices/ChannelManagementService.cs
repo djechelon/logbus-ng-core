@@ -85,8 +85,11 @@ namespace It.Unina.Dis.Logbus.WebServices
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-#endif
         public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation)
+#else
+        public void CreateChannel(ChannelCreationInformation channelcreation)
+#endif
+
         {
             try
             {
@@ -99,8 +102,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
+#else
+        public ChannelInformation GetChannelInformation(string message)
+#endif
+        
         {
             try
             {
@@ -112,8 +118,11 @@ namespace It.Unina.Dis.Logbus.WebServices
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-#endif
         public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
+#else
+        public void DeleteChannel(string message)
+#endif
+        
         {
             try
             {
