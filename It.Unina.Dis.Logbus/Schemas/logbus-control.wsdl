@@ -54,7 +54,6 @@
 					<xsi:element name="description" type="xsi:string"/>
 				</xsi:sequence>
 				<xsi:attribute name="id" type="xsi:string"/>
-				<xsi:attribute name="name" type="xsi:string"/>
 			</xsi:complexType>
 			<xsi:element name="kvp" type="logbus:KeyValuePair"/>
 			<xsi:element name="string-array" type="logbus:StringArray"/>
