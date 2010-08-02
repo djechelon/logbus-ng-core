@@ -42,7 +42,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// Creates an FFDA logger with the default logger
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
+        /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
         public static IFFDALogger CreateFFDALogger()
         {
             return new FFDALogger(LoggerHelper.CreateDefaultCollector());
@@ -54,7 +54,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="loggerName"></param>
         /// <returns></returns>
         /// <exception cref="LogbusException">Logger is not found</exception>
-        /// <exception cref="InvalidOperationException">Configuration is not set or is invalid</exception>
+        /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
         public static IFFDALogger CreateFFDALogger(string loggerName)
         {
             return new FFDALogger(LoggerHelper.CreateCollectorByName(loggerName));

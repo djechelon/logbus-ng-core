@@ -82,8 +82,8 @@ namespace Log4test
         {
             using (SyslogUdpReceiver recv = new SyslogUdpReceiver())
             {
-                recv.ParseError += new It.Unina.Dis.Logbus.ParseErrorEventHandler(recv_ParseError);
-                recv.MessageReceived += new It.Unina.Dis.Logbus.SyslogMessageEventHandler(recv_MessageReceived);
+                recv.ParseError += new It.Unina.Dis.Logbus.EventHandler<ParseErrorEventArgs>(recv_ParseError);
+                recv.MessageReceived += new It.Unina.Dis.Logbus.EventHandler<SyslogMessageEventArgs>(recv_MessageReceived);
                 recv.Port = 3434;
                 recv.Start();
                 

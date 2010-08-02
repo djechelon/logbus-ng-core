@@ -49,28 +49,29 @@ namespace It.Unina.Dis.Logbus.Utils
         }
 
         #region Constructor/Destructor
+
+        /// <summary>
+        /// Intializes the blocking FIFO queue
+        /// </summary>
         public BlockingFifoQueue()
         {
             disposed_value = false;
 
             the_queue = new Queue<T>();
             sema = new Semaphore(0, int.MaxValue);
-            SyncRoot = new object();
         }
 
+        /// <remarks/>
         ~BlockingFifoQueue()
         {
             Dispose(false);
         }
         #endregion
 
-        public object SyncRoot
-        {
-            get;
-            private set;
-        }
-
-
+        /// <summary>
+        /// Enqueues an object in the queue
+        /// </summary>
+        /// <param name="item">Object to enqueue</param>
         public void Enqueue(T item)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -79,6 +80,10 @@ namespace It.Unina.Dis.Logbus.Utils
             sema.Release();
         }
 
+        /// <summary>
+        /// Dequeues an object from the queue as soon as it's available
+        /// </summary>
+        /// <returns>The first object enqueued</returns>
         public T Dequeue()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -87,11 +92,18 @@ namespace It.Unina.Dis.Logbus.Utils
             lock (the_queue) return the_queue.Dequeue();
         }
 
+        /// <summary>
+        /// Counts how many objects are available
+        /// </summary>
         public int Count
         {
             get { return the_queue.Count; }
         }
 
+        /// <summary>
+        /// Extracts all the objects from the queue
+        /// </summary>
+        /// <returns></returns>
         public T[] Flush()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -106,6 +118,10 @@ namespace It.Unina.Dis.Logbus.Utils
             }
         }
 
+        /// <summary>
+        /// Extracts all the objects from the queue and disposes of the queue
+        /// </summary>
+        /// <returns></returns>
         public T[] FlushAndDispose()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -140,6 +156,7 @@ namespace It.Unina.Dis.Logbus.Utils
             GC.ReRegisterForFinalize(this);
         }
 
+        /// <remarks/>
         public void Dispose()
         {
             Dispose(true);

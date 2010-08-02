@@ -38,7 +38,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Notifies a parse error occurred
         /// </summary>
-        event ParseErrorEventHandler ParseError;
+        event EventHandler<ParseErrorEventArgs> ParseError;
 
     }
 }

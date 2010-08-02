@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigurationHelper.cs" />
+    <Compile Include="Configuration\ForwarderDefinition.cs" />
     <Compile Include="Configuration\ForwardingConfiguration.cs" />
     <Compile Include="Configuration\InboundChannelsConfiguration.cs" />
     <Compile Include="Configuration\LogbusClientConfiguration.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Configuration\LogbusEndpointDefinition.cs" />
     <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
     <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
+    <Compile Include="Configuration\LogCollectorDefinition.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Configuration\PluginDefinition.cs" />
@@ -269,7 +271,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

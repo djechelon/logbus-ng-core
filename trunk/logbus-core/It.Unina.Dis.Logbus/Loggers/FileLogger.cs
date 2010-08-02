@@ -23,15 +23,32 @@ using System.Collections.Generic;
 using System.Text;
 namespace It.Unina.Dis.Logbus
 {
-    public class FileLogger : ILogCollector, IConfigurable
+    /// <summary>
+    /// Logs to a file
+    /// Configuration parameters:
+    /// <list type="System.String">
+    /// <item><c>filePath</c>: path of the file to write</item>
+    /// </list>
+    /// </summary>
+    /// <remarks>Logs are stored in RFC 5424 format</remarks>
+    public class FileLogger
+        : ILogCollector, IConfigurable
     {
 
-        private string filePath;
+        /// <summary>
+        /// Path of the file into which store logs separated by new lines
+        /// </summary>
+        public string FilePath
+        {
+            get;
+            set;
+        }
 
         #region ILogCollector Membri di
+
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            using (TextWriter tw = new StreamWriter(File.Open(filePath, FileMode.Append), Encoding.UTF8))
+            using (TextWriter tw = new StreamWriter(File.Open(FilePath, FileMode.Append), Encoding.UTF8))
             {
                 tw.WriteLine(message.ToRfc5424String());
             }
@@ -41,6 +58,7 @@ namespace It.Unina.Dis.Logbus
 
         #region IConfigurable Membri di
 
+        /// <remarks/>
         public string GetConfigurationParameter(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -48,7 +66,7 @@ namespace It.Unina.Dis.Logbus
             switch (key)
             {
                 case "filePath":
-                    return filePath;
+                    return FilePath;
                 default:
                     {
                         NotSupportedException ex = new NotSupportedException("Invalid key");
@@ -58,6 +76,7 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        /// <remarks/>
         public void SetConfigurationParameter(string key, string value)
         {
             if (string.IsNullOrEmpty(key))
@@ -74,7 +93,7 @@ namespace It.Unina.Dis.Logbus
                         try
                         {
                             new System.IO.FileInfo(value);
-                            filePath = value;
+                            FilePath = value;
                         }
                         catch (Exception ex)
                         {
@@ -92,6 +111,7 @@ namespace It.Unina.Dis.Logbus
             }
         }
 
+        /// <remarks/>
         public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
         {
             set

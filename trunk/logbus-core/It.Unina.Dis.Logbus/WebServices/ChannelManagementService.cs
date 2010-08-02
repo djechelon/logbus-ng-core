@@ -28,16 +28,25 @@ using It.Unina.Dis.Logbus.Wrappers;
 
 namespace It.Unina.Dis.Logbus.WebServices
 {
+    /// <summary>
+    /// Default implementation of IChannelManagement skeleton
+    /// </summary>
+#if MONO
     [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelManagement", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
     public class ChannelManagementService
         : WebService, IChannelManagement
     {
 
+        /// <summary>
+        /// Key with which store the IChannelManagement proxied object into ASP.NET Application object
+        /// </summary>
         public const string APPLICATION_KEY = "Logbus.ChannelManagement";
 
         #region Constructor
 
+        /// <remarks/>
         public ChannelManagementService()
             : base()
         {
@@ -56,6 +65,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
         }
 
+        /// <remarks/>
         public ChannelManagementService(IChannelManagement target)
             : base()
         {
@@ -64,6 +74,9 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #endregion
 
+        /// <summary>
+        /// Target to be proxies
+        /// </summary>
         public virtual IChannelManagement TargetChannelManager
         {
             get;
@@ -72,6 +85,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelManagement Membri di
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -82,6 +96,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             return TargetChannelManager.ListChannels();
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -98,6 +113,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; } //What to do?
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -115,6 +131,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]

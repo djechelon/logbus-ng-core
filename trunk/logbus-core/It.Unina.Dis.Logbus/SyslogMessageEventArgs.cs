@@ -35,14 +35,14 @@ namespace It.Unina.Dis.Logbus
             set;
         }
 
+        /// <remarks/>
         public SyslogMessageEventArgs() : base() { }
 
+        /// <remarks/>
         public SyslogMessageEventArgs(SyslogMessage msg)
             : base()
         {
             Message = msg;
         }
     }
-
-    public delegate void SyslogMessageEventHandler(object sender, SyslogMessageEventArgs e);
 }

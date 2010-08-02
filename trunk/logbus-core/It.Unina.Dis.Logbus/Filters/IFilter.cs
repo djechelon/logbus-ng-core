@@ -19,8 +19,16 @@
 
 namespace It.Unina.Dis.Logbus.Filters
 {
+    /// <summary>
+    /// Represents a boolean message filter
+    /// </summary>
     public interface IFilter
     {
+        /// <summary>
+        /// Determines if the message matches the current filter
+        /// </summary>
+        /// <param name="message">Message to test</param>
+        /// <returns><c>True</c> if message matches the filter, else <c>false</c></returns>
         bool IsMatch(SyslogMessage message);
     }
 }

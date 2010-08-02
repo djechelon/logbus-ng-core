@@ -49,7 +49,7 @@ namespace DemoWarningClient
             try
             {
                 logclient = ClientHelper.CreateDefaultClient(warning_filter);
-                logclient.MessageReceived += new It.Unina.Dis.Logbus.SyslogMessageEventHandler(logclient_MessageReceived);
+                logclient.MessageReceived += new It.Unina.Dis.Logbus.EventHandler<SyslogMessageEventArgs>(logclient_MessageReceived);
 
                 logclient.Start();
                 Console.WriteLine("Listener is started. Press CTRL+C to exit when you are finished");

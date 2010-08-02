@@ -67,7 +67,7 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <summary>
         /// Returns a random string (upper case)
         /// </summary>
-        /// <param name="length">Desired length</param>
+        /// <param name="size">Desired length</param>
         /// <returns></returns>
         public static string RandomAlphabeticalString(int size)
         {

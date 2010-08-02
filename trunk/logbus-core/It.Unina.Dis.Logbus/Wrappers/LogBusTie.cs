@@ -171,7 +171,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Required by ILogSource
         /// </summary>
-        public event SyslogMessageEventHandler MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
 

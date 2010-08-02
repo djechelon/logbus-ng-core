@@ -27,18 +27,34 @@ namespace It.Unina.Dis.Logbus
     public class LogbusException
         : Exception
     {
+        /// <summary>
+        /// Initializes LogbusException
+        /// </summary>
         public LogbusException()
             : base() { }
 
+        /// <summary>
+        /// Initializes LogbusException
+        /// </summary>
+        /// <param name="message">Text message for exception</param>
         public LogbusException(string message)
             : base(message) { }
 
+        /// <summary>
+        /// Initializes LogbusException
+        /// </summary>
+        /// <param name="info">Serialization information</param>
+        /// <param name="context">Serialization streaming context</param>
         protected LogbusException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }
 
+        /// <summary>
+        /// Initializes LogbusException
+        /// </summary>
+        /// <param name="message">Text message</param>
+        /// <param name="innerException">Exception that caused this to occur</param>
         public LogbusException(string message, Exception innerException)
             : base(message, innerException) { }
-
 
     }
 }

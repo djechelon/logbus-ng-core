@@ -28,6 +28,7 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.Xml.Serialization.XmlRootAttribute("False", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
     public partial class FalseFilter : FilterBase
     {
+        /// <remarks>Required by FilterBase</remarks>
         public override bool IsMatch(SyslogMessage message)
         {
             return false;

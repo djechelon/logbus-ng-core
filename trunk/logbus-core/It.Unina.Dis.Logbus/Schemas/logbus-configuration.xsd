@@ -34,6 +34,17 @@
 			<xs:pattern value="[a-zA-Z0-9]{1}[a-zA-Z0-9_.]+(, [a-zA-Z0-9]{1}[a-zA-Z0-9_.]+)?(, Culture=[a-zA-Z-]*)?(, PublicKeyToken=[0-9a-fA-F]{16})?"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:complexType name="LogCollectorDefinition">
+		<xs:annotation>
+			<xs:documentation>Defines a connector object to Logbus</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute ref="type" use="required"/>
+		<xs:attribute ref="name" use="optional"/>
+		<xs:attribute ref="default" use="optional"/>
+	</xs:complexType>
 	<xs:annotation>
 		<xs:documentation>Begin core section</xs:documentation>
 	</xs:annotation>
@@ -161,10 +172,22 @@
 			<xs:documentation>Configures log forwarding</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element ref="logger" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="forwarder" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="forward-to" type="ForwardingConfiguration"/>
+	<xs:complexType name="ForwarderDefinition">
+		<xs:complexContent>
+			<xs:restriction base="LogCollectorDefinition">
+				<xs:sequence>
+					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute ref="name" use="prohibited"/>
+				<xs:attribute ref="default" use="prohibited"/>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="forwarder" type="ForwarderDefinition"/>
 	<xs:annotation>
 		<xs:documentation>Begin Source section</xs:documentation>
 	</xs:annotation>
@@ -178,15 +201,15 @@
 	</xs:complexType>
 	<xs:element name="logbus-source" type="LogbusSourceConfiguration"/>
 	<xs:complexType name="LoggerDefinition">
-		<xs:annotation>
-			<xs:documentation>Defines a connector object to Logbus</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-		<xs:attribute ref="type" use="required"/>
-		<xs:attribute ref="name" use="required"/>
-		<xs:attribute ref="default"/>
+		<xs:complexContent>
+			<xs:restriction base="LogCollectorDefinition">
+				<xs:sequence>
+					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute ref="name" use="required"/>
+				<xs:attribute ref="default"/>
+			</xs:restriction>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:element name="logger" type="LoggerDefinition"/>
 	<xs:annotation>

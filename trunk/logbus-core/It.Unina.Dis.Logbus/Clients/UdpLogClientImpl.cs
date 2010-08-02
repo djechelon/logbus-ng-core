@@ -279,7 +279,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #region ILogSource Membri di
 
-        public event SyslogMessageEventHandler MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
 

@@ -27,15 +27,19 @@ namespace It.Unina.Dis.Logbus
     public class TransportException
         : LogbusException
     {
+        /// <remarks/>
         public TransportException()
             : base() { }
 
+        /// <remarks/>
         public TransportException(string message)
             : base(message) { }
 
+        /// <remarks/>
         protected TransportException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }
 
+        /// <remarks/>
         public TransportException(string message, Exception innerException)
             : base(message, innerException) { }
 

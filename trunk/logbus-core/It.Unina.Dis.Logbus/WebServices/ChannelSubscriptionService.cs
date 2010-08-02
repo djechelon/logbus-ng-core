@@ -23,6 +23,9 @@ using System.Threading;
 using It.Unina.Dis.Logbus.Wrappers;
 namespace It.Unina.Dis.Logbus.WebServices
 {
+    /// <summary>
+    /// Default implementation of IChannelSubscription skeleton
+    /// </summary>
 #if MONO
     [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelSubscription", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
     [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
@@ -31,10 +34,14 @@ namespace It.Unina.Dis.Logbus.WebServices
         : WebService, IChannelSubscription
     {
 
+        /// <summary>
+        /// Key with which store IChannelSubscription into ASP.NET Application object
+        /// </summary>
         public const string APPLICATION_KEY = "Logbus.ChannelSubscription";
 
         #region Constructor
 
+        /// <remarks/>
         public ChannelSubscriptionService()
             : base()
         {
@@ -53,6 +60,10 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
         }
 
+        /// <summary>
+        /// Initialize ChannelSubscriptionService with a target
+        /// </summary>
+        /// <param name="target">Target to proxy</param>
         public ChannelSubscriptionService(IChannelSubscription target)
             : base()
         {
@@ -61,6 +72,9 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #endregion
 
+        /// <summary>
+        /// Target IChannelSubscription to proxy
+        /// </summary>
         public virtual IChannelSubscription TargetChannelSubscription
         {
             get;
@@ -69,6 +83,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IChannelSubscription Membri di
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -79,6 +94,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             return TargetChannelSubscription.ListChannels();
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableTransports", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -89,6 +105,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             return TargetChannelSubscription.GetAvailableTransports();
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#SubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -105,6 +122,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#UnsubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -120,6 +138,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -135,6 +154,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             catch { throw; }
         }
 
+        /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableFilters", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
@@ -145,11 +165,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             return TargetChannelSubscription.GetAvailableFilters();
         }
 
-        /// <summary>
-        /// Describes a custom filter
-        /// </summary>
-        /// <param name="filterid">ID of custom filter</param>
-        /// <returns></returns>
+/// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]

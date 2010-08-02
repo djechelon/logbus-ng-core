@@ -59,7 +59,7 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <summary>
         /// Scans an assembly for user-defined filters and registers all of them
         /// </summary>
-        /// <param name="to_scan"></param>
+        /// <param name="assemblyToScan">Assembly that must be scanned for filters</param>
         public void ScanAssemblyAndRegister(Assembly assemblyToScan)
         {
             if (assemblyToScan == null) throw new ArgumentNullException("assemblyToScan");
@@ -84,8 +84,9 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <summary>
         /// Registers a custom filter for the given tag
         /// </summary>
-        /// <param name="tag"></param>
-        /// <param name="type"></param>
+        /// <param name="tag">Unique ID of filter</param>
+        /// <param name="typeName">Type for filter</param>
+        /// <param name="description">Human-readable description for filter</param>
         public void RegisterCustomFilter(string tag, string typeName, string description)
         {
             if (string.IsNullOrEmpty(tag)) throw new ArgumentNullException("tag");

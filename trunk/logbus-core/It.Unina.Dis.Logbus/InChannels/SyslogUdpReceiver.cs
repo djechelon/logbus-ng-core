@@ -116,11 +116,13 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region IInboundChannel Membri di
 
-        public event SyslogMessageEventHandler MessageReceived;
+        /// <remarks/>
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
-        public event ParseErrorEventHandler ParseError;
+        /// <remarks/>
+        public event EventHandler<ParseErrorEventArgs> ParseError;
 
-
+        /// <remarks/>
         public string Name
         {
             get;

@@ -57,7 +57,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// Constructs a logger basing on configuration
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
+        /// <exception cref="System.InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
         public static ILogCollector CreateDefaultCollector()
         {
             if (Configuration != null && Configuration.logger != null || Configuration.logger.Length > 0)
@@ -146,7 +146,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// Creates a logger with default configuration
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Configuration is not set or invalid</exception>
+        /// <exception cref="System.InvalidOperationException">Configuration is not set or invalid</exception>
         public static ILog CreateDefaultLogger()
         {
             return new SimpleLogImpl(CreateDefaultCollector());
@@ -162,7 +162,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             return new SimpleLogImpl(CreateCollectorByName(loggerName));
         }
 
-        internal static ILogCollector CreateByDefinition(LoggerDefinition def)
+        internal static ILogCollector CreateByDefinition(LogCollectorDefinition def)
         {
             if (def == null) throw new ArgumentNullException("def");
             try

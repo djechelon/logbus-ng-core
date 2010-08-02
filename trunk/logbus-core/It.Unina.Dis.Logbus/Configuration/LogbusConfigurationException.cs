@@ -30,19 +30,25 @@ namespace It.Unina.Dis.Logbus.Configuration
         :LogbusException
     {
 
+        /// <remarks/>
         public LogbusConfigurationException()
             : base() { }
 
+        /// <remarks/>
         public LogbusConfigurationException(string message)
             : base(message) { }
 
+        /// <remarks/>
         protected LogbusConfigurationException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }
 
+        /// <remarks/>
         public LogbusConfigurationException(string message, Exception innerException)
             : base(message, innerException) { }
 
-
+        /// <summary>
+        /// Object that represents Logbus configuration
+        /// </summary>
         public object ConfigurationObject
         { get; set; }
     }

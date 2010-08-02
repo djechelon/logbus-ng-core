@@ -29,6 +29,9 @@ namespace It.Unina.Dis.Logbus
     {
         private ILogBus instance;
 
+        /// <summary>
+        /// Instance of Logbus-ng core
+        /// </summary>
         public ILogBus LogbusInstance
         {
             get
@@ -39,6 +42,7 @@ namespace It.Unina.Dis.Logbus
             set { instance = value; }
         }
 
+        /// <remarks/>
         protected override void Dispose(bool disposing)
         {
             if (disposing) LogbusInstance.Dispose();
@@ -46,6 +50,7 @@ namespace It.Unina.Dis.Logbus
             base.Dispose(disposing);
         }
 
+        /// <remarks/>
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
@@ -53,6 +58,7 @@ namespace It.Unina.Dis.Logbus
             LogbusInstance.Start();
         }
 
+        /// <remarks/>
         protected override void OnStop()
         {
             base.OnStop();

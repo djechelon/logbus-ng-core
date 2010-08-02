@@ -57,13 +57,13 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Starts the facility
         /// </summary>
-        /// <exception cref="InvalidOperationException">Trying to start an already-started facility</exception>
+        /// <exception cref="System.InvalidOperationException">Trying to start an already-started facility</exception>
         void Start();
 
         /// <summary>
         /// Stops the facility
         /// </summary>
-        /// <exception cref="InvalidOperationException">Trying to stop a facility that was never started or already stopped</exception>
+        /// <exception cref="System.InvalidOperationException">Trying to stop a facility that was never started or already stopped</exception>
         void Stop();
 
     }

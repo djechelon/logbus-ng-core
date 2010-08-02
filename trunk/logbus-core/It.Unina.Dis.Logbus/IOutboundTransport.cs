@@ -54,16 +54,16 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Gets the subscription's time to live, in seconds
         /// </summary>
-        /// <exception cref="NotSupportedException">Thrown when RequiresRefresh is <i>false</i></exception>
+        /// <exception cref="System.NotSupportedException">Thrown when RequiresRefresh is <i>false</i></exception>
         long SubscriptionTtl { get; }
 
         /// <summary>
         /// Refreshes subscription, if required, to the specified client
         /// </summary>
         /// <param name="clientId">ID of the client to refresh</param>
-        /// <exception cref="ArgumentNullException">Argument is null</exception>
-        /// <exception cref="NotSupportedException">The transport does not require refreshing</exception>
-        /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
+        /// <exception cref="System.ArgumentNullException">Argument is null</exception>
+        /// <exception cref="System.NotSupportedException">The transport does not require refreshing</exception>
+        /// <exception cref="System.InvalidOperationException">Client is not subscribed (or already expired)</exception>
         void RefreshClient(CLIENT_ID_TYPE clientId);
 
         /// <summary>

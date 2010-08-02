@@ -30,9 +30,9 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="transportId">Transport type's ID</param>
         /// <returns>Factory for given transport type</returns>
-        /// <exception cref="NotSupportedException">Thrown when no transport factory is bound to the given ID</exception>
-        /// <exception cref="ArgumentNullException">transportId is null or empty</exception>
-        /// <exception cref="ArgumentNullException">value is null</exception>
+        /// <exception cref="System.NotSupportedException">Thrown when no transport factory is bound to the given ID</exception>
+        /// <exception cref="System.ArgumentNullException">transportId is null or empty</exception>
+        /// <exception cref="System.ArgumentNullException">value is null</exception>
         IOutboundTransportFactory this[string transportId] { get; set; }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="transportId">ID for transport type</param>
         /// <returns>Factory for given transport type</returns>
-        /// <exception cref="NotSupportedException">Thrown when no transport factory is bound to the given ID</exception>
-        /// <exception cref="ArgumentNullException">transportId is null or empty</exception>
+        /// <exception cref="System.NotSupportedException">Thrown when no transport factory is bound to the given ID</exception>
+        /// <exception cref="System.ArgumentNullException">transportId is null or empty</exception>
         IOutboundTransportFactory GetFactory(string transportId);
 
         /// <summary>
@@ -49,16 +49,16 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="transportId">New transport ID</param>
         /// <param name="factory">Instance of IOutboundTransportFactory to use as factory</param>
-        /// <exception cref="ArgumentNullException">Thrown if either transportId or factory is null</exception>
-        /// <exception cref="InvalidOperationException">A factory already exists for the given transport ID</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if either transportId or factory is null</exception>
+        /// <exception cref="System.InvalidOperationException">A factory already exists for the given transport ID</exception>
         void AddFactory(string transportId, IOutboundTransportFactory factory);
 
         /// <summary>
         /// Removes the factory associated to the given transport type
         /// </summary>
         /// <param name="transportId">Transport type's ID</param>
-        /// <exception cref="InvalidOperationException">No factory was associated to the given ID</exception>
-        /// <exception cref="ArgumentNullException">transportId is null or empty</exception>
+        /// <exception cref="System.InvalidOperationException">No factory was associated to the given ID</exception>
+        /// <exception cref="System.ArgumentNullException">transportId is null or empty</exception>
         void RemoveFactory(string transportId);
 
         /// <summary>
