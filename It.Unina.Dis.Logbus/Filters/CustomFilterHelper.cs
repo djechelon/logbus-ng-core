@@ -205,11 +205,12 @@ namespace It.Unina.Dis.Logbus.Filters
         {
             string[] ret = new string[this.registered_types.Count];
             int i = 0;
-            foreach (KeyValuePair<string, Type> kvp in this.registered_types)
+            foreach (KeyValuePair<string, string> kvp in this.registered_types)
             {
                 ret[i] = kvp.Key;
                 i++;
             }
+            return ret;
         }
 
         /// <summary>

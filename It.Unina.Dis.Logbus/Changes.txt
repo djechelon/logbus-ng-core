@@ -5,14 +5,18 @@ SVN trunk
 	can be specified. If none, ConsoleLogger is assumed. ILog can also refer to a
 	user-defined entity
 *Default "well-known" logger LogbusLogger, named "Logbus"
-*MultiLogger is not supported any more as configuration semantics changed
+*MultiLogger is not supported as logger, but is used internally
 *LogbusService is no more publicly visible, and the only way to instantiate it as the
 	default implementation of ILogBus is through LogbusSingletonHelper. Configuration
 	MUST be set prior to this via App.Config or ConfigurationHelper.CoreConfiguration
 	property
 *All Logbus-related entities can log their major events to the Logbus logger
+*All log messages from Logbus core can be forwarded to other loggers, including
+	remote Logbus-ng nodes
+*Logbus-ng core can be configured with runtime plugins
 *Default TTL for UDP outbound transport is 20 seconds
 *Added GetAvailableFilters and DescribeFilter methods to ChannelSubscription WSDL
+*New events for channel creation and deletion
 
 version 1.3.1
 First public release

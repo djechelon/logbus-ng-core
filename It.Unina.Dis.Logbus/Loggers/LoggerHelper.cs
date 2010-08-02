@@ -162,7 +162,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             return new SimpleLogImpl(CreateCollectorByName(loggerName));
         }
 
-        private static ILogCollector CreateByDefinition(LoggerDefinition def)
+        internal static ILogCollector CreateByDefinition(LoggerDefinition def)
         {
             if (def == null) throw new ArgumentNullException("def");
             try

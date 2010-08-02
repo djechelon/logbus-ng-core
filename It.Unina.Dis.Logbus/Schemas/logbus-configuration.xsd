@@ -46,6 +46,8 @@
 			<xs:element ref="custom-filters" minOccurs="0"/>
 			<xs:element ref="out-transports" minOccurs="0"/>
 			<xs:element ref="core-filter" minOccurs="0"/>
+			<xs:element ref="plugins" minOccurs="0"/>
+			<xs:element ref="forward-to" minOccurs="0"/>
 		</xs:sequence>
 		<xs:attribute ref="outChannelFactoryType"/>
 	</xs:complexType>
@@ -138,6 +140,31 @@
 			<xs:documentation>.NET Type to use for creating Outbound Channel (must implement IOutboundChannelFactory)</xs:documentation>
 		</xs:annotation>
 	</xs:attribute>
+	<xs:complexType name="PluginConfiguration">
+		<xs:annotation>
+			<xs:documentation>Configure Logbus-ng core plugins</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="plugin" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="plugins" type="PluginConfiguration"/>
+	<xs:complexType name="PluginDefinition">
+		<xs:annotation>
+			<xs:documentation>Defines a single plugin</xs:documentation>
+		</xs:annotation>
+		<xs:attribute ref="type"/>
+	</xs:complexType>
+	<xs:element name="plugin" type="PluginDefinition"/>
+	<xs:complexType name="ForwardingConfiguration">
+		<xs:annotation>
+			<xs:documentation>Configures log forwarding</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="logger" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="forward-to" type="ForwardingConfiguration"/>
 	<xs:annotation>
 		<xs:documentation>Begin Source section</xs:documentation>
 	</xs:annotation>
