@@ -22,6 +22,7 @@ using System;
 using System.Reflection;
 using System.IO;
 using It.Unina.Dis.Logbus.Design;
+using It.Unina.Dis.Logbus.RemoteLogbus;
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <summary>
@@ -53,8 +54,7 @@ namespace It.Unina.Dis.Logbus.Filters
             registered_descriptions = new Dictionary<string, string>();
         }
 
-        private Dictionary<string, string> registered_types;
-        private Dictionary<string, string> registered_descriptions;
+        private Dictionary<string, string> registered_types, registered_descriptions;
 
         /// <summary>
         /// Scans an assembly for user-defined filters and registers all of them
@@ -195,6 +195,36 @@ namespace It.Unina.Dis.Logbus.Filters
             {
                 return new Dictionary<string, string>(registered_descriptions);
             }
+        }
+
+        /// <summary>
+        /// Returns the list of available custom filter keys
+        /// </summary>
+        /// <returns>String array containing all the keys</returns>
+        public string[] GetAvailableCustomFilters()
+        {
+            string[] ret = new string[this.registered_types.Count];
+            int i = 0;
+            foreach (KeyValuePair<string, Type> kvp in this.registered_types)
+            {
+                ret[i] = kvp.Key;
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// Describes a registered filter
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public FilterDescription DescribeFilter(string key)
+        {
+            if (!registered_types.ContainsKey(key)) return null;
+            return new FilterDescription()
+            {
+                id = key,
+                description = this.registered_descriptions[key]
+            };
         }
     }
 }
