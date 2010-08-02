@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9D119D96-4F98-4131-90D4-1F5FE2EC09B7}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigurationHelper.cs" />
+    <Compile Include="Configuration\ForwardingConfiguration.cs" />
     <Compile Include="Configuration\InboundChannelsConfiguration.cs" />
     <Compile Include="Configuration\LogbusClientConfiguration.cs" />
     <Compile Include="Configuration\LogbusClientConfigurationSectionHandler.cs" />
@@ -83,6 +84,8 @@
     <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
     <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
+    <Compile Include="Configuration\PluginConfiguration.cs" />
+    <Compile Include="Configuration\PluginDefinition.cs" />
     <Compile Include="Configuration\XmlnsSupport.cs" />
     <Compile Include="IConfigurable.cs" />
     <Compile Include="IPlugin.cs" />
@@ -156,6 +159,7 @@
     <Compile Include="LogbusService.cs">
     </Compile>
     <Compile Include="LogbusSingletonHelper.cs" />
+    <Compile Include="Loggers\MultiLogger.cs" />
     <Compile Include="Loggers\NullLogger.cs" />
     <Compile Include="OutChannels\OutChannelCreationEventArgs.cs" />
     <Compile Include="OutChannels\OutChannelDeletionEventArgs.cs" />
@@ -265,7 +269,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

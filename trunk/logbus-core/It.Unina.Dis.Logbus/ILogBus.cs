@@ -105,5 +105,10 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="clientId">ID of client</param>
         void UnsubscribeClient(string clientId);
+
+        /// <summary>
+        /// Gets the plugins currently registered with Logbus-ng
+        /// </summary>
+        IEnumerable<IPlugin> Plugins { get; }
     }
 }

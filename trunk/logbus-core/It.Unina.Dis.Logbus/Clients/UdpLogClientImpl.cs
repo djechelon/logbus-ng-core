@@ -32,6 +32,9 @@ using System.Text.RegularExpressions;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
+    /// <summary>
+    /// Default implementation for ILogClient
+    /// </summary>
     internal sealed class UdpLogClientImpl
         : ILogClient
     {
@@ -131,6 +134,7 @@ namespace It.Unina.Dis.Logbus.Clients
             }
             catch (Exception ex)
             {
+                //Really kill the application?
                 throw new LogbusException("Unable to Refresh", ex);
             }
         }

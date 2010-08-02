@@ -17,10 +17,11 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -35,7 +36,11 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private OutputTransportsConfiguration outtransportsField;
 
-        private It.Unina.Dis.Logbus.Filters.FilterBase corefilterField;
+        private FilterBase corefilterField;
+
+        private PluginConfiguration pluginsField;
+
+        private ForwardingConfiguration forwardtoField;
 
         private string outChannelFactoryTypeField;
 
@@ -84,7 +89,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("core-filter", IsNullable = true)]
-        public It.Unina.Dis.Logbus.Filters.FilterBase corefilter
+        public FilterBase corefilter
         {
             get
             {
@@ -93,6 +98,34 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.corefilterField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute("plugin", IsNullable = false)]
+        public PluginConfiguration plugins
+        {
+            get
+            {
+                return this.pluginsField;
+            }
+            set
+            {
+                this.pluginsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("forward-to")]
+        public ForwardingConfiguration forwardto
+        {
+            get
+            {
+                return this.forwardtoField;
+            }
+            set
+            {
+                this.forwardtoField = value;
             }
         }
 

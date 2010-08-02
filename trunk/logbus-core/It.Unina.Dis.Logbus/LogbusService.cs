@@ -39,11 +39,13 @@ namespace It.Unina.Dis.Logbus
         : MarshalByRefObject, ILogBus, IChannelManagement, IChannelSubscription
     {
         private Thread[] hubThreads;
+        private Thread forwarding_thread;
         private const int WORKER_THREADS = 4;
-        private bool configured = false;
+        private bool configured = false, forwarding_enabled = false;
 
         private List<IInboundChannel> in_chans;
         private List<IOutboundChannel> out_chans;
+        private IPlugin[] plugins;
 
         /// <summary>
         /// Returns if Logbus is running or not
@@ -56,6 +58,9 @@ namespace It.Unina.Dis.Logbus
         private volatile bool hubThreadStop;
 
         protected BlockingFifoQueue<SyslogMessage>[] queues;
+        protected BlockingFifoQueue<SyslogMessage> forwarding_queue;
+
+        protected ILogCollector forwarder;
 
         //http://stackoverflow.com/questions/668440/handling-objectdisposedexception-correctly-in-an-idisposable-class-hierarchy
         protected bool Disposed
@@ -295,6 +300,56 @@ namespace It.Unina.Dis.Logbus
                 //Custom filters definition
                 if (Configuration.customfilters != null)
                     throw new NotImplementedException();
+
+                //Forwarding configuration
+                if (Configuration.forwardto != null && Configuration.forwardto.logger != null)
+                {
+                    forwarding_enabled = true;
+                    forwarder = new MultiLogger();
+                    List<ILogCollector> collectors = new List<ILogCollector>();
+                    foreach (LoggerDefinition def in Configuration.forwardto.logger)
+                        collectors.Add(LoggerHelper.CreateByDefinition(def));
+
+                    ((MultiLogger)forwarder).Collectors = collectors.ToArray();
+                }
+
+                //Plugin configuration
+                if (Configuration.plugins != null && Configuration.plugins.plugin != null)
+                {
+                    List<IPlugin> active_plugins = new List<IPlugin>();
+                    foreach (PluginDefinition def in Configuration.plugins.plugin)
+                    {
+                        try
+                        {
+                            if (string.IsNullOrEmpty(def.type))
+                                throw new LogbusConfigurationException("Empty type specified for plugin definition");
+
+                            Type plugin_type = Type.GetType(def.type, true, false);
+
+                            if (!typeof(IPlugin).IsAssignableFrom(plugin_type))
+                            {
+                                LogbusConfigurationException ex = new LogbusConfigurationException("Requested type is not compatible with IPlugin");
+                                ex.Data.Add("type", plugin_type);
+                                throw ex;
+                            }
+
+                            active_plugins.Add((IPlugin)Activator.CreateInstance(plugin_type));
+                        }
+                        catch (LogbusConfigurationException)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            LogbusConfigurationException e = new LogbusConfigurationException("Unable to configure plugins", ex);
+                            e.Data.Add("pluginType", def.type);
+                        }
+                        plugins = active_plugins.ToArray();
+                    }
+                }
+
+                if (plugins != null)
+                    foreach (IPlugin plugin in plugins) plugin.Register(this);
             }
             catch (LogbusConfigurationException ex)
             {
@@ -385,6 +440,21 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
 
+        /// <summary>
+        /// Impleemnts ILogBus.Plugins
+        /// </summary>
+        IEnumerable<IPlugin> ILogBus.Plugins
+        {
+            get
+            {
+                if (plugins == null) return new IPlugin[0];
+                int plugincount = plugins.Length;
+
+                IPlugin[] ret = new IPlugin[plugincount];
+                Array.Copy(plugins, ret, plugincount);
+                return ret;
+            }
+        }
 
         /// <summary>
         /// Implements IRunnable.Start
@@ -418,6 +488,7 @@ namespace It.Unina.Dis.Logbus
 
                 try
                 {
+
                     IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
                     int i;
 
@@ -435,12 +506,22 @@ namespace It.Unina.Dis.Logbus
                     hubThreads = new Thread[WORKER_THREADS];
                     for (i = 0; i < WORKER_THREADS; i++)
                     {
-                        hubThreads[i] = new Thread(this.HubThreadLoop);
-                        hubThreads[i].Name = string.Format("LogbusService.HubThreadLoop[{0}]", i);
-                        hubThreads[i].Priority = ThreadPriority.Normal;
-                        hubThreads[i].IsBackground = true;
+                        hubThreads[i] = new Thread(this.HubThreadLoop)
+                        {
+                            Name = string.Format("LogbusService.HubThreadLoop[{0}]", i),
+                            Priority = ThreadPriority.Normal,
+                            IsBackground = true
+                        };
                         hubThreads[i].Start(queues[i]);
                     }
+
+                    if (forwarding_enabled) forwarding_thread = new Thread(ForwardLoop)
+                    {
+                        IsBackground = true,
+                        Priority = ThreadPriority.Normal,
+                        Name = "LogbusService.ForwardLoop"
+                    };
+                    forwarding_thread.Start();
 
                     //End async start/sync start outbound channels
                     i = 0;
@@ -549,8 +630,20 @@ namespace It.Unina.Dis.Logbus
                         //Thread was locked. Going by brute force!!!
                         hubThreads[i].Abort();
 
-
                         hubThreads[i].Join(); //Giving it all the time it needs
+                    }
+                }
+
+                if (forwarding_enabled)
+                {
+                    if (forwarding_thread.ThreadState != ThreadState.WaitSleepJoin)
+                        forwarding_thread.Join(500); //Wait if thread is still doing something
+                    if (forwarding_thread.ThreadState != ThreadState.Stopped)
+                    {
+                        //Thread was locked. Going by brute force!!!
+                        forwarding_thread.Abort();
+
+                        forwarding_thread.Join(); //Giving it all the time it needs
                     }
                 }
 
@@ -851,7 +944,21 @@ namespace It.Unina.Dis.Logbus
         {
             try
             {
-                Stop();
+                try
+                {
+                    Stop(); //There could be problems with this
+                }
+                catch { }
+
+                if (plugins != null)
+                    foreach (IPlugin plugin in plugins)
+                        if (plugin != null)
+                            try
+                            {
+                                plugin.Unregister();
+                                if (disposing) plugin.Dispose();
+                            }
+                            catch { }
             }
             catch { } //Don't propagate, ever
             finally
@@ -1008,12 +1115,12 @@ namespace It.Unina.Dis.Logbus
 
         string[] IChannelSubscription.GetAvailableFilters()
         {
-            throw new NotImplementedException();
+            return CustomFilterHelper.Instance.GetAvailableCustomFilters();
         }
 
         It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription IChannelSubscription.DescribeFilter(string filterid)
         {
-            throw new NotImplementedException();
+            return CustomFilterHelper.Instance.DescribeFilter(filterid);
         }
         #endregion
 
@@ -1048,6 +1155,8 @@ namespace It.Unina.Dis.Logbus
                                 //Could lead to a threading disaster in case of large rates of messages
                                 chan.SubmitMessage(new_message);
                             }
+
+                        if (forwarding_enabled && forwarding_queue != null) forwarding_queue.Enqueue(new_message);
                     }
                     finally
                     {
@@ -1077,6 +1186,21 @@ namespace It.Unina.Dis.Logbus
                     }
                 }
             }
+        }
+
+        private void ForwardLoop()
+        {
+            try
+            {
+                do
+                {
+                    //Get message
+                    SyslogMessage new_message = forwarding_queue.Dequeue();
+
+                    forwarder.SubmitMessage(new_message);
+                } while (!hubThreadStop);
+            }
+            catch (ThreadAbortException) { }
         }
 
         private ILog Log
