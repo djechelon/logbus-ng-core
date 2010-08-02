@@ -62,7 +62,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Subscribes to a channel
         /// </summary>
-        /// <param name="request">Subscription Information</param>
+        /// <param name="channelsubrequest">Subscription Information</param>
         /// <returns>Client ID (for future request) and client instructions</returns>
 #if MONO
 #else
@@ -75,7 +75,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Unsubscribes from a channel
         /// </summary>
-        /// <param name="id">Client ID as returned by SubscribeChannel</param>
+        /// <param name="clientid">Client ID as returned by SubscribeChannel</param>
 #if MONO
 #else
         [System.Web.Services.WebMethodAttribute()]
@@ -86,7 +86,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Refreshes client subscription, if required by transport
         /// </summary>
-        /// <param name="id">ID of client as returned by SubscribeChannel</param>
+        /// <param name="clientid">ID of client as returned by SubscribeChannel</param>
 #if MONO
 #else
         [System.Web.Services.WebMethodAttribute()]

@@ -80,7 +80,7 @@ namespace It.Unina.Dis.Logbus
 
             out_chans = new List<IOutboundChannel>();
             in_chans = new List<IInboundChannel>();
-            Log = LoggerHelper.CreateLoggerByName("Logbus");
+            Log = new SimpleLogImpl(SyslogFacility.Internally, LoggerHelper.CreateCollectorByName("Logbus"));
 
             //Init fresh queues
             queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
@@ -121,9 +121,9 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Automatically configures Logbus using the App.Config or Web.config's XML configuration
         /// </summary>
-        /// <exception cref="InvalidOperationException">Logbus was already configured</exception>
-        /// <exception cref="NotSupportedException">Empty configuration</exception>
-        /// <exception cref="LogbusConfigurationException">Semantic error in configuration</exception>
+        /// <exception cref="System.InvalidOperationException">Logbus was already configured</exception>
+        /// <exception cref="System.NotSupportedException">Empty configuration</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.Configuration.LogbusConfigurationException">Semantic error in configuration</exception>
         public void Configure()
         {
             if (configured) throw new InvalidOperationException("Logbus is already configured. If you want to re-configure the service, you need a new instance of the service");
@@ -302,22 +302,22 @@ namespace It.Unina.Dis.Logbus
                     throw new NotImplementedException();
 
                 //Forwarding configuration
-                if (Configuration.forwardto != null && Configuration.forwardto.logger != null)
+                if (Configuration.forwardto != null && Configuration.forwardto != null)
                 {
                     forwarding_enabled = true;
                     forwarder = new MultiLogger();
                     List<ILogCollector> collectors = new List<ILogCollector>();
-                    foreach (LoggerDefinition def in Configuration.forwardto.logger)
+                    foreach (ForwarderDefinition def in Configuration.forwardto)
                         collectors.Add(LoggerHelper.CreateByDefinition(def));
 
                     ((MultiLogger)forwarder).Collectors = collectors.ToArray();
                 }
 
                 //Plugin configuration
-                if (Configuration.plugins != null && Configuration.plugins.plugin != null)
+                if (Configuration.plugins != null && Configuration.plugins != null)
                 {
                     List<IPlugin> active_plugins = new List<IPlugin>();
-                    foreach (PluginDefinition def in Configuration.plugins.plugin)
+                    foreach (PluginDefinition def in Configuration.plugins)
                     {
                         try
                         {
@@ -694,7 +694,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Implements ILogSource.MessageReceived
         /// </summary>
-        public event SyslogMessageEventHandler MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         /// <summary>
         /// Implements IRunnable.Error

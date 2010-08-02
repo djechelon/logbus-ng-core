@@ -30,8 +30,8 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="key">Name of configuration parameter</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Key is null</exception>
-        /// <exception cref="NotSupportedException">Key is not supported by this object</exception>
+        /// <exception cref="System.ArgumentNullException">Key is null</exception>
+        /// <exception cref="System.NotSupportedException">Key is not supported by this object</exception>
         string GetConfigurationParameter(string key);
 
         /// <summary>
@@ -40,17 +40,17 @@ namespace It.Unina.Dis.Logbus
         /// <param name="key">Name of configuration parameter</param>
         /// <param name="value">Value to set. Can be null</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Key is null</exception>
-        /// <exception cref="ArgumentException">Value not accepted/supported</exception>
-        /// <exception cref="NotSupportedException">Key is not supported by this transport factory</exception>
+        /// <exception cref="System.ArgumentNullException">Key is null</exception>
+        /// <exception cref="System.ArgumentException">Value not accepted/supported</exception>
+        /// <exception cref="System.NotSupportedException">Key is not supported by this transport factory</exception>
         void SetConfigurationParameter(string key, string value);
 
         /// <summary>
         /// Gets or sets all configuration parameters in one shot
         /// </summary>
-        /// <exception cref="ArgumentNullException">List is null</exception>
-        /// <exception cref="NotSupportedException">One of the keys is not supported</exception>
-        /// <exception cref="ArgumentException">One of the values is not accepted as valid</exception>
+        /// <exception cref="System.ArgumentNullException">List is null</exception>
+        /// <exception cref="System.NotSupportedException">One of the keys is not supported</exception>
+        /// <exception cref="System.ArgumentException">One of the values is not accepted as valid</exception>
         IEnumerable<KeyValuePair<string, string>> Configuration { set; }
     }
 }

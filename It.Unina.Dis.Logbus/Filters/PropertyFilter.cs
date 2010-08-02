@@ -32,6 +32,7 @@ namespace It.Unina.Dis.Logbus.Filters
     public partial class PropertyFilter : FilterBase
     {
 
+        /// <remarks/>
         public PropertyFilter()
         {
             this.PropertyChanged += PropertyFilter_PropertyChanged;
@@ -139,6 +140,7 @@ namespace It.Unina.Dis.Logbus.Filters
 
         private object targetvalue;
 
+        /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
             object property;
@@ -207,32 +209,26 @@ namespace It.Unina.Dis.Logbus.Filters
                     case ComparisonOperator.eq:
                         {
                             return result == 0;
-                            break;
                         }
                     case ComparisonOperator.geq:
                         {
                             return result >= 0;
-                            break;
                         }
                     case ComparisonOperator.gt:
                         {
                             return result > 0;
-                            break;
                         }
                     case ComparisonOperator.leq:
                         {
                             return result <= 0;
-                            break;
                         }
                     case ComparisonOperator.lt:
                         {
                             return result < 0;
-                            break;
                         }
                     case ComparisonOperator.neq:
                         {
                             return result != 0;
-                            break;
                         }
                     default:
                         {
@@ -248,32 +244,26 @@ namespace It.Unina.Dis.Logbus.Filters
                     case ComparisonOperator.eq:
                         {
                             return (int)property == (int)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.geq:
                         {
                             return (int)property >= (int)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.gt:
                         {
                             return (int)property > (int)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.leq:
                         {
                             return (int)property <= (int)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.lt:
                         {
                             return (int)property < (int)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.neq:
                         {
                             return (int)property != (int)targetvalue;
-                            break;
                         }
                     default:
                         {
@@ -288,32 +278,26 @@ namespace It.Unina.Dis.Logbus.Filters
                     case ComparisonOperator.eq:
                         {
                             return (DateTime)property == (DateTime)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.geq:
                         {
                             return (DateTime)property >= (DateTime)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.gt:
                         {
                             return (DateTime)property > (DateTime)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.leq:
                         {
                             return (DateTime)property <= (DateTime)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.lt:
                         {
                             return (DateTime)property < (DateTime)targetvalue;
-                            break;
                         }
                     case ComparisonOperator.neq:
                         {
                             return (DateTime)property != (DateTime)targetvalue;
-                            break;
                         }
                     default:
                         {

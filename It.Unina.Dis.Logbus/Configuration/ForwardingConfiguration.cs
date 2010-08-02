@@ -20,7 +20,7 @@
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -29,19 +29,19 @@ namespace It.Unina.Dis.Logbus.Configuration
     public partial class ForwardingConfiguration
     {
 
-        private LoggerDefinition[] loggerField;
+        private ForwarderDefinition[] forwarderField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("logger")]
-        public LoggerDefinition[] logger
+        [System.Xml.Serialization.XmlElementAttribute("forwarder")]
+        public ForwarderDefinition[] forwarder
         {
             get
             {
-                return this.loggerField;
+                return this.forwarderField;
             }
             set
             {
-                this.loggerField = value;
+                this.forwarderField = value;
             }
         }
     }

@@ -25,14 +25,45 @@ namespace It.Unina.Dis.Logbus.Filters
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
     public enum Severity
     {
+        /// <summary>
+        /// Emergency: system is unusable
+        /// </summary>
+        Emergency = 0,
 
-        Emergency = 0,    // Emergency: system is unusable
-        Alert = 1,    // Alert: action must be taken immediately
-        Critical = 2,    // Critical: critical conditions
-        Error = 3,    // Error: error conditions
-        Warning = 4,    // Warning: warning conditions
-        Notice = 5,    // Notice: normal but significant condition
-        Info = 6,    // Informational: informational messages
-        Debug = 7,    // Debug: debug-level messages
+        /// <summary>
+        /// Alert: action must be taken immediately
+        /// </summary>
+        Alert = 1,
+
+        /// <summary>
+        /// Critical: critical conditions
+        /// </summary>
+        Critical = 2,
+
+        /// <summary>
+        /// Error: error conditions
+        /// </summary>
+        Error = 3,
+
+        /// <summary>
+        /// Warning: noticeable events
+        /// </summary>
+        Warning = 4,
+
+        /// <summary>
+        /// Notice: normal but significant condition
+        /// </summary>
+        Notice = 5,
+
+        /// <summary>
+        /// Informational: low-priority informational messages
+        /// </summary>
+        Info = 6,
+
+        /// <summary>
+        /// Debug: debug-level messages
+        /// </summary>
+        Debug = 7
+
     }
 }

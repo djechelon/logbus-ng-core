@@ -48,14 +48,33 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Gets the types and API names for WSDL interface
+        /// </summary>
         WsdlSkeletonDefinition[] GetWsdlSkeletons();
 
+        /// <summary>
+        /// Gets the root object that needs to be copied into ASP.NET AppDomain for Web Services API
+        /// </summary>
+        /// <remarks>Returns null if no WS API is supported by this plugin</remarks>
         MarshalByRefObject GetPluginRoot();
     }
 
+    /// <summary>
+    /// Pairs the type of the WSDL skeleton with the desired URL file name
+    /// </summary>
     public struct WsdlSkeletonDefinition
     {
-        string Url;
-        Type skeleton_type;
+        /// <summary>
+        /// File name of the URL
+        /// </summary>
+        /// <example>If set to "Acme", final URL will be http://logbus-host/Acme.asmx</example>
+        /// <remarks>It must not end with .asmx as it will be added by the runtime</remarks>
+        public string UrlFileName;
+
+        /// <summary>
+        /// Type for skeleton class
+        /// </summary>
+        public Type SkeletonType;
     }
 }

@@ -35,10 +35,9 @@ namespace It.Unina.Dis.Logbus.Configuration
         #region IConfigurationSectionHandler Membri di
 
         /// <summary>
-        /// Read configuration and return a <see cref="LogbusConfiguration"/> object by design contract
+        /// Read configuration and return a <see cref="It.Unina.Dis.Logbus.Configuration.LogbusCoreConfiguration"/> object by design contract
         /// </summary>
         /// <returns></returns>
-        
         object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
         {
             try

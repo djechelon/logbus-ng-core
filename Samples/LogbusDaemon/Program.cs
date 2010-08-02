@@ -37,7 +37,7 @@ namespace LogbusDaemon
             try
             {
                 logbus = LogbusSingletonHelper.Instance;
-                logbus.MessageReceived += new SyslogMessageEventHandler(logbus_MessageReceived);
+                logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
 
                 logbus.Start();
                 WebServiceActivator.Start(logbus, 8065);

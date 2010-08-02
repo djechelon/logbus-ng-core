@@ -21,13 +21,13 @@ using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
     [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LogbusCoreConfiguration : XmlnsSupport
+    public partial class LogbusCoreConfiguration
     {
 
         private InboundChannelDefinition[] inchannelsField;
@@ -38,9 +38,9 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private FilterBase corefilterField;
 
-        private PluginConfiguration pluginsField;
+        private PluginDefinition[] pluginsField;
 
-        private ForwardingConfiguration forwardtoField;
+        private ForwarderDefinition[] forwardtoField;
 
         private string outChannelFactoryTypeField;
 
@@ -103,7 +103,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute("plugin", IsNullable = false)]
-        public PluginConfiguration plugins
+        public PluginDefinition[] plugins
         {
             get
             {
@@ -116,8 +116,9 @@ namespace It.Unina.Dis.Logbus.Configuration
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("forward-to")]
-        public ForwardingConfiguration forwardto
+        [System.Xml.Serialization.XmlArrayAttribute("forward-to")]
+        [System.Xml.Serialization.XmlArrayItemAttribute("forwarder", IsNullable = false)]
+        public ForwarderDefinition[] forwardto
         {
             get
             {

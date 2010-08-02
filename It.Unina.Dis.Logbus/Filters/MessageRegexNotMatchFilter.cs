@@ -29,6 +29,7 @@ namespace It.Unina.Dis.Logbus.Filters
     public partial class MessageRegexNotMatchFilter : MessageRegexMatchFilter
     {
 
+        /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
             return !base.IsMatch(message);

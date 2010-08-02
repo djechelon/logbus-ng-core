@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         public void Register(ILogBus logbus)
         {
-            logbus.MessageReceived += new SyslogMessageEventHandler(logbus_MessageReceived);
+            logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
         }
 
         void logbus_MessageReceived(object sender, SyslogMessageEventArgs e)

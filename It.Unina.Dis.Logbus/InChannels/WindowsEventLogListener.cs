@@ -155,13 +155,13 @@ namespace It.Unina.Dis.Logbus.InChannels
             log = null;
         }
 
-        public event ParseErrorEventHandler ParseError;
-		
+        public event EventHandler<ParseErrorEventArgs> ParseError;
+
         #endregion
 
         #region ILogSource Membri di
 
-        public event SyslogMessageEventHandler MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
 
@@ -176,14 +176,19 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region IRunnable Membri di
 
+        /// <remarks/>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
 
+        /// <remarks/>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
 
+        /// <remarks/>
         public event EventHandler Started;
 
+        /// <remarks/>
         public event EventHandler Stopped;
 
+        /// <remarks/>
         public event UnhandledExceptionEventHandler Error;
 
         #endregion

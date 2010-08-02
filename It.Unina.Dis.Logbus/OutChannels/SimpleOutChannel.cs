@@ -24,6 +24,7 @@ using System.Runtime.CompilerServices;
 using System;
 using It.Unina.Dis.Logbus.Utils;
 using It.Unina.Dis.Logbus.Loggers;
+using System.ComponentModel;
 
 namespace It.Unina.Dis.Logbus.OutChannels
 {
@@ -38,7 +39,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private Timer coalescence_timer;
         private Thread worker_thread;
         private BlockingFifoQueue<SyslogMessage> message_queue;
-        
+
         private volatile bool withinCoalescenceWindow;
         private volatile bool running;
 
@@ -80,7 +81,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         #region IOutboundChannel Membri di
 
-        public event SyslogMessageEventHandler MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         string IOutboundChannel.ID
         {
@@ -119,43 +120,77 @@ namespace It.Unina.Dis.Logbus.OutChannels
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Start()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (running) throw new InvalidOperationException("Channel is already started");
+            try
+            {
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                if (running) throw new InvalidOperationException("Channel is already started");
 
-            message_queue = new BlockingFifoQueue<SyslogMessage>();
+                if (Starting != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Starting(this, e);
+                    if (e.Cancel) return;
+                }
 
-            worker_thread = new Thread(RunnerLoop);
-            worker_thread.IsBackground = true;
-            worker_thread.Start();
+                message_queue = new BlockingFifoQueue<SyslogMessage>();
 
-            running = true;
+                worker_thread = new Thread(RunnerLoop);
+                worker_thread.IsBackground = true;
+                worker_thread.Start();
+
+                running = true;
+
+                if (Started != null) Started(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
+                throw;
+            }
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Stop()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!running) throw new InvalidOperationException("Channel is not running");
-
-            //Tell the thread to stop, the good way
-            running = false;
-            if (worker_thread.ThreadState == ThreadState.WaitSleepJoin)
-                worker_thread.Join(5000); //Wait if the thread is already doing something "useful"
-            if (worker_thread.ThreadState != ThreadState.Stopped)
+            try
             {
-                //Thread was locked. Going by brute force!!!
-                try
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                if (!running) throw new InvalidOperationException("Channel is not running");
+
+                if (Stopping != null)
                 {
-                    Thread.BeginCriticalRegion();
-                    worker_thread.Abort();
+                    CancelEventArgs e = new CancelEventArgs();
+                    Stopping(this, e);
+                    if (e.Cancel) return;
                 }
-                finally
+
+                //Tell the thread to stop, the good way
+                running = false;
+                if (worker_thread.ThreadState == ThreadState.WaitSleepJoin)
+                    worker_thread.Join(5000); //Wait if the thread is already doing something "useful"
+                if (worker_thread.ThreadState != ThreadState.Stopped)
                 {
-                    Thread.EndCriticalRegion();
+                    //Thread was locked. Going by brute force!!!
+                    try
+                    {
+                        Thread.BeginCriticalRegion();
+                        worker_thread.Abort();
+                    }
+                    finally
+                    {
+                        Thread.EndCriticalRegion();
+                    }
+                    worker_thread.Join(); //Giving it all the time it needs
                 }
-                worker_thread.Join(); //Giving it all the time it needs
+                message_queue = null;
+
+                if (Stopped != null) Stopped(this, EventArgs.Empty);
             }
-            message_queue = null;
+            catch (Exception ex)
+            {
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
+                throw;
+            }
         }
 
         public It.Unina.Dis.Logbus.Filters.IFilter Filter
@@ -374,7 +409,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 //Someone is telling me to stop
                 //Flush and terminate
                 IEnumerable<SyslogMessage> left_messages = message_queue.FlushAndDispose();
-                
+
                 if (!withinCoalescenceWindow)
                 {
                     foreach (SyslogMessage msg in left_messages)
@@ -402,14 +437,19 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         #region IRunnable Membri di
 
+        /// <remarks/>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
 
+        /// <remarks/>
         public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
 
+        /// <remarks/>
         public event EventHandler Started;
 
+        /// <remarks/>
         public event EventHandler Stopped;
 
+        /// <remarks/>
         public event UnhandledExceptionEventHandler Error;
 
         #endregion

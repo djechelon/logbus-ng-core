@@ -96,8 +96,8 @@ namespace It.Unina.Dis.Logbus
         /// Refreshes a client's subscription
         /// </summary>
         /// <param name="clientId">ID of client</param>
-        /// <exception cref="InvalidOperationException">Client is not subscribed (or already expired)</exception>
-        /// <exception cref="NotSupportedException">Transport doesn't support refreshing</exception>
+        /// <exception cref="System.InvalidOperationException">Client is not subscribed (or already expired)</exception>
+        /// <exception cref="System.NotSupportedException">Transport doesn't support refreshing</exception>
         void RefreshClient(string clientId);
 
         /// <summary>

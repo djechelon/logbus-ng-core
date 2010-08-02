@@ -27,6 +27,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         : EventArgs
     {
 
+        /// <remarks/>
         public OutChannelCreationEventArgs(IOutboundChannel channel) 
             :base()
         {

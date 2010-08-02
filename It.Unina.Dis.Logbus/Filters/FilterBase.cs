@@ -40,8 +40,10 @@ namespace It.Unina.Dis.Logbus.Filters
     public abstract partial class FilterBase : It.Unina.Dis.Logbus.Configuration.XmlnsSupport, System.ComponentModel.INotifyPropertyChanged, IFilter
     {
 
+        /// <remarks/>
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
+        /// <remarks/>
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -53,6 +55,9 @@ namespace It.Unina.Dis.Logbus.Filters
 
         #region IFilter Membri di
 
+        /// <remarks>
+        /// Required by IFilter
+        /// </remarks>
         public abstract bool IsMatch(SyslogMessage message);
 
         #endregion

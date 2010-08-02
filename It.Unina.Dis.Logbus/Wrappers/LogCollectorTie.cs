@@ -26,8 +26,14 @@ namespace It.Unina.Dis.Logbus.Wrappers
         :ILogCollector
     {
 
+        /// <summary>
+        /// Initializes LogCollectorTie with a target object
+        /// </summary>
+        /// <param name="target">Object to proxy</param>
+        /// <exception cref="System.ArgumentNullException">Argument is null</exception>
         public LogCollectorTie(ILogCollector target)
         {
+            if (target == null) throw new System.ArgumentNullException("target");
             Target = target;
         }
 

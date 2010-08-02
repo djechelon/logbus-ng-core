@@ -63,8 +63,10 @@ namespace It.Unina.Dis.Logbus.Filters
             }
         }
 
+        /// <remarks/>
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
+        /// <remarks/>
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;

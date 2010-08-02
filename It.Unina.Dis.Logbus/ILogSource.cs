@@ -29,7 +29,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// A new message is available on the bus for retrieval and processing
         /// </summary>
-        event SyslogMessageEventHandler MessageReceived;
+        event System.EventHandler<SyslogMessageEventArgs> MessageReceived;
 
     }
 }

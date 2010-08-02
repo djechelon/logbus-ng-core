@@ -26,6 +26,11 @@ namespace It.Unina.Dis.Logbus.Design
     [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public sealed class CustomFilterAttribute : System.Attribute
     {
+
+        /// <summary>
+        /// Initializes CustomFilterAttribute with the required tag
+        /// </summary>
+        /// <param name="name"></param>
         public CustomFilterAttribute(string name)
         {
             this.Tag = name;

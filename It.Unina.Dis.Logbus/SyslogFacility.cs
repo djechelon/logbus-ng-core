@@ -21,32 +21,130 @@
 
 namespace It.Unina.Dis.Logbus
 {
+    /// <summary>
+    /// Syslog facility. The standard defines it as the entity that generated the Syslog message
+    /// </summary>
     public enum SyslogFacility : byte
     {
-        Kernel = 0,     // kernel messages
-        User = 1,     // user-level messages
-        Mail = 2,     // mail system
-        System = 3,     // system daemons
-        Security = 4,     // security/authorization messages (note 1)
-        Internally = 5,     // messages generated internally by syslogd
-        Printer = 6,     // line printer subsystem
-        News = 7,     // network news subsystem
-        Uucp = 8,     // UUCP subsystem
-        Cron = 9,     // clock daemon (note 2) changed to cron
-        Security2 = 10,    // security/authorization messages (note 1)
-        Ftp = 11,    // FTP daemon
-        Ntp = 12,    // NTP subsystem
-        Audit = 13,    // log audit (note 1)
-        Alert = 14,    // log alert (note 1)
-        Clock2 = 15,    // clock daemon (note 2)
-        Local0 = 16,    // local use 0  (local0)
-        Local1 = 17,    // local use 1  (local1)
-        Local2 = 18,    // local use 2  (local2)
-        Local3 = 19,    // local use 3  (local3)
-        Local4 = 20,    // local use 4  (local4)
-        Local5 = 21,    // local use 5  (local5)
-        Local6 = 22,    // local use 6  (local6)
-        Local7 = 23,    // local use 7  (local7)
+        /// <summary>
+        /// Kernel messages
+        /// </summary>
+        Kernel = 0,
+
+        /// <summary>
+        /// User-level messages
+        /// </summary>
+        User = 1,
+
+        /// <summary>
+        /// Mail system
+        /// </summary>
+        Mail = 2,
+
+        /// <summary>
+        /// System daemons
+        /// </summary>
+        System = 3,
+
+        /// <summary>
+        /// Security/authorization messages (note 1)
+        /// </summary>
+        Security = 4,
+
+        /// <summary>
+        /// Messages generated internally by syslogd
+        /// </summary>
+        Internally = 5,
+
+        /// <summary>
+        /// Line printer subsystem
+        /// </summary>
+        Printer = 6,
+
+        /// <summary>
+        /// Network news subsystem
+        /// </summary>
+        News = 7,
+
+        /// <summary>
+        /// UUCP subsystem
+        /// </summary>
+        Uucp = 8,
+
+        /// <summary>
+        /// Clock daemon (note 2) changed to cron
+        /// </summary>
+        Cron = 9,
+
+        /// <summary>
+        /// Security/authorization messages (note 1)
+        /// </summary>
+        Security2 = 10,
+
+        /// <summary>
+        /// FTP daemon
+        /// </summary>
+        Ftp = 11,
+
+        /// <summary>
+        /// NTP subsystem
+        /// </summary>
+        Ntp = 12,
+
+        /// <summary>
+        /// Log audit (note 1)
+        /// </summary>
+        Audit = 13,
+
+        /// <summary>
+        /// Log alert (note 1)
+        /// </summary>
+        Alert = 14,
+
+        /// <summary>
+        /// Clock daemon (note 2)
+        /// </summary>
+        Clock2 = 15,
+
+        /// <summary>
+        /// Local use 0  (local0)
+        /// </summary>
+        Local0 = 16,
+
+        /// <summary>
+        /// Local use 1  (local1)
+        /// </summary>
+        Local1 = 17,
+
+        /// <summary>
+        /// Local use 2  (local2)
+        /// </summary>
+        Local2 = 18,
+
+        /// <summary>
+        /// Local use 3  (local3)
+        /// </summary>
+        Local3 = 19,
+
+        /// <summary>
+        /// Local use 4  (local4)
+        /// </summary>
+        Local4 = 20,
+
+        /// <summary>
+        /// Local use 5  (local5)
+        /// </summary>
+        Local5 = 21,
+
+        /// <summary>
+        /// Local use 6  (local6)
+        /// </summary>
+        Local6 = 22,
+
+        /// <summary>
+        /// Local use 7  (local7)
+        /// </summary>
+        Local7 = 23
 
     }
 

@@ -32,18 +32,14 @@ namespace It.Unina.Dis.Logbus.Filters
     public partial class MessageRegexMatchFilter : FilterBase
     {
 
+        /// <remarks/>
         public MessageRegexMatchFilter()
         {
             this.PropertyChanged += MessageRegexMatchFilter_PropertyChanged;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <exception cref="ArgumentException" />
-        void MessageRegexMatchFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        
+        private void MessageRegexMatchFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             pattern_regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.Singleline);
         }
@@ -67,6 +63,7 @@ namespace It.Unina.Dis.Logbus.Filters
 
         private Regex pattern_regex;
 
+        /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
             //Review implementation and compile regex for best performance

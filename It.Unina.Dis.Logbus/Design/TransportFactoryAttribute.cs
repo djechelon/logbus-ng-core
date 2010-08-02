@@ -28,7 +28,11 @@ namespace It.Unina.Dis.Logbus.Design
     [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public sealed class TransportFactoryAttribute : System.Attribute
     {
-       
+
+        /// <summary>
+        /// Initializes TransportFactoryAttribute with the required tag
+        /// </summary>
+        /// <param name="tag"></param>
         public TransportFactoryAttribute(string tag)
         {
             this.Tag = tag;

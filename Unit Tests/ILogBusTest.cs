@@ -138,7 +138,7 @@ namespace Unit_Tests
 
                 target.Started += new System.EventHandler(target_Started);
                 target.Stopped += new System.EventHandler(target_Stopped);
-                target.MessageReceived += new SyslogMessageEventHandler(target_MessageReceived);
+                target.MessageReceived += new EventHandler<SyslogMessageEventArgs>(target_MessageReceived);
 
                 TestContext.WriteLine("Starting Logbus instance");
                 target.Start();

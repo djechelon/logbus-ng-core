@@ -30,19 +30,18 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Object that could not be parsed
         /// </summary>
-        /// <remarks>Usually in <see cref="System.string"/> or <see cref="System.byte[]"/> form</remarks>
+        /// <remarks>Usually in <see cref="System.String"/> or <see cref="System.Byte"/> array form</remarks>
         public object Payload
         {
             get;
             set;
         }
 
+        /// <remarks/>
         public ParseErrorEventArgs(object payload, object exception, bool isTerminating) :
             base(exception, isTerminating)
         {
             Payload = payload;
         }
     }
-
-    public delegate void ParseErrorEventHandler(object sender, ParseErrorEventArgs e);
 }

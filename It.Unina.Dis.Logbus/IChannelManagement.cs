@@ -50,7 +50,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Creates a new channel with given properties
         /// </summary>
-        /// <param name="description">Describes how the channel is structured</param>
+        /// <param name="channelcreation">Describes how the channel is structured</param>
 #if MONO
 #else
         [System.Web.Services.WebMethodAttribute()]
@@ -61,7 +61,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Retrieves channel information
         /// </summary>
-        /// <param name="id">ID of channel</param>
+        /// <param name="channelid">ID of channel</param>
         /// <returns>Information about the channel and its attributes</returns>
 #if MONO
 #else
@@ -74,7 +74,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Deletes a channel by ID
         /// </summary>
-        /// <param name="id">Unique ID of channel</param>
+        /// <param name="channelid">Unique ID of channel</param>
 #if MONO
 #else
         [System.Web.Services.WebMethodAttribute()]

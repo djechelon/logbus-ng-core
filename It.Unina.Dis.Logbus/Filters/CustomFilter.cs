@@ -33,13 +33,13 @@ namespace It.Unina.Dis.Logbus.Filters
 
         private string nameField;
 
-
+        /// <remarks/>
         public CustomFilter()
         {
             this.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(CustomFilter_PropertyChanged);
         }
 
-        void CustomFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void CustomFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             //Reset filter implementation, so next time the IsMatch is invoked it must be rebuilt
             filter_impl = null;
@@ -76,6 +76,8 @@ namespace It.Unina.Dis.Logbus.Filters
         }
 
         private IFilter filter_impl;
+
+        /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
             if (filter_impl == null)

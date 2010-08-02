@@ -25,8 +25,14 @@ namespace It.Unina.Dis.Logbus.Wrappers
     public sealed class LogSourceTie
         :ILogSource
     {
+
+        /// <summary>
+        /// Initializes LogSourceTie with the log source
+        /// </summary>
+        /// <param name="target">Log source to proxy</param>
         public LogSourceTie(ILogSource target)
         {
+            if (target == null) throw new System.ArgumentNullException("target");
             Target = target;
             Target.MessageReceived += Target_MessageReceived;
         }
@@ -47,7 +53,8 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
         #region ILogSource Membri di
 
-        public event SyslogMessageEventHandler MessageReceived;
+        /// <remarks/>
+        public event System.EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
     

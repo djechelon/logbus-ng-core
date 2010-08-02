@@ -19,12 +19,21 @@
 
 namespace It.Unina.Dis.Logbus.Wrappers
 {
+    /// <summary>
+    /// Proxy for IChannelManagement
+    /// </summary>
     public sealed class ChannelManagementTie
         : IChannelManagement
     {
 
+        /// <summary>
+        /// Initializes ChannelManagementTie with proxied object
+        /// </summary>
+        /// <param name="targetInstance">Object to be proxied</param>
+        /// <exception cref="System.ArgumentNullException">targetInstance is null</exception>
         public ChannelManagementTie(IChannelManagement targetInstance)
         {
+            if (targetInstance == null) throw new System.ArgumentNullException("targetInstance");
             target = targetInstance;
         }
 
@@ -32,21 +41,25 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
         #region IChannelManagement Membri di
 
+        /// <remarks/>
         public string[] ListChannels()
         {
             return target.ListChannels();
         }
 
+        /// <remarks/>
         public void CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
         {
             target.CreateChannel(description);
         }
 
+        /// <remarks/>
         public It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation GetChannelInformation(string id)
         {
             return target.GetChannelInformation(id);
         }
 
+        /// <remarks/>
         public void DeleteChannel(string id)
         {
             target.DeleteChannel(id);

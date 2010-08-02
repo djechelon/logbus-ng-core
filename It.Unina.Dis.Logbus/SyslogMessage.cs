@@ -132,7 +132,7 @@ namespace It.Unina.Dis.Logbus
         ///	Converts the object into RFC5424 UTF-8 binary representation 
         /// </summary>
         /// <returns>
-        /// A <see cref="System.Byte[]"/>
+        /// An array of <see cref="System.Byte"/> containing the UTF-8 representation
         /// </returns>
         public byte[] ToByteArray()
         {
@@ -223,7 +223,7 @@ namespace It.Unina.Dis.Logbus
             //Text
             if (Text != null)
             {
-                byte[] BOM = { 0xef, 0xbb, 0xbf };
+                byte[] BOM = Encoding.UTF8.GetPreamble();
                 ret.Append(SPACE);
                 ret.Append(Encoding.UTF8.GetString(BOM));
                 ret.Append(Text);
@@ -298,6 +298,11 @@ namespace It.Unina.Dis.Logbus
             return ret.ToString();
         }
 
+        /// <summary>
+        /// Converts a Windows EventLog entry to Syslog
+        /// </summary>
+        /// <param name="eventLogEntry">Log entry to convert</param>
+        /// <returns>Correspondant Syslog message</returns>
         public static explicit operator SyslogMessage(System.Diagnostics.EventLogEntry eventLogEntry)
         {
             SyslogMessage message = new SyslogMessage();
@@ -625,7 +630,7 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Argument is null</exception>
+        /// <exception cref="System.ArgumentNullException">Argument is null</exception>
         /// <exception cref="FormatException">Message is not in Syslog format</exception>
         public static SyslogMessage Parse(string payload)
         {
@@ -653,7 +658,7 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Argument is null</exception>
+        /// <exception cref="System.ArgumentNullException">Argument is null</exception>
         /// <exception cref="FormatException">Message is not in Syslog format</exception>
         public static SyslogMessage Parse(byte[] payload)
         {

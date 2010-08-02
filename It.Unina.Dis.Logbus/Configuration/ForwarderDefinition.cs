@@ -25,8 +25,8 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LoggerDefinition : LogCollectorDefinition
+    [System.Xml.Serialization.XmlRootAttribute("forwarder", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
+    public partial class ForwarderDefinition : LogCollectorDefinition
     {
     }
 }

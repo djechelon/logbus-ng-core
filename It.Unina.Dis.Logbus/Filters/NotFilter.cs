@@ -45,6 +45,7 @@ namespace It.Unina.Dis.Logbus.Filters
             }
         }
 
+        /// <remarks>Required by FilterBase</remarks>
         public override bool IsMatch(SyslogMessage message)
         {
             return !filter.IsMatch(message);

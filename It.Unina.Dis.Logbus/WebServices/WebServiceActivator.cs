@@ -40,11 +40,13 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
         }
 
+        /// <remarks/>
         private WebServiceActivator(ILogBus instance, int port)
         {
             target = instance; httpPort = port;
         }
 
+        /// <remarks/>
         ~WebServiceActivator()
         {
             try

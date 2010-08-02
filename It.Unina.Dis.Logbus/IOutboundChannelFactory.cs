@@ -32,7 +32,7 @@ namespace It.Unina.Dis.Logbus
         /// <param name="description">Channel description</param>
         /// <param name="filter">Channel filter</param>
         /// <returns>A new instance of a class that implements IOutboundChannel</returns>
-        /// <exception cref="InvalidOperationException">Factory helper is not set</exception>
+        /// <exception cref="System.InvalidOperationException">Factory helper is not set</exception>
         IOutboundChannel CreateChannel(string name, string description, IFilter filter);
 
         /// <summary>

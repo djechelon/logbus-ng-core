@@ -105,7 +105,7 @@ namespace Unit_Tests
             using (ILogBus logbus = new LogbusService(core_config))
             {
 
-                logbus.MessageReceived += new SyslogMessageEventHandler(logbus_MessageReceived);
+                logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
                 logbus.Start();
 
                 //Init FFDA
