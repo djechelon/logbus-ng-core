@@ -13,7 +13,8 @@
 // 
 #pragma warning disable 1591
 
-namespace It.Unina.Dis.Logbus.RemoteLogbus {
+namespace It.Unina.Dis.Logbus.RemoteLogbus
+{
     using System.Diagnostics;
     using System.Web.Services;
     using System.ComponentModel;
@@ -21,1024 +22,1204 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus {
     using System;
     using System.Xml.Serialization;
     using It.Unina.Dis.Logbus.Filters;
-    
-    
+
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="ChannelManagement", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class ChannelManagement : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelManagement {
-        
+    [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelManagement", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class ChannelManagement : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelManagement
+    {
+
         private System.Threading.SendOrPostCallback ListChannelsOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback CreateChannelOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback GetChannelInformationOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback DeleteChannelOperationCompleted;
-        
+
         private bool useDefaultCredentialsSetExplicitly;
-        
+
         /// <remarks/>
-        public ChannelManagement() {
-            if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
+        public ChannelManagement()
+        {
+            if ((this.IsLocalFileSystemWebService(this.Url) == true))
+            {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
             }
-            else {
+            else
+            {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
-        public new string Url {
-            get {
+
+        public new string Url
+        {
+            get
+            {
                 return base.Url;
             }
-            set {
-                if ((((this.IsLocalFileSystemWebService(base.Url) == true) 
-                            && (this.useDefaultCredentialsSetExplicitly == false)) 
-                            && (this.IsLocalFileSystemWebService(value) == false))) {
+            set
+            {
+                if ((((this.IsLocalFileSystemWebService(base.Url) == true)
+                            && (this.useDefaultCredentialsSetExplicitly == false))
+                            && (this.IsLocalFileSystemWebService(value) == false)))
+                {
                     base.UseDefaultCredentials = false;
                 }
                 base.Url = value;
             }
         }
-        
-        public new bool UseDefaultCredentials {
-            get {
+
+        public new bool UseDefaultCredentials
+        {
+            get
+            {
                 return base.UseDefaultCredentials;
             }
-            set {
+            set
+            {
                 base.UseDefaultCredentials = value;
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
+
         /// <remarks/>
         public event ListChannelsCompletedEventHandler ListChannelsCompleted;
-        
+
         /// <remarks/>
         public event CreateChannelCompletedEventHandler CreateChannelCompleted;
-        
+
         /// <remarks/>
         public event GetChannelInformationCompletedEventHandler GetChannelInformationCompleted;
-        
+
         /// <remarks/>
         public event DeleteChannelCompletedEventHandler DeleteChannelCompleted;
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public string[] ListChannels() {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public string[] ListChannels()
+        {
             object[] results = this.Invoke("ListChannels", new object[0]);
             return ((string[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void ListChannelsAsync() {
+        public void ListChannelsAsync()
+        {
             this.ListChannelsAsync(null);
         }
-        
+
         /// <remarks/>
-        public void ListChannelsAsync(object userState) {
-            if ((this.ListChannelsOperationCompleted == null)) {
+        public void ListChannelsAsync(object userState)
+        {
+            if ((this.ListChannelsOperationCompleted == null))
+            {
                 this.ListChannelsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnListChannelsOperationCompleted);
             }
             this.InvokeAsync("ListChannels", new object[0], this.ListChannelsOperationCompleted, userState);
         }
-        
-        private void OnListChannelsOperationCompleted(object arg) {
-            if ((this.ListChannelsCompleted != null)) {
+
+        private void OnListChannelsOperationCompleted(object arg)
+        {
+            if ((this.ListChannelsCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ListChannelsCompleted(this, new ListChannelsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation)
+        {
             this.Invoke("CreateChannel", new object[] {
                         channelcreation});
         }
-        
+
         /// <remarks/>
-        public void CreateChannelAsync(ChannelCreationInformation channelcreation) {
+        public void CreateChannelAsync(ChannelCreationInformation channelcreation)
+        {
             this.CreateChannelAsync(channelcreation, null);
         }
-        
+
         /// <remarks/>
-        public void CreateChannelAsync(ChannelCreationInformation channelcreation, object userState) {
-            if ((this.CreateChannelOperationCompleted == null)) {
+        public void CreateChannelAsync(ChannelCreationInformation channelcreation, object userState)
+        {
+            if ((this.CreateChannelOperationCompleted == null))
+            {
                 this.CreateChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCreateChannelOperationCompleted);
             }
             this.InvokeAsync("CreateChannel", new object[] {
                         channelcreation}, this.CreateChannelOperationCompleted, userState);
         }
-        
-        private void OnCreateChannelOperationCompleted(object arg) {
-            if ((this.CreateChannelCompleted != null)) {
+
+        private void OnCreateChannelOperationCompleted(object arg)
+        {
+            if ((this.CreateChannelCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.CreateChannelCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string channelid) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid)
+        {
             object[] results = this.Invoke("GetChannelInformation", new object[] {
                         channelid});
             return ((ChannelInformation)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void GetChannelInformationAsync(string channelid) {
+        public void GetChannelInformationAsync(string channelid)
+        {
             this.GetChannelInformationAsync(channelid, null);
         }
-        
+
         /// <remarks/>
-        public void GetChannelInformationAsync(string channelid, object userState) {
-            if ((this.GetChannelInformationOperationCompleted == null)) {
+        public void GetChannelInformationAsync(string channelid, object userState)
+        {
+            if ((this.GetChannelInformationOperationCompleted == null))
+            {
                 this.GetChannelInformationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetChannelInformationOperationCompleted);
             }
             this.InvokeAsync("GetChannelInformation", new object[] {
                         channelid}, this.GetChannelInformationOperationCompleted, userState);
         }
-        
-        private void OnGetChannelInformationOperationCompleted(object arg) {
-            if ((this.GetChannelInformationCompleted != null)) {
+
+        private void OnGetChannelInformationOperationCompleted(object arg)
+        {
+            if ((this.GetChannelInformationCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetChannelInformationCompleted(this, new GetChannelInformationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string channelid) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid)
+        {
             this.Invoke("DeleteChannel", new object[] {
                         channelid});
         }
-        
+
         /// <remarks/>
-        public void DeleteChannelAsync(string channelid) {
+        public void DeleteChannelAsync(string channelid)
+        {
             this.DeleteChannelAsync(channelid, null);
         }
-        
+
         /// <remarks/>
-        public void DeleteChannelAsync(string channelid, object userState) {
-            if ((this.DeleteChannelOperationCompleted == null)) {
+        public void DeleteChannelAsync(string channelid, object userState)
+        {
+            if ((this.DeleteChannelOperationCompleted == null))
+            {
                 this.DeleteChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteChannelOperationCompleted);
             }
             this.InvokeAsync("DeleteChannel", new object[] {
                         channelid}, this.DeleteChannelOperationCompleted, userState);
         }
-        
-        private void OnDeleteChannelOperationCompleted(object arg) {
-            if ((this.DeleteChannelCompleted != null)) {
+
+        private void OnDeleteChannelOperationCompleted(object arg)
+        {
+            if ((this.DeleteChannelCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.DeleteChannelCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        public new void CancelAsync(object userState) {
+        public new void CancelAsync(object userState)
+        {
             base.CancelAsync(userState);
         }
-        
-        private bool IsLocalFileSystemWebService(string url) {
-            if (((url == null) 
-                        || (url == string.Empty))) {
+
+        private bool IsLocalFileSystemWebService(string url)
+        {
+            if (((url == null)
+                        || (url == string.Empty)))
+            {
                 return false;
             }
             System.Uri wsUri = new System.Uri(url);
-            if (((wsUri.Port >= 1024) 
-                        && (string.Compare(wsUri.Host, "localHost", System.StringComparison.OrdinalIgnoreCase) == 0))) {
+            if (((wsUri.Port >= 1024)
+                        && (string.Compare(wsUri.Host, "localHost", System.StringComparison.OrdinalIgnoreCase) == 0)))
+            {
                 return true;
             }
             return false;
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="ChannelSubscription", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class ChannelSubscription : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelSubscription {
-        
+    [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelSubscription", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class ChannelSubscription : System.Web.Services.Protocols.SoapHttpClientProtocol, IChannelSubscription
+    {
+
         private System.Threading.SendOrPostCallback ListChannelsOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback GetAvailableTransportsOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback SubscribeChannelOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback UnsubscribeChannelOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback RefreshSubscriptionOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback GetAvailableFiltersOperationCompleted;
-        
+
         private System.Threading.SendOrPostCallback DescribeFilterOperationCompleted;
-        
+
         private bool useDefaultCredentialsSetExplicitly;
-        
+
         /// <remarks/>
-        public ChannelSubscription() {
-            if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
+        public ChannelSubscription()
+        {
+            if ((this.IsLocalFileSystemWebService(this.Url) == true))
+            {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
             }
-            else {
+            else
+            {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
-        public new string Url {
-            get {
+
+        public new string Url
+        {
+            get
+            {
                 return base.Url;
             }
-            set {
-                if ((((this.IsLocalFileSystemWebService(base.Url) == true) 
-                            && (this.useDefaultCredentialsSetExplicitly == false)) 
-                            && (this.IsLocalFileSystemWebService(value) == false))) {
+            set
+            {
+                if ((((this.IsLocalFileSystemWebService(base.Url) == true)
+                            && (this.useDefaultCredentialsSetExplicitly == false))
+                            && (this.IsLocalFileSystemWebService(value) == false)))
+                {
                     base.UseDefaultCredentials = false;
                 }
                 base.Url = value;
             }
         }
-        
-        public new bool UseDefaultCredentials {
-            get {
+
+        public new bool UseDefaultCredentials
+        {
+            get
+            {
                 return base.UseDefaultCredentials;
             }
-            set {
+            set
+            {
                 base.UseDefaultCredentials = value;
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
+
         /// <remarks/>
         public event ListChannelsCompletedEventHandler ListChannelsCompleted;
-        
+
         /// <remarks/>
         public event GetAvailableTransportsCompletedEventHandler GetAvailableTransportsCompleted;
-        
+
         /// <remarks/>
         public event SubscribeChannelCompletedEventHandler SubscribeChannelCompleted;
-        
+
         /// <remarks/>
         public event UnsubscribeChannelCompletedEventHandler UnsubscribeChannelCompleted;
-        
+
         /// <remarks/>
         public event RefreshSubscriptionCompletedEventHandler RefreshSubscriptionCompleted;
-        
+
         /// <remarks/>
         public event GetAvailableFiltersCompletedEventHandler GetAvailableFiltersCompleted;
-        
+
         /// <remarks/>
         public event DescribeFilterCompletedEventHandler DescribeFilterCompleted;
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public string[] ListChannels() {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public string[] ListChannels()
+        {
             object[] results = this.Invoke("ListChannels", new object[0]);
             return ((string[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void ListChannelsAsync() {
+        public void ListChannelsAsync()
+        {
             this.ListChannelsAsync(null);
         }
-        
+
         /// <remarks/>
-        public void ListChannelsAsync(object userState) {
-            if ((this.ListChannelsOperationCompleted == null)) {
+        public void ListChannelsAsync(object userState)
+        {
+            if ((this.ListChannelsOperationCompleted == null))
+            {
                 this.ListChannelsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnListChannelsOperationCompleted);
             }
             this.InvokeAsync("ListChannels", new object[0], this.ListChannelsOperationCompleted, userState);
         }
-        
-        private void OnListChannelsOperationCompleted(object arg) {
-            if ((this.ListChannelsCompleted != null)) {
+
+        private void OnListChannelsOperationCompleted(object arg)
+        {
+            if ((this.ListChannelsCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ListChannelsCompleted(this, new ListChannelsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableTransports", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public string[] GetAvailableTransports() {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableTransports", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public string[] GetAvailableTransports()
+        {
             object[] results = this.Invoke("GetAvailableTransports", new object[0]);
             return ((string[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void GetAvailableTransportsAsync() {
+        public void GetAvailableTransportsAsync()
+        {
             this.GetAvailableTransportsAsync(null);
         }
-        
+
         /// <remarks/>
-        public void GetAvailableTransportsAsync(object userState) {
-            if ((this.GetAvailableTransportsOperationCompleted == null)) {
+        public void GetAvailableTransportsAsync(object userState)
+        {
+            if ((this.GetAvailableTransportsOperationCompleted == null))
+            {
                 this.GetAvailableTransportsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAvailableTransportsOperationCompleted);
             }
             this.InvokeAsync("GetAvailableTransports", new object[0], this.GetAvailableTransportsOperationCompleted, userState);
         }
-        
-        private void OnGetAvailableTransportsOperationCompleted(object arg) {
-            if ((this.GetAvailableTransportsCompleted != null)) {
+
+        private void OnGetAvailableTransportsOperationCompleted(object arg)
+        {
+            if ((this.GetAvailableTransportsCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetAvailableTransportsCompleted(this, new GetAvailableTransportsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#SubscribeChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("channel-sub-response", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public ChannelSubscriptionResponse SubscribeChannel([System.Xml.Serialization.XmlElementAttribute("channel-sub-request", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] ChannelSubscriptionRequest channelsubrequest) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#SubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("channel-sub-response", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public ChannelSubscriptionResponse SubscribeChannel([System.Xml.Serialization.XmlElementAttribute("channel-sub-request", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelSubscriptionRequest channelsubrequest)
+        {
             object[] results = this.Invoke("SubscribeChannel", new object[] {
                         channelsubrequest});
             return ((ChannelSubscriptionResponse)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void SubscribeChannelAsync(ChannelSubscriptionRequest channelsubrequest) {
+        public void SubscribeChannelAsync(ChannelSubscriptionRequest channelsubrequest)
+        {
             this.SubscribeChannelAsync(channelsubrequest, null);
         }
-        
+
         /// <remarks/>
-        public void SubscribeChannelAsync(ChannelSubscriptionRequest channelsubrequest, object userState) {
-            if ((this.SubscribeChannelOperationCompleted == null)) {
+        public void SubscribeChannelAsync(ChannelSubscriptionRequest channelsubrequest, object userState)
+        {
+            if ((this.SubscribeChannelOperationCompleted == null))
+            {
                 this.SubscribeChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSubscribeChannelOperationCompleted);
             }
             this.InvokeAsync("SubscribeChannel", new object[] {
                         channelsubrequest}, this.SubscribeChannelOperationCompleted, userState);
         }
-        
-        private void OnSubscribeChannelOperationCompleted(object arg) {
-            if ((this.SubscribeChannelCompleted != null)) {
+
+        private void OnSubscribeChannelOperationCompleted(object arg)
+        {
+            if ((this.SubscribeChannelCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SubscribeChannelCompleted(this, new SubscribeChannelCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#UnsubscribeChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void UnsubscribeChannel([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string clientid) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#UnsubscribeChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void UnsubscribeChannel([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid)
+        {
             this.Invoke("UnsubscribeChannel", new object[] {
                         clientid});
         }
-        
+
         /// <remarks/>
-        public void UnsubscribeChannelAsync(string clientid) {
+        public void UnsubscribeChannelAsync(string clientid)
+        {
             this.UnsubscribeChannelAsync(clientid, null);
         }
-        
+
         /// <remarks/>
-        public void UnsubscribeChannelAsync(string clientid, object userState) {
-            if ((this.UnsubscribeChannelOperationCompleted == null)) {
+        public void UnsubscribeChannelAsync(string clientid, object userState)
+        {
+            if ((this.UnsubscribeChannelOperationCompleted == null))
+            {
                 this.UnsubscribeChannelOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUnsubscribeChannelOperationCompleted);
             }
             this.InvokeAsync("UnsubscribeChannel", new object[] {
                         clientid}, this.UnsubscribeChannelOperationCompleted, userState);
         }
-        
-        private void OnUnsubscribeChannelOperationCompleted(object arg) {
-            if ((this.UnsubscribeChannelCompleted != null)) {
+
+        private void OnUnsubscribeChannelOperationCompleted(object arg)
+        {
+            if ((this.UnsubscribeChannelCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.UnsubscribeChannelCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void RefreshSubscription([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string clientid) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#RefreshSubscription", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        public void RefreshSubscription([System.Xml.Serialization.XmlElementAttribute("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid)
+        {
             this.Invoke("RefreshSubscription", new object[] {
                         clientid});
         }
-        
+
         /// <remarks/>
-        public void RefreshSubscriptionAsync(string clientid) {
+        public void RefreshSubscriptionAsync(string clientid)
+        {
             this.RefreshSubscriptionAsync(clientid, null);
         }
-        
+
         /// <remarks/>
-        public void RefreshSubscriptionAsync(string clientid, object userState) {
-            if ((this.RefreshSubscriptionOperationCompleted == null)) {
+        public void RefreshSubscriptionAsync(string clientid, object userState)
+        {
+            if ((this.RefreshSubscriptionOperationCompleted == null))
+            {
                 this.RefreshSubscriptionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRefreshSubscriptionOperationCompleted);
             }
             this.InvokeAsync("RefreshSubscription", new object[] {
                         clientid}, this.RefreshSubscriptionOperationCompleted, userState);
         }
-        
-        private void OnRefreshSubscriptionOperationCompleted(object arg) {
-            if ((this.RefreshSubscriptionCompleted != null)) {
+
+        private void OnRefreshSubscriptionOperationCompleted(object arg)
+        {
+            if ((this.RefreshSubscriptionCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.RefreshSubscriptionCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableFilters", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public string[] GetAvailableFilters() {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetAvailableFilters", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public string[] GetAvailableFilters()
+        {
             object[] results = this.Invoke("GetAvailableFilters", new object[0]);
             return ((string[])(results[0]));
         }
-        
+
         /// <remarks/>
-        public void GetAvailableFiltersAsync() {
+        public void GetAvailableFiltersAsync()
+        {
             this.GetAvailableFiltersAsync(null);
         }
-        
+
         /// <remarks/>
-        public void GetAvailableFiltersAsync(object userState) {
-            if ((this.GetAvailableFiltersOperationCompleted == null)) {
+        public void GetAvailableFiltersAsync(object userState)
+        {
+            if ((this.GetAvailableFiltersOperationCompleted == null))
+            {
                 this.GetAvailableFiltersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAvailableFiltersOperationCompleted);
             }
             this.InvokeAsync("GetAvailableFilters", new object[0], this.GetAvailableFiltersOperationCompleted, userState);
         }
-        
-        private void OnGetAvailableFiltersOperationCompleted(object arg) {
-            if ((this.GetAvailableFiltersCompleted != null)) {
+
+        private void OnGetAvailableFiltersOperationCompleted(object arg)
+        {
+            if ((this.GetAvailableFiltersCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetAvailableFiltersCompleted(this, new GetAvailableFiltersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("filter-description", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-        public FilterDescription DescribeFilter([System.Xml.Serialization.XmlElementAttribute("filter-id", Namespace="http://www.dis.unina.it/logbus-ng/wsdl")] string filterid) {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DescribeFilter", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("filter-description", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+        public FilterDescription DescribeFilter([System.Xml.Serialization.XmlElementAttribute("filter-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string filterid)
+        {
             object[] results = this.Invoke("DescribeFilter", new object[] {
                         filterid});
             return ((FilterDescription)(results[0]));
         }
-        
+
         /// <remarks/>
-        public void DescribeFilterAsync(string filterid) {
+        public void DescribeFilterAsync(string filterid)
+        {
             this.DescribeFilterAsync(filterid, null);
         }
-        
+
         /// <remarks/>
-        public void DescribeFilterAsync(string filterid, object userState) {
-            if ((this.DescribeFilterOperationCompleted == null)) {
+        public void DescribeFilterAsync(string filterid, object userState)
+        {
+            if ((this.DescribeFilterOperationCompleted == null))
+            {
                 this.DescribeFilterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDescribeFilterOperationCompleted);
             }
             this.InvokeAsync("DescribeFilter", new object[] {
                         filterid}, this.DescribeFilterOperationCompleted, userState);
         }
-        
-        private void OnDescribeFilterOperationCompleted(object arg) {
-            if ((this.DescribeFilterCompleted != null)) {
+
+        private void OnDescribeFilterOperationCompleted(object arg)
+        {
+            if ((this.DescribeFilterCompleted != null))
+            {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.DescribeFilterCompleted(this, new DescribeFilterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-        
+
         /// <remarks/>
-        public new void CancelAsync(object userState) {
+        public new void CancelAsync(object userState)
+        {
             base.CancelAsync(userState);
         }
-        
-        private bool IsLocalFileSystemWebService(string url) {
-            if (((url == null) 
-                        || (url == string.Empty))) {
+
+        private bool IsLocalFileSystemWebService(string url)
+        {
+            if (((url == null)
+                        || (url == string.Empty)))
+            {
                 return false;
             }
             System.Uri wsUri = new System.Uri(url);
-            if (((wsUri.Port >= 1024) 
-                        && (string.Compare(wsUri.Host, "localHost", System.StringComparison.OrdinalIgnoreCase) == 0))) {
+            if (((wsUri.Port >= 1024)
+                        && (string.Compare(wsUri.Host, "localHost", System.StringComparison.OrdinalIgnoreCase) == 0)))
+            {
                 return true;
             }
             return false;
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class ChannelCreationInformation {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class ChannelCreationInformation
+    {
+
         private string idField;
-        
+
         private string titleField;
-        
+
         private string descriptionField;
-        
+
         private long coalescenceWindowField;
-        
+
         private FilterBase filterField;
-        
+
         /// <remarks/>
-        public string id {
-            get {
+        public string id
+        {
+            get
+            {
                 return this.idField;
             }
-            set {
+            set
+            {
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        public string title {
-            get {
+        public string title
+        {
+            get
+            {
                 return this.titleField;
             }
-            set {
+            set
+            {
                 this.titleField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public string description {
-            get {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable = true)]
+        public string description
+        {
+            get
+            {
                 return this.descriptionField;
             }
-            set {
+            set
+            {
                 this.descriptionField = value;
             }
         }
-        
+
         /// <remarks/>
-        public long coalescenceWindow {
-            get {
+        public long coalescenceWindow
+        {
+            get
+            {
                 return this.coalescenceWindowField;
             }
-            set {
+            set
+            {
                 this.coalescenceWindowField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-        public FilterBase filter {
-            get {
+        [System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+        public FilterBase filter
+        {
+            get
+            {
                 return this.filterField;
             }
-            set {
+            set
+            {
                 this.filterField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class FilterDescription {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class FilterDescription
+    {
+
         private string descriptionField;
-        
+
         private string idField;
-        
-        private string nameField;
-        
+
         /// <remarks/>
-        public string description {
-            get {
+        public string description
+        {
+            get
+            {
                 return this.descriptionField;
             }
-            set {
+            set
+            {
                 this.descriptionField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string id {
-            get {
+        public string id
+        {
+            get
+            {
                 return this.idField;
             }
-            set {
+            set
+            {
                 this.idField = value;
             }
         }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class ChannelSubscriptionResponse {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class ChannelSubscriptionResponse
+    {
+
         private KeyValuePair[] paramField;
-        
+
         private string clientidField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("param")]
-        public KeyValuePair[] param {
-            get {
+        public KeyValuePair[] param
+        {
+            get
+            {
                 return this.paramField;
             }
-            set {
+            set
+            {
                 this.paramField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute("client-id")]
-        public string clientid {
-            get {
+        public string clientid
+        {
+            get
+            {
                 return this.clientidField;
             }
-            set {
+            set
+            {
                 this.clientidField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class KeyValuePair {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class KeyValuePair
+    {
+
         private string nameField;
-        
+
         private string valueField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string name {
-            get {
+        public string name
+        {
+            get
+            {
                 return this.nameField;
             }
-            set {
+            set
+            {
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string value {
-            get {
+        public string value
+        {
+            get
+            {
                 return this.valueField;
             }
-            set {
+            set
+            {
                 this.valueField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class ChannelSubscriptionRequest {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class ChannelSubscriptionRequest
+    {
+
         private KeyValuePair[] paramField;
-        
+
         private string channelidField;
-        
+
         private string transportField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("param")]
-        public KeyValuePair[] param {
-            get {
+        public KeyValuePair[] param
+        {
+            get
+            {
                 return this.paramField;
             }
-            set {
+            set
+            {
                 this.paramField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute("channel-id")]
-        public string channelid {
-            get {
+        public string channelid
+        {
+            get
+            {
                 return this.channelidField;
             }
-            set {
+            set
+            {
                 this.channelidField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string transport {
-            get {
+        public string transport
+        {
+            get
+            {
                 return this.transportField;
             }
-            set {
+            set
+            {
                 this.transportField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/wsdl")]
-    public partial class ChannelInformation {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+    public partial class ChannelInformation
+    {
+
         private string idField;
-        
+
         private string titleField;
-        
+
         private string descriptionField;
-        
+
         private long coalescenceWindowField;
-        
+
         private string clientsField;
-        
+
         private FilterBase filterField;
-        
+
         /// <remarks/>
-        public string id {
-            get {
+        public string id
+        {
+            get
+            {
                 return this.idField;
             }
-            set {
+            set
+            {
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        public string title {
-            get {
+        public string title
+        {
+            get
+            {
                 return this.titleField;
             }
-            set {
+            set
+            {
                 this.titleField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public string description {
-            get {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable = true)]
+        public string description
+        {
+            get
+            {
                 return this.descriptionField;
             }
-            set {
+            set
+            {
                 this.descriptionField = value;
             }
         }
-        
+
         /// <remarks/>
-        public long coalescenceWindow {
-            get {
+        public long coalescenceWindow
+        {
+            get
+            {
                 return this.coalescenceWindowField;
             }
-            set {
+            set
+            {
                 this.coalescenceWindowField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="positiveInteger")]
-        public string clients {
-            get {
+        [System.Xml.Serialization.XmlElementAttribute(DataType = "positiveInteger")]
+        public string clients
+        {
+            get
+            {
                 return this.clientsField;
             }
-            set {
+            set
+            {
                 this.clientsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-        public FilterBase filter {
-            get {
+        [System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+        public FilterBase filter
+        {
+            get
+            {
                 return this.filterField;
             }
-            set {
+            set
+            {
                 this.filterField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/filters")]
-    public partial class FilterParameter {
-        
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    public partial class FilterParameter
+    {
+
         private object valueField;
-        
+
         private string nameField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
-        public object value {
-            get {
+        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = true)]
+        public object value
+        {
+            get
+            {
                 return this.valueField;
             }
-            set {
+            set
+            {
                 this.valueField = value;
             }
         }
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string name {
-            get {
+        public string name
+        {
+            get
+            {
                 return this.nameField;
             }
-            set {
+            set
+            {
                 this.nameField = value;
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void ListChannelsCompletedEventHandler(object sender, ListChannelsCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class ListChannelsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
+    public partial class ListChannelsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs
+    {
+
         private object[] results;
-        
-        internal ListChannelsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
+
+        internal ListChannelsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+            base(exception, cancelled, userState)
+        {
             this.results = results;
         }
-        
+
         /// <remarks/>
-        public string[] Result {
-            get {
+        public string[] Result
+        {
+            get
+            {
                 this.RaiseExceptionIfNecessary();
                 return ((string[])(this.results[0]));
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void CreateChannelCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void GetChannelInformationCompletedEventHandler(object sender, GetChannelInformationCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetChannelInformationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
+    public partial class GetChannelInformationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs
+    {
+
         private object[] results;
-        
-        internal GetChannelInformationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
+
+        internal GetChannelInformationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+            base(exception, cancelled, userState)
+        {
             this.results = results;
         }
-        
+
         /// <remarks/>
-        public ChannelInformation Result {
-            get {
+        public ChannelInformation Result
+        {
+            get
+            {
                 this.RaiseExceptionIfNecessary();
                 return ((ChannelInformation)(this.results[0]));
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void DeleteChannelCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void GetAvailableTransportsCompletedEventHandler(object sender, GetAvailableTransportsCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetAvailableTransportsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
+    public partial class GetAvailableTransportsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs
+    {
+
         private object[] results;
-        
-        internal GetAvailableTransportsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
+
+        internal GetAvailableTransportsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+            base(exception, cancelled, userState)
+        {
             this.results = results;
         }
-        
+
         /// <remarks/>
-        public string[] Result {
-            get {
+        public string[] Result
+        {
+            get
+            {
                 this.RaiseExceptionIfNecessary();
                 return ((string[])(this.results[0]));
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void SubscribeChannelCompletedEventHandler(object sender, SubscribeChannelCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SubscribeChannelCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
+    public partial class SubscribeChannelCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs
+    {
+
         private object[] results;
-        
-        internal SubscribeChannelCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
+
+        internal SubscribeChannelCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+            base(exception, cancelled, userState)
+        {
             this.results = results;
         }
-        
+
         /// <remarks/>
-        public ChannelSubscriptionResponse Result {
-            get {
+        public ChannelSubscriptionResponse Result
+        {
+            get
+            {
                 this.RaiseExceptionIfNecessary();
                 return ((ChannelSubscriptionResponse)(this.results[0]));
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void UnsubscribeChannelCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void RefreshSubscriptionCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void GetAvailableFiltersCompletedEventHandler(object sender, GetAvailableFiltersCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetAvailableFiltersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
+    public partial class GetAvailableFiltersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs
+    {
+
         private object[] results;
-        
-        internal GetAvailableFiltersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
+
+        internal GetAvailableFiltersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+            base(exception, cancelled, userState)
+        {
             this.results = results;
         }
-        
+
         /// <remarks/>
-        public string[] Result {
-            get {
+        public string[] Result
+        {
+            get
+            {
                 this.RaiseExceptionIfNecessary();
                 return ((string[])(this.results[0]));
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     public delegate void DescribeFilterCompletedEventHandler(object sender, DescribeFilterCompletedEventArgs e);
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class DescribeFilterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
+    public partial class DescribeFilterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs
+    {
+
         private object[] results;
-        
-        internal DescribeFilterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
+
+        internal DescribeFilterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) :
+            base(exception, cancelled, userState)
+        {
             this.results = results;
         }
-        
+
         /// <remarks/>
-        public FilterDescription Result {
-            get {
+        public FilterDescription Result
+        {
+            get
+            {
                 this.RaiseExceptionIfNecessary();
                 return ((FilterDescription)(this.results[0]));
             }
