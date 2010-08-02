@@ -80,7 +80,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             msg.Data.Add("CallerData@" + ENTERPRISE_ID, new Dictionary<String, String>());
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
             msg.Data["CallerData@" + ENTERPRISE_ID].Add("MethodName", stackFrames[2].GetMethod().Name);
-            msg.Data["CallerData@" + ENTERPRISE_ID].Add("AssemblyName", stackFrames[2].GetMethod().DeclaringType.Assembly.GetName().Name);
+            msg.Data["CallerData@" + ENTERPRISE_ID].Add("ModuleName", stackFrames[2].GetMethod().DeclaringType.Assembly.GetName().Name);
             if (!string.IsNullOrEmpty(LogName)) msg.Data["CallerData@" + ENTERPRISE_ID].Add("LogName", LogName);
 
             Target.SubmitMessage(msg);
