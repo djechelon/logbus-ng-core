@@ -17,6 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 namespace It.Unina.Dis.Logbus.Entities
 {
     public sealed class EntityPlugin
