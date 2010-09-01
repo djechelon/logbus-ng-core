@@ -73,12 +73,9 @@ namespace Unit_Tests
         [TestMethod]
         public void FFDATest()
         {
-            AndFilter ffda_filter = new AndFilter();
-            ffda_filter.filter = new FilterBase[]
-            {
-                new FacilityEqualsFilter() { facility = Facility.Local0 },
-                new PropertyFilter() { comparison = ComparisonOperator.eq, propertyName = Property.MessageID, value = "FFDA" }
-            };
+            FilterBase ffda_filter =
+                new FacilityEqualsFilter() { facility = Facility.Local0 } &
+                new PropertyFilter() { comparison = ComparisonOperator.eq, propertyName = Property.MessageID, value = "FFDA" };
 
             StringBuilder markup = new StringBuilder();
             new XmlSerializer(typeof(FilterBase)).Serialize(XmlTextWriter.Create(markup, new XmlWriterSettings() { Indent = true }), ffda_filter, ffda_filter.xmlns);
