@@ -21,6 +21,7 @@ using System;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Clients;
 using System.Threading;
+using It.Unina.Dis.Logbus;
 
 namespace DemoWarningClient
 {
@@ -49,7 +50,7 @@ namespace DemoWarningClient
             try
             {
                 logclient = ClientHelper.CreateDefaultClient(warning_filter);
-                logclient.MessageReceived += new It.Unina.Dis.Logbus.EventHandler<SyslogMessageEventArgs>(logclient_MessageReceived);
+                logclient.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logclient_MessageReceived);
 
                 logclient.Start();
                 Console.WriteLine("Listener is started. Press CTRL+C to exit when you are finished");
