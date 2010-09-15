@@ -517,13 +517,17 @@ namespace It.Unina.Dis.Logbus
                         hubThreads[i].Start(queues[i]);
                     }
 
-                    if (forwarding_enabled) forwarding_thread = new Thread(ForwardLoop)
+                    if (forwarding_enabled)
                     {
-                        IsBackground = true,
-                        Priority = ThreadPriority.Normal,
-                        Name = "LogbusService.ForwardLoop"
-                    };
-                    forwarding_thread.Start();
+                        forwarding_queue = new BlockingFifoQueue<SyslogMessage>();
+                        forwarding_thread = new Thread(ForwardLoop)
+                            {
+                                IsBackground = true,
+                                Priority = ThreadPriority.Normal,
+                                Name = "LogbusService.ForwardLoop"
+                            };
+                        forwarding_thread.Start();
+                    }
 
                     //End async start/sync start outbound channels
                     i = 0;
