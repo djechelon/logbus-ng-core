@@ -170,6 +170,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                 Running = true;
                 queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
+                for (int i = 0; i < WORKER_THREADS; i++)
+                    queues[i] = new BlockingFifoQueue<SyslogMessage>();
+
                 running_threads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
