@@ -90,6 +90,9 @@
     <Compile Include="Configuration\PluginDefinition.cs" />
     <Compile Include="Configuration\XmlnsSupport.cs" />
     <Compile Include="IConfigurable.cs" />
+    <Compile Include="ILogSupport.cs" />
+    <Compile Include="InChannels\ReceiverBase.cs" />
+    <Compile Include="InChannels\SyslogTlsReceiver.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="LogbusDaemon.cs">
       <SubType>Component</SubType>
@@ -170,6 +173,8 @@
     <Compile Include="OutTransports\SimpleTransportHelper.cs" />
     <Compile Include="OutTransports\SyslogMulticastTransport.cs" />
     <Compile Include="OutTransports\SyslogMulticastTransportFactory.cs" />
+    <Compile Include="OutTransports\SyslogTlsTransport.cs" />
+    <Compile Include="OutTransports\SyslogTlsTransportFactory.cs" />
     <Compile Include="OutTransports\SyslogUdpTransport.cs" />
     <Compile Include="OutTransports\SyslogUdpTransportFactory.cs" />
     <Compile Include="OutTransports\UdpClientExpire.cs" />
@@ -180,6 +185,7 @@
       <DependentUpon>logbus-filter.xsd</DependentUpon>
     </None>
     <None Include="Schemas\logbus-control.cs" />
+    <Compile Include="Security\ITlsAuthorizator.cs" />
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
