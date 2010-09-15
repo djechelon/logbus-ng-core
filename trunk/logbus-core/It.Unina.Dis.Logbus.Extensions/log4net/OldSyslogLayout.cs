@@ -63,17 +63,11 @@ namespace It.Unina.Dis.Logbus.log4net
             else
                 severity = SyslogSeverity.Emergency;
 
-            SyslogMessage message = new SyslogMessage()
+            SyslogMessage message = new SyslogMessage(Dns.GetHostName(), SyslogFacility.User, severity, loggingEvent.MessageObject.ToString())
             {
-                Timestamp = loggingEvent.TimeStamp,
-                Text = loggingEvent.MessageObject.ToString(),
                 MessageId = "log4net",
                 ProcessID = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture),
-                ApplicationName = Process.GetCurrentProcess().ProcessName,
-                //Log4net default uses User as facility
-                Facility = SyslogFacility.User,
-                Host = Dns.GetHostName(),
-                Severity = severity
+                ApplicationName = Process.GetCurrentProcess().ProcessName
             };
 
             writer.WriteLine(message.ToRfc3164String());
