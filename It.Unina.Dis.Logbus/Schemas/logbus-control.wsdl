@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl">
 	<wsdl:types>
 		<xsi:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl" elementFormDefault="qualified" attributeFormDefault="unqualified">

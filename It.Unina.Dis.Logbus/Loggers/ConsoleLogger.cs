@@ -31,7 +31,7 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            string tstamp = (message.Timestamp.HasValue) ? message.Timestamp.Value.ToString("yyyy-MM-dd-HH:mm:ss") : "-";
+            string tstamp = (message.LocalTimestamp.HasValue) ? message.LocalTimestamp.Value.ToString("yyyy-MM-dd-HH:mm:ss") : "-";
             System.Console.WriteLine("{0} - {1}: {2}",
                 tstamp,
                 System.Enum.GetName(typeof(SyslogSeverity), message.Severity),

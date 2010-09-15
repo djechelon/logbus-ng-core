@@ -48,9 +48,28 @@ namespace It.Unina.Dis.Logbus
         public SyslogSeverity Severity { get; set; }
 
         /// <summary>
-        ///	Time when the message was generated, if available 
+        ///	Time when the message was generated, if available
         /// </summary>
+        /// <remarks>This field should be always set at the UTC time</remarks>
         public DateTime? Timestamp { get; set; }
+
+        /// <summary>
+        /// Time offset between Timestamp field and effective time stamp
+        /// </summary>
+        public TimeSpan? TimeOffset { get; set; }
+
+        /// <summary>
+        /// Local time according to time zone info
+        /// </summary>
+        public DateTime? LocalTimestamp
+        {
+            get
+            {
+                if (Timestamp == null) return null;
+                if (TimeOffset == null) return Timestamp;
+                return Timestamp + TimeOffset;
+            }
+        }
 
         /// <summary>
         ///	Hostname that generated the message, if available 
@@ -90,10 +109,29 @@ namespace It.Unina.Dis.Logbus
         /// <param name="facility">Facility of the message</param>
         /// <param name="level">Severity of message</param>
         /// <param name="text">Text message</param>
+        [Obsolete("You should use SyslogMessage(string host, SyslogFacility facility, SyslogSeverity level, string text)", false)]
         public SyslogMessage(DateTime? timestamp, string host, SyslogFacility facility, SyslogSeverity level, string text)
             : this()
         {
             Timestamp = timestamp;
+            Host = host;
+            Facility = facility;
+            Severity = level;
+            Text = text;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of SyslogMessage with common fields
+        /// </summary>
+        /// <param name="host">Host that generated the message</param>
+        /// <param name="facility">Facility of the message</param>
+        /// <param name="level">Severity of message</param>
+        /// <param name="text">Text message</param>
+        public SyslogMessage(string host, SyslogFacility facility, SyslogSeverity level, string text)
+            : this()
+        {
+            Timestamp = DateTime.UtcNow;
+            TimeOffset = DateTime.Now - Timestamp;
             Host = host;
             Facility = facility;
             Severity = level;
@@ -112,7 +150,8 @@ namespace It.Unina.Dis.Logbus
             Facility = facility;
             Severity = severity;
             Text = text;
-            Timestamp = DateTime.Now;
+            Timestamp = DateTime.UtcNow;
+            TimeOffset = DateTime.Now - Timestamp;
             Host = Dns.GetHostName();
             ProcessID = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
             ApplicationName = Process.GetCurrentProcess().ProcessName;
@@ -523,9 +562,11 @@ namespace It.Unina.Dis.Logbus
                     if (msec_str.IndexOf('.') > -1)
                         msec = Int32.Parse(msec_str.Split('.')[1].Substring(0, 3));
 
+                    //UTC or reference time
                     ret.Timestamp = new DateTime(year, month, day, hour, minute, sec, msec);
-                    ret.Timestamp = ret.Timestamp.Value.AddHours(fusoH);
-                    ret.Timestamp = ret.Timestamp.Value.AddHours(fusoM);
+
+                    //Time zone offset
+                    ret.TimeOffset = new TimeSpan(fusoH, fusoM, 0);
                 }
                 else
                     ret.Timestamp = null;
