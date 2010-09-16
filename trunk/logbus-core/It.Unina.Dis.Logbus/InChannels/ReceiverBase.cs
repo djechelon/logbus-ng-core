@@ -170,12 +170,11 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                 Running = true;
                 queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
-                for (int i = 0; i < WORKER_THREADS; i++)
-                    queues[i] = new BlockingFifoQueue<SyslogMessage>();
 
                 running_threads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
+                    queues[i] = new BlockingFifoQueue<SyslogMessage>();
                     running_threads[i] = new Thread(QueueLoop);
                     running_threads[i].IsBackground = true;
                     running_threads[i].Name = string.Format(CultureInfo.InvariantCulture, "ReceiverBase[{1}].QueueLoop[{0}]", i, Name);
@@ -322,6 +321,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <param name="msg"></param>
         protected void ForwardMessage(SyslogMessage msg)
         {
+            msg.AdjustTimestamp();
             queues[Environment.TickCount % WORKER_THREADS].Enqueue(msg);
         }
 
