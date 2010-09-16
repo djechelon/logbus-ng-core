@@ -228,8 +228,15 @@ namespace It.Unina.Dis.Logbus
             ret.Append(SPACE);
 
             //Timestamp
-            const string TIMESTAMP_FORMAT = @"yyyy-MM-dd\THH:mm:ss\Z";
+            const string TIMESTAMP_FORMAT = @"yyyy-MM-dd\THH:mm:ss";
             ret.Append((Timestamp == null) ? NILVALUE : Timestamp.Value.ToString(TIMESTAMP_FORMAT, CultureInfo.InvariantCulture));
+            if (TimeOffset == null) ret.Append('Z');
+            else
+            {
+                string format = "{0}{1:D2}:{2:D2}";
+                char sign = (TimeOffset.Value.Hours > 0) ? '+' : '-';
+                ret.Append(string.Format(format, sign, Math.Abs(TimeOffset.Value.Hours), TimeOffset.Value.Minutes));
+            }
             ret.Append(SPACE);
 
             //Hostname
@@ -566,10 +573,14 @@ namespace It.Unina.Dis.Logbus
                     ret.Timestamp = new DateTime(year, month, day, hour, minute, sec, msec);
 
                     //Time zone offset
-                    ret.TimeOffset = new TimeSpan(fusoH, fusoM, 0);
+                    if (fusoH == 0 && fusoM == 0) ret.TimeOffset = null;
+                    else ret.TimeOffset = new TimeSpan(fusoH, fusoM, 0);
                 }
                 else
+                {
                     ret.Timestamp = null;
+                    ret.TimeOffset = null;
+                }
                 pointer += timestamp.Length + 1;
 
                 //Calculate HostIP...
