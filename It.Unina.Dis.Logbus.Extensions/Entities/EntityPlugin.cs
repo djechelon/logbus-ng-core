@@ -128,9 +128,8 @@ namespace It.Unina.Dis.Logbus.Entities
             if (disposing)
             {
                 message_queue.Dispose();
+                entity_table.Dispose();
             }
-
-            message_queue = null;
 
             Disposed = true;
         }
