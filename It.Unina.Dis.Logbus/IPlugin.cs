@@ -25,7 +25,7 @@ namespace It.Unina.Dis.Logbus
     /// Represents a Logbus plugin
     /// </summary>
     public interface IPlugin
-        : IDisposable
+        : ILogSupport, IDisposable
     {
         /// <summary>
         /// Tells a plugin to register on Logbus
@@ -37,11 +37,6 @@ namespace It.Unina.Dis.Logbus
         /// Tells the plugin to unregister
         /// </summary>
         void Unregister();
-
-        /// <summary>
-        /// Sets a log to the plugin for internal logging
-        /// </summary>
-        ILog Log { set; }
 
         /// <summary>
         /// Unique plugin name

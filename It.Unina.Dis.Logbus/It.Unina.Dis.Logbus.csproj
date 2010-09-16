@@ -187,6 +187,7 @@
     </None>
     <None Include="Schemas\logbus-control.cs" />
     <Compile Include="Security\ITlsAuthorizator.cs" />
+    <Compile Include="SyslogAttributes.cs" />
     <Compile Include="SyslogFacility.cs" />
     <Compile Include="SyslogSeverity.cs" />
     <Compile Include="SyslogMessage.cs" />
@@ -279,7 +280,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

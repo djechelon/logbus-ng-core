@@ -44,10 +44,12 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         public const int WORKER_THREADS = 4;
 
-        private Thread[] listener_threads;
+        private Thread[] listener_threads, parser_threads;
 
         private Dictionary<string, string> config = new Dictionary<string, string>();
         private UdpClient client;
+
+        private BlockingFifoQueue<byte[]>[] byte_queue;
 
         /// <summary>
         /// Port to listen on
@@ -91,12 +93,21 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
 
             listener_threads = new Thread[WORKER_THREADS];
+            parser_threads = new Thread[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
             {
+                byte_queue[i] = new BlockingFifoQueue<byte[]>();
+
                 listener_threads[i] = new Thread(ListenerLoop);
                 listener_threads[i].Name = string.Format("SyslogUdpReceiver[{1}].ListenerLoop[{0}]", i, Name);
                 listener_threads[i].IsBackground = true;
-                listener_threads[i].Start();
+                listener_threads[i].Priority = ThreadPriority.AboveNormal;
+                listener_threads[i].Start(i);
+
+                parser_threads[i] = new Thread(ParserLoop);
+                parser_threads[i].Name = string.Format("SyslogUdpReceiver[{1}].ListenerLoop[{0}]", i, Name);
+                parser_threads[i].IsBackground = true;
+                parser_threads[i].Start(i);
             }
         }
 
@@ -109,7 +120,18 @@ namespace It.Unina.Dis.Logbus.InChannels
                     listener_threads[i].Join();
                 listener_threads = null;
             }
-            catch (Exception) { } //Really nothing?
+            catch { } //Really nothing?
+
+            try
+            {
+                for (int i = 0; i < WORKER_THREADS; i++)
+                    parser_threads[i].Abort();
+                for (int i = 0; i < WORKER_THREADS; i++)
+                    parser_threads[i].Join();
+                parser_threads = null;
+            }
+            catch { }
+
         }
 
         #region IConfigurable Membri di
@@ -175,14 +197,16 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #endregion
 
-        private void ListenerLoop()
+        private void ParserLoop(object queue)
         {
-            IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
-            while (Running)
+            int queue_id = (int)queue;
+            try
             {
-                try
+                byte[] payload;
+                while (true)
                 {
-                    byte[] payload = client.Receive(ref remote_endpoint);
+                    payload = byte_queue[queue_id].Dequeue();
+
                     try
                     {
                         SyslogMessage new_message = SyslogMessage.Parse(payload);
@@ -193,6 +217,40 @@ namespace It.Unina.Dis.Logbus.InChannels
                         ParseErrorEventArgs e = new ParseErrorEventArgs(payload, ex, false);
                         OnParseError(e);
                     }
+                }
+            }
+            catch (ThreadAbortException)
+            { }
+            finally
+            {
+                byte[][] final_messages = byte_queue[queue_id].FlushAndDispose();
+                foreach (byte[] payload in final_messages)
+                {
+                    try
+                    {
+                        SyslogMessage new_message = SyslogMessage.Parse(payload);
+                        ForwardMessage(new_message);
+                    }
+                    catch (FormatException ex)
+                    {
+                        ParseErrorEventArgs e = new ParseErrorEventArgs(payload, ex, false);
+                        OnParseError(e);
+                    }
+                }
+            }
+        }
+
+        private void ListenerLoop(object queue)
+        {
+            int queue_id = (int)queue;
+            IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
+            while (Running)
+            {
+                try
+                {
+                    byte[] payload = client.Receive(ref remote_endpoint);
+
+                    byte_queue[queue_id].Enqueue(payload);
                 }
                 catch (SocketException)
                 {

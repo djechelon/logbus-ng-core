@@ -36,7 +36,6 @@ namespace It.Unina.Dis.Logbus
     public struct SyslogMessage
     {
 
-
         /// <summary>
         ///	Facility that generated the message 
         /// </summary>
@@ -155,6 +154,61 @@ namespace It.Unina.Dis.Logbus
             Host = Dns.GetHostName();
             ProcessID = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
             ApplicationName = Process.GetCurrentProcess().ProcessName;
+        }
+
+        /// <summary>
+        /// Adjustes timestamp for real-time applications detecting possible bogus timestamps
+        /// </summary>
+        /// <remarks>Apply this method only if you are sure the message is received real-time.
+        /// Old log messages must not be adjusted. Time difference for bogus timestamp is set to 30 days</remarks>
+        public void AdjustTimestamp()
+        {
+            if (Timestamp == null || Math.Abs((DateTime.UtcNow - Timestamp.Value).TotalDays) > 30)
+            {
+                Timestamp = DateTime.UtcNow;
+                TimeOffset = DateTime.Now - DateTime.UtcNow;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves advanced Syslog attributes, if available
+        /// </summary>
+        /// <returns></returns>
+        public SyslogAttributes GetAdvancedAttributes()
+        {
+            SyslogAttributes ret = new SyslogAttributes();
+
+            if (Data != null)
+            {
+                string key = "CallerData@" + Loggers.SimpleLogImpl.ENTERPRISE_ID;
+                if (Data.ContainsKey(key))
+                {
+                    IDictionary<string, string> caller_data = Data[key];
+                    if (caller_data.ContainsKey("ClassName")) ret.ClassName = caller_data["ClassName"];
+                    if (caller_data.ContainsKey("MethodName")) ret.MethodName = caller_data["MethodName"];
+                    if (caller_data.ContainsKey("ModuleName")) ret.ModuleName = caller_data["ModuleName"];
+                    if (caller_data.ContainsKey("LogName")) ret.LogName = caller_data["LogName"];
+                }
+
+                if (Data.ContainsKey("timeQuality"))
+                {
+                    IDictionary<string, string> timequality = Data["timeQuality"];
+                    if (timequality.ContainsKey("tzKnown") && timequality["tzKnown"] == "1") ret.TimeZoneKnown = true;
+                    if (timequality.ContainsKey("isSynced") && timequality["isSynced"] == "1") ret.TimeSynchronized = true;
+                    if (ret.TimeSynchronized && timequality.ContainsKey("syncAccuracy")) long.TryParse(timequality["syncAccuracy"], NumberStyles.Integer, CultureInfo.InvariantCulture, out ret.TimeSyncAccuracy);
+                }
+
+                if (Data.ContainsKey("origin"))
+                {
+                    IDictionary<string, string> origin = Data["origin"];
+                    if (origin.ContainsKey("ip")) IPAddress.TryParse(origin["ip"], out ret.OriginIpAddress);
+                    if (origin.ContainsKey("enterpriseId")) ret.EnterpriseId = origin["enterpriseId"];
+                    if (origin.ContainsKey("software")) ret.OriginatorSoftware = origin["software"];
+                    if (origin.ContainsKey("swVersion")) ret.OriginatorSoftwareVersion = origin["swVersion"];
+                }
+            }
+
+            return ret;
         }
 
         #region Conversion
