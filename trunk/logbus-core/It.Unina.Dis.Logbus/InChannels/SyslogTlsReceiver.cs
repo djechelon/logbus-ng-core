@@ -302,6 +302,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region PEM support
 
+        /*
+         * Code taken from http://social.msdn.microsoft.com/Forums/en/csharpgeneral/thread/d7e2ccea-4bea-4f22-890b-7e48c267657f
+         * */
         private byte[] GetPem(string type, byte[] data)
         {
             string pem = Encoding.UTF8.GetString(data);
