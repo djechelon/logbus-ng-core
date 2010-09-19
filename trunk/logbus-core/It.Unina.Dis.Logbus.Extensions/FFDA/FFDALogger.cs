@@ -28,9 +28,11 @@ using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus.FFDA
 {
-    
+    /// <summary>
+    /// Default implementation of IFFDALogger and IFFDAMonitor
+    /// </summary>
     internal sealed class FFDALogger
-        : SimpleLogImpl, IFFDALogger
+        : SimpleLogImpl, IFFDALogger, IFFDAMonitor
     {
         #region Constructor
         /// <summary>
@@ -156,13 +158,14 @@ namespace It.Unina.Dis.Logbus.FFDA
                 Log("CMP", SyslogSeverity.Info);
         }
 
-        
+
+        #region IFFDAMonitor Membri di
+
         public void LogCOA()
         {
             Log("COA", SyslogSeverity.Alert);
         }
 
-        
         public void LogCOA(string id)
         {
             if (id != null)
@@ -171,5 +174,32 @@ namespace It.Unina.Dis.Logbus.FFDA
                 Log("COA", SyslogSeverity.Alert);
         }
 
+        public void LogEIA()
+        {
+            Log("EIA", SyslogSeverity.Alert);
+        }
+
+        public void LogEIA(string id)
+        {
+            if (id != null)
+                Log("EIA-" + id, SyslogSeverity.Alert);
+            else
+                Log("EIA", SyslogSeverity.Alert);
+        }
+
+        public void LogRIA()
+        {
+            Log("RIA", SyslogSeverity.Alert);
+        }
+
+        public void LogRIA(string id)
+        {
+            if (id != null)
+                Log("RIA-" + id, SyslogSeverity.Alert);
+            else
+                Log("RIA", SyslogSeverity.Alert);
+        }
+
+        #endregion
     }
 }
