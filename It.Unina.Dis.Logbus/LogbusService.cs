@@ -629,28 +629,18 @@ namespace It.Unina.Dis.Logbus
                 //Stop hub and let it flush messages
                 for (i = 0; i < WORKER_THREADS; i++)
                 {
-                    if (hubThreads[i].ThreadState != ThreadState.WaitSleepJoin)
-                        hubThreads[i].Join(500); //Wait if thread is still doing something
-                    if (hubThreads[i].ThreadState != ThreadState.Stopped)
-                    {
-                        //Thread was locked. Going by brute force!!!
-                        hubThreads[i].Abort();
-
-                        hubThreads[i].Join(); //Giving it all the time it needs
-                    }
+                    hubThreads[i].Interrupt();
+                }
+                for (i = 0; i < WORKER_THREADS; i++)
+                {
+                    hubThreads[i].Join(); //Giving it all the time it needs
                 }
 
                 if (forwarding_enabled)
                 {
-                    if (forwarding_thread.ThreadState != ThreadState.WaitSleepJoin)
-                        forwarding_thread.Join(500); //Wait if thread is still doing something
-                    if (forwarding_thread.ThreadState != ThreadState.Stopped)
-                    {
-                        //Thread was locked. Going by brute force!!!
-                        forwarding_thread.Abort();
+                    forwarding_thread.Interrupt();
 
-                        forwarding_thread.Join(); //Giving it all the time it needs
-                    }
+                    forwarding_thread.Join(); //Giving it all the time it needs
                 }
 
                 //End async stp/sync stop out channels
@@ -1170,7 +1160,7 @@ namespace It.Unina.Dis.Logbus
                     }
                 } while (!hubThreadStop);
             }
-            catch (ThreadAbortException) { }
+            catch (ThreadInterruptedException) { }
             finally
             {
                 //Someone is telling me to stop
@@ -1206,7 +1196,7 @@ namespace It.Unina.Dis.Logbus
                     forwarder.SubmitMessage(new_message);
                 } while (!hubThreadStop);
             }
-            catch (ThreadAbortException) { }
+            catch (ThreadInterruptedException) { }
         }
 
         private ILog Log

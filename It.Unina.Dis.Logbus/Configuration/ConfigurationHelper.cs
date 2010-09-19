@@ -18,6 +18,7 @@
 */
 
 using System.Configuration;
+using System.Runtime.CompilerServices;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
@@ -27,19 +28,31 @@ namespace It.Unina.Dis.Logbus.Configuration
     {
         private ConfigurationHelper() { }
 
+        private static LogbusCoreConfiguration _core;
+        private static LogbusClientConfiguration _client;
+        private static LogbusSourceConfiguration _source;
+
         /// <summary>
         /// Configuration for core facility
         /// </summary>
         public static LogbusCoreConfiguration CoreConfiguration
         {
+            [MethodImpl(MethodImplOptions.Synchronized)]
             get
             {
+                if (_core != null) return _core;
                 try
                 {
                     //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                    return ConfigurationManager.GetSection("logbus-core") as LogbusCoreConfiguration;
+                    _core = ConfigurationManager.GetSection("logbus-core") as LogbusCoreConfiguration;
+                    return _core;
                 }
                 catch { return null; }
+            }
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _core = value;
             }
         }
 
@@ -48,14 +61,22 @@ namespace It.Unina.Dis.Logbus.Configuration
         /// </summary>
         public static LogbusSourceConfiguration SourceConfiguration
         {
+            [MethodImpl(MethodImplOptions.Synchronized)]
             get
             {
+                if (_source != null) return _source;
                 try
                 {
                     //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                    return ConfigurationManager.GetSection("logbus-source") as LogbusSourceConfiguration;
+                    _source = ConfigurationManager.GetSection("logbus-source") as LogbusSourceConfiguration;
+                    return _source;
                 }
                 catch { return null; }
+            }
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _source = value;
             }
         }
 
@@ -64,14 +85,22 @@ namespace It.Unina.Dis.Logbus.Configuration
         /// </summary>
         public static LogbusClientConfiguration ClientConfiguration
         {
+            [MethodImpl(MethodImplOptions.Synchronized)]
             get
             {
+                if (_client != null) return _client;
                 try
                 {
                     //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                    return ConfigurationManager.GetSection("logbus-client") as LogbusClientConfiguration;
+                    _client = ConfigurationManager.GetSection("logbus-client") as LogbusClientConfiguration;
+                    return _client;
                 }
                 catch { return null; }
+            }
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _client = value;
             }
         }
     }

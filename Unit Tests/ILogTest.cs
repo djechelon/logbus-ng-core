@@ -118,7 +118,7 @@ namespace Unit_Tests
         {
             try
             {
-                ILog logger = LoggerHelper.CreateUdpLogger(IPAddress.Loopback, SOURCE_PORT);
+                ILog logger = LoggerHelper.CreateUnreliableLogger(IPAddress.Loopback, SOURCE_PORT);
 
                 logger.Warning("Hello warn!");
 
