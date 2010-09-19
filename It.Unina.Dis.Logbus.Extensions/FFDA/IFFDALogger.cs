@@ -113,18 +113,5 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="id">Identification for the current service instance</param>
         /// <remarks>Never use Exception.Message as id: if you need to log such message, use another logger!</remarks>
         void LogCMP(string id);
-
-        /// <summary>
-        /// Logs the event of a Computational Alert
-        /// </summary>
-        /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
-        void LogCOA();
-
-        /// <summary>
-        /// Logs the event of an identified Computational Alert
-        /// </summary>
-        /// <param name="id">Identification for the current service instance</param>
-        /// <remarks>COA is triggered only by an external monitor that detects a failure in the target entity</remarks>
-        void LogCOA(string id);
     }
 }

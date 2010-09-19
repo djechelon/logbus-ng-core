@@ -123,7 +123,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private void Dispose(bool disposing)
         {
-            worker_thread.Abort();
+            worker_thread.Interrupt();
 
             if (disposing)
             {
@@ -269,7 +269,7 @@ namespace It.Unina.Dis.Logbus.Entities
                     }
                 }
             }
-            catch (ThreadAbortException) { }
+            catch (ThreadInterruptedException) { }
         }
 
     }
