@@ -21,12 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using It.Unina.Dis.Logbus.Filters;
-using System.Collections;
 using It.Unina.Dis.Logbus.Configuration;
-using System.Configuration;
 using It.Unina.Dis.Logbus.Utils;
 using System.Runtime.CompilerServices;
-using System.Reflection;
 using System.ComponentModel;
 using It.Unina.Dis.Logbus.Loggers;
 
@@ -825,7 +822,7 @@ namespace It.Unina.Dis.Logbus
         public void RefreshClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
+            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("clientId", "Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {

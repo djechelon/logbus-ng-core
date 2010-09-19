@@ -17,7 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.Filters;
 using System.Collections.Generic;
 using System.Threading;
 using System.Runtime.CompilerServices;
@@ -261,7 +260,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void RefreshClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
+            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("clientId", "Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {

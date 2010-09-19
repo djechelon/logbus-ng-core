@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 
 using CLIENT_ID_TYPE = System.String;
 using CLIENT_INSTRUCTIONS_TYPE = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;

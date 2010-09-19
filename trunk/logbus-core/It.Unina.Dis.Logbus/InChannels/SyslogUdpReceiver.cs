@@ -24,9 +24,7 @@ using System.Threading;
 using System.IO;
 using System.Globalization;
 using System.Net;
-using System.Runtime.CompilerServices;
 using It.Unina.Dis.Logbus.Utils;
-using System.ComponentModel;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {

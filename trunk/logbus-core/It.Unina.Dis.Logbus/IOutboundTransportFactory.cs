@@ -17,9 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Collections.Generic;
-
-
 namespace It.Unina.Dis.Logbus
 {
     

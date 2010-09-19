@@ -18,12 +18,8 @@
 */
 
 using System.Net;
-using It.Unina.Dis.Logbus.Utils;
-using System.Configuration;
 using It.Unina.Dis.Logbus.Configuration;
 using System;
-using It.Unina.Dis.Logbus.Loggers;
-using System.Collections.Generic;
 using It.Unina.Dis.Logbus.InChannels;
 
 namespace It.Unina.Dis.Logbus.Loggers

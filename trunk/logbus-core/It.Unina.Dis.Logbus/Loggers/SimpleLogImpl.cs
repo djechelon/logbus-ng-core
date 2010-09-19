@@ -21,9 +21,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
-using System.Reflection;
 namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
