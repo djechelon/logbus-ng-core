@@ -245,12 +245,15 @@ namespace It.Unina.Dis.Logbus.Entities
                         catch (ConstraintException)
                         {
                             //We suppose we are trying to insert a duplicate primary key, then now we switch to update
-                            DataRow existing_row = entity_table.Rows.Find(message.Host,
+                            object[] keys = new object[]{
+                                message.Host,
                                 (message.ProcessID != null) ? message.ProcessID : message.ApplicationName,
                                 attrs.ModuleName,
                                 attrs.LogName,
                                 attrs.ClassName,
-                                attrs.MethodName);
+                                attrs.MethodName
+                            };
+                            DataRow existing_row = entity_table.Rows.Find(keys);
 
                             existing_row.BeginEdit();
                             existing_row[colFFDA] = ffda;
