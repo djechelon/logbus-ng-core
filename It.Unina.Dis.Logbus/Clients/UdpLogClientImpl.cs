@@ -17,7 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.InChannels;
 using System;
 using System.Net;
 using It.Unina.Dis.Logbus.RemoteLogbus;

@@ -20,9 +20,7 @@
 using System.Configuration;
 using System.Xml.Serialization;
 using System.Xml;
-using System.IO;
 using System;
-using System.Text;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>

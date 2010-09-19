@@ -22,7 +22,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
-using System.Security.Authentication;
 using System.IO;
 using System.Text;
 using System.Globalization;

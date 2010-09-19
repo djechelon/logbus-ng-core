@@ -18,7 +18,6 @@
 */
 
 using System.Text.RegularExpressions;
-using System;
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>

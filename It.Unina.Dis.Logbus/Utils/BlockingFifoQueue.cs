@@ -19,9 +19,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using System.Collections;
 using System;
-
 namespace It.Unina.Dis.Logbus.Utils
 {
     /// <summary>

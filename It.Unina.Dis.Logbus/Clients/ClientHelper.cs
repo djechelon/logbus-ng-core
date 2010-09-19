@@ -18,11 +18,8 @@
 */
 
 using It.Unina.Dis.Logbus.RemoteLogbus;
-using It.Unina.Dis.Logbus.Utils;
-using System.Collections;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Configuration;
-using System.Configuration;
 using System;
 
 namespace It.Unina.Dis.Logbus.Clients

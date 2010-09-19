@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using It.Unina.Dis.Logbus.Filters;
-using System.ComponentModel;
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>

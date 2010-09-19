@@ -18,7 +18,6 @@
 */
 
 using System;
-using It.Unina.Dis.Logbus.Loggers;
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
