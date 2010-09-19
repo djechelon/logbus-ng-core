@@ -77,7 +77,7 @@ namespace Unit_Tests
             int logbus_port = 3569;
 
             ILog actual;
-            actual = LoggerHelper.CreateUdpLogger(logbus_ip, logbus_port);
+            actual = LoggerHelper.CreateUnreliableLogger(logbus_ip, logbus_port);
 
             Assert.IsNotNull(actual);
         }

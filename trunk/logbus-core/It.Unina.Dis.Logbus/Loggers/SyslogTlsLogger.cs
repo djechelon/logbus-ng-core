@@ -38,10 +38,14 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         #region Constructor/Destructor
 
-        public SyslogTlsLogger(string remote_ip, int remote_port)
+        public SyslogTlsLogger()
         {
-            this.remote_host = remote_host;
-            this.port = remote_port;
+        }
+
+        public SyslogTlsLogger(string remote_host, int remote_port)
+        {
+            host = remote_host;
+            port = remote_port;
         }
 
         ~SyslogTlsLogger()
@@ -62,7 +66,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         public IPEndPoint RemoteEndPoint { get; set; }
 
         private TcpClient client;
-        private string remote_host;
+        private string host;
         private int port;
         private SslStream remote_stream;
         private string certificate_path;
@@ -75,7 +79,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             if (client == null)
             {
-                if (remote_host == null) throw new InvalidOperationException("Remote address not specified");
+                if (host == null) throw new InvalidOperationException("Remote address not specified");
                 if (port < 1 || port > 65535) port = InChannels.SyslogTlsReceiver.TLS_PORT;
 
                 client = new TcpClient();
@@ -84,19 +88,13 @@ namespace It.Unina.Dis.Logbus.Loggers
             if (!client.Connected)
                 try
                 {
-                    client.Connect(remote_host, port);
-                    remote_stream = new SslStream(client.GetStream());
+                    client.Connect(host, port);
+                    remote_stream = new SslStream(client.GetStream(), false, tls_server_validator, tls_client_selector);
                     remote_stream.WriteTimeout = 3600000;
 
-                    if (clientCertificate != null)
-                    {
-                        X509CertificateCollection certs = new X509CertificateCollection(new X509Certificate[] { clientCertificate });
-                        remote_stream.AuthenticateAsClient(remote_host, certs, SslProtocols.Tls, true);
-                    }
-                    else
-                    {
-                        remote_stream.AuthenticateAsClient(remote_host);
-                    }
+                    //remote_stream.AuthenticateAsClient(host, null, SslProtocols.Tls, true);
+                    remote_stream.AuthenticateAsClient(host);
+
                     sw = new StreamWriter(remote_stream, Encoding.UTF8);
                 }
                 catch (Exception ex)
@@ -106,9 +104,17 @@ namespace It.Unina.Dis.Logbus.Loggers
 
             string payload = message.ToRfc5424String();
             sw.Write(string.Format("{0} {1}", payload.Length.ToString(CultureInfo.InvariantCulture), payload));
-
         }
 
+        private bool tls_server_validator(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+        private X509Certificate tls_client_selector(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        {
+            return clientCertificate;
+        }
         #endregion
 
         #region IDisposable Membri di
@@ -129,7 +135,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             switch (key)
             {
                 case "host":
-                    return remote_host;
+                    return host;
                 case "port":
                     return port.ToString(CultureInfo.InvariantCulture);
                 case "certificate":
@@ -156,7 +162,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                     {
                         try
                         {
-                            remote_host = value;
+                            host = value;
                         }
                         catch (Exception ex)
                         {

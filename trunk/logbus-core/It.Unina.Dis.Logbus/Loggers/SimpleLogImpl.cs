@@ -59,18 +59,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         protected SyslogFacility Facility { get; set; }
         protected ILogCollector Target { get; set; }
 
-        protected virtual void Log(string message, SyslogSeverity severity)
+        protected virtual void PreProcessMessage(ref SyslogMessage msg)
         {
-            String host = Environment.MachineName;
-            String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
-            String appname = Process.GetCurrentProcess().ProcessName;
-
-            SyslogMessage msg = new SyslogMessage(host, Facility, severity, message)
-            {
-                ProcessID = procid,
-                ApplicationName = appname
-            };
-
             // Getting the caller information(note that index is 2 because of Log is called by another local Method... 
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
@@ -78,9 +68,9 @@ namespace It.Unina.Dis.Logbus.Loggers
 
             Dictionary<string, string> caller_data = new Dictionary<string, string>();
             msg.Data.Add("CallerData@" + ENTERPRISE_ID, caller_data);
-            caller_data.Add("ClassName", stackFrames[2].GetMethod().DeclaringType.FullName);
-            caller_data.Add("MethodName", stackFrames[2].GetMethod().Name);
-            caller_data.Add("ModuleName", stackFrames[2].GetMethod().DeclaringType.Assembly.GetName().Name);
+            caller_data.Add("ClassName", stackFrames[3].GetMethod().DeclaringType.FullName);
+            caller_data.Add("MethodName", stackFrames[3].GetMethod().Name);
+            caller_data.Add("ModuleName", stackFrames[3].GetMethod().DeclaringType.Assembly.GetName().Name);
             if (!string.IsNullOrEmpty(LogName)) caller_data.Add("LogName", LogName);
 
             //Standard timeQuality
@@ -114,6 +104,21 @@ namespace It.Unina.Dis.Logbus.Loggers
             }
             meta.Add("sysUpTime", up_time.ToString(CultureInfo.InvariantCulture));
 #endif
+        }
+
+        protected virtual void Log(string message, SyslogSeverity severity)
+        {
+            String host = Environment.MachineName;
+            String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
+            String appname = Process.GetCurrentProcess().ProcessName;
+
+            SyslogMessage msg = new SyslogMessage(host, Facility, severity, message)
+            {
+                ProcessID = procid,
+                ApplicationName = appname
+            };
+
+            PreProcessMessage(ref msg);
 
             Target.SubmitMessage(msg);
         }

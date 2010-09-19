@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{93B0EBA6-3C73-45AB-A64C-C33DD12D3244}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,6 +14,7 @@
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Dummy.snk</AssemblyOriginatorKeyFile>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -86,6 +87,7 @@
     <Compile Include="SyslogUdpReceiverRuntimeTest.cs" />
     <Compile Include="SyslogUdpReceiverTest.cs" />
     <Compile Include="TestClasses\TestTransportFactory.cs" />
+    <Compile Include="TLSTest.cs" />
     <Compile Include="WebServiceActivatorTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +114,8 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Dummy.snk" />
+    <None Include="Files\logbus.p12" />
+    <None Include="Files\logbus.pem" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -122,6 +126,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)App.config" "$(TargetPath).config"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)Files\logbus.pem" "C:\logbus.pem"
+copy /Y "$(ProjectDir)App.config" "$(TargetPath).config"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -174,7 +174,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     try
                     {
                         Thread.BeginCriticalRegion();
-                        worker_thread.Abort();
+                        worker_thread.Interrupt();
                     }
                     finally
                     {
@@ -401,7 +401,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                         }
                 }
             }
-            catch (ThreadAbortException)
+            catch (ThreadInterruptedException)
             { }
             finally
             {

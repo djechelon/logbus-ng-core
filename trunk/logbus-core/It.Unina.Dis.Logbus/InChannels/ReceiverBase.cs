@@ -86,7 +86,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             private set;
         }
 
-        private Thread[] running_threads;
+        private Thread[] queue_threads;
         private BlockingFifoQueue<SyslogMessage>[] queues;
 
         /// <summary>
@@ -171,14 +171,14 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Running = true;
                 queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
 
-                running_threads = new Thread[WORKER_THREADS];
+                queue_threads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
                     queues[i] = new BlockingFifoQueue<SyslogMessage>();
-                    running_threads[i] = new Thread(QueueLoop);
-                    running_threads[i].IsBackground = true;
-                    running_threads[i].Name = string.Format(CultureInfo.InvariantCulture, "ReceiverBase[{1}].QueueLoop[{0}]", i, Name);
-                    running_threads[i].Start(i);
+                    queue_threads[i] = new Thread(QueueLoop);
+                    queue_threads[i].IsBackground = true;
+                    queue_threads[i].Name = string.Format(CultureInfo.InvariantCulture, "ReceiverBase[{1}].QueueLoop[{0}]", i, Name);
+                    queue_threads[i].Start(i);
                 }
 
                 if (Started != null) Started(this, EventArgs.Empty);
@@ -213,11 +213,14 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                 Running = false;
 
-                for (int i = 0; i < WORKER_THREADS; i++)
-                    running_threads[i].Join();
-                running_threads = null;
-
                 OnStop();
+
+                for (int i = 0; i < WORKER_THREADS; i++)
+                {
+                    queue_threads[i].Interrupt();
+                    queue_threads[i].Join();
+                }
+                queue_threads = null;
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
                 Log.Info(string.Format("Inbound channel {0} stopped", Name));
@@ -335,6 +338,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     SyslogMessage new_message = queues[id].Dequeue();
                     if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
                 }
+                catch (ThreadInterruptedException) { return; } //End thread
                 catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
             }
         }

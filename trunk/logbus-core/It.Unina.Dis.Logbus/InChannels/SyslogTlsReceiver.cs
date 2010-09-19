@@ -72,7 +72,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Gets or sets the SSL certificate for the current server
         /// </summary>
-        public X509Certificate Certificate
+        public X509Certificate2 Certificate
         {
             get;
             set;
@@ -194,11 +194,19 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
-        private void LoadCertificate(string value)
+        private void LoadCertificate(string path)
         {
             try
             {
-                Certificate = new X509Certificate(value);
+                if (path.EndsWith(".pem"))
+                {
+                    Certificate = LoadPemCertificate(path);
+                    return;
+                }
+                else //Should be .p12
+                {
+                    Certificate = new X509Certificate2(path);
+                }
             }
             catch (Exception ex)
             {
@@ -250,12 +258,11 @@ namespace It.Unina.Dis.Logbus.InChannels
                 lock (clients) clients.Add(client);
                 // A client has connected. Create the 
                 // SslStream using the client's network stream.
-                using (SslStream sslStream = new SslStream(
-                    client.GetStream(), false))
+                using (SslStream sslStream = new SslStream(client.GetStream(), false))
                     // Authenticate the server but don't require the client to authenticate.
                     try
                     {
-                        sslStream.AuthenticateAsServer(Certificate);
+                        sslStream.AuthenticateAsServer(Certificate, false, SslProtocols.Tls, true);
 
                         sslStream.ReadTimeout = 3600000; //1 hour
 
@@ -292,5 +299,36 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
 
         }
+
+        #region PEM support
+
+        private byte[] GetPem(string type, byte[] data)
+        {
+            string pem = Encoding.UTF8.GetString(data);
+            string header = String.Format(@"-----BEGIN {0}-----", type);
+            string footer = String.Format(@"-----END {0}-----", type);
+            int start = pem.IndexOf(header) + header.Length;
+            int end = pem.IndexOf(footer, start);
+            string base64 = pem.Substring(start, (end - start));
+            return Convert.FromBase64String(base64);
+        }
+
+        private X509Certificate2 LoadPemCertificate(string filename)
+        {
+            using (FileStream fs = File.OpenRead(filename))
+            {
+                byte[] data = new byte[fs.Length];
+                byte[] res = null;
+                fs.Read(data, 0, data.Length);
+                if (data[0] != 0x30)
+                {
+                    res = GetPem("RSA PRIVATE KEY", data);
+                }
+                X509Certificate2 x509 = new X509Certificate2(res); //Exception hit here
+                return x509;
+            }
+        }
+
+        #endregion
     }
 }

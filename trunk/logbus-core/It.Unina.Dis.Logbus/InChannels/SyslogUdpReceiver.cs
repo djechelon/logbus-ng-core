@@ -125,7 +125,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             try
             {
                 for (int i = 0; i < WORKER_THREADS; i++)
-                    parser_threads[i].Abort();
+                    parser_threads[i].Interrupt();
                 for (int i = 0; i < WORKER_THREADS; i++)
                     parser_threads[i].Join();
                 parser_threads = null;
@@ -219,7 +219,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
                 }
             }
-            catch (ThreadAbortException)
+            catch (ThreadInterruptedException)
             { }
             finally
             {
