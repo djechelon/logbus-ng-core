@@ -348,7 +348,11 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 if (plugins != null)
-                    foreach (IPlugin plugin in plugins) plugin.Register(this);
+                    foreach (IPlugin plugin in plugins)
+                    {
+                        plugin.Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+                        plugin.Register(this);
+                    }
             }
             catch (LogbusConfigurationException ex)
             {
