@@ -30,69 +30,67 @@ namespace It.Unina.Dis.Logbus.Entities
         : IPlugin
     {
         private ILogBus _logbus;
-        private BlockingFifoQueue<SyslogMessage> message_queue;
-        private Thread worker_thread;
+        private readonly BlockingFifoQueue<SyslogMessage> _messageQueue;
+        private readonly Thread _workerThread;
 
-        private DataColumn colHost, colProc, colModule, colLogger, colClass, colMethod, colFFDA, colLastAction;
-        private UniqueConstraint primary_key;
-        private DataTable entity_table;
+        private readonly DataColumn _colHost, _colProc, _colModule, _colLogger, _colClass, _colMethod, _colFfda, _colLastAction;
+        private readonly UniqueConstraint _primaryKey;
+        private readonly DataTable _entityTable;
 
         #region Constructor/Destructor
 
         public EntityPlugin()
         {
-            message_queue = new BlockingFifoQueue<SyslogMessage>();
+            _messageQueue = new BlockingFifoQueue<SyslogMessage>();
 
-            worker_thread = new Thread(WorkerLoop);
-            worker_thread.IsBackground = true;
-            worker_thread.Name = "EntityPlugin.WorkerLoop";
-            worker_thread.Start();
+            _workerThread = new Thread(WorkerLoop) {IsBackground = true, Name = "EntityPlugin.WorkerLoop"};
+            _workerThread.Start();
 
-            entity_table = new DataTable("Entities");
-            colHost = new DataColumn("Host", typeof(string))
+            _entityTable = new DataTable("Entities");
+            _colHost = new DataColumn("Host", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = true,
                 Unique = false
             };
-            colProc = new DataColumn("Process", typeof(string))
+            _colProc = new DataColumn("Process", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = true,
                 Unique = false
             };
-            colModule = new DataColumn("Module", typeof(string))
+            _colModule = new DataColumn("Module", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = true,
                 Unique = false
             };
-            colLogger = new DataColumn("Logger", typeof(string))
+            _colLogger = new DataColumn("Logger", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = true,
                 Unique = false
             };
-            colClass = new DataColumn("Class", typeof(string))
+            _colClass = new DataColumn("Class", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = true,
                 Unique = false
             };
-            colMethod = new DataColumn("Method", typeof(string))
+            _colMethod = new DataColumn("Method", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = true,
                 Unique = false
             };
-            colFFDA = new DataColumn("FFDA", typeof(bool))
+            _colFfda = new DataColumn("FFDA", typeof(bool))
             {
                 AllowDBNull = false,
                 DefaultValue = false,
                 ReadOnly = false,
                 Unique = false
             };
-            colLastAction = new DataColumn("LastAction", typeof(DateTime))
+            _colLastAction = new DataColumn("LastAction", typeof(DateTime))
             {
                 AllowDBNull = false,
                 ReadOnly = false,
@@ -100,20 +98,20 @@ namespace It.Unina.Dis.Logbus.Entities
                 DateTimeMode = DataSetDateTime.Utc,
             };
 
-            entity_table.Columns.Add(colHost);
-            entity_table.Columns.Add(colProc);
-            entity_table.Columns.Add(colModule);
-            entity_table.Columns.Add(colLogger);
-            entity_table.Columns.Add(colClass);
-            entity_table.Columns.Add(colMethod);
-            entity_table.Columns.Add(colFFDA);
-            entity_table.Columns.Add(colLastAction);
+            _entityTable.Columns.Add(_colHost);
+            _entityTable.Columns.Add(_colProc);
+            _entityTable.Columns.Add(_colModule);
+            _entityTable.Columns.Add(_colLogger);
+            _entityTable.Columns.Add(_colClass);
+            _entityTable.Columns.Add(_colMethod);
+            _entityTable.Columns.Add(_colFfda);
+            _entityTable.Columns.Add(_colLastAction);
 
-            primary_key = new UniqueConstraint(new DataColumn[] { colHost, colProc, colModule, colLogger, colClass, colMethod }, true)
+            _primaryKey = new UniqueConstraint(new DataColumn[] { _colHost, _colProc, _colModule, _colLogger, _colClass, _colMethod }, true)
             {
                 ConstraintName = "Primary"
             };
-            entity_table.Constraints.Add(primary_key);
+            _entityTable.Constraints.Add(_primaryKey);
         }
 
         ~EntityPlugin()
@@ -123,12 +121,12 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private void Dispose(bool disposing)
         {
-            worker_thread.Interrupt();
+            _workerThread.Interrupt();
 
             if (disposing)
             {
-                message_queue.Dispose();
-                entity_table.Dispose();
+                _messageQueue.Dispose();
+                _entityTable.Dispose();
             }
 
             _disposed = true;
@@ -213,7 +211,9 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private void logbus_MessageReceived(object sender, SyslogMessageEventArgs e)
         {
-            message_queue.Enqueue(e.Message);
+            SyslogMessage message = e.Message;
+            if (message.Facility == SyslogFacility.Internally) return; //Skip all syslog-internal messages
+            _messageQueue.Enqueue(message);
         }
 
         private void WorkerLoop()
@@ -222,9 +222,9 @@ namespace It.Unina.Dis.Logbus.Entities
             {
                 while (true)
                 {
-                    SyslogMessage message = message_queue.Dequeue();
+                    SyslogMessage message = _messageQueue.Dequeue();
 
-                    if (message.Facility == SyslogFacility.Internally) continue; //Skip all syslog-internal messages
+                    //if (message.Facility == SyslogFacility.Internally) continue; //Redundant
 
                     SyslogAttributes attrs = message.GetAdvancedAttributes();
 
@@ -233,8 +233,7 @@ namespace It.Unina.Dis.Logbus.Entities
                     {
                         try
                         {
-
-                            entity_table.Rows.Add(
+                            _entityTable.Rows.Add(
                                 message.Host,
                                 message.ProcessID ?? message.ApplicationName,
                                 attrs.ModuleName,
@@ -244,6 +243,15 @@ namespace It.Unina.Dis.Logbus.Entities
                                 ffda,
                                 message.Timestamp
                                 );
+
+                            Log.Debug("Acquired new entity: ({0}|{1}|{2}|{3}|{4}|{5}), {6}FFDA-enabled",
+                                message.Host ?? "NULL",
+                                message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                attrs.ModuleName ?? "NULL",
+                                attrs.LogName ?? "NULL",
+                                attrs.ClassName ?? "NULL",
+                                attrs.MethodName ?? "NULL",
+                                ffda ? "" : "not ");
                         }
                         catch (ConstraintException)
                         {
@@ -256,14 +264,20 @@ namespace It.Unina.Dis.Logbus.Entities
                                 attrs.ClassName,
                                 attrs.MethodName
                             };
-                            DataRow existingRow = entity_table.Rows.Find(keys);
+                            DataRow existingRow = _entityTable.Rows.Find(keys);
 
-                            if (existingRow[colFFDA].Equals((true))) continue; //No need to update a correct row
                             existingRow.BeginEdit();
-                            existingRow[colFFDA] = ffda;
-                            existingRow[colLastAction] = message.Timestamp;
+                            existingRow[_colFfda] = ffda;
+                            existingRow[_colLastAction] = message.Timestamp;
                             existingRow.EndEdit();
 
+                            Log.Debug("Entity ({0}|{1}|{2}|{3}|{4}|{5}) is now FFDA-enabled",
+                                message.Host ?? "NULL",
+                                message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                attrs.ModuleName ?? "NULL",
+                                attrs.LogName ?? "NULL",
+                                attrs.ClassName ?? "NULL",
+                                attrs.MethodName ?? "NULL");
                         }
                     }
                     catch (Exception ex)
@@ -276,5 +290,15 @@ namespace It.Unina.Dis.Logbus.Entities
             catch (ThreadInterruptedException) { }
         }
 
+        internal sealed class EntityManagerProxy: MarshalByRefObject
+        {
+            private DataTable _table;
+
+            internal EntityManagerProxy(DataTable data)
+            {
+                if(data==null) throw new ArgumentNullException("data");
+                _table = data;
+            }
+        }
     }
 }

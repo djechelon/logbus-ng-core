@@ -39,9 +39,6 @@ namespace It.Unina.Dis.Logbus.WebServices
         private const string AsmxTemplate = @"<%@ WebService Language=""C#"" Class=""{0}"" %>";
 
         #region Constructor
-        static WebServiceActivator()
-        {
-        }
 
         /// <remarks/>
         private WebServiceActivator(ILogBus instance, int port)
