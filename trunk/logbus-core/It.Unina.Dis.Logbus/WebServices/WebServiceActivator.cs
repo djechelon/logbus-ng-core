@@ -27,6 +27,7 @@ using System.Web;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 namespace It.Unina.Dis.Logbus.WebServices
 {
     /// <summary>
@@ -35,6 +36,8 @@ namespace It.Unina.Dis.Logbus.WebServices
     /// <remarks>Credits to http://msdn.microsoft.com/en-us/magazine/cc163879.aspx</remarks>
     public sealed class WebServiceActivator
     {
+        private const string AsmxTemplate = @"<%@ WebService Language=""C#"" Class=""{0}"" %>";
+
         #region Constructor
         static WebServiceActivator()
         {
@@ -43,7 +46,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         /// <remarks/>
         private WebServiceActivator(ILogBus instance, int port)
         {
-            target = instance; httpPort = port;
+            _target = instance; _httpPort = port;
         }
 
         /// <remarks/>
@@ -63,30 +66,34 @@ namespace It.Unina.Dis.Logbus.WebServices
             set;
         }
 
-        private ILogBus target;
-        private int httpPort;
-        private HttpListenerController ctr;
-        private string physical_path;
-        private Logbus2SoapAdapter adapter;
+        private readonly ILogBus _target;
+        private readonly int _httpPort;
+        private HttpListenerController _ctr;
+        private string _physicalPath;
 
         private void StartService()
         {
-            string app_path = InstallRuntime();
-            string[] prefixes = new string[] { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", httpPort) };
+            string appPath = InstallRuntime();
+            string[] prefixes = new string[] { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
 
-            ctr = new HttpListenerController(prefixes, "/", app_path);
-            adapter = new Logbus2SoapAdapter(target);
+            _ctr = new HttpListenerController(prefixes, "/", appPath);
 
-            ctr.Start();
+            _ctr.Start();
             //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
-            object wrapper = (target is MarshalByRefObject) ? target : new LogBusTie(target);
-            ctr.Domain.SetData("Logbus", wrapper);
+            MarshalByRefObject wrapper = (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target);
+            _ctr.Domain.SetData("Logbus", wrapper);
+
+            foreach (IPlugin plugin in _target.Plugins)
+            {
+                MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
+            }
         }
 
         private void StopService()
         {
-            ctr.Stop();
-            UninstallRuntime(physical_path);
+            _ctr.Stop();
+            UninstallRuntime(_physicalPath);
         }
 
         /// <summary>
@@ -137,49 +144,100 @@ namespace It.Unina.Dis.Logbus.WebServices
         /// <remarks>Uninstall method must be called upon dispose, otherwise junk files would be left in the file system</remarks>
         private string InstallRuntime()
         {
-            string dirname = Path.GetRandomFileName();
-            string fullpath = Path.Combine(Path.GetTempPath(), dirname);
-            if (File.Exists(fullpath)) File.Delete(fullpath);
-
-            //Create temporary directory for ASP.NET
-            Directory.CreateDirectory(fullpath);
-            physical_path = fullpath;
-
-            //Copy .asmx files from assembly to directory
-            string resname_mgm = "It.Unina.Dis.Logbus.WebServices.LogbusManagement.asmx",
-                resname_sub = "It.Unina.Dis.Logbus.WebServices.LogbusSubscription.asmx";
-            //resname_asax = "It.Unina.Dis.Logbus.WebServices.Global.asax";
-            string mgm_fname = "LogbusManagement.asmx", sub_fname = "LogbusSubscription.asmx";
+            try
             {
-                string ws_declaration;
-                using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream(resname_mgm), Encoding.Default))
-                    ws_declaration = string.Format(sr.ReadToEnd(), typeof(ChannelManagementService).AssemblyQualifiedName);
+                string dirname = Path.GetRandomFileName();
+                string fullpath = Path.Combine(Path.GetTempPath(), dirname);
+                if (File.Exists(fullpath)) File.Delete(fullpath);
 
-                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(physical_path, mgm_fname)), Encoding.Default))
-                    bw.Write(ws_declaration);
-            }
+                //Create temporary directory for ASP.NET
+                Directory.CreateDirectory(fullpath);
+                _physicalPath = fullpath;
 
-            {
-                string ws_declaration;
-                using (StreamReader sr = new StreamReader(GetType().Assembly.GetManifestResourceStream(resname_sub), Encoding.Default))
-                    ws_declaration = string.Format(sr.ReadToEnd(), typeof(ChannelSubscriptionService).AssemblyQualifiedName);
+                //Copy .asmx files from assembly to directory
+                const string mgmFname = "LogbusManagement.asmx";
+                const string subFname = "LogbusSubscription.asmx";
+                {
+                    string wsDeclaration = string.Format(AsmxTemplate,
+                                                         typeof(ChannelManagementService).AssemblyQualifiedName);
 
-                using (StreamWriter bw = new StreamWriter(File.Create(Path.Combine(physical_path, sub_fname)), Encoding.Default))
-                    bw.Write(ws_declaration);
-            }
+                    using (
+                        StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, mgmFname)),
+                                                           Encoding.Default))
+                        sw.Write(wsDeclaration);
+                }
 
+                {
+                    string wsDeclaration = string.Format(AsmxTemplate,
+                                                         typeof(ChannelSubscriptionService).AssemblyQualifiedName);
 
-            if (!Assembly.GetExecutingAssembly().GlobalAssemblyCache)
-            {
-                //Deploy assembly too
-                string codebase = Assembly.GetExecutingAssembly().Location;
+                    using (
+                        StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, subFname)),
+                                                           Encoding.Default))
+                        sw.Write(wsDeclaration);
+                }
+
                 string bindir = Path.Combine(fullpath, "bin");
-                Directory.CreateDirectory(bindir);
-                File.Copy(codebase, Path.Combine(bindir, Path.GetFileName(codebase)));
-            }
+                if (!GetType().Assembly.GlobalAssemblyCache)
+                {
+                    //Deploy assembly too
+                    string codebase = Assembly.GetExecutingAssembly().Location;
+                    if (!Directory.Exists(bindir)) Directory.CreateDirectory(bindir);
+                    File.Copy(codebase, Path.Combine(bindir, Path.GetFileName(codebase)));
+                }
 
-            //Return the path
-            return fullpath;
+                //Install plugins, if any
+                foreach (IPlugin plugin in _target.Plugins)
+                {
+                    WsdlSkeletonDefinition[] defs = plugin.GetWsdlSkeletons();
+                    if (defs != null)
+                        foreach (WsdlSkeletonDefinition def in defs)
+                        {
+                            if (def.SkeletonType == null)
+                                throw new LogbusException(string.Format("Plugin {0} declares empty skeleton type",
+                                                                        plugin.Name));
+                            if (def.SkeletonType.IsAssignableFrom(typeof(System.Web.Services.WebService)))
+                                throw new LogbusException(
+                                    string.Format("Plugin {0} does not declare a valid WSDL skeleton type", plugin.Name));
+
+                            string fname = def.UrlFileName;
+                            if (fname.EndsWith(".asmx", false, CultureInfo.InvariantCulture))
+                                fname = fname.Substring(0, fname.Length - 5);
+
+                            if (Regex.IsMatch(fname, @"^[a-zA-Z0-9_\.-%]+$", RegexOptions.CultureInvariant))
+                                throw new LogbusException(string.Format(
+                                    "Plugin {0} declares invalid WSDL endpoint: {1}",
+                                    plugin.Name, def.UrlFileName));
+
+                            string wsDeclaration = string.Format(AsmxTemplate, def.SkeletonType.AssemblyQualifiedName);
+
+                            using (
+                                StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, fname)),
+                                                                   Encoding.Default))
+                                sw.Write(wsDeclaration);
+
+                            //Copy skeleton asembly if needed
+                            Assembly skeletonAssembly = def.SkeletonType.Assembly;
+                            if (skeletonAssembly.Equals(GetType().Assembly) || skeletonAssembly.GlobalAssemblyCache)
+                                continue;
+                            string codebase = def.SkeletonType.Assembly.Location;
+                            string binpath = Path.Combine(bindir, Path.GetFileName(codebase));
+
+                            if (!File.Exists(binpath)) File.Copy(codebase, binpath);
+                        }
+                }
+
+                //Return the path
+                return fullpath;
+            }
+            catch (LogbusException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new LogbusException("Unable to install ASP.NET runtime", ex);
+            }
         }
 
         /// <summary>
