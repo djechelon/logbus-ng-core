@@ -14,7 +14,7 @@ namespace LogbusWebapp
             try
             {
                 Application.Lock();
-                
+
                 Application[ChannelManagementService.APPLICATION_KEY] = logbus;
                 Application[ChannelSubscriptionService.APPLICATION_KEY] = logbus;
                 Application["LogbusInstance"] = logbus;
@@ -22,6 +22,18 @@ namespace LogbusWebapp
             finally
             {
                 Application.UnLock();
+            }
+
+            //Load plugins root proxy
+            if (logbus.Plugins != null)
+            {
+                foreach (IPlugin plugin in logbus.Plugins)
+                {
+                    if (plugin == null) continue; //Should never happen by design
+                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+
+                    if (pluginRoot != null) AppDomain.CurrentDomain.SetData(plugin.Name, pluginRoot);
+                }
             }
         }
 
