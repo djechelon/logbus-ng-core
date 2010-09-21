@@ -29,11 +29,23 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// Creates an FFDA logger that sends messages in Syslog format via UDP
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
+        /// <param name="logbus_host">IP address of logbus target</param>
         /// <param name="logbus_port">UDP port of logbus target</param>
         /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
         /// <remarks>Facility is set to Local0 as default value</remarks>
         public static IFFDALogger CreateFFDALogger(string logbus_host, int logbus_port)
+        {
+            return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_host, logbus_port));
+        }
+
+        /// <summary>
+        /// Creates an FFDA logger that sends messages in Syslog format via UDP
+        /// </summary>
+        /// <param name="logbus_host">IP address of logbus target</param>
+        /// <param name="logbus_port">UDP port of logbus target</param>
+        /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
+        /// <remarks>Facility is set to Local0 as default value</remarks>
+        public static IFFDALogger CreateFFDALogger(IPAddress logbus_host, int logbus_port)
         {
             return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_host, logbus_port));
         }
