@@ -201,7 +201,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                             if (fname.EndsWith(".asmx", false, CultureInfo.InvariantCulture))
                                 fname = fname.Substring(0, fname.Length - 5);
 
-                            if (Regex.IsMatch(fname, @"^[a-zA-Z0-9_\.-%]+$", RegexOptions.CultureInvariant))
+                            if (!Regex.IsMatch(fname, @"^[a-zA-Z0-9_\.\-%]+$", RegexOptions.CultureInvariant))
                                 throw new LogbusException(string.Format(
                                     "Plugin {0} declares invalid WSDL endpoint: {1}",
                                     plugin.Name, def.UrlFileName));
