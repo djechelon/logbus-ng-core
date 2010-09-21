@@ -230,8 +230,6 @@
     <Content Include="Schemas\logbus-control.wsdl" />
     <Content Include="Schemas\logbus-filter.xsd" />
     <None Include="Schemas\make-config.bat" />
-    <EmbeddedResource Include="WebServices\LogbusManagement.asmx" />
-    <EmbeddedResource Include="WebServices\LogbusSubscription.asmx" />
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
@@ -279,7 +277,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
