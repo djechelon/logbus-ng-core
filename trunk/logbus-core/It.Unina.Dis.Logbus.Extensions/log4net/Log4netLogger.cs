@@ -47,7 +47,7 @@ namespace It.Unina.Dis.Logbus.log4net
             if (logger == null) logger = LogManager.GetLogger(GetType()).Logger;
 
             LoggingEventData ld = new LoggingEventData();
-            ld.TimeStamp = message.Timestamp.Value;
+            if (message.Timestamp != null) ld.TimeStamp = message.Timestamp.Value;
             ld.Message = message.Text;
             ld.ThreadName = System.Threading.Thread.CurrentThread.Name;
 

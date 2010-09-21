@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         : System.MarshalByRefObject, IChannelManagement, IChannelSubscription
     {
 
-        private ILogBus target;
+        private readonly ILogBus _target;
 
         /// <summary>
         /// Initializes the wrapper with a properly initialized target
@@ -36,16 +36,16 @@ namespace It.Unina.Dis.Logbus.Wrappers
         public Logbus2SoapAdapter(ILogBus targetInstance)
         {
             if (targetInstance == null) throw new System.ArgumentNullException("targetInstance");
-            target = targetInstance;
+            _target = targetInstance;
         }
 
         #region IChannelManagement Membri di
 
         string[] IChannelManagement.ListChannels()
         {
-            string[] ret = new string[target.OutboundChannels.Count];
+            string[] ret = new string[_target.OutboundChannels.Count];
             int i = 0;
-            foreach (IOutboundChannel chan in target.OutboundChannels)
+            foreach (IOutboundChannel chan in _target.OutboundChannels)
             {
                 ret[i] = chan.ID;
                 i++;
@@ -55,7 +55,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
         void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
         {
-            target.CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
+            _target.CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
         }
 
         It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation IChannelManagement.GetChannelInformation(string id)
@@ -63,7 +63,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
             if (string.IsNullOrEmpty(id)) throw new System.ArgumentNullException("id");
             IOutboundChannel chan = null;
 
-            foreach (IOutboundChannel ch in target.OutboundChannels)
+            foreach (IOutboundChannel ch in _target.OutboundChannels)
                 if (ch.ID == id)
                 {
                     chan = ch;
@@ -88,7 +88,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
             if (string.IsNullOrEmpty(id)) throw new System.ArgumentNullException("id");
             IOutboundChannel chan = null;
 
-            foreach (IOutboundChannel ch in target.OutboundChannels)
+            foreach (IOutboundChannel ch in _target.OutboundChannels)
                 if (ch.ID == id)
                 {
                     chan = ch;
@@ -97,7 +97,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
             if (chan.SubscribedClients > 0) throw new System.InvalidOperationException("Unable to delete channels to which there are still subscribed clients");
             chan.Stop();
-            target.OutboundChannels.Remove(chan);
+            _target.OutboundChannels.Remove(chan);
         }
 
         #endregion
@@ -111,7 +111,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
         string[] IChannelSubscription.GetAvailableTransports()
         {
-            return target.AvailableTransports;
+            return _target.AvailableTransports;
         }
 
         It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionRequest request)
@@ -123,7 +123,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
             string clientid;
             try
             {
-                clientid = target.SubscribeClient(request.channelid, request.transport, in_params, out out_params);
+                clientid = _target.SubscribeClient(request.channelid, request.transport, in_params, out out_params);
             }
             catch
             {
@@ -145,7 +145,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         {
             try
             {
-                target.UnsubscribeClient(id);
+                _target.UnsubscribeClient(id);
             }
             catch
             {
@@ -157,7 +157,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         {
             try
             {
-                target.RefreshClient(id);
+                _target.RefreshClient(id);
             }
             catch
             {

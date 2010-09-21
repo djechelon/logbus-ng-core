@@ -33,9 +33,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="logbus_port">UDP port of logbus target</param>
         /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
         /// <remarks>Facility is set to Local0 as default value</remarks>
-        public static IFFDALogger CreateFFDALogger(IPAddress logbus_ip, int logbus_port)
+        public static IFFDALogger CreateFFDALogger(string logbus_host, int logbus_port)
         {
-            return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_ip, logbus_port));
+            return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_host, logbus_port));
         }
 
         /// <summary>

@@ -27,11 +27,8 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// <summary>
     /// This class provides services for Log sources (clients which generate log messages and want to send them to Logbus)
     /// </summary>
-    public sealed class LoggerHelper
+    public static class LoggerHelper
     {
-
-        private LoggerHelper() { }
-
         static LoggerHelper()
         {
             try
@@ -57,7 +54,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
         public static ILogCollector CreateDefaultCollector()
         {
-            if (Configuration != null && Configuration.logger != null || Configuration.logger.Length > 0)
+            if (Configuration != null && Configuration.logger != null && Configuration.logger.Length > 0)
             {
                 //Try to find the first logger marked default
                 foreach (LoggerDefinition def in Configuration.logger)
@@ -107,141 +104,186 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <summary>
         /// Creates a Log collector which uses Syslog UDP sending
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateUdpCollector(IPAddress logbus_ip, int logbus_port)
+        public static ILogCollector CreateUdpCollector(IPAddress logbusIp, int logbusPort)
         {
-            return new SyslogUdpLogger(logbus_ip, logbus_port);
+            return new SyslogUdpLogger(logbusIp, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        public static ILogCollector CreateUdpCollector(string logbusHost, int logbusPort)
+        {
+            return new SyslogUdpLogger(logbusHost, logbusPort);
         }
 
         /// <summary>
         /// Creates a Log collector which uses Syslog TLS sending
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateReliableCollector(string logbus_host, int logbus_port)
+        public static ILogCollector CreateReliableCollector(string logbusHost, int logbusPort)
         {
-            return new SyslogTlsLogger(logbus_host, logbus_port);
+            return new SyslogTlsLogger(logbusHost, logbusPort);
         }
 
         /// <summary>
         /// Creates a simple logger that sends messages in Syslog format via UDP
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
         [Obsolete("You should use CreateUnreliableLogger instead")]
-        public static ILog CreateUdpLogger(IPAddress logbus_ip, int logbus_port)
+        public static ILog CreateUdpLogger(IPAddress logbusIp, int logbusPort)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbus_ip, logbus_port));
+            return new SimpleLogImpl(CreateUdpCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
         /// Creates a simple logger that sends messages in Syslog format via UDP
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateUnreliableLogger(IPAddress logbus_ip, int logbus_port)
+        public static ILog CreateUnreliableLogger(IPAddress logbusIp, int logbusPort)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbus_ip, logbus_port));
+            return new SimpleLogImpl(CreateUdpCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
         /// Creates a simple logger that sends messages in Syslog format via UDP, using default port
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
+        /// <param name="logbusIp">IP address of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateUnreliableLogger(IPAddress logbus_ip)
+        public static ILog CreateUnreliableLogger(IPAddress logbusIp)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbus_ip, SyslogUdpReceiver.DEFAULT_PORT));
-        }
-
-        /// <summary>
-        /// Creates a simple logger that sends messages in Syslog format via TLS
-        /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">TLS port of logbus target</param>
-        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateReliableLogger(string logbus_host, int logbus_port)
-        {
-            return new SimpleLogImpl(CreateReliableCollector(logbus_host, logbus_port));
-        }
-
-        /// <summary>
-        /// Creates a simple logger that sends messages in Syslog format via TLS, using default port
-        /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateReliableLogger(string logbus_host)
-        {
-            return new SimpleLogImpl(CreateReliableCollector(logbus_host, SyslogTlsReceiver.TLS_PORT));
-        }
-
-        /// <summary>
-        /// Creates a simple logger that sends messages in Syslog format via UDP
-        /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
-        /// <param name="facility">Syslog facility to override</param>
-        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        [Obsolete("You should use CreateUnreliableLogger instead")]
-        public static ILog CreateUdpLogger(IPAddress logbus_ip, int logbus_port, SyslogFacility facility)
-        {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbus_ip, logbus_port));
-        }
-
-        /// <summary>
-        /// Creates a simple logger that sends messages in Syslog format via UDP
-        /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
-        /// <param name="facility">Syslog facility to override</param>
-        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateUnreliableLogger(IPAddress logbus_ip, int logbus_port, SyslogFacility facility)
-        {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbus_ip, logbus_port));
+            return new SimpleLogImpl(CreateUdpCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
         /// Creates a simple logger that sends messages in Syslog format via UDP, using default port
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="facility">Syslog facility to override</param>
+        /// <param name="logbusHost">IP address of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateUnreliableLogger(IPAddress logbus_ip, SyslogFacility facility)
+        /// <remarks>Facility is set to Local4 as default value</remarks>
+        public static ILog CreateUnreliableLogger(string logbusHost)
         {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbus_ip, SyslogUdpReceiver.DEFAULT_PORT));
+            return new SimpleLogImpl(CreateUdpCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
         /// Creates a simple logger that sends messages in Syslog format via TLS
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
-        /// <param name="facility">Syslog facility to override</param>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">TLS port of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateReliableLogger(string logbus_host, int logbus_port, SyslogFacility facility)
+        /// <remarks>Facility is set to Local4 as default value</remarks>
+        public static ILog CreateReliableLogger(string logbusHost, int logbusPort)
         {
-            return new SimpleLogImpl(facility, CreateReliableCollector(logbus_host, logbus_port));
+            return new SimpleLogImpl(CreateReliableCollector(logbusHost, logbusPort));
         }
 
         /// <summary>
         /// Creates a simple logger that sends messages in Syslog format via TLS, using default port
         /// </summary>
-        /// <param name="logbus_ip">IP address of logbus target</param>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        /// <remarks>Facility is set to Local4 as default value</remarks>
+        public static ILog CreateReliableLogger(string logbusHost)
+        {
+            return new SimpleLogImpl(CreateReliableCollector(logbusHost, SyslogTlsReceiver.TLS_PORT));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via UDP
+        /// </summary>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateReliableLogger(string logbus_host, SyslogFacility facility)
+        [Obsolete("You should use CreateUnreliableLogger instead")]
+        public static ILog CreateUdpLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateReliableCollector(logbus_host, SyslogTlsReceiver.TLS_PORT));
+            return new SimpleLogImpl(facility, CreateUdpCollector(logbusIp, logbusPort));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via UDP
+        /// </summary>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <param name="facility">Syslog facility to override</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        public static ILog CreateUnreliableLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
+        {
+            return new SimpleLogImpl(facility, CreateUdpCollector(logbusIp, logbusPort));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via UDP
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <param name="facility">Syslog facility to override</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        public static ILog CreateUnreliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
+        {
+            return new SimpleLogImpl(facility, CreateUdpCollector(logbusHost, logbusPort));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via UDP, using default port
+        /// </summary>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="facility">Syslog facility to override</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        public static ILog CreateUnreliableLogger(IPAddress logbusIp, SyslogFacility facility)
+        {
+            return new SimpleLogImpl(facility, CreateUdpCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via UDP, using default port
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="facility">Syslog facility to override</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        public static ILog CreateUnreliableLogger(string logbusHost, SyslogFacility facility)
+        {
+            return new SimpleLogImpl(facility, CreateUdpCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via TLS
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <param name="facility">Syslog facility to override</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        public static ILog CreateReliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
+        {
+            return new SimpleLogImpl(facility, CreateReliableCollector(logbusHost, logbusPort));
+        }
+
+        /// <summary>
+        /// Creates a simple logger that sends messages in Syslog format via TLS, using default port
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="facility">Syslog facility to override</param>
+        /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
+        public static ILog CreateReliableLogger(string logbusHost, SyslogFacility facility)
+        {
+            return new SimpleLogImpl(facility, CreateReliableCollector(logbusHost, SyslogTlsReceiver.TLS_PORT));
         }
 
         /// <summary>
@@ -273,18 +315,18 @@ namespace It.Unina.Dis.Logbus.Loggers
                 if (typename.IndexOf('.') < 0)
                 {
                     //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
-                    string namespc = "It.Unina.Dis.Logbus.Loggers";
+                    const string namespc = "It.Unina.Dis.Logbus.Loggers";
                     string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
                     typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                 }
-                Type logger_type = Type.GetType(typename);
-                if (!typeof(ILogCollector).IsAssignableFrom(logger_type))
+                Type loggerType = Type.GetType(typename);
+                if (!typeof(ILogCollector).IsAssignableFrom(loggerType))
                 {
                     LogbusConfigurationException ex = new LogbusConfigurationException("Registered logger type does not implement ILogCollector");
-                    ex.Data.Add("type", logger_type);
+                    ex.Data.Add("type", loggerType);
                     throw ex;
                 }
-                ILogCollector ret = Activator.CreateInstance(logger_type) as ILogCollector;
+                ILogCollector ret = Activator.CreateInstance(loggerType) as ILogCollector;
                 if (def.param != null && ret is IConfigurable)
                     foreach (KeyValuePair kvp in def.param)
                         ((IConfigurable)ret).SetConfigurationParameter(kvp.name, kvp.value);
