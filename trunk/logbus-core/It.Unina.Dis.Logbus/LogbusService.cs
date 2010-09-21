@@ -222,7 +222,7 @@ namespace It.Unina.Dis.Logbus
                                     throw new LogbusConfigurationException("Error configuring inbound channel", ex);
                                 }
 
-                                if (channel is ILogSupport) ((ILogSupport)channel).Log = new SimpleLogImpl(new LogbusLogger(this));
+                                if (channel is ILogSupport) ((ILogSupport)channel).Log = new SimpleLogImpl(this);
 
                                 channels.Add(channel);
                             }

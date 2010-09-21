@@ -95,7 +95,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             {
                 case "Logbus":
                     {
-                        return new LogbusLogger();
+                        return LogbusSingletonHelper.Instance;
                     }
             }
             //Else throw error: logger is not defined in configuration
