@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus.Clients
     /// <summary>
     /// This class provides services for Log collectors that want to subscribe to Logbus channels
     /// </summary>
-    public sealed class ClientHelper
+    public static class ClientHelper
     {
         static ClientHelper()
         {
@@ -35,11 +35,9 @@ namespace It.Unina.Dis.Logbus.Clients
             {
                 Configuration = ConfigurationHelper.ClientConfiguration;
             }
-            catch { }
+            catch (LogbusConfigurationException) { }
         }
 
-
-        private ClientHelper() { }
 
         /// <summary>
         /// Gets or sets the global client configuration
@@ -138,7 +136,7 @@ namespace It.Unina.Dis.Logbus.Clients
             return new UdpLogClientImpl(channelId, subscription);
         }
 
-        
+
         /// <summary>
         /// Creates a client that listens to the specified channel using the default subscription endpoint
         /// </summary>

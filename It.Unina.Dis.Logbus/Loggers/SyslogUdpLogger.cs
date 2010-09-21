@@ -35,8 +35,8 @@ namespace It.Unina.Dis.Logbus.Loggers
             client = new UdpClient();
         }
 
-        public SyslogUdpLogger(string ip, int port)
-            : this(new IPEndPoint(IPAddress.Parse(ip), port))
+        public SyslogUdpLogger(string host, int port)
+            : this(new IPEndPoint(Dns.GetHostEntry(host).AddressList[0], port))
         {
         }
 

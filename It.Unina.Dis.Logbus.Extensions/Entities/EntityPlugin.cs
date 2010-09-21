@@ -29,7 +29,7 @@ namespace It.Unina.Dis.Logbus.Entities
     public sealed class EntityPlugin
         : IPlugin
     {
-        private ILogBus logbus;
+        private ILogBus _logbus;
         private BlockingFifoQueue<SyslogMessage> message_queue;
         private Thread worker_thread;
 
@@ -131,11 +131,11 @@ namespace It.Unina.Dis.Logbus.Entities
                 entity_table.Dispose();
             }
 
-            Disposed = true;
+            _disposed = true;
         }
 
 
-        private bool Disposed;
+        private volatile bool _disposed;
         #endregion
 
         #region IPlugin Membri di
@@ -145,9 +145,9 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public void Register(ILogBus logbus)
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            this.logbus = logbus;
+            this._logbus = logbus;
             logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
         }
 
@@ -156,9 +156,9 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public void Unregister()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            logbus.MessageReceived -= logbus_MessageReceived;
+            _logbus.MessageReceived -= logbus_MessageReceived;
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public WsdlSkeletonDefinition[] GetWsdlSkeletons()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
             throw new System.NotImplementedException();
         }
 
@@ -192,7 +192,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public System.MarshalByRefObject GetPluginRoot()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
             throw new System.NotImplementedException();
         }
 
@@ -205,7 +205,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public void Dispose()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
             throw new System.NotImplementedException();
         }
 
@@ -223,6 +223,9 @@ namespace It.Unina.Dis.Logbus.Entities
                 while (true)
                 {
                     SyslogMessage message = message_queue.Dequeue();
+
+                    if (message.Facility == SyslogFacility.Internally) continue; //Skip all syslog-internal messages
+
                     SyslogAttributes attrs = message.GetAdvancedAttributes();
 
                     bool ffda = message.MessageId == "FFDA";
@@ -233,7 +236,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
                             entity_table.Rows.Add(
                                 message.Host,
-                                (message.ProcessID != null) ? message.ProcessID : message.ApplicationName,
+                                message.ProcessID ?? message.ApplicationName,
                                 attrs.ModuleName,
                                 attrs.LogName,
                                 attrs.ClassName,
@@ -247,18 +250,19 @@ namespace It.Unina.Dis.Logbus.Entities
                             //We suppose we are trying to insert a duplicate primary key, then now we switch to update
                             object[] keys = new object[]{
                                 message.Host,
-                                (message.ProcessID != null) ? message.ProcessID : message.ApplicationName,
+                                message.ProcessID ?? message.ApplicationName,
                                 attrs.ModuleName,
                                 attrs.LogName,
                                 attrs.ClassName,
                                 attrs.MethodName
                             };
-                            DataRow existing_row = entity_table.Rows.Find(keys);
+                            DataRow existingRow = entity_table.Rows.Find(keys);
 
-                            existing_row.BeginEdit();
-                            existing_row[colFFDA] = ffda;
-                            existing_row[colLastAction] = message.Timestamp;
-                            existing_row.EndEdit();
+                            if (existingRow[colFFDA].Equals((true))) continue; //No need to update a correct row
+                            existingRow.BeginEdit();
+                            existingRow[colFFDA] = ffda;
+                            existingRow[colLastAction] = message.Timestamp;
+                            existingRow.EndEdit();
 
                         }
                     }
