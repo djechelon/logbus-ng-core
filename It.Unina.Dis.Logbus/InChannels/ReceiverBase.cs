@@ -86,8 +86,8 @@ namespace It.Unina.Dis.Logbus.InChannels
             private set;
         }
 
-        private Thread[] queue_threads;
-        private BlockingFifoQueue<SyslogMessage>[] queues;
+        private Thread[] _queueThreads;
+        private BlockingFifoQueue<SyslogMessage>[] _queues;
 
         /// <summary>
         /// Number of worker threads concurrently listening for datagrams
@@ -153,41 +153,50 @@ namespace It.Unina.Dis.Logbus.InChannels
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Start()
         {
-            Log.Info(string.Format("Inbound channel {0} starting", Name));
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            Log.Info("Inbound channel {0} starting", Name);
             try
             {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
                 if (Running) throw new InvalidOperationException("Listener is already running");
 
                 if (Starting != null)
                 {
                     CancelEventArgs e = new CancelEventArgs();
                     Starting(this, e);
-                    if (e.Cancel) return;
+                    if (e.Cancel)
+                    {
+                        Log.Notice("Sarting of channel {0} cancelled", Name);
+                        return;
+                    }
                 }
 
                 OnStart();
 
                 Running = true;
-                queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
+                _queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
 
-                queue_threads = new Thread[WORKER_THREADS];
+                _queueThreads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
-                    queues[i] = new BlockingFifoQueue<SyslogMessage>();
-                    queue_threads[i] = new Thread(QueueLoop);
-                    queue_threads[i].IsBackground = true;
-                    queue_threads[i].Name = string.Format(CultureInfo.InvariantCulture, "ReceiverBase[{1}].QueueLoop[{0}]", i, Name);
-                    queue_threads[i].Start(i);
+                    _queues[i] = new BlockingFifoQueue<SyslogMessage>();
+                    _queueThreads[i] = new Thread(QueueLoop)
+                                           {
+                                               IsBackground = true,
+                                               Name =
+                                                   string.Format(CultureInfo.InvariantCulture,
+                                                                 "ReceiverBase[{1}].QueueLoop[{0}]", i, Name)
+                                           };
+                    _queueThreads[i].Start(i);
                 }
 
                 if (Started != null) Started(this, EventArgs.Empty);
-                Log.Info(string.Format("Inbound channel {0} started", Name));
+                Log.Info("Inbound channel {0} started", Name);
             }
             catch (Exception ex)
             {
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
-                Log.Error(string.Format("Unable to start inbound channel {0}", Name));
+                Log.Error("Unable to start inbound channel {0}", Name);
+                Log.Debug("Eror details: {0}", ex.Message);
                 throw;
             }
         }
@@ -198,17 +207,22 @@ namespace It.Unina.Dis.Logbus.InChannels
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Stop()
         {
-            Log.Info(string.Format("Inbound channel {0} stopping", Name));
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            Log.Info("Inbound channel {0} stopping", Name);
             try
             {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
                 if (!Running) throw new InvalidOperationException("Listener is not running");
 
                 if (Stopping != null)
                 {
                     CancelEventArgs e = new CancelEventArgs();
                     Stopping(this, e);
-                    if (e.Cancel) return;
+
+                    if (e.Cancel)
+                    {
+                        Log.Notice("Stopping of channel {0} cancelled", Name);
+                        return;
+                    }
                 }
 
                 Running = false;
@@ -216,19 +230,21 @@ namespace It.Unina.Dis.Logbus.InChannels
                 OnStop();
 
                 for (int i = 0; i < WORKER_THREADS; i++)
-                {
-                    queue_threads[i].Interrupt();
-                    queue_threads[i].Join();
-                }
-                queue_threads = null;
+                    _queueThreads[i].Interrupt();
+
+                for (int i = 0; i < WORKER_THREADS; i++)
+                    _queueThreads[i].Join();
+
+                _queueThreads = null;
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
-                Log.Info(string.Format("Inbound channel {0} stopped", Name));
+                Log.Info("Inbound channel {0} stopped", Name);
             }
             catch (Exception ex)
             {
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
-                Log.Error(string.Format("Unable to stop inbound channel {0}", Name));
+                Log.Error("Unable to stop inbound channel {0}", Name);
+                Log.Debug("Error details: {0}", ex.Message);
                 throw;
             }
         }
@@ -267,7 +283,6 @@ namespace It.Unina.Dis.Logbus.InChannels
 
 
         #endregion
-
 
         #region Abstract methods
 
@@ -325,21 +340,26 @@ namespace It.Unina.Dis.Logbus.InChannels
         protected void ForwardMessage(SyslogMessage msg)
         {
             msg.AdjustTimestamp();
-            queues[Environment.TickCount % WORKER_THREADS].Enqueue(msg);
+            _queues[Environment.TickCount % WORKER_THREADS].Enqueue(msg);
         }
 
-        private void QueueLoop(object queue_id)
+        private void QueueLoop(object queueId)
         {
-            int id = (int)queue_id;
+            int id = (int)queueId;
             while (Running)
             {
                 try
                 {
-                    SyslogMessage new_message = queues[id].Dequeue();
-                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+                    SyslogMessage newMessage = _queues[id].Dequeue();
+                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(newMessage));
                 }
                 catch (ThreadInterruptedException) { return; } //End thread
-                catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
+                catch (Exception ex)
+                {
+                    //Most probably the exception was thrown by a malformed event handler, anyway log it!
+                    Log.Error("Unable to process Syslog message in channel {0}'s processing queue", Name);
+                    Log.Debug("Error details: {0}", ex.Message);
+                }
             }
         }
 
