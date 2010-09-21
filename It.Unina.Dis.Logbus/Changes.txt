@@ -4,7 +4,7 @@ SVN trunk
 *Major changes in Logger configuration: loggers can have names, and a default logger
 	can be specified. If none, ConsoleLogger is assumed. ILog can also refer to a
 	user-defined entity
-*Default "well-known" logger LogbusLogger, named "Logbus"
+*Default "well-known" logger, named "Logbus", directly inject messages into Logbus
 *MultiLogger is not supported as logger, but is used internally
 *LogbusService is no more publicly visible, and the only way to instantiate it as the
 	default implementation of ILogBus is through LogbusSingletonHelper. Configuration
@@ -17,6 +17,7 @@ SVN trunk
 *Default TTL for UDP outbound transport is 20 seconds
 *Added GetAvailableFilters and DescribeFilter methods to ChannelSubscription WSDL
 *New events for channel creation and deletion
+*Implemented TLS inbound channel, logger and forwarder, according to RFC 5425
 
 version 1.3.1
 First public release
