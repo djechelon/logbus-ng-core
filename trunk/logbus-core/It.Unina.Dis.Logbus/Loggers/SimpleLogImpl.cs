@@ -168,6 +168,46 @@ namespace It.Unina.Dis.Logbus.Loggers
             Log(message, SyslogSeverity.Emergency);
         }
 
+        public void Debug(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Debug);
+        }
+
+        public void Info(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Info);
+        }
+
+        public void Notice(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Notice);
+        }
+
+        public void Warning(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Warning);
+        }
+
+        public void Error(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Error);
+        }
+
+        public void Critical(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Critical);
+        }
+
+        public void Alert(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Alert);
+        }
+
+        public void Emergency(string format, params object[] args)
+        {
+            Log(string.Format(format, args), SyslogSeverity.Emergency);
+        }
+
         #endregion
     }
 }
