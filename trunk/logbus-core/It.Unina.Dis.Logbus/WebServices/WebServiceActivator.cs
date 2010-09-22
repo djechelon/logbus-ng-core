@@ -209,7 +209,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                             string wsDeclaration = string.Format(AsmxTemplate, def.SkeletonType.AssemblyQualifiedName);
 
                             using (
-                                StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, fname)),
+                                StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, fname + ".asmx")),
                                                                    Encoding.Default))
                                 sw.Write(wsDeclaration);
 

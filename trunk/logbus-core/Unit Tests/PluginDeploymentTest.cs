@@ -66,6 +66,11 @@ namespace Unit_Tests
         //
         #endregion
 
+        /// <summary>
+        /// Currently throws a OutOfMemoryException.
+        /// The test was supposed to verify the effective deployment of the .asmx files and needed DLLs into ASP.NET runtime.
+        /// It succeeds, so for now the test is considered to be passed!
+        /// </summary>
         [TestMethod]
         public void TestDeployAsmx()
         {
@@ -92,7 +97,6 @@ namespace Unit_Tests
             }
             catch (Exception ex)
             {
-                Thread.Sleep(Timeout.Infinite);
                 Assert.Fail("Test failed: {0}", ex.ToString());
             }
         }
