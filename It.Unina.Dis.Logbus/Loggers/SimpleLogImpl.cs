@@ -93,13 +93,13 @@ namespace It.Unina.Dis.Logbus.Loggers
 
 #if MONO
 #else
-            double up_time;
+            long upTime;
             using (PerformanceCounter uptime = new PerformanceCounter("System", "System Up Time"))
             {
                 uptime.NextValue();       //Call this an extra time before reading its value
-                up_time = TimeSpan.FromSeconds(uptime.NextValue()).TotalMilliseconds / 10;
+                upTime = (long) Math.Round(TimeSpan.FromSeconds(uptime.NextValue()).TotalMilliseconds / 10);
             }
-            meta.Add("sysUpTime", up_time.ToString(CultureInfo.InvariantCulture));
+            meta.Add("sysUpTime", upTime.ToString(CultureInfo.InvariantCulture));
 #endif
         }
 
