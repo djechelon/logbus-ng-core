@@ -17,6 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 using It.Unina.Dis.Logbus.Loggers;
 using System.Net;
 namespace It.Unina.Dis.Logbus.FFDA
@@ -26,50 +27,23 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// </summary>
     public sealed class FFDAHelper
     {
-        /// <summary>
-        /// Creates an FFDA logger that sends messages in Syslog format via UDP
-        /// </summary>
-        /// <param name="logbus_host">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
-        /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
-        /// <remarks>Facility is set to Local0 as default value</remarks>
-        public static IFFDALogger CreateFFDALogger(string logbus_host, int logbus_port)
-        {
-            return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_host, logbus_port));
-        }
 
         /// <summary>
-        /// Creates an FFDA logger that sends messages in Syslog format via UDP
+        /// Creates an FFDA logger by logger name. If logger is maked as static and has been already instanced, the method returns the current
+        /// instance of the logger
         /// </summary>
-        /// <param name="logbus_host">IP address of logbus target</param>
-        /// <param name="logbus_port">UDP port of logbus target</param>
-        /// <returns>An FFDALogger, to which clients could sumbit FFDA Messages</returns>
-        /// <remarks>Facility is set to Local0 as default value</remarks>
-        public static IFFDALogger CreateFFDALogger(IPAddress logbus_host, int logbus_port)
-        {
-            return new FFDALogger(LoggerHelper.CreateUdpCollector(logbus_host, logbus_port));
-        }
-
-        /// <summary>
-        /// Creates an FFDA logger with the default logger
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
-        public static IFFDALogger CreateFFDALogger()
-        {
-            return new FFDALogger(LoggerHelper.CreateDefaultCollector());
-        }
-
-        /// <summary>
-        /// Creates an FFDA logger by logger name
-        /// </summary>
-        /// <param name="loggerName"></param>
+        /// <param name="loggerName">Name of logger</param>
         /// <returns></returns>
         /// <exception cref="LogbusException">Logger is not found</exception>
         /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
         public static IFFDALogger CreateFFDALogger(string loggerName)
         {
             return new FFDALogger(LoggerHelper.CreateCollectorByName(loggerName));
+        }
+
+        public  static IFFDAMonitorLogger CreateFFDAMonitorLogger()
+        {
+            throw new NotImplementedException();
         }
     }
 }

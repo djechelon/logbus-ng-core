@@ -32,9 +32,9 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// Default implementation of IFFDALogger and IFFDAMonitor
     /// </summary>
     internal sealed class FFDALogger
-        : SimpleLogImpl, IFFDALogger, IFFDAMonitor
+        : SimpleLogImpl, IFFDALogger, IFFDAMonitorLogger
     {
-        #region Constructor
+        #region Constructor/Destructor
         /// <summary>
         /// Initializes the FFDA logger with given Syslog facility and concrete logger
         /// </summary>
@@ -42,122 +42,170 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(SyslogFacility facility, ILogCollector target)
             : base(facility, target)
-        { }
+        {
+            GC.SuppressFinalize(base.Target);
+            Log("SUP", SyslogSeverity.Info);
+        }
 
         /// <summary>
         /// Initializes the FFDA logger with the concrete underlying logger
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(ILogCollector target)
-            : base(SyslogFacility.Local0, target) { }
+            : this(SyslogFacility.Local0, target) { }
 
+        ~FFDALogger()
+        {
+            Dispose(false);
+        }
+
+        private volatile bool _disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            Log("SDW", SyslogSeverity.Info);
+
+            if (disposing)
+            {
+                if (base.Target is IDisposable) ((IDisposable)base.Target).Dispose();
+            }
+
+            GC.ReRegisterForFinalize(base.Target);
+        }
         #endregion
 
-        
+        private string GetFlowId()
+        {
+            if (Flow != null)
+            {
+                if (Flow is string) return (string)Flow;
+                if (Flow is decimal || Flow is int || Flow is float || Flow is double || Flow is long) return Flow.ToString();
+                return Flow.GetHashCode().ToString(CultureInfo.InvariantCulture);
+            }
+            return Thread.CurrentThread.GetHashCode().ToString(CultureInfo.InvariantCulture);
+        }
+
+        protected override void PreProcessMessage(ref SyslogMessage msg)
+        {
+            base.PreProcessMessage(ref msg);
+
+            msg.MessageId = "FFDA";
+        }
+
+        #region IFFDALogger Membri di
+
+        public object Flow { get; set; }
+
         public void LogSST()
         {
-            Log("SST", SyslogSeverity.Info);
+            Log("SST-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogSST(string id)
         {
-            if (id != null)
-                Log("SST-" + id, SyslogSeverity.Info);
-            else
-                Log("SST", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("SST-" + id, SyslogSeverity.Info);
         }
 
-        
+
         public void LogSEN()
         {
-            Log("SEN", SyslogSeverity.Info);
+            Log("SEN-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogSEN(string id)
         {
-            if (id != null)
-                Log("SEN-" + id, SyslogSeverity.Info);
-            else
-                Log("SEN", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("SEN-" + id, SyslogSeverity.Info);
         }
 
-        
+
         public void LogEIS()
         {
-            Log("EIS", SyslogSeverity.Info);
+            Log("EIS-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogEIS(string id)
         {
-            if (id != null)
-                Log("EIS-" + id, SyslogSeverity.Info);
-            else
-                Log("EIS", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("EIS-" + id, SyslogSeverity.Info);
         }
 
-       
+
         public void LogEIE()
         {
-            Log("EIE", SyslogSeverity.Info);
+            Log("EIE-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogEIE(string id)
         {
-            if (id != null)
-                Log("EIE-" + id, SyslogSeverity.Info);
-            else
-                Log("EIE", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("EIE-" + id, SyslogSeverity.Info);
         }
 
-        
+
         public void LogRIS()
         {
-            Log("RIS", SyslogSeverity.Info);
+            Log("RIS-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogRIS(string id)
         {
-            if (id != null)
-                Log("RIS-" + id, SyslogSeverity.Info);
-            else
-                Log("RIS", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("RIS-" + id, SyslogSeverity.Info);
         }
 
-        
+
         public void LogRIE()
         {
-            Log("RIE", SyslogSeverity.Info);
+            Log("RIE-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogRIE(string id)
         {
-            if (id != null)
-                Log("RIE-" + id, SyslogSeverity.Info);
-            else
-                Log("RIE", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("RIE-" + id, SyslogSeverity.Info);
         }
 
-        
+
         public void LogCMP()
         {
-            Log("CMP", SyslogSeverity.Info);
+            Log("CMP-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-        
+
         public void LogCMP(string id)
         {
-            if (id != null)
-                Log("CMP-" + id, SyslogSeverity.Info);
-            else
-                Log("CMP", SyslogSeverity.Info);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("CMP-" + id, SyslogSeverity.Info);
         }
 
+        #endregion
 
         #region IFFDAMonitor Membri di
 
@@ -168,10 +216,10 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         public void LogCOA(string id)
         {
-            if (id != null)
-                Log("COA-" + id, SyslogSeverity.Alert);
-            else
-                Log("COA", SyslogSeverity.Alert);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("COA-" + id, SyslogSeverity.Alert);
         }
 
         public void LogEIA()
@@ -181,10 +229,10 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         public void LogEIA(string id)
         {
-            if (id != null)
-                Log("EIA-" + id, SyslogSeverity.Alert);
-            else
-                Log("EIA", SyslogSeverity.Alert);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("EIA-" + id, SyslogSeverity.Alert);
         }
 
         public void LogRIA()
@@ -194,10 +242,10 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         public void LogRIA(string id)
         {
-            if (id != null)
-                Log("RIA-" + id, SyslogSeverity.Alert);
-            else
-                Log("RIA", SyslogSeverity.Alert);
+            if (id == null)
+                throw new ArgumentNullException("id");
+
+            Log("RIA-" + id, SyslogSeverity.Alert);
         }
 
         #endregion

@@ -23,7 +23,7 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// <summary>
     /// Used to submit alert logs into Logbus when anomalies are detected
     /// </summary>
-    public interface IFFDAMonitor
+    public interface IFFDAMonitorLogger
         : ILog
     {
         /// <summary>
