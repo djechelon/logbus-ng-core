@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
          xmlns:filter="http://www.dis.unina.it/logbus-ng/filters"
-         xmlns:config="http://www.dis.unina.it/logbus-ng/configuration" >
+         xmlns:config="http://www.dis.unina.it/logbus-ng/configuration/2.0" >
   <logbus-core>
     <in-channels />
     <out-transports>

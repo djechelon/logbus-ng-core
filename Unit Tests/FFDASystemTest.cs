@@ -106,10 +106,10 @@ namespace Unit_Tests
                 logbus.Start();
 
                 //Init FFDA
-                LogbusSourceConfiguration source_config = new LogbusSourceConfiguration();
+                LogbusLoggerConfiguration source_config = new LogbusLoggerConfiguration();
                 LoggerDefinition udp_def = new LoggerDefinition()
                 {
-                    type = "SyslogUdpLogger",
+                    type = "SyslogUdpCollector",
                     param = new KeyValuePair[] { new KeyValuePair() { name = "port", value = SEND_PORT.ToString() }, new KeyValuePair() { name = "ip", value = "127.0.0.1" } }
                 };
                 source_config.logger = new LoggerDefinition[] { udp_def };

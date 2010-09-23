@@ -17,19 +17,14 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.Loggers
+using It.Unina.Dis.Logbus.Loggers;
+namespace It.Unina.Dis.Logbus.FFDA
 {
     /// <summary>
-    /// A logger that doesn't log to anything.
-    /// Needed for internal purposes
+    /// Interface that mixes classic logging with advanced FFDA logging
     /// </summary>
-    internal class NullLogger
-    : ILogCollector
+    public interface IInstrumentedLogger
+        :ILog, IFFDALogger
     {
-        #region ILogCollector Membri di
-
-        void ILogCollector.SubmitMessage(SyslogMessage message) { }
-
-        #endregion
     }
 }

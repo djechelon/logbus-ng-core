@@ -1,9 +1,11 @@
 ﻿Logbus-ng Change Log
 
 SVN trunk
-*Major changes in Logger configuration: loggers can have names, and a default logger
-	can be specified. If none, ConsoleLogger is assumed. ILog can also refer to a
-	user-defined entity
+*Major changes in Logger configuration:
+	*Loggers are distinguished by Collectors
+	*Loggers can be configured as permanent and with heartbeat function
+	*Default logger, collector and heartbeat can be globally specified
+	*Each logger refers to a configured collector
 *Default "well-known" logger, named "Logbus", directly inject messages into Logbus
 *MultiLogger is not supported as logger, but is used internally
 *LogbusService is no more publicly visible, and the only way to instantiate it as the

@@ -21,12 +21,13 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Threading;
 namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
     /// Simple ILog implementation
     /// </summary>
-    internal class SimpleLogImpl
+    public class SimpleLogImpl
         : ILog
     {
         /// <summary>
@@ -40,35 +41,132 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         internal const string ENTERPRISE_ID = "8289";
 
-        private volatile Int32 sequence_id = 1;
+        private Timer _heartbeatTimer;
+        private int _hbInterval;
+        private volatile Int32 _sequenceId = 1;
 
+        #region Constructor
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public SimpleLogImpl()
+            : this(SyslogFacility.Local4)
+        {
+        }
+
+        /// <summary>
+        /// Constructor with facility
+        /// </summary>
+        /// <param name="facility">Syslog facility</param>
+        public SimpleLogImpl(SyslogFacility facility)
+        {
+            this.Facility = facility;
+        }
+
+        /// <summary>
+        /// Constructor with facility and collector
+        /// </summary>
+        /// <param name="facility">Syslog facility</param>
+        /// <param name="target">Ultimate destination of messages</param>
         public SimpleLogImpl(SyslogFacility facility, ILogCollector target)
+            : this(facility)
         {
             if (target == null) throw new ArgumentNullException("target");
 
-            Facility = facility;
-            Target = target;
+            Collector = target;
         }
 
+        /// <summary>
+        /// Constructor with collector
+        /// </summary>
+        /// <param name="target">Ultimate destination of messages</param>
         public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
+        #endregion
 
-        protected SyslogFacility Facility { get; set; }
-        protected ILogCollector Target { get; set; }
+        /// <summary>
+        /// Implements ILog.Heartbeat
+        /// </summary>
+        public int HeartbeatInterval
+        {
+            get { return _hbInterval; }
+            set
+            {
+                _hbInterval = value;
+                if (_heartbeatTimer != null)
+                {
+                    _heartbeatTimer.Dispose();
+                    _heartbeatTimer = null;
+                }
+
+                if (value > 0)
+                    _heartbeatTimer = new Timer(_heartbeatCallback, null, HeartbeatInterval, HeartbeatInterval);
+            }
+        }
+
+        /// <summary>
+        /// Implements ILog.Facility
+        /// </summary>
+        public SyslogFacility Facility { get; set; }
+
+        /// <summary>
+        /// Implements ILog.Collector
+        /// </summary>
+        public ILogCollector Collector { get; set; }
+
+        /// <summary>
+        /// Heartbeat callback
+        /// </summary>
+        /// <param name="state"></param>
+        private void _heartbeatCallback(object state)
+        {
+            try
+            {
+                if (Collector != null)
+                {
+                    String host = Environment.MachineName;
+                    String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
+                    String appname = Process.GetCurrentProcess().ProcessName;
+
+                    SyslogMessage msg = new SyslogMessage(host, Facility, SyslogSeverity.Debug, null)
+                    {
+                        ProcessID = procid,
+                        ApplicationName = appname,
+                        MessageId = "HEARTBEAT"
+                    };
+
+                    PreProcessMessage(ref msg);
+
+                    msg.Data.Remove("origin");
+                    msg.Data.Remove("timeQuality");
+
+                    if (msg.Data["meta"].ContainsKey("syUpTime"))
+                        msg.Data["meta"].Remove("sysUpTime");
+
+                    Collector.SubmitMessage(msg);
+                }
+            }
+            catch
+            {
+            }
+        }
 
         protected virtual void PreProcessMessage(ref SyslogMessage msg)
         {
-            // Getting the caller information(note that index is 2 because of Log is called by another local Method... 
+            // Getting the caller information (note that index is 3 because of Log is called by another local Method... 
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
             msg.Data = new Dictionary<String, IDictionary<String, String>>();
 
-            Dictionary<string, string> caller_data = new Dictionary<string, string>();
-            msg.Data.Add("CallerData@" + ENTERPRISE_ID, caller_data);
-            caller_data.Add("ClassName", stackFrames[3].GetMethod().DeclaringType.FullName);
-            caller_data.Add("MethodName", stackFrames[3].GetMethod().Name);
-            caller_data.Add("ModuleName", stackFrames[3].GetMethod().DeclaringType.Assembly.GetName().Name);
-            if (!string.IsNullOrEmpty(LogName)) caller_data.Add("LogName", LogName);
+            Dictionary<string, string> callerData = new Dictionary<string, string>();
+            msg.Data.Add("CallerData@" + ENTERPRISE_ID, callerData);
+            if (stackFrames != null && stackFrames.Length >= 4)
+            {
+                callerData.Add("ClassName", stackFrames[3].GetMethod().DeclaringType.FullName);
+                callerData.Add("MethodName", stackFrames[3].GetMethod().Name);
+                callerData.Add("ModuleName", stackFrames[3].GetMethod().DeclaringType.Assembly.GetName().Name);
+            }
+            if (!string.IsNullOrEmpty(LogName)) callerData.Add("LogName", LogName);
 
             //Standard timeQuality
             Dictionary<string, string> timeQuality = new Dictionary<string, string>();
@@ -87,9 +185,9 @@ namespace It.Unina.Dis.Logbus.Loggers
             Dictionary<string, string> meta = new Dictionary<string, string>();
             msg.Data.Add("meta", meta);
 
-            meta.Add("sequenceId", sequence_id.ToString(CultureInfo.InvariantCulture));
-            if (sequence_id == Int32.MaxValue) sequence_id = 1;
-            else sequence_id++;
+            meta.Add("sequenceId", _sequenceId.ToString(CultureInfo.InvariantCulture));
+            if (_sequenceId == Int32.MaxValue) _sequenceId = 1;
+            else _sequenceId++;
 
 #if MONO
 #else
@@ -97,7 +195,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             using (PerformanceCounter uptime = new PerformanceCounter("System", "System Up Time"))
             {
                 uptime.NextValue();       //Call this an extra time before reading its value
-                upTime = (long) Math.Round(TimeSpan.FromSeconds(uptime.NextValue()).TotalMilliseconds / 10);
+                upTime = (long)Math.Round(TimeSpan.FromSeconds(uptime.NextValue()).TotalMilliseconds / 10);
             }
             meta.Add("sysUpTime", upTime.ToString(CultureInfo.InvariantCulture));
 #endif
@@ -117,7 +215,7 @@ namespace It.Unina.Dis.Logbus.Loggers
 
             PreProcessMessage(ref msg);
 
-            Target.SubmitMessage(msg);
+            Collector.SubmitMessage(msg);
         }
 
         #region ILog Membri di

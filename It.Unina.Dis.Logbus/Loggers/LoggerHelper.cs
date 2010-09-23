@@ -18,9 +18,11 @@
 */
 
 using System.Net;
+using It.Unina.Dis.Logbus.Collectors;
 using It.Unina.Dis.Logbus.Configuration;
 using System;
 using It.Unina.Dis.Logbus.InChannels;
+using System.Collections.Generic;
 
 namespace It.Unina.Dis.Logbus.Loggers
 {
@@ -31,6 +33,7 @@ namespace It.Unina.Dis.Logbus.Loggers
     {
         static LoggerHelper()
         {
+            _loggers = new Dictionary<string, ILog>();
             try
             {
                 Configuration = ConfigurationHelper.SourceConfiguration;
@@ -38,124 +41,184 @@ namespace It.Unina.Dis.Logbus.Loggers
             catch (LogbusConfigurationException) { }
         }
 
+        private static Dictionary<string, ILog> _loggers;
+
         /// <summary>
         /// Gets or sets global source configuration
         /// </summary>
-        public static LogbusSourceConfiguration Configuration
+        public static LogbusLoggerConfiguration Configuration
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Constructs a logger basing on configuration
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
-        public static ILogCollector CreateDefaultCollector()
+        private static LoggerDefinition GetDefinition(string loggerName)
         {
-            if (Configuration != null && Configuration.logger != null && Configuration.logger.Length > 0)
+            if (Configuration == null) throw new InvalidOperationException("No configuration specified");
+            if (Configuration.logger == null) throw new InvalidOperationException("No logger specified in configuration");
+
+            foreach (LoggerDefinition def in Configuration.logger)
             {
-                //Try to find the first logger marked default
-                foreach (LoggerDefinition def in Configuration.logger)
-                {
-                    if (def.@default) return CreateByDefinition(def);
-                }
+                if (def != null && def.name == loggerName) return def;
             }
-            //Else get default
-            return new ConsoleLogger();
+
+            throw new LogbusException(string.Format("Logger {0} not found in configuration", loggerName));
         }
 
         /// <summary>
-        /// Creates a logger by name
+        /// Creates default logger by reflection
         /// </summary>
-        /// <param name="loggerName">Name of logger</param>
         /// <returns></returns>
-        /// <remarks>There are special well-known loggers:
-        /// <list>
-        /// <item><code>Logbus</code><description>Logger that forwards messages to the current Logbus instance</description></item>
-        /// </list></remarks>
-        public static ILogCollector CreateCollectorByName(string loggerName)
+        private static ILog InstantiateLogger()
+        {
+            try
+            {
+                Type loggerType = typeof(SimpleLogImpl);
+                if (Configuration != null)
+                {
+                    if (!string.IsNullOrEmpty(Configuration.defaultloggertype))
+                    {
+                        string typename = Configuration.defaultloggertype;
+
+                        if (typename.IndexOf('.') < 0)
+                        {
+                            //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.Loggers namespace
+                            const string namespc = "It.Unina.Dis.Logbus.Loggers";
+                            string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
+                            typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
+                        }
+                        loggerType = Type.GetType(typename);
+                        if (!typeof(ILog).IsAssignableFrom(loggerType))
+                        {
+                            LogbusConfigurationException ex =
+                                new LogbusConfigurationException(
+                                    "Registered logger type does not implement ILog");
+                            ex.Data.Add("type", loggerType);
+                            throw ex;
+                        }
+                    }
+                }
+                ILog ret = Activator.CreateInstance(loggerType) as ILog;
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Unable to create logger because of configuration error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Creates logger by reflection for configured logger
+        /// </summary>
+        /// <returns></returns>
+        private static ILog InstantiateLogger(string loggerName)
         {
             if (string.IsNullOrEmpty(loggerName)) throw new ArgumentNullException("loggerName");
+            if (_loggers.ContainsKey(loggerName)) return _loggers[loggerName];
 
-            if (Configuration != null && Configuration.logger != null && Configuration.logger.Length > 0)
+            bool permanent = false;
+            try
             {
-                //Try to find the first logger marked default
-                foreach (LoggerDefinition def in Configuration.logger)
+                Type loggerType = typeof(SimpleLogImpl);
+                if (Configuration != null)
                 {
-                    if (def.name == loggerName) return CreateByDefinition(def);
-                }
-            }
-            //Let's see if the logger name is well-knwon
-            switch (loggerName)
-            {
-                case "Logbus":
+                    string typename = Configuration.defaultloggertype;
+
+                    try
                     {
-                        return LogbusSingletonHelper.Instance;
+                        LoggerDefinition def = GetDefinition(loggerName);
+                        if (!string.IsNullOrEmpty(def.type)) typename = def.type;
+                        permanent = def.permanent;
                     }
+                    catch (Exception) { }
+
+                    if (!string.IsNullOrEmpty(typename))
+                    {
+                        if (typename.IndexOf('.') < 0)
+                        {
+                            //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.Loggers namespace
+                            const string namespc = "It.Unina.Dis.Logbus.Loggers";
+                            string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
+                            typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
+                        }
+                        loggerType = Type.GetType(typename);
+                        if (!typeof(ILog).IsAssignableFrom(loggerType))
+                        {
+                            LogbusConfigurationException ex =
+                                new LogbusConfigurationException(
+                                    "Registered logger type does not implement ILog");
+                            ex.Data.Add("type", loggerType);
+                            throw ex;
+                        }
+                    }
+                }
+                ILog ret = Activator.CreateInstance(loggerType) as ILog;
+                ret.LogName = loggerName;
+                if (permanent) _loggers.Add(loggerName, ret);
+                return ret;
             }
-            //Else throw error: logger is not defined in configuration
-            throw new LogbusException(string.Format("Logger {0} not found", loggerName));
-
-
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Unable to create logger because of configuration error", ex);
+            }
         }
 
         /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
+        /// Creates a logger using default configuration
         /// </summary>
-        /// <param name="logbusIp">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        [Obsolete("You should use CreateUnreliableCollector instead", false)]
-        public static ILogCollector CreateUdpCollector(IPAddress logbusIp, int logbusPort)
+        /// <returns></returns>
+        public static ILog GetLogger()
         {
-            return CreateUnreliableCollector(logbusIp, logbusPort);
+            return GetLogger(CollectorHelper.CreateDefaultCollector());
         }
 
         /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
+        /// Creates a logger with given collector
         /// </summary>
-        /// <param name="logbusIp">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateUnreliableCollector(IPAddress logbusIp, int logbusPort)
+        /// <param name="collector">Ultimate destination of log messages</param>
+        /// <returns></returns>
+        public static ILog GetLogger(ILogCollector collector)
         {
-            return new SyslogUdpLogger(logbusIp, logbusPort);
+            ILog ret = InstantiateLogger();
+            ret.Collector = collector;
+            return ret;
         }
 
         /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
+        /// Creates a logger with given facility and default collector
         /// </summary>
-        /// <param name="logbusHost">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        [Obsolete("You should use CreateUnreliableCollector instead", false)]
-        public static ILogCollector CreateUdpCollector(string logbusHost, int logbusPort)
+        /// <param name="facility">Syslog facility to use</param>
+        /// <returns></returns>
+        public static ILog GetLogger(SyslogFacility facility)
         {
-            return CreateUnreliableCollector(logbusHost, logbusPort);
+            ILog ret = GetLogger();
+            ret.Facility = facility;
+            return ret;
         }
 
         /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
+        /// Creates a logger with given facility and collector
         /// </summary>
-        /// <param name="logbusHost">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateUnreliableCollector(string logbusHost, int logbusPort)
+        /// <param name="facility">Syslog facility to use</param>
+        /// <param name="collector">Ultimate destination of log messages</param>
+        /// <returns></returns>
+        public static ILog GetLogger(SyslogFacility facility, ILogCollector collector)
         {
-            return new SyslogUdpLogger(logbusHost, logbusPort);
+            ILog ret = GetLogger(collector);
+            ret.Facility = facility;
+            return ret;
         }
 
         /// <summary>
-        /// Creates a Log collector which uses Syslog TLS sending
+        /// Creates a logger by
         /// </summary>
-        /// <param name="logbusHost">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateReliableCollector(string logbusHost, int logbusPort)
+        /// <param name="loggerName"></param>
+        /// <returns></returns>
+        public static ILog GetLogger(string loggerName)
         {
-            return new SyslogTlsLogger(logbusHost, logbusPort);
+            ILog ret = InstantiateLogger(loggerName);
+            ret.Collector = CollectorHelper.CreateDefaultCollector();
+            return ret;
         }
 
         /// <summary>
@@ -165,10 +228,10 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        [Obsolete("You should use CreateUnreliableLogger instead")]
+        [Obsolete("You should use GetUnreliableLogger instead")]
         public static ILog CreateUdpLogger(IPAddress logbusIp, int logbusPort)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbusIp, logbusPort));
+            return GetLogger(CollectorHelper.CreateUnreliableCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
@@ -178,9 +241,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateUnreliableLogger(IPAddress logbusIp, int logbusPort)
+        public static ILog GetUnreliableLogger(IPAddress logbusIp, int logbusPort)
         {
-            return new SimpleLogImpl(CreateUnreliableCollector(logbusIp, logbusPort));
+            return GetLogger(CollectorHelper.CreateUnreliableCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
@@ -189,9 +252,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusIp">IP address of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateUnreliableLogger(IPAddress logbusIp)
+        public static ILog GetUnreliableLogger(IPAddress logbusIp)
         {
-            return new SimpleLogImpl(CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
+            return GetLogger(CollectorHelper.CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -200,9 +263,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusHost">IP address of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateUnreliableLogger(string logbusHost)
+        public static ILog GetUnreliableLogger(string logbusHost)
         {
-            return new SimpleLogImpl(CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
+            return GetLogger(CollectorHelper.CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -212,9 +275,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">TLS port of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateReliableLogger(string logbusHost, int logbusPort)
+        public static ILog GetReliableLogger(string logbusHost, int logbusPort)
         {
-            return new SimpleLogImpl(CreateReliableCollector(logbusHost, logbusPort));
+            return GetLogger(CollectorHelper.CreateReliableCollector(logbusHost, logbusPort));
         }
 
         /// <summary>
@@ -223,9 +286,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusHost">IP address of logbus target</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         /// <remarks>Facility is set to Local4 as default value</remarks>
-        public static ILog CreateReliableLogger(string logbusHost)
+        public static ILog GetReliableLogger(string logbusHost)
         {
-            return new SimpleLogImpl(CreateReliableCollector(logbusHost, SyslogTlsReceiver.TLS_PORT));
+            return GetLogger(CollectorHelper.CreateReliableCollector(logbusHost, SyslogTlsReceiver.TLS_PORT));
         }
 
         /// <summary>
@@ -235,10 +298,10 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        [Obsolete("You should use CreateUnreliableLogger instead")]
+        [Obsolete("You should use GetUnreliableLogger instead")]
         public static ILog CreateUdpLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
         {
-            return CreateUnreliableLogger(logbusIp,logbusPort,facility);
+            return GetUnreliableLogger(logbusIp, logbusPort, facility);
         }
 
         /// <summary>
@@ -248,9 +311,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateUnreliableLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
+        public static ILog GetUnreliableLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusIp, logbusPort));
+            return GetLogger(facility, CollectorHelper.CreateUnreliableCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
@@ -260,9 +323,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateUnreliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
+        public static ILog GetUnreliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusHost, logbusPort));
+            return GetLogger(facility, CollectorHelper.CreateUnreliableCollector(logbusHost, logbusPort));
         }
 
         /// <summary>
@@ -271,9 +334,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusIp">IP address of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateUnreliableLogger(IPAddress logbusIp, SyslogFacility facility)
+        public static ILog GetUnreliableLogger(IPAddress logbusIp, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
+            return GetLogger(facility, CollectorHelper.CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -282,9 +345,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusHost">IP address of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateUnreliableLogger(string logbusHost, SyslogFacility facility)
+        public static ILog GetUnreliableLogger(string logbusHost, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
+            return GetLogger(facility, CollectorHelper.CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -294,9 +357,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateReliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
+        public static ILog GetReliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateReliableCollector(logbusHost, logbusPort));
+            return GetLogger(facility, CollectorHelper.CreateReliableCollector(logbusHost, logbusPort));
         }
 
         /// <summary>
@@ -305,9 +368,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusHost">IP address of logbus target</param>
         /// <param name="facility">Syslog facility to override</param>
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
-        public static ILog CreateReliableLogger(string logbusHost, SyslogFacility facility)
+        public static ILog GetReliableLogger(string logbusHost, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateReliableCollector(logbusHost, SyslogTlsReceiver.TLS_PORT));
+            return GetLogger(facility, CollectorHelper.CreateReliableCollector(logbusHost, SyslogTlsReceiver.TLS_PORT));
         }
 
         /// <summary>
@@ -315,9 +378,10 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">Configuration is not set or invalid</exception>
+        [Obsolete("You should use CreateLogger instead")]
         public static ILog CreateDefaultLogger()
         {
-            return new SimpleLogImpl(CreateDefaultCollector());
+            return GetLogger();
         }
 
         /// <summary>
@@ -325,42 +389,12 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         /// <param name="loggerName"></param>
         /// <returns></returns>
+        [Obsolete("You should us CreateLogger instead")]
         public static ILog CreateLoggerByName(string loggerName)
         {
-            return new SimpleLogImpl(CreateCollectorByName(loggerName));
+            return GetLogger(loggerName);
         }
 
-        internal static ILogCollector CreateByDefinition(LogCollectorDefinition def)
-        {
-            if (def == null) throw new ArgumentNullException("def");
-            try
-            {
-                string typename = def.type;
-                if (typename.IndexOf('.') < 0)
-                {
-                    //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
-                    const string namespc = "It.Unina.Dis.Logbus.Loggers";
-                    string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
-                    typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
-                }
-                Type loggerType = Type.GetType(typename);
-                if (!typeof(ILogCollector).IsAssignableFrom(loggerType))
-                {
-                    LogbusConfigurationException ex = new LogbusConfigurationException("Registered logger type does not implement ILogCollector");
-                    ex.Data.Add("type", loggerType);
-                    throw ex;
-                }
-                ILogCollector ret = Activator.CreateInstance(loggerType) as ILogCollector;
-                if (def.param != null && ret is IConfigurable)
-                    foreach (KeyValuePair kvp in def.param)
-                        ((IConfigurable)ret).SetConfigurationParameter(kvp.name, kvp.value);
 
-                return ret;
-            }
-            catch (Exception ex)
-            {
-                throw new LogbusConfigurationException("Invalid logger configuration", ex);
-            }
-        }
     }
 }

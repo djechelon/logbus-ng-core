@@ -21,11 +21,11 @@
       <FileName>Configuration\LogbusCoreConfiguration.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="It.Unina.Dis.Logbus.Configuration.LogbusSourceConfiguration" Collapsed="true">
+  <Class Name="It.Unina.Dis.Logbus.Configuration.LogbusLoggerConfiguration" Collapsed="true">
     <Position X="5.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Configuration\LogbusSourceConfiguration.cs</FileName>
+      <FileName>Configuration\LogbusLoggerConfiguration.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="It.Unina.Dis.Logbus.Configuration.XmlnsSupport" Collapsed="true">

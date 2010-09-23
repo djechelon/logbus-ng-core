@@ -20,45 +20,14 @@
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LogbusCollectorDefinition))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForwarderDefinition))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("out-transport", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class OutputTransportDefinition
+    public abstract partial class LogCollectorDefinitionBase : TypeAndParamBase
     {
-
-        private string tagField;
-
-        private string factoryField;
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string tag
-        {
-            get
-            {
-                return this.tagField;
-            }
-            set
-            {
-                this.tagField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string factory
-        {
-            get
-            {
-                return this.factoryField;
-            }
-            set
-            {
-                this.factoryField = value;
-            }
-        }
     }
 }

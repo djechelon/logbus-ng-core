@@ -20,28 +20,28 @@
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("logbus-source", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LogbusSourceConfiguration : XmlnsSupport
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [System.Xml.Serialization.XmlRootAttribute("collector", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public partial class LogbusCollectorDefinition : LogCollectorDefinitionBase
     {
 
-        private LoggerDefinition[] loggerField;
+        private string idField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("logger")]
-        public LoggerDefinition[] logger
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string id
         {
             get
             {
-                return this.loggerField;
+                return this.idField;
             }
             set
             {
-                this.loggerField = value;
+                this.idField = value;
             }
         }
     }

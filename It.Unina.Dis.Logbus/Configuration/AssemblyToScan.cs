@@ -24,8 +24,8 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("scan-assembly", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [System.Xml.Serialization.XmlRootAttribute("scan-assembly", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
     public partial class AssemblyToScan
     {
 

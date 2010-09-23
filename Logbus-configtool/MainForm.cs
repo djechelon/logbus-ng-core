@@ -98,7 +98,7 @@ namespace It.Unina.Dis.Logbus.Configtool
                 configsection_source.Attributes.Append(attr_section_core_name);
 
                 XmlAttribute attr_section_core_type = AppConfig.CreateAttribute("type");
-                attr_section_core_type.Value = typeof(It.Unina.Dis.Logbus.Configuration.LogbusSourceConfigurationSectionHandler).AssemblyQualifiedName;
+                attr_section_core_type.Value = typeof(It.Unina.Dis.Logbus.Configuration.LogbusLoggerConfigurationSectionHandler).AssemblyQualifiedName;
                 configsection_source.Attributes.Append(attr_section_core_type);
             }
 

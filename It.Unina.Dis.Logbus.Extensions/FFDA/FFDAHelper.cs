@@ -18,6 +18,7 @@
 */
 
 using System;
+using It.Unina.Dis.Logbus.Collectors;
 using It.Unina.Dis.Logbus.Loggers;
 using System.Net;
 namespace It.Unina.Dis.Logbus.FFDA
@@ -38,12 +39,17 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
         public static IFFDALogger CreateFFDALogger(string loggerName)
         {
-            return new FFDALogger(LoggerHelper.CreateCollectorByName(loggerName));
+            return new FFDALogger(CollectorHelper.CreateCollectorByName(loggerName));
         }
 
         public  static IFFDAMonitorLogger CreateFFDAMonitorLogger()
         {
-            throw new NotImplementedException();
+            return new FFDAMonitorLogger(CollectorHelper.CreateDefaultCollector());
+        }
+
+        public static IInstrumentedLogger CreateInstrumentedLogger(string loggerName)
+        {
+            return new FFDALogger(CollectorHelper.CreateCollectorByName(loggerName));
         }
     }
 }

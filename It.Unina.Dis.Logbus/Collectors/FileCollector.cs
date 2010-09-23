@@ -21,7 +21,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-namespace It.Unina.Dis.Logbus
+namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
     /// Logs to a file
@@ -31,7 +31,7 @@ namespace It.Unina.Dis.Logbus
     /// </list>
     /// </summary>
     /// <remarks>Logs are stored in RFC 5424 format</remarks>
-    public class FileLogger
+    public class FileCollector
         : ILogCollector, IConfigurable
     {
 

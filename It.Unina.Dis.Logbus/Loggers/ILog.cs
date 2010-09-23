@@ -25,11 +25,26 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// <remarks>The interface reminds the log4net.ILog interface</remarks>
     public interface ILog
     {
+        /// <summary>
+        /// Gets or sets the facility for the logger
+        /// </summary>
+        SyslogFacility Facility { get; set; }
 
         /// <summary>
         /// Symbolic name of log
         /// </summary>
         string LogName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ultimate destination of log messages
+        /// </summary>
+        ILogCollector Collector { get; set; }
+
+        /// <summary>
+        /// Gets or sets the heartbeat interval, in seconds
+        /// </summary>
+        /// <remarks>Heartbeating is by default done using special Syslog messages marked with ID "HEARTBEAT"</remarks>
+        int HeartbeatInterval { get; set; }
 
         /// <summary>
         /// Logs a debug message

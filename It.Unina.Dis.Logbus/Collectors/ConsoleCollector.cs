@@ -17,14 +17,14 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.Loggers
+namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
     /// Outputs log messages to the console according to a standard output format:
     /// {timestamp} - {severity}: {message}
     /// Timestamp is formatted according to the yyyy-MM-dd-HH:mm:ss format
     /// </summary>
-    internal sealed class ConsoleLogger
+    internal sealed class ConsoleCollector
         : ILogCollector
     {
         #region ILogCollector Membri di

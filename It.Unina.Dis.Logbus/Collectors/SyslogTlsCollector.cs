@@ -26,28 +26,29 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
-namespace It.Unina.Dis.Logbus.Loggers
+
+namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
     /// Logs to a remote server via Syslog TLS Transport (RFC 5425)
     /// </summary>
-    internal class SyslogTlsLogger
+    internal class SyslogTlsCollector
         : ILogCollector, IConfigurable, IDisposable
     {
 
         #region Constructor/Destructor
 
-        public SyslogTlsLogger()
+        public SyslogTlsCollector()
         {
         }
 
-        public SyslogTlsLogger(string remote_host, int remote_port)
+        public SyslogTlsCollector(string remoteHost, int remotePort)
         {
-            host = remote_host;
-            port = remote_port;
+            _host = remoteHost;
+            _port = remotePort;
         }
 
-        ~SyslogTlsLogger()
+        ~SyslogTlsCollector()
         {
             Dispose(false);
         }
@@ -56,7 +57,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             if (disposing)
             {
-                if (client != null) client.Close();
+                if (_client != null) _client.Close();
             }
         }
 
@@ -64,37 +65,37 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         public IPEndPoint RemoteEndPoint { get; set; }
 
-        private TcpClient client;
-        private string host;
-        private int port;
-        private SslStream remote_stream;
-        private string certificate_path;
-        private X509Certificate clientCertificate;
-        private StreamWriter sw;
+        private TcpClient _client;
+        private string _host;
+        private int _port;
+        private SslStream _remoteStream;
+        private string _certificatePath;
+        private X509Certificate _clientCertificate;
+        private StreamWriter _sw;
 
         #region ILogCollector Membri di
 
         public void SubmitMessage(SyslogMessage message)
         {
-            if (client == null)
+            if (_client == null)
             {
-                if (host == null) throw new InvalidOperationException("Remote address not specified");
-                if (port < 1 || port > 65535) port = InChannels.SyslogTlsReceiver.TLS_PORT;
+                if (_host == null) throw new InvalidOperationException("Remote address not specified");
+                if (_port < 1 || _port > 65535) _port = InChannels.SyslogTlsReceiver.TLS_PORT;
 
-                client = new TcpClient();
+                _client = new TcpClient();
             }
 
-            if (!client.Connected)
+            if (!_client.Connected)
                 try
                 {
-                    client.Connect(host, port);
-                    remote_stream = new SslStream(client.GetStream(), false, tls_server_validator, tls_client_selector);
-                    remote_stream.WriteTimeout = 3600000;
+                    _client.Connect(_host, _port);
+                    _remoteStream = new SslStream(_client.GetStream(), false, tls_server_validator, tls_client_selector);
+                    _remoteStream.WriteTimeout = 3600000;
 
                     //remote_stream.AuthenticateAsClient(host, null, SslProtocols.Tls, true);
-                    remote_stream.AuthenticateAsClient(host);
+                    _remoteStream.AuthenticateAsClient(_host);
 
-                    sw = new StreamWriter(remote_stream, Encoding.UTF8);
+                    _sw = new StreamWriter(_remoteStream, Encoding.UTF8);
                 }
                 catch (Exception ex)
                 {
@@ -102,7 +103,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                 }
 
             string payload = message.ToRfc5424String();
-            sw.Write(string.Format("{0} {1}", payload.Length.ToString(CultureInfo.InvariantCulture), payload));
+            _sw.Write(string.Format("{0} {1}", payload.Length.ToString(CultureInfo.InvariantCulture), payload));
         }
 
         private bool tls_server_validator(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -112,7 +113,7 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         private X509Certificate tls_client_selector(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
-            return clientCertificate;
+            return _clientCertificate;
         }
         #endregion
 
@@ -134,11 +135,11 @@ namespace It.Unina.Dis.Logbus.Loggers
             switch (key)
             {
                 case "host":
-                    return host;
+                    return _host;
                 case "port":
-                    return port.ToString(CultureInfo.InvariantCulture);
+                    return _port.ToString(CultureInfo.InvariantCulture);
                 case "certificate":
-                    return certificate_path;
+                    return _certificatePath;
                 default:
                     {
                         NotSupportedException ex = new NotSupportedException("Invalid key");
@@ -161,7 +162,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                     {
                         try
                         {
-                            host = value;
+                            _host = value;
                         }
                         catch (Exception ex)
                         {
@@ -174,9 +175,9 @@ namespace It.Unina.Dis.Logbus.Loggers
                     {
                         try
                         {
-                            port = int.Parse(value);
-                            if (port < 0 || port > 65535)
-                                throw new ArgumentOutOfRangeException("value", port, "Port must be between 0 and 65535");
+                            _port = int.Parse(value);
+                            if (_port < 0 || _port > 65535)
+                                throw new ArgumentOutOfRangeException("value", _port, "Port must be between 0 and 65535");
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -190,10 +191,10 @@ namespace It.Unina.Dis.Logbus.Loggers
                     }
                 case "certificate":
                     {
-                        certificate_path = value;
+                        _certificatePath = value;
                         try
                         {
-                            clientCertificate = new X509Certificate(certificate_path);
+                            _clientCertificate = new X509Certificate(_certificatePath);
                         }
                         catch { }
                         break;

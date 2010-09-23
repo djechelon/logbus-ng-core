@@ -65,9 +65,11 @@
     <Compile Include="FFDA\FFDAEventArgs.cs" />
     <Compile Include="FFDA\FFDAHelper.cs" />
     <Compile Include="FFDA\FFDALogger.cs" />
+    <Compile Include="FFDA\FFDAMonitorLogger.cs" />
     <Compile Include="FFDA\FFDASource.cs" />
     <Compile Include="FFDA\IFFDALogger.cs" />
     <Compile Include="FFDA\IFFDAMonitorLogger.cs" />
+    <Compile Include="FFDA\IInstrumentedLogger.cs" />
     <Compile Include="log4net\Log4netLogger.cs" />
     <Compile Include="log4net\OldSyslogLayout.cs" />
     <Compile Include="log4net\SyslogLayout.cs" />
@@ -100,7 +102,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

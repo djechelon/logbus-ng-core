@@ -17,12 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.Loggers
+namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
     /// Forwards a message to multiple loggers
     /// </summary>
-    internal class MultiLogger
+    internal class MultiCollector
         : ILogCollector
     {
 

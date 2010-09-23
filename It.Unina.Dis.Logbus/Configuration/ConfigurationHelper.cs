@@ -30,7 +30,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private static LogbusCoreConfiguration _core;
         private static LogbusClientConfiguration _client;
-        private static LogbusSourceConfiguration _source;
+        private static LogbusLoggerConfiguration _source;
 
         /// <summary>
         /// Configuration for core facility
@@ -59,7 +59,7 @@ namespace It.Unina.Dis.Logbus.Configuration
         /// <summary>
         /// Configuration for log sources
         /// </summary>
-        public static LogbusSourceConfiguration SourceConfiguration
+        public static LogbusLoggerConfiguration SourceConfiguration
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get
@@ -68,7 +68,7 @@ namespace It.Unina.Dis.Logbus.Configuration
                 try
                 {
                     //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                    _source = ConfigurationManager.GetSection("logbus-source") as LogbusSourceConfiguration;
+                    _source = ConfigurationManager.GetSection("logbus-logger") as LogbusLoggerConfiguration;
                     return _source;
                 }
                 catch { return null; }
