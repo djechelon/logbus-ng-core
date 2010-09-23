@@ -35,7 +35,14 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// Use the CMP message to report about self-detect failures
     /// </remarks>
     public interface IFFDALogger
+        : IDisposable
     {
+        /// <summary>
+        /// Gets or sets an object from which to obtain the flow's ID
+        /// </summary>
+        /// <remarks>By default, the flow ID coincides with the current thread's hash code</remarks>
+        object Flow { get; set; }
+
         /// <summary>
         /// Logs the event of Service Start
         /// </summary>

@@ -72,6 +72,8 @@ namespace It.Unina.Dis.Logbus.FFDA
                 else if (txt.StartsWith("RIS")) ;//RIS
                 else if (txt.StartsWith("RIE")) ;//RIE
                 else if (txt.StartsWith("CMP")) ;//Complaint
+                else if (txt == "SUP") ; //Service UP
+                else if (txt == "SDW") ; //Service DOWN
             }
             throw new NotImplementedException();
         }
