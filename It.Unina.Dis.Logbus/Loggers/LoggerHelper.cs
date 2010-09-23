@@ -107,7 +107,19 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusIp">IP address of logbus target</param>
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        [Obsolete("You should use CreateUnreliableCollector instead", false)]
         public static ILogCollector CreateUdpCollector(IPAddress logbusIp, int logbusPort)
+        {
+            return CreateUnreliableCollector(logbusIp, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        public static ILogCollector CreateUnreliableCollector(IPAddress logbusIp, int logbusPort)
         {
             return new SyslogUdpLogger(logbusIp, logbusPort);
         }
@@ -118,7 +130,19 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="logbusHost">IP address of logbus target</param>
         /// <param name="logbusPort">UDP port of logbus target</param>
         /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        [Obsolete("You should use CreateUnreliableCollector instead", false)]
         public static ILogCollector CreateUdpCollector(string logbusHost, int logbusPort)
+        {
+            return CreateUnreliableCollector(logbusHost, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        public static ILogCollector CreateUnreliableCollector(string logbusHost, int logbusPort)
         {
             return new SyslogUdpLogger(logbusHost, logbusPort);
         }
@@ -156,7 +180,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <remarks>Facility is set to Local4 as default value</remarks>
         public static ILog CreateUnreliableLogger(IPAddress logbusIp, int logbusPort)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbusIp, logbusPort));
+            return new SimpleLogImpl(CreateUnreliableCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
@@ -167,7 +191,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <remarks>Facility is set to Local4 as default value</remarks>
         public static ILog CreateUnreliableLogger(IPAddress logbusIp)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
+            return new SimpleLogImpl(CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -178,7 +202,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <remarks>Facility is set to Local4 as default value</remarks>
         public static ILog CreateUnreliableLogger(string logbusHost)
         {
-            return new SimpleLogImpl(CreateUdpCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
+            return new SimpleLogImpl(CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -214,7 +238,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         [Obsolete("You should use CreateUnreliableLogger instead")]
         public static ILog CreateUdpLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbusIp, logbusPort));
+            return CreateUnreliableLogger(logbusIp,logbusPort,facility);
         }
 
         /// <summary>
@@ -226,7 +250,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog CreateUnreliableLogger(IPAddress logbusIp, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbusIp, logbusPort));
+            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusIp, logbusPort));
         }
 
         /// <summary>
@@ -238,7 +262,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog CreateUnreliableLogger(string logbusHost, int logbusPort, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbusHost, logbusPort));
+            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusHost, logbusPort));
         }
 
         /// <summary>
@@ -249,7 +273,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog CreateUnreliableLogger(IPAddress logbusIp, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
+            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -260,7 +284,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog CreateUnreliableLogger(string logbusHost, SyslogFacility facility)
         {
-            return new SimpleLogImpl(facility, CreateUdpCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
+            return new SimpleLogImpl(facility, CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
