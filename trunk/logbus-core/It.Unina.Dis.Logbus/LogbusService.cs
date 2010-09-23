@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using It.Unina.Dis.Logbus.Collectors;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Configuration;
 using It.Unina.Dis.Logbus.Utils;
@@ -77,7 +78,7 @@ namespace It.Unina.Dis.Logbus
 
             out_chans = new List<IOutboundChannel>();
             in_chans = new List<IInboundChannel>();
-            Log = new SimpleLogImpl(SyslogFacility.Internally, LoggerHelper.CreateCollectorByName("Logbus"));
+            Log = new SimpleLogImpl(SyslogFacility.Internally, this);
 
             //Init fresh queues
             queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
@@ -175,82 +176,76 @@ namespace It.Unina.Dis.Logbus
                             LogbusConfigurationException ex = new LogbusConfigurationException("Found empty value in Inbound Channel definition");
                             throw ex;
                         }
+
+                        if (string.IsNullOrEmpty(def.type))
+                        {
+                            LogbusConfigurationException ex = new LogbusConfigurationException("Type for Inbound channel cannot be empty");
+                            ex.Data["ChannelDefinitionObject"] = def;
+                            throw ex;
+                        }
+
                         try
                         {
-                            if (string.IsNullOrEmpty(def.type))
+                            string typename = def.type;
+                            if (typename.IndexOf('.') < 0)
                             {
-                                LogbusConfigurationException ex = new LogbusConfigurationException("Type for Inbound channel cannot be empty");
-                                ex.Data["ChannelDefinitionObject"] = def;
-                                throw ex;
+                                //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
+                                const string namespc = "It.Unina.Dis.Logbus.InChannels";
+                                string assemblyname = GetType().Assembly.GetName().ToString();
+                                typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                             }
 
+                            Type inChanType = Type.GetType(typename, true, false);
+
+                            if (!typeof(IInboundChannel).IsAssignableFrom(inChanType))
+                            {
+                                LogbusConfigurationException ex = new LogbusConfigurationException("Specified type for Inbound channel does not implement IInboundChannel");
+                                ex.Data["TypeName"] = typename;
+                            }
+                            IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(inChanType, true);
                             try
                             {
-                                string typename = def.type;
-                                if (typename.IndexOf('.') < 0)
-                                {
-                                    //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
-                                    const string namespc = "It.Unina.Dis.Logbus.InChannels";
-                                    string assemblyname = GetType().Assembly.GetName().ToString();
-                                    typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
-                                }
-
-                                Type inChanType = Type.GetType(typename, true, false);
-
-                                if (!typeof(IInboundChannel).IsAssignableFrom(inChanType))
-                                {
-                                    LogbusConfigurationException ex = new LogbusConfigurationException("Specified type for Inbound channel does not implement IInboundChannel");
-                                    ex.Data["TypeName"] = typename;
-                                }
-                                IInboundChannel channel = (IInboundChannel)Activator.CreateInstance(inChanType, true);
-                                try
-                                {
-                                    if (def.param != null)
-                                        foreach (KeyValuePair param in def.param)
-                                        {
-                                            channel.SetConfigurationParameter(param.name, param.value);
-                                        }
-                                }
-                                catch (NullReferenceException ex)
-                                {
-                                    throw new LogbusConfigurationException("Inbound channel instance must expose a non-null Configuration array", ex);
-                                }
-                                catch (NotSupportedException ex)
-                                {
-                                    throw new LogbusConfigurationException("Configuration parameter is not supported by channel", ex);
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new LogbusConfigurationException("Error configuring inbound channel", ex);
-                                }
-
-                                if (channel is ILogSupport) ((ILogSupport)channel).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
-
-                                channels.Add(channel);
+                                if (def.param != null)
+                                    foreach (KeyValuePair param in def.param)
+                                    {
+                                        channel.SetConfigurationParameter(param.name, param.value);
+                                    }
                             }
-                            catch (LogbusConfigurationException ex)
+                            catch (NullReferenceException ex)
                             {
-                                ex.Data["TypeName"] = def.type;
-                                throw;
+                                throw new LogbusConfigurationException("Inbound channel instance must expose a non-null Configuration array", ex);
                             }
-                            catch (TypeLoadException ex)
+                            catch (NotSupportedException ex)
                             {
-                                LogbusConfigurationException e = new LogbusConfigurationException("Type not found for Inbound channel", ex);
-                                e.Data["TypeName"] = def.type;
-                                throw e;
+                                throw new LogbusConfigurationException("Configuration parameter is not supported by channel", ex);
                             }
                             catch (Exception ex)
                             {
-                                LogbusConfigurationException e = new LogbusConfigurationException("Cannot load specified type for Inbound channel", ex);
-                                e.Data["TypeName"] = def.type;
-                                throw e;
+                                throw new LogbusConfigurationException("Error configuring inbound channel", ex);
                             }
+
+                            if (channel is ILogSupport) ((ILogSupport)channel).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+
+                            channels.Add(channel);
                         }
                         catch (LogbusConfigurationException ex)
                         {
-                            if (!string.IsNullOrEmpty(def.name)) ex.Data["ChannelName"] = def.name;
+                            ex.Data["TypeName"] = def.type;
                             throw;
                         }
+                        catch (TypeLoadException ex)
+                        {
+                            LogbusConfigurationException e = new LogbusConfigurationException("Type not found for Inbound channel", ex);
+                            e.Data["TypeName"] = def.type;
+                            throw e;
+                        }
+                        catch (Exception ex)
+                        {
+                            LogbusConfigurationException e = new LogbusConfigurationException("Cannot load specified type for Inbound channel", ex);
+                            e.Data["TypeName"] = def.type;
+                            throw e;
+                        }
+
 
                     }
                 in_chans = channels;
@@ -313,12 +308,12 @@ namespace It.Unina.Dis.Logbus
                     List<ILogCollector> collectors = new List<ILogCollector>();
                     foreach (ForwarderDefinition def in Configuration.forwardto)
                     {
-                        ILogCollector collector = LoggerHelper.CreateByDefinition(def);
+                        ILogCollector collector = CollectorHelper.CreateByDefinition(def);
                         if (collector is ILogSupport)
                             ((ILogSupport)collector).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
                         collectors.Add(collector);
                     }
-                    forwarder = new MultiLogger() { Collectors = collectors.ToArray() };
+                    forwarder = new MultiCollector() { Collectors = collectors.ToArray() };
                 }
 
                 //Plugin configuration

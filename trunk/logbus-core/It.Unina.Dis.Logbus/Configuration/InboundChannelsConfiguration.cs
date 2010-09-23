@@ -24,8 +24,8 @@ namespace It.Unina.Dis.Logbus.Configuration
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("in-channels", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = true)]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [System.Xml.Serialization.XmlRootAttribute("in-channels", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = true)]
     public partial class InboundChannelsConfiguration
     {
 

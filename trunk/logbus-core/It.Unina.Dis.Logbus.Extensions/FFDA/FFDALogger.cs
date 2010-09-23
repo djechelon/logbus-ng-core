@@ -32,7 +32,7 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// Default implementation of IFFDALogger and IFFDAMonitor
     /// </summary>
     internal sealed class FFDALogger
-        : SimpleLogImpl, IFFDALogger, IFFDAMonitorLogger
+        : SimpleLogImpl, IInstrumentedLogger
     {
         #region Constructor/Destructor
         /// <summary>
@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         public FFDALogger(SyslogFacility facility, ILogCollector target)
             : base(facility, target)
         {
-            GC.SuppressFinalize(base.Target);
+            GC.SuppressFinalize(base.Collector);
             Log("SUP", SyslogSeverity.Info);
         }
 
@@ -72,10 +72,10 @@ namespace It.Unina.Dis.Logbus.FFDA
 
             if (disposing)
             {
-                if (base.Target is IDisposable) ((IDisposable)base.Target).Dispose();
+                if (base.Collector is IDisposable) ((IDisposable)base.Collector).Dispose();
             }
 
-            GC.ReRegisterForFinalize(base.Target);
+            GC.ReRegisterForFinalize(base.Collector);
         }
         #endregion
 
@@ -207,47 +207,5 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         #endregion
 
-        #region IFFDAMonitor Membri di
-
-        public void LogCOA()
-        {
-            Log("COA", SyslogSeverity.Alert);
-        }
-
-        public void LogCOA(string id)
-        {
-            if (id == null)
-                throw new ArgumentNullException("id");
-
-            Log("COA-" + id, SyslogSeverity.Alert);
-        }
-
-        public void LogEIA()
-        {
-            Log("EIA", SyslogSeverity.Alert);
-        }
-
-        public void LogEIA(string id)
-        {
-            if (id == null)
-                throw new ArgumentNullException("id");
-
-            Log("EIA-" + id, SyslogSeverity.Alert);
-        }
-
-        public void LogRIA()
-        {
-            Log("RIA", SyslogSeverity.Alert);
-        }
-
-        public void LogRIA(string id)
-        {
-            if (id == null)
-                throw new ArgumentNullException("id");
-
-            Log("RIA-" + id, SyslogSeverity.Alert);
-        }
-
-        #endregion
     }
 }

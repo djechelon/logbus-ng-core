@@ -26,19 +26,19 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// <summary>
     /// Configuration section handler for App.config/Web.config
     /// </summary>
-    public class LogbusSourceConfigurationSectionHandler : IConfigurationSectionHandler
+    public class LogbusLoggerConfigurationSectionHandler : IConfigurationSectionHandler
     {
         #region IConfigurationSectionHandler Membri di
 
         /// <summary>
-        /// Read configuration and return a <see cref="It.Unina.Dis.Logbus.Configuration.LogbusSourceConfiguration"/> object by design contract
+        /// Read configuration and return a <see cref="It.Unina.Dis.Logbus.Configuration.LogbusLoggerConfiguration"/> object by design contract
         /// </summary>
         /// <returns></returns>
         object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
         {
             try
             {
-                return new XmlSerializer(typeof(LogbusSourceConfiguration)).Deserialize(new XmlNodeReader(section));
+                return new XmlSerializer(typeof(LogbusLoggerConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {

@@ -21,13 +21,13 @@ using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration", IsNullable = false)]
-    public partial class LogbusCoreConfiguration : XmlnsSupport
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public partial class LogbusCoreConfiguration
     {
 
         private InboundChannelDefinition[] inchannelsField;
@@ -144,4 +144,5 @@ namespace It.Unina.Dis.Logbus.Configuration
             }
         }
     }
+
 }

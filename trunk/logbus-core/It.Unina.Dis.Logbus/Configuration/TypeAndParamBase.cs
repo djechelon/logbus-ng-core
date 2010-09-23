@@ -21,24 +21,21 @@ namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggerDefinition))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(InboundChannelDefinition))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LogCollectorDefinitionBase))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LogbusCollectorDefinition))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForwarderDefinition))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration")]
-    public partial class LogCollectorDefinition
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    public abstract partial class TypeAndParamBase
     {
 
         private KeyValuePair[] paramField;
 
         private string typeField;
-
-        private string nameField;
-
-        private bool defaultField;
-
-        private bool defaultFieldSpecified;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("param")]
@@ -65,48 +62,6 @@ namespace It.Unina.Dis.Logbus.Configuration
             set
             {
                 this.typeField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public string name
-        {
-            get
-            {
-                return this.nameField;
-            }
-            set
-            {
-                this.nameField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
-        public bool @default
-        {
-            get
-            {
-                return this.defaultField;
-            }
-            set
-            {
-                this.defaultField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool defaultSpecified
-        {
-            get
-            {
-                return this.defaultFieldSpecified;
-            }
-            set
-            {
-                this.defaultFieldSpecified = value;
             }
         }
     }

@@ -21,7 +21,7 @@ namespace Unit_Tests
 
         private ILogBus logbus;
         private LogbusCoreConfiguration core_config;
-        private LogbusSourceConfiguration source_config;
+        private LogbusLoggerConfiguration source_config;
 
         private ILog logger;
 
@@ -43,12 +43,12 @@ namespace Unit_Tests
             core_config.inchannels[0].param[0] = new KeyValuePair() { name = "certificate", value = @"C:\\logbus.p12" };
 
 
-            source_config = new LogbusSourceConfiguration();
+            source_config = new LogbusLoggerConfiguration();
 
             source_config.logger = new LoggerDefinition[1];
             source_config.logger[0] = new LoggerDefinition()
             {
-                type = "SyslogTlsLogger",
+                type = "SyslogTlsCollector",
                 name = "tls",
                 defaultSpecified = true,
                 @default = true

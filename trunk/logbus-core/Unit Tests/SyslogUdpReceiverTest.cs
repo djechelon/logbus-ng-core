@@ -79,7 +79,7 @@ namespace Unit_Tests
                 try
                 {
                     target.Start();
-                    Assert.Fail("Target not initialized but started");
+                    Assert.Fail("Collector not initialized but started");
                 }
                 catch (LogbusException)
                 {

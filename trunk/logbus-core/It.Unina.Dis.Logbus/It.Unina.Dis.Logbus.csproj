@@ -75,19 +75,22 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collectors\CollectorHelper.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ForwarderDefinition.cs" />
     <Compile Include="Configuration\ForwardingConfiguration.cs" />
     <Compile Include="Configuration\InboundChannelsConfiguration.cs" />
     <Compile Include="Configuration\LogbusClientConfiguration.cs" />
     <Compile Include="Configuration\LogbusClientConfigurationSectionHandler.cs" />
+    <Compile Include="Configuration\LogbusCollectorDefinition.cs" />
     <Compile Include="Configuration\LogbusEndpointDefinition.cs" />
-    <Compile Include="Configuration\LogbusSourceConfiguration.cs" />
-    <Compile Include="Configuration\LogbusSourceConfigurationSectionHandler.cs" />
-    <Compile Include="Configuration\LogCollectorDefinition.cs" />
+    <Compile Include="Configuration\LogbusLoggerConfiguration.cs" />
+    <Compile Include="Configuration\LogbusLoggerConfigurationSectionHandler.cs" />
+    <Compile Include="Configuration\LogCollectorDefinitionBase.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Configuration\PluginDefinition.cs" />
+    <Compile Include="Configuration\TypeAndParamBase.cs" />
     <Compile Include="Configuration\XmlnsSupport.cs" />
     <Compile Include="IConfigurable.cs" />
     <Compile Include="ILogSupport.cs" />
@@ -97,7 +100,7 @@
     <Compile Include="LogbusDaemon.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Loggers\ConsoleLogger.cs" />
+    <Compile Include="Collectors\ConsoleCollector.cs" />
     <Compile Include="Loggers\ILog.cs" />
     <Compile Include="Clients\ILogClient.cs" />
     <Compile Include="Clients\ClientHelper.cs" />
@@ -163,9 +166,9 @@
     <Compile Include="LogbusService.cs">
     </Compile>
     <Compile Include="LogbusSingletonHelper.cs" />
-    <Compile Include="Loggers\MultiLogger.cs" />
-    <Compile Include="Loggers\NullLogger.cs" />
-    <Compile Include="Loggers\SyslogTlsLogger.cs" />
+    <Compile Include="Collectors\MultiCollector.cs" />
+    <Compile Include="Collectors\NullCollector.cs" />
+    <Compile Include="Collectors\SyslogTlsCollector.cs" />
     <Compile Include="OutChannels\OutChannelCreationEventArgs.cs" />
     <Compile Include="OutChannels\OutChannelDeletionEventArgs.cs" />
     <Compile Include="OutChannels\SimpleOutChannel.cs" />
@@ -196,7 +199,7 @@
     <Compile Include="Loggers\SimpleLogImpl.cs" />
     <Compile Include="Utils\NetworkUtils.cs" />
     <Compile Include="Utils\Randomizer.cs" />
-    <Compile Include="Loggers\SyslogUdpLogger.cs" />
+    <Compile Include="Collectors\SyslogUdpCollector.cs" />
     <Compile Include="Web References\RemoteLogbus\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -216,7 +219,7 @@
     <Compile Include="Wrappers\LogBusTie.cs" />
     <Compile Include="Wrappers\LogCollectorTie.cs" />
     <Compile Include="Wrappers\LogSourceTie.cs" />
-    <Compile Include="Loggers\FileLogger.cs" />
+    <Compile Include="Collectors\FileCollector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AUTHORS.txt" />
@@ -277,7 +280,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

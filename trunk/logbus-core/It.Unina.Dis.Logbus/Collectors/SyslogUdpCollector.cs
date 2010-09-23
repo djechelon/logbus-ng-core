@@ -24,34 +24,36 @@ using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
 using System.IO;
-namespace It.Unina.Dis.Logbus.Loggers
+
+namespace It.Unina.Dis.Logbus.Collectors
 {
-    internal sealed class SyslogUdpLogger : ILogCollector, IConfigurable, IDisposable
+    internal sealed class SyslogUdpCollector
+        : ILogCollector, IConfigurable, IDisposable
     {
 
         #region Constrcutor
-        public SyslogUdpLogger()
+        public SyslogUdpCollector()
         {
-            client = new UdpClient();
+            _client = new UdpClient();
         }
 
-        public SyslogUdpLogger(string host, int port)
+        public SyslogUdpCollector(string host, int port)
             : this(new IPEndPoint(Dns.GetHostEntry(host).AddressList[0], port))
         {
         }
 
-        public SyslogUdpLogger(IPAddress ip, int port)
+        public SyslogUdpCollector(IPAddress ip, int port)
             : this(new IPEndPoint(ip, port))
         {
         }
 
-        public SyslogUdpLogger(IPEndPoint endpoint)
+        public SyslogUdpCollector(IPEndPoint endpoint)
             : this()
         {
             RemoteEndPoint = endpoint;
         }
 
-        ~SyslogUdpLogger()
+        ~SyslogUdpCollector()
         {
             Dispose(false);
         }
@@ -59,9 +61,9 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         public IPEndPoint RemoteEndPoint { get; set; }
 
-        private UdpClient client;
-        private IPAddress remote_addr;
-        private int port;
+        private UdpClient _client;
+        private IPAddress _remoteAddr;
+        private int _port;
 
         #region ILogCollector Membri di
 
@@ -69,11 +71,11 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             if (RemoteEndPoint == null)
             {
-                if (port == 0 || remote_addr == null)
+                if (_port == 0 || _remoteAddr == null)
                     throw new InvalidOperationException("Logger is not configured");
                 else
                 {
-                    RemoteEndPoint = new IPEndPoint(remote_addr, port);
+                    RemoteEndPoint = new IPEndPoint(_remoteAddr, _port);
                 }
             }
 
@@ -81,7 +83,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             byte[] payload = Encoding.UTF8.GetBytes(message.ToRfc5424String());
             try
             {
-                client.Send(payload, payload.Length, RemoteEndPoint);
+                _client.Send(payload, payload.Length, RemoteEndPoint);
             }
             catch (IOException)
             {
@@ -107,10 +109,10 @@ namespace It.Unina.Dis.Logbus.Loggers
         private void Dispose(bool disposing)
         {
             GC.SuppressFinalize(this);
-            if (disposing && client != null)
-                client.Close();
+            if (disposing && _client != null)
+                _client.Close();
 
-            client = null;
+            _client = null;
             RemoteEndPoint = null;
         }
         #endregion
@@ -124,9 +126,9 @@ namespace It.Unina.Dis.Logbus.Loggers
             switch (key)
             {
                 case "ip":
-                    return (remote_addr == null) ? null : remote_addr.ToString();
+                    return (_remoteAddr == null) ? null : _remoteAddr.ToString();
                 case "port":
-                    return port.ToString(CultureInfo.InvariantCulture);
+                    return _port.ToString(CultureInfo.InvariantCulture);
                 default:
                     {
                         NotSupportedException ex = new NotSupportedException("Invalid key");
@@ -149,7 +151,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                     {
                         try
                         {
-                            remote_addr = IPAddress.Parse(value);
+                            _remoteAddr = IPAddress.Parse(value);
                         }
                         catch (Exception ex)
                         {
@@ -162,9 +164,9 @@ namespace It.Unina.Dis.Logbus.Loggers
                     {
                         try
                         {
-                            port = int.Parse(value);
-                            if (port < 0 || port > 65535)
-                                throw new ArgumentOutOfRangeException("value", port, "Port must be between 0 and 65535");
+                            _port = int.Parse(value);
+                            if (_port < 0 || _port > 65535)
+                                throw new ArgumentOutOfRangeException("value", _port, "Port must be between 0 and 65535");
                         }
                         catch (ArgumentOutOfRangeException)
                         {

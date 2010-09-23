@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
-<xs:schema xmlns="http://www.dis.unina.it/logbus-ng/configuration" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/configuration" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+<xs:schema xmlns="http://www.dis.unina.it/logbus-ng/configuration/2.0" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration/2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/configuration/2.0" elementFormDefault="unqualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
 	<xs:annotation>
 		<xs:documentation>Begin common section</xs:documentation>
@@ -29,21 +29,29 @@
 			<xs:documentation>Marks if the entity is to be considered default or not</xs:documentation>
 		</xs:annotation>
 	</xs:attribute>
+	<xs:complexType name="TypeAndParamBase" abstract="true">
+		<xs:sequence>
+			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute ref="type" use="optional"/>
+	</xs:complexType>
 	<xs:simpleType name="ClassType">
 		<xs:restriction base="xs:string">
 			<xs:pattern value="[a-zA-Z0-9]{1}[a-zA-Z0-9_.]+(, [a-zA-Z0-9]{1}[a-zA-Z0-9_.]+)?(, Culture=[a-zA-Z-]*)?(, PublicKeyToken=[0-9a-fA-F]{16})?"/>
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:complexType name="LogCollectorDefinition">
+	<xs:complexType name="LogCollectorDefinitionBase" abstract="true">
 		<xs:annotation>
 			<xs:documentation>Defines a connector object to Logbus</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-		<xs:attribute ref="type" use="required"/>
-		<xs:attribute ref="name" use="optional"/>
-		<xs:attribute ref="default" use="optional"/>
+		<xs:complexContent>
+			<xs:restriction base="TypeAndParamBase">
+				<xs:sequence>
+					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute ref="type" use="required"/>
+			</xs:restriction>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:annotation>
 		<xs:documentation>Begin core section</xs:documentation>
@@ -84,11 +92,14 @@
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Defines an Inbound channels by type and properties</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-		<xs:attribute ref="type" use="required"/>
-		<xs:attribute ref="name" use="optional"/>
+		<xs:complexContent>
+			<xs:restriction base="TypeAndParamBase">
+				<xs:sequence>
+					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute ref="type" use="required"/>
+			</xs:restriction>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:element name="in-channel" type="InboundChannelDefinition"/>
 	<xs:complexType name="CustomFiltersConfiguration">
@@ -178,40 +189,73 @@
 	<xs:element name="forward-to" type="ForwardingConfiguration"/>
 	<xs:complexType name="ForwarderDefinition">
 		<xs:complexContent>
-			<xs:restriction base="LogCollectorDefinition">
-				<xs:sequence>
-					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-				</xs:sequence>
-				<xs:attribute ref="name" use="prohibited"/>
-				<xs:attribute ref="default" use="prohibited"/>
-			</xs:restriction>
+			<xs:extension base="LogCollectorDefinitionBase"/>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:element name="forwarder" type="ForwarderDefinition"/>
 	<xs:annotation>
 		<xs:documentation>Begin Source section</xs:documentation>
 	</xs:annotation>
-	<xs:complexType name="LogbusSourceConfiguration">
+	<xs:complexType name="LogbusLoggerConfiguration">
 		<xs:annotation>
 			<xs:documentation>Configuration section for a Logbus source (element that generates and sends log messages)</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
+			<xs:element ref="collector" maxOccurs="unbounded"/>
 			<xs:element ref="logger" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
+		<xs:attribute name="default-logger-type" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Strong-name of default class implementing ILog</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="default-collector" use="required">
+			<xs:annotation>
+				<xs:documentation>Default collector to use when not specified</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="default-heartbeat-interval" type="xs:int" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Default hartbeat interval in seconds. If not specified, heartbeat is disabled</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
-	<xs:element name="logbus-source" type="LogbusSourceConfiguration"/>
+	<xs:element name="logbus-logger" type="LogbusLoggerConfiguration"/>
 	<xs:complexType name="LoggerDefinition">
 		<xs:complexContent>
-			<xs:restriction base="LogCollectorDefinition">
-				<xs:sequence>
-					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-				</xs:sequence>
-				<xs:attribute ref="name" use="required"/>
-				<xs:attribute ref="default"/>
-			</xs:restriction>
+			<xs:extension base="TypeAndParamBase">
+				<xs:attribute ref="name" use="required">
+					<xs:annotation>
+						<xs:documentation>Unique ID of logger</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="collector-id" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>ID of collector to use for this logger</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="heartbeat-interval" type="xs:int" use="optional" default="0">
+					<xs:annotation>
+						<xs:documentation>Heartbeat interval, in seconds. If not specified, heartbeating is disabled</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="permanent" type="xs:boolean" default="false"/>
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:element name="logger" type="LoggerDefinition"/>
+	<xs:complexType name="LogbusCollectorDefinition">
+		<xs:complexContent>
+			<xs:extension base="LogCollectorDefinitionBase">
+				<xs:attribute name="id" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of collector. Must be unique</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="collector" type="LogbusCollectorDefinition"/>
 	<xs:annotation>
 		<xs:documentation>Begin Client section</xs:documentation>
 	</xs:annotation>
