@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
 <xs:schema xmlns="http://www.dis.unina.it/logbus-ng/configuration/2.0" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration/2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/configuration/2.0" elementFormDefault="unqualified" attributeFormDefault="unqualified">
 	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
 	<xs:annotation>

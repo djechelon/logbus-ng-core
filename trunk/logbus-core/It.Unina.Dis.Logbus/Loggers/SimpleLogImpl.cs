@@ -22,13 +22,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
+using System.Runtime.CompilerServices;
 namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
     /// Simple ILog implementation
     /// </summary>
     public class SimpleLogImpl
-        : ILog
+        : ILogger
     {
         /// <summary>
         /// Enterprise ID for StructuredData
@@ -61,6 +62,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         public SimpleLogImpl(SyslogFacility facility)
         {
             this.Facility = facility;
+
+            _heartbeatTimer = new Timer(HeartbeatCallback, null, Timeout.Infinite, Timeout.Infinite);
         }
 
         /// <summary>
@@ -82,6 +85,11 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="target">Ultimate destination of messages</param>
         public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
+
+        ~SimpleLogImpl()
+        {
+            if (_heartbeatTimer != null) _heartbeatTimer.Dispose();
+        }
         #endregion
 
         /// <summary>
@@ -89,18 +97,13 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         public int HeartbeatInterval
         {
+            [MethodImpl(MethodImplOptions.Synchronized)]
             get { return _hbInterval; }
+            [MethodImpl(MethodImplOptions.Synchronized)]
             set
             {
                 _hbInterval = value;
-                if (_heartbeatTimer != null)
-                {
-                    _heartbeatTimer.Dispose();
-                    _heartbeatTimer = null;
-                }
-
-                if (value > 0)
-                    _heartbeatTimer = new Timer(_heartbeatCallback, null, HeartbeatInterval, HeartbeatInterval);
+                _heartbeatTimer.Change(value * 1000, value * 1000);
             }
         }
 
@@ -118,7 +121,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// Heartbeat callback
         /// </summary>
         /// <param name="state"></param>
-        private void _heartbeatCallback(object state)
+        private void HeartbeatCallback(object state)
         {
             try
             {
@@ -203,6 +206,10 @@ namespace It.Unina.Dis.Logbus.Loggers
 
         protected virtual void Log(string message, SyslogSeverity severity)
         {
+            //Reset heartbeating
+            if (_hbInterval > 0)
+                _heartbeatTimer.Change(HeartbeatInterval * 1000, HeartbeatInterval * 1000);
+
             String host = Environment.MachineName;
             String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
             String appname = Process.GetCurrentProcess().ProcessName;

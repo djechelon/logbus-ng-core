@@ -34,21 +34,41 @@ namespace It.Unina.Dis.Logbus.Collectors
         {
             get { return LoggerHelper.Configuration; }
         }
+
         /// <summary>
         /// Constructs a logger basing on configuration
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
-        public static ILogCollector CreateDefaultCollector()
+        public static ILogCollector CreateCollector()
         {
             if (Configuration != null)
             {
                 if (string.IsNullOrEmpty(Configuration.defaultcollector)) throw new InvalidOperationException("No default collector specifed in configuration file");
 
-                return CreateCollectorByName(Configuration.defaultcollector);
+                return CreateCollector(Configuration.defaultcollector);
             }
             //Else get default
             return new ConsoleCollector();
+        }
+
+        /// <summary>
+        /// Returns the collector associated to the given logger.
+        /// It's different from obtaining a collector from its name
+        /// </summary>
+        /// <param name="loggerName">Name of logger</param>
+        /// <returns></returns>
+        public static ILogCollector CreateCollectorForLogger(string loggerName)
+        {
+            if (Configuration == null || Configuration.logger == null || Configuration.logger.Length == 0)
+                throw new LogbusConfigurationException("No or invalid logger configuration specified");
+
+            foreach (LoggerDefinition def in Configuration.logger)
+            {
+                if (def.name == loggerName) return CreateCollector(def.collectorid);
+            }
+
+            throw new LogbusConfigurationException(string.Format("Collector {0} not found", loggerName));
         }
 
         /// <summary>
@@ -61,7 +81,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         /// <item><code>Logbus</code><description>Collector that forwards messages to the current Logbus instance</description></item>
         /// </list></remarks>
         /// <exception cref="InvalidOperationException">No or invalid configuration is specified</exception>
-        public static ILogCollector CreateCollectorByName(string collectorName)
+        public static ILogCollector CreateCollector(string collectorName)
         {
             if (string.IsNullOrEmpty(collectorName)) throw new ArgumentNullException("collectorName");
 
@@ -71,7 +91,7 @@ namespace It.Unina.Dis.Logbus.Collectors
             //Try to find the first logger marked default
             foreach (LogbusCollectorDefinition def in Configuration.collector)
             {
-                if (def.id == collectorName) return CreateByDefinition(def);
+                if (def.id == collectorName) return CreateCollector(def);
             }
 
             //Let's see if the logger name is well-knwon
@@ -83,69 +103,19 @@ namespace It.Unina.Dis.Logbus.Collectors
                     }
             }
             //Else throw error: logger is not defined in configuration
-            throw new LogbusException(string.Format("Logger {0} not found", collectorName));
+            throw new LogbusException(string.Format("Collector {0} not found", collectorName));
         }
 
         /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
+        /// Creates collector from configuration definition
         /// </summary>
-        /// <param name="logbusIp">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        [Obsolete("You should use CreateUnreliableCollector instead", false)]
-        public static ILogCollector CreateUdpCollector(IPAddress logbusIp, int logbusPort)
-        {
-            return CreateUnreliableCollector(logbusIp, logbusPort);
-        }
-
-        /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
-        /// </summary>
-        /// <param name="logbusIp">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateUnreliableCollector(IPAddress logbusIp, int logbusPort)
-        {
-            return new SyslogUdpCollector(logbusIp, logbusPort);
-        }
-
-        /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
-        /// </summary>
-        /// <param name="logbusHost">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        [Obsolete("You should use CreateUnreliableCollector instead", false)]
-        public static ILogCollector CreateUdpCollector(string logbusHost, int logbusPort)
-        {
-            return CreateUnreliableCollector(logbusHost, logbusPort);
-        }
-
-        /// <summary>
-        /// Creates a Log collector which uses Syslog UDP sending
-        /// </summary>
-        /// <param name="logbusHost">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateUnreliableCollector(string logbusHost, int logbusPort)
-        {
-            return new SyslogUdpCollector(logbusHost, logbusPort);
-        }
-
-        /// <summary>
-        /// Creates a Log collector which uses Syslog TLS sending
-        /// </summary>
-        /// <param name="logbusHost">IP address of logbus target</param>
-        /// <param name="logbusPort">UDP port of logbus target</param>
-        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
-        public static ILogCollector CreateReliableCollector(string logbusHost, int logbusPort)
-        {
-            return new SyslogTlsCollector(logbusHost, logbusPort);
-        }
-
-        internal static ILogCollector CreateByDefinition(LogCollectorDefinitionBase def)
+        /// <param name="def">Configuration entry of collector</param>
+        /// <returns></returns>
+        internal static ILogCollector CreateCollector(LogCollectorDefinitionBase def)
         {
             if (def == null) throw new ArgumentNullException("def");
+            if (string.IsNullOrEmpty(def.type))
+                throw new ArgumentException("Configuration entry doesn't specified required collector type", "def");
             try
             {
                 string typename = def.type;
@@ -175,5 +145,92 @@ namespace It.Unina.Dis.Logbus.Collectors
                 throw new LogbusConfigurationException("Invalid collector configuration", ex);
             }
         }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        public static ILogCollector CreateUnreliableCollector(IPAddress logbusIp, int logbusPort)
+        {
+            return new SyslogUdpCollector(logbusIp, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        public static ILogCollector CreateUnreliableCollector(string logbusHost, int logbusPort)
+        {
+            return new SyslogUdpCollector(logbusHost, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog TLS sending
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        public static ILogCollector CreateReliableCollector(string logbusHost, int logbusPort)
+        {
+            return new SyslogTlsCollector(logbusHost, logbusPort);
+        }
+
+
+        #region Obsolete methods
+        /// <summary>
+        /// Constructs a logger basing on configuration
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
+        [Obsolete("You should use CreateCollector() instead", false)]
+        public static ILogCollector CreateDefauktCollector()
+        {
+            return CreateCollector();
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusHost">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        [Obsolete("You should use CreateUnreliableCollector(string, string) instead", false)]
+        public static ILogCollector CreateUdpCollector(string logbusHost, int logbusPort)
+        {
+            return CreateUnreliableCollector(logbusHost, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a Log collector which uses Syslog UDP sending
+        /// </summary>
+        /// <param name="logbusIp">IP address of logbus target</param>
+        /// <param name="logbusPort">UDP port of logbus target</param>
+        /// <returns>A new instance of ILogCollector to submit SyslogMessages</returns>
+        [Obsolete("You should use CreateUnreliableCollector(IPAddress, string) instead", false)]
+        public static ILogCollector CreateUdpCollector(IPAddress logbusIp, int logbusPort)
+        {
+            return CreateUnreliableCollector(logbusIp, logbusPort);
+        }
+
+        /// <summary>
+        /// Creates a logger by name
+        /// </summary>
+        /// <param name="collectorName">Name of collector</param>
+        /// <returns></returns>
+        /// <remarks>There are special well-known loggers:
+        /// <list>
+        /// <item><code>Logbus</code><description>Collector that forwards messages to the current Logbus instance</description></item>
+        /// </list></remarks>
+        /// <exception cref="InvalidOperationException">No or invalid configuration is specified</exception>
+        [Obsolete("You should use CreateCollector(string) instead", false)]
+        public static ILogCollector CreateCollectorByName(string collectorName)
+        {
+            return CreateCollector(collectorName);
+        }
+        #endregion
     }
 }

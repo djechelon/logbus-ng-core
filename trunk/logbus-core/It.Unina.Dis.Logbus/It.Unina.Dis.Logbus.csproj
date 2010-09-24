@@ -104,6 +104,7 @@
     <Compile Include="Loggers\ILog.cs" />
     <Compile Include="Clients\ILogClient.cs" />
     <Compile Include="Clients\ClientHelper.cs" />
+    <Compile Include="Loggers\ILogger.cs" />
     <Compile Include="Loggers\LoggerHelper.cs" />
     <Compile Include="Clients\UdpLogClientImpl.cs" />
     <Compile Include="Configuration\AssemblyToScan.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Wrappers\Logbus2SoapAdapter.cs" />
     <Compile Include="Wrappers\LogBusTie.cs" />
     <Compile Include="Wrappers\LogCollectorTie.cs" />
+    <Compile Include="Wrappers\LogRelay.cs" />
     <Compile Include="Wrappers\LogSourceTie.cs" />
     <Compile Include="Collectors\FileCollector.cs" />
   </ItemGroup>
@@ -280,7 +282,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
