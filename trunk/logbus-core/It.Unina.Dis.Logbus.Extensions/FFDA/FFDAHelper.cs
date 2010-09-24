@@ -39,17 +39,22 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
         public static IFFDALogger CreateFFDALogger(string loggerName)
         {
-            return new FFDALogger(CollectorHelper.CreateCollectorByName(loggerName));
+            return new FFDALogger(CollectorHelper.CreateCollector(loggerName));
         }
 
         public  static IFFDAMonitorLogger CreateFFDAMonitorLogger()
         {
-            return new FFDAMonitorLogger(CollectorHelper.CreateDefaultCollector());
+            return new FFDAMonitorLogger(CollectorHelper.CreateCollector());
         }
 
         public static IInstrumentedLogger CreateInstrumentedLogger(string loggerName)
         {
-            return new FFDALogger(CollectorHelper.CreateCollectorByName(loggerName));
+            return new FFDALogger(CollectorHelper.CreateCollector(loggerName));
+        }
+
+        public static IFFDALogger CreateUnreliableFFDALogger(string loggerName, IPAddress host, int port)
+        {
+            throw new NotImplementedException();
         }
     }
 }

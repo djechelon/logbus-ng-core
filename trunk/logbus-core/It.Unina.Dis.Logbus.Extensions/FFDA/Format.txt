@@ -1,0 +1,33 @@
+﻿FFD messages formatting rules
+
+There are two types of FFD messages: those generated from monitored and monitoring applications
+respectively. The following are the Syslog rules for formatting FFD messages.
+Quotes in literals are not to be considered part of the literal
+
+Monitored applications FFDA:
+*Syslog Severity to Info
+*Syslog Message ID to "FFDA"
+*Syslog Text format: "{EVENT}" or "{EVENT}-{ID}"
+*{EVENT} equal to one of the following:
+	SUP
+	SDW
+	SST
+	SEN
+	EIS
+	EIE
+	RIS
+	RIE
+	CMP
+*If {ID} is present, it's an alphanumeric string, the length of which is compatible with Syslog format
+	Recommended not to be longer than 48 chars
+
+Monitoring applications FFDA:
+*Syslog Severity to Alert
+*Syslog Message ID to "FFDA"
+*Syslog Text format: "{EVENT}" or "{EVENT}-{ID}"
+*{EVENT} equal to one of the following:
+	COA
+	EIA
+	RIA
+*If {ID} is present, it's an alphanumeric string, the length of which is compatible with Syslog format
+	Recommended not to be longer than 48 chars
