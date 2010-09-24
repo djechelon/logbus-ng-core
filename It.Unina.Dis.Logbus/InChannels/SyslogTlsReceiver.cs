@@ -30,13 +30,23 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 namespace It.Unina.Dis.Logbus.InChannels
 {
+    /// <summary>
+    /// Syslog TLS receiver (RFC 5425)
+    /// </summary>
+    /// <remarks>Configuration parameters:
+    /// <list>
+    /// <item><c>ip</c>: IP to bind (default any)</item>
+    /// <item><c>port</c>: port to bind (default 6514)</item>
+    /// <item><c>ip</c></item>
+    /// </list>
+    /// </remarks>
     public sealed class SyslogTlsReceiver
         : ReceiverBase
     {
         /// <summary>
         /// Default port for TLS transport as defined in RFC 5425
         /// </summary>
-        public const int TLS_PORT = 6154;
+        public const int TLS_PORT = 6514;
 
         /// <summary>
         /// Number of worker threads concurrently listening for datagrams
@@ -44,10 +54,10 @@ namespace It.Unina.Dis.Logbus.InChannels
         public new const int WORKER_THREADS = 4;
 
         private Dictionary<string, string> config = new Dictionary<string, string>();
-        private TcpListener listener;
-        private string certificate_path;
+        private TcpListener _listener;
+        private string _certificatePath;
 
-        private Thread[] listener_threads;
+        private Thread[] _listenerThreads;
 
         private List<TcpClient> clients = new List<TcpClient>();
 
@@ -88,29 +98,28 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = TLS_PORT;
             }
 
-            IPEndPoint local_ep;
-            if (IpAddress == null) local_ep = new IPEndPoint(IPAddress.Any, Port);
-            else local_ep = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            IPEndPoint localEp;
+            localEp = IpAddress == null ? new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
             if (Certificate == null) throw new InvalidOperationException("Certificate not specified");
 
             try
             {
-                listener = new TcpListener(local_ep);
-                listener.Start();
+                _listener = new TcpListener(localEp);
+                _listener.Start();
             }
             catch (IOException ex)
             {
                 throw new LogbusException("Cannot start TLS/TCP listener", ex);
             }
 
-            listener_threads = new Thread[WORKER_THREADS];
+            _listenerThreads = new Thread[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
             {
-                listener_threads[i] = new Thread(ListenerLoop);
-                listener_threads[i].Name = string.Format("SyslogTlsReceiver[{1}].ListenerLoop[{0}]", i, Name);
-                listener_threads[i].IsBackground = true;
-                listener_threads[i].Start();
+                _listenerThreads[i] = new Thread(ListenerLoop);
+                _listenerThreads[i].Name = string.Format("SyslogTlsReceiver[{1}].ListenerLoop[{0}]", i, Name);
+                _listenerThreads[i].IsBackground = true;
+                _listenerThreads[i].Start();
             }
         }
 
@@ -131,10 +140,10 @@ namespace It.Unina.Dis.Logbus.InChannels
 
             try
             {
-                listener.Stop();
+                _listener.Stop();
                 for (int i = 0; i < WORKER_THREADS; i++)
-                    listener_threads[i].Join();
-                listener_threads = null;
+                    _listenerThreads[i].Join();
+                _listenerThreads = null;
             }
             catch (Exception) { } //Really nothing?
         }
@@ -155,7 +164,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                 case "port":
                     return Port.ToString(CultureInfo.InvariantCulture);
                 case "certificate":
-                    return certificate_path;
+                    return _certificatePath;
                 default:
                     {
                         throw new NotSupportedException("Configuration parameter is not supported");
@@ -183,7 +192,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
                 case "certificate":
                     {
-                        certificate_path = value;
+                        _certificatePath = value;
                         LoadCertificate(value);
                         break;
                     }
@@ -238,11 +247,15 @@ namespace It.Unina.Dis.Logbus.InChannels
             while (Running)
                 try
                 {
-                    TcpClient client = listener.AcceptTcpClient();
-                    Thread client_thread = new Thread(ProcessClient);
-                    client_thread.Name = string.Format("TlsListener.ProcessClient[{0}]", client.Client.RemoteEndPoint.ToString());
-                    client_thread.IsBackground = true;
-                    client_thread.Start(client);
+                    TcpClient client = _listener.AcceptTcpClient();
+                    Thread clientThread = new Thread(ProcessClient)
+                                              {
+                                                  Name =
+                                                      string.Format("TlsListener.ProcessClient[{0}]",
+                                                                    client.Client.RemoteEndPoint.ToString()),
+                                                  IsBackground = true
+                                              };
+                    clientThread.Start(client);
                 }
                 catch (SocketException) { }
         }
@@ -270,19 +283,18 @@ namespace It.Unina.Dis.Logbus.InChannels
                             while (true)
                             {
                                 StringBuilder sb = new StringBuilder();
-                                char next_char;
                                 do
                                 {
-                                    next_char = (char)sr.Read();
-                                    if (char.IsDigit(next_char)) sb.Append(next_char);
-                                    else if (next_char == ' ') break;
+                                    char nextChar = (char)sr.Read();
+                                    if (char.IsDigit(nextChar)) sb.Append(nextChar);
+                                    else if (nextChar == ' ') break;
                                     else throw new FormatException("Invalid TLS encoding of Syslog message");
                                 } while (true);
 
-                                int char_len = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
+                                int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
 
-                                char[] buffer = new char[char_len];
-                                if (sr.Read(buffer, 0, char_len) != char_len)
+                                char[] buffer = new char[charLen];
+                                if (sr.Read(buffer, 0, charLen) != charLen)
                                 {
                                     throw new FormatException("Invalid TLS encoding of Syslog message");
                                 }

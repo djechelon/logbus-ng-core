@@ -33,7 +33,7 @@ namespace It.Unina.Dis.Logbus.Loggers
     {
         static LoggerHelper()
         {
-            _loggers = new Dictionary<string, ILog>();
+            _loggers = new Dictionary<string, ILogger>();
             try
             {
                 Configuration = ConfigurationHelper.SourceConfiguration;
@@ -41,7 +41,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             catch (LogbusConfigurationException) { }
         }
 
-        private static Dictionary<string, ILog> _loggers;
+        private static Dictionary<string, ILogger> _loggers;
 
         /// <summary>
         /// Gets or sets global source configuration
@@ -69,7 +69,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// Creates default logger by reflection
         /// </summary>
         /// <returns></returns>
-        private static ILog InstantiateLogger()
+        private static ILogger InstantiateLogger()
         {
             try
             {
@@ -88,7 +88,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                             typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                         }
                         loggerType = Type.GetType(typename);
-                        if (!typeof(ILog).IsAssignableFrom(loggerType))
+                        if (!typeof(ILogger).IsAssignableFrom(loggerType))
                         {
                             LogbusConfigurationException ex =
                                 new LogbusConfigurationException(
@@ -98,7 +98,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                         }
                     }
                 }
-                ILog ret = Activator.CreateInstance(loggerType) as ILog;
+                ILogger ret = Activator.CreateInstance(loggerType) as ILogger;
                 return ret;
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// Creates logger by reflection for configured logger
         /// </summary>
         /// <returns></returns>
-        private static ILog InstantiateLogger(string loggerName)
+        private static ILogger InstantiateLogger(string loggerName)
         {
             if (string.IsNullOrEmpty(loggerName)) throw new ArgumentNullException("loggerName");
             if (_loggers.ContainsKey(loggerName)) return _loggers[loggerName];
@@ -142,17 +142,17 @@ namespace It.Unina.Dis.Logbus.Loggers
                             typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                         }
                         loggerType = Type.GetType(typename);
-                        if (!typeof(ILog).IsAssignableFrom(loggerType))
+                        if (!typeof(ILogger).IsAssignableFrom(loggerType))
                         {
                             LogbusConfigurationException ex =
                                 new LogbusConfigurationException(
-                                    "Registered logger type does not implement ILog");
+                                    "Registered logger type does not implement ILogger");
                             ex.Data.Add("type", loggerType);
                             throw ex;
                         }
                     }
                 }
-                ILog ret = Activator.CreateInstance(loggerType) as ILog;
+                ILogger ret = Activator.CreateInstance(loggerType) as ILogger;
                 ret.LogName = loggerName;
                 if (permanent) _loggers.Add(loggerName, ret);
                 return ret;
@@ -169,7 +169,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns></returns>
         public static ILog GetLogger()
         {
-            return GetLogger(CollectorHelper.CreateDefaultCollector());
+            return GetLogger(CollectorHelper.CreateCollector());
         }
 
         /// <summary>
@@ -191,7 +191,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns></returns>
         public static ILog GetLogger(SyslogFacility facility)
         {
-            ILog ret = GetLogger();
+            ILogger ret = InstantiateLogger();
+            ret.Collector = CollectorHelper.CreateCollector();
             ret.Facility = facility;
             return ret;
         }
@@ -204,7 +205,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns></returns>
         public static ILog GetLogger(SyslogFacility facility, ILogCollector collector)
         {
-            ILog ret = GetLogger(collector);
+            ILogger ret = InstantiateLogger();
+            ret.Collector = collector;
             ret.Facility = facility;
             return ret;
         }
@@ -217,7 +219,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         public static ILog GetLogger(string loggerName)
         {
             ILog ret = InstantiateLogger(loggerName);
-            ret.Collector = CollectorHelper.CreateDefaultCollector();
+            //WRONG!!! Loggers can be configured with a specific collector
+            ret.Collector = CollectorHelper.CreateCollector();
             return ret;
         }
 
