@@ -88,7 +88,6 @@ namespace Unit_Tests
             LogbusCoreConfiguration core_config = new LogbusCoreConfiguration();
             core_config.corefilter = ffda_filter;
             InboundChannelDefinition in_ch = new InboundChannelDefinition();
-            in_ch.name = "ffda";
             in_ch.type = "SyslogUdpReceiver";
             in_ch.param = new KeyValuePair[]
             {
@@ -116,7 +115,7 @@ namespace Unit_Tests
                 LoggerHelper.Configuration = source_config;
 
                 //Send what we want: 2 FFDA messages
-                IFFDALogger logger = FFDAHelper.CreateFFDALogger();
+                IFFDALogger logger = FFDAHelper.CreateFFDALogger("ffda");
                 logger.LogSST();
                 logger.LogSEN();
 

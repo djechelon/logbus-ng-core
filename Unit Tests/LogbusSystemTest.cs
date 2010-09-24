@@ -213,7 +213,6 @@ namespace Unit_Tests
                     };
                     core_configuration[0].inchannels[0] = new InboundChannelDefinition()
                     {
-                        name = "udp-syslog",
                         type = "It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus",
                         param = prm
                     };
@@ -231,7 +230,6 @@ namespace Unit_Tests
                     };
                     core_configuration[1].inchannels[0] = new InboundChannelDefinition()
                     {
-                        name = "udp-syslog",
                         type = "It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus",
                         param = prm
                     };

@@ -5,6 +5,7 @@ using It.Unina.Dis.Logbus;
 using System.Net;
 using It.Unina.Dis.Logbus.Utils;
 using System;
+using It.Unina.Dis.Logbus.Collectors;
 
 namespace Unit_Tests
 {
@@ -92,20 +93,20 @@ namespace Unit_Tests
             int logbus_port = 0; // TODO: Eseguire l'inizializzazione a un valore appropriato
             ILogCollector expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
             ILogCollector actual;
-            actual = LoggerHelper.CreateUdpCollector(logbus_ip, logbus_port);
+            actual = CollectorHelper.CreateUnreliableCollector(logbus_ip, logbus_port);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verificare la correttezza del metodo di test.");
         }
 
         /// <summary>
-        ///Test per CreateDefaultCollector
+        ///Test per CreateCollector
         ///</summary>
         [TestMethod()]
         public void CreateDefaultCollectorTest()
         {
             ILogCollector expected = null; // TODO: Eseguire l'inizializzazione a un valore appropriato
             ILogCollector actual;
-            actual = LoggerHelper.CreateDefaultCollector();
+            actual = CollectorHelper.CreateCollector();
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verificare la correttezza del metodo di test.");
         }

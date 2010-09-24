@@ -72,7 +72,7 @@ namespace Unit_Tests
         #endregion
 
         private AutoResetEvent step1, step2, finish;
-        private int SOURCE_PORT = 3535, MONITOR_PORT=3636;
+        private int SOURCE_PORT = 3535, MONITOR_PORT = 3636;
         [TestMethod()]
         public void LogbusTest()
         {
@@ -82,12 +82,11 @@ namespace Unit_Tests
 
             try
             {
-                
+
 
                 LogbusCoreConfiguration config = new LogbusCoreConfiguration();
                 config.inchannels = new InboundChannelDefinition[1];
                 config.inchannels[0] = new InboundChannelDefinition();
-                config.inchannels[0].name = "udp";
                 config.inchannels[0].type = "It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus";
                 config.inchannels[0].param = new KeyValuePair[1];
                 config.inchannels[0].param[0] =
@@ -100,7 +99,7 @@ namespace Unit_Tests
                 using (ILogBus service = new LogbusService(config))
                 {
                     service.Start();
-                    
+
                     new Thread(thread_Client).Start(service);
                     step1.WaitOne();
 
@@ -120,7 +119,7 @@ namespace Unit_Tests
         {
             try
             {
-                IFFDALogger logger = FFDAHelper.CreateFFDALogger(IPAddress.Loopback, SOURCE_PORT);
+                IFFDALogger logger = FFDAHelper.CreateUnreliableFFDALogger("ffda", IPAddress.Loopback, SOURCE_PORT);
 
                 logger.LogSST();
                 logger.LogSEN();
@@ -147,7 +146,7 @@ namespace Unit_Tests
                 //Go ahead and send
                 step1.Set();
 
-                
+
                 IPEndPoint remote_ep = new IPEndPoint(IPAddress.Any, 0);
                 using (UdpClient client = new UdpClient(MONITOR_PORT))
                 {
@@ -157,7 +156,7 @@ namespace Unit_Tests
                     payload = client.Receive(ref remote_ep);
                     msg = SyslogMessage.Parse(payload);
                     TestContext.WriteLine("Message2: {0}", msg);
-                }   
+                }
 
                 ctrl.UnsubscribeClient(clientid);
                 finish.Set();

@@ -36,7 +36,6 @@ namespace Unit_Tests
             core_config.inchannels = new InboundChannelDefinition[1];
             core_config.inchannels[0] = new InboundChannelDefinition()
             {
-                name = "tls",
                 type = "SyslogTlsReceiver"
             };
             core_config.inchannels[0].param = new KeyValuePair[1];
@@ -50,8 +49,6 @@ namespace Unit_Tests
             {
                 type = "SyslogTlsCollector",
                 name = "tls",
-                defaultSpecified = true,
-                @default = true
             };
             source_config.logger[0].param = new KeyValuePair[]{
                 new KeyValuePair() { name="host", value="localhost" }
