@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace Unit_Tests
 {
@@ -66,7 +67,30 @@ namespace Unit_Tests
         //
         #endregion
 
+        [TestMethod()]
+        public void CreateMessageTest()
+        {
+            ILog logger = new SimpleLogImpl(new ContextWriter() { Tc = TestContext }) { LogName = "TestLogger" };
 
+            logger.Debug("Hell0 debug world!");
+            logger.Notice("Second message");
+        }
+
+        protected class ContextWriter
+            : ILogCollector
+        {
+
+            #region ILogCollector Membri di
+
+            protected internal TestContext Tc;
+
+            public void SubmitMessage(SyslogMessage message)
+            {
+                Tc.WriteLine(message.ToRfc5424String());
+            }
+
+            #endregion
+        }
 
         /// <summary>
         ///Test per Parse
@@ -77,15 +101,17 @@ namespace Unit_Tests
             string payload = @"<34>1 2003-10-11T22:14:15.003Z mymachine.example.com su - ID47 - ’su root’ failed for lonvick on /dev/pts/8";
 
 
-            SyslogMessage expected = new SyslogMessage(); // TODO: Eseguire l'inizializzazione a un valore appropriato
-            expected.Facility = SyslogFacility.Security;
-            expected.Severity = SyslogSeverity.Critical;
-            expected.Timestamp = new DateTime(2003, 10, 11, 22, 14, 15, 3);
-            expected.Host = "mymachine.example.com";
-            expected.ApplicationName = "su";
-            expected.ProcessID = null;
-            expected.MessageId = "ID47";
-            expected.Text = @"’su root’ failed for lonvick on /dev/pts/8";
+            SyslogMessage expected = new SyslogMessage
+                                         {
+                                             Facility = SyslogFacility.Security,
+                                             Severity = SyslogSeverity.Critical,
+                                             Timestamp = new DateTime(2003, 10, 11, 22, 14, 15, 3),
+                                             Host = "mymachine.example.com",
+                                             ApplicationName = "su",
+                                             ProcessID = null,
+                                             MessageId = "ID47",
+                                             Text = @"’su root’ failed for lonvick on /dev/pts/8"
+                                         }; // TODO: Eseguire l'inizializzazione a un valore appropriato
 
             SyslogMessage? actual = null;
             try
@@ -101,15 +127,17 @@ namespace Unit_Tests
             Assert.AreEqual(expected, actual);
 
             payload = @"<165>1 2003-08-24T05:14:15.000003-07:00 192.0.2.1 myproc 8710 - - %% It’s time to make the do-nuts.";
-            expected = new SyslogMessage();
-            expected.Facility = SyslogFacility.Local4;
-            expected.Severity = SyslogSeverity.Notice;
-            expected.Timestamp = new DateTime(2003, 08, 23, 22, 14, 15, 0);
-            expected.Host = "192.0.2.1";
-            expected.ApplicationName = "myproc";
-            expected.ProcessID = "8710";
-            expected.MessageId = null;
-            expected.Text = @"%% It’s time to make the do-nuts.";
+            expected = new SyslogMessage
+                           {
+                               Facility = SyslogFacility.Local4,
+                               Severity = SyslogSeverity.Notice,
+                               Timestamp = new DateTime(2003, 08, 23, 22, 14, 15, 0),
+                               Host = "192.0.2.1",
+                               ApplicationName = "myproc",
+                               ProcessID = "8710",
+                               MessageId = null,
+                               Text = @"%% It’s time to make the do-nuts."
+                           };
 
             actual = null;
 
@@ -152,15 +180,17 @@ namespace Unit_Tests
 
             // Test del formato 3164 BSD.....
             payload = @"<43>Jun 27 23:43:47 marcus syslog-ng[21655]: Connection broken to AF_INET(127.0.0.1:3588), reopening in 60 seconds";
-            expected = new SyslogMessage();
-            expected.Facility = SyslogFacility.Internally;
-            expected.Severity = SyslogSeverity.Error;
-            expected.Timestamp = new DateTime(2010, 6, 27, 23, 43, 47, 0);
-            expected.Host = "marcus";
-            expected.ApplicationName = "syslog-ng";
-            expected.ProcessID = "21655";
-            expected.MessageId = null;
-            expected.Text = @"Connection broken to AF_INET(127.0.0.1:3588), reopening in 60 seconds";
+            expected = new SyslogMessage
+                           {
+                               Facility = SyslogFacility.Internally,
+                               Severity = SyslogSeverity.Error,
+                               Timestamp = new DateTime(2010, 6, 27, 23, 43, 47, 0),
+                               Host = "marcus",
+                               ApplicationName = "syslog-ng",
+                               ProcessID = "21655",
+                               MessageId = null,
+                               Text = @"Connection broken to AF_INET(127.0.0.1:3588), reopening in 60 seconds"
+                           };
             actual = null;
 
             try
@@ -250,7 +280,7 @@ namespace Unit_Tests
         }
 
         [TestMethod()]
-        public void SyslogParserTest_Real()
+        public void SyslogParserTestReal()
         {
             //Just test that messages are being parset. Stop.
 
@@ -258,11 +288,11 @@ namespace Unit_Tests
             {
                 while (!sr.EndOfStream)
                 {
-                    string base64line = sr.ReadLine();
-                    byte[] raw_log = Convert.FromBase64String(base64line);
+                    string base64Line = sr.ReadLine();
+                    byte[] rawLog = Convert.FromBase64String(base64Line);
                     try
                     {
-                        SyslogMessage.Parse(raw_log);
+                        SyslogMessage.Parse(rawLog);
                     }
                     catch (FormatException ex)
                     {
@@ -274,14 +304,14 @@ namespace Unit_Tests
             {
                 while (!sr.EndOfStream)
                 {
-                    string raw_log = sr.ReadLine();
+                    string rawLog = sr.ReadLine();
                     try
                     {
-                        SyslogMessage.Parse(raw_log);
+                        SyslogMessage.Parse(rawLog);
                     }
                     catch (FormatException ex)
                     {
-                        TestContext.WriteLine("Failed parsing: {0}", raw_log);
+                        TestContext.WriteLine("Failed parsing: {0}", rawLog);
                         Assert.Fail("Test failed: {0}", ex);
                     }
                 }
