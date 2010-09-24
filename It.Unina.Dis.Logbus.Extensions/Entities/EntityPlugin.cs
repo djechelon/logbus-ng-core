@@ -21,14 +21,21 @@ using System;
 using System.Data;
 using It.Unina.Dis.Logbus.Utils;
 using System.Threading;
+using It.Unina.Dis.Logbus.Configuration;
+using System.Text.RegularExpressions;
 namespace It.Unina.Dis.Logbus.Entities
 {
     /// <summary>
     /// Plugin that manages Logbus-ng entities, where the entity is user-defined by configuration
     /// </summary>
     public sealed class EntityPlugin
-        : IPlugin
+        : MarshalByRefObject, IPlugin, IEntityManagement
     {
+        /// <summary>
+        /// Avoids ambigousness
+        /// </summary>
+        public const string PLUGIN_ID = "Logbus.EntityManager";
+
         private ILogBus _logbus;
         private readonly BlockingFifoQueue<SyslogMessage> _messageQueue;
         private readonly Thread _workerThread;
@@ -47,6 +54,7 @@ namespace It.Unina.Dis.Logbus.Entities
             _workerThread.Start();
 
             _entityTable = new DataTable("Entities");
+
             _colHost = new DataColumn("Host", typeof(string))
             {
                 AllowDBNull = true,
@@ -160,7 +168,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public string Name
         {
-            get { return "Logbus.EntityManager"; }
+            get { return PLUGIN_ID; }
         }
 
         /// <summary>
@@ -169,7 +177,13 @@ namespace It.Unina.Dis.Logbus.Entities
         public WsdlSkeletonDefinition[] GetWsdlSkeletons()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new System.NotImplementedException();
+
+            WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition()
+                                             {
+                                                 SkeletonType = typeof(EntityManagementSkeleton),
+                                                 UrlFileName = "EntityManagement"
+                                             };
+            return new WsdlSkeletonDefinition[] { ret };
         }
 
         /// <summary>
@@ -178,7 +192,8 @@ namespace It.Unina.Dis.Logbus.Entities
         public System.MarshalByRefObject GetPluginRoot()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new System.NotImplementedException();
+
+            return this;
         }
 
         #endregion
@@ -217,16 +232,16 @@ namespace It.Unina.Dis.Logbus.Entities
                     DateTime? lastHb = null;
 
                     bool ffda = message.MessageId == "FFDA";
-                    if (message.MessageId == "HB" && message.Severity == SyslogSeverity.Debug)
+                    if (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug)
                         lastHb = message.Timestamp;
                     try
                     {
                         try
                         {
                             _entityTable.Rows.Add(
-                                message.Host,
-                                message.ProcessID ?? message.ApplicationName,
-                                attrs.LogName,
+                                message.Host ?? "",
+                                message.ProcessID ?? message.ApplicationName ?? "",
+                                attrs.LogName ?? "",
                                 ffda,
                                 message.Timestamp,
                                 lastHb
@@ -242,18 +257,18 @@ namespace It.Unina.Dis.Logbus.Entities
                         {
                             //We suppose we are trying to insert a duplicate primary key, then now we switch to update
                             object[] keys = new object[]{
-                                message.Host,
-                                message.ProcessID ?? message.ApplicationName,
-                                attrs.LogName,
+                                message.Host ?? "",
+                                message.ProcessID ?? message.ApplicationName ?? "",
+                                attrs.LogName ?? "",
                             };
                             DataRow existingRow = _entityTable.Rows.Find(keys);
-                            bool oldFfda = (bool) existingRow[_colFfda];
+                            bool oldFfda = (bool)existingRow[_colFfda];
 
                             existingRow.BeginEdit();
                             existingRow[_colFfda] = ffda | oldFfda;
 
-                            if (lastHb.HasValue)
-                                existingRow[_colLastHeartbeat] = lastHb;
+                            if (lastHb != null)
+                                existingRow[_colLastHeartbeat] = message.Timestamp;
                             else
                                 existingRow[_colLastAction] = message.Timestamp;
 
@@ -276,15 +291,85 @@ namespace It.Unina.Dis.Logbus.Entities
             catch (ThreadInterruptedException) { }
         }
 
-        internal sealed class EntityManagerProxy : MarshalByRefObject
-        {
-            private DataTable _table;
+        #region IEntityManagement Membri di
 
-            internal EntityManagerProxy(DataTable data)
+        /// <summary>
+        /// Implements IEntityManagement.GetLoggingEntities
+        /// </summary>
+        public LoggingEntity[] GetLoggingEntities()
+        {
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            DataRow[] rows = _entityTable.Select();
+            LoggingEntity[] ret = new LoggingEntity[rows.Length];
+
+            for (int i = 0; i < rows.Length; i++)
             {
-                if (data == null) throw new ArgumentNullException("data");
-                _table = data;
+                ret[i] = new LoggingEntity()
+                             {
+                                 host = (string)rows[i][_colHost],
+                                 process = (string)rows[i][_colProc],
+                                 logger = (string)rows[i][_colLogger],
+                                 ffda = (bool)rows[i][_colFfda],
+                                 lastAction = (DateTime)rows[i][_colLastAction],
+                                 lastHeartbeat = (rows[i][_colLastHeartbeat] is DBNull) ? DateTime.MinValue : (DateTime)rows[i][_colLastHeartbeat]
+                             };
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Implements IEntityManagement.FindLoggingEntities
+        /// </summary>
+        public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
+        {
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Proxy factory
+        /// <summary>
+        /// Returns the default Entity Manager proxy for the given endpoint URL
+        /// </summary>
+        /// <param name="endpointUrl">URL endpoint for Entity Manager</param>
+        /// <returns></returns>
+        public static IEntityManagement GetProxy(string endpointUrl)
+        {
+            return new EntityManagement() { Url = endpointUrl };
+        }
+
+        /// <summary>
+        /// Returns the default Entity Manager proxy for the default endpoint URL according to
+        /// Logbus client configuration
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">Logbus-ng client is not configured</exception>
+        public static IEntityManagement GetProxy()
+        {
+            try
+            {
+                string endpointUrl = ConfigurationHelper.ClientConfiguration.endpoint.subscriptionUrl;
+                if (string.IsNullOrEmpty(endpointUrl))
+                    throw new InvalidOperationException(
+                        "Logbus-ng client is not configured. Cannot guess default endpoint URL");
+
+                return
+                    GetProxy(Regex.Replace(endpointUrl,
+                                           "LogbusSubscription(?!.*LogbusSubscription)", "EntityManagement"));
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Logbus-ng client is not configured. Cannot guess default endpoint URL", ex);
             }
         }
+        #endregion
     }
 }

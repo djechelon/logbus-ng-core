@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:em="http://www.dis.unina.it/logbus-ng/em" targetNamespace="http://www.dis.unina.it/logbus-ng/em">
 	<wsdl:types>
 		<xs:schema targetNamespace="http://www.dis.unina.it/logbus-ng/em" elementFormDefault="unqualified" attributeFormDefault="unqualified">
-			<xs:complexType name="LoggingEntity">
+			<xs:complexType name="LoggingEntityIdentifier" abstract="false">
 				<xs:sequence>
 					<xs:element name="host" type="xs:string" form="unqualified" nillable="true"/>
 					<xs:element name="process" type="xs:string" form="unqualified" nillable="true"/>
-					<xs:element name="module" type="xs:string" form="unqualified" nillable="true"/>
 					<xs:element name="logger" type="xs:string" form="unqualified" nillable="true"/>
-					<xs:element name="class" type="xs:string" form="unqualified" nillable="true"/>
-					<xs:element name="method" type="xs:string" form="unqualified" nillable="true"/>
 				</xs:sequence>
 			</xs:complexType>
 			<xs:element name="entity" type="em:LoggingEntity"/>
@@ -22,15 +18,26 @@
 			<xs:element name="entities" type="em:ArrayOfEntities"/>
 			<xs:complexType name="TemplateQuery">
 				<xs:complexContent>
-					<xs:extension base="em:LoggingEntity">
+					<xs:extension base="em:LoggingEntityIdentifier">
 						<xs:sequence>
-							<xs:element name="ffda" type="xs:boolean" form="unqualified" minOccurs="0"/>
-							<xs:element name="activityTimeout" type="xs:unsignedLong" form="unqualified" nillable="false" minOccurs="0"/>
+							<xs:element name="ffda" type="xs:boolean" form="unqualified" nillable="false" minOccurs="0"/>
+							<xs:element name="max-inactivity" type="xs:integer" minOccurs="0"/>
 						</xs:sequence>
 					</xs:extension>
 				</xs:complexContent>
 			</xs:complexType>
 			<xs:element name="query" type="em:TemplateQuery"/>
+			<xs:complexType name="LoggingEntity">
+				<xs:complexContent>
+					<xs:extension base="em:LoggingEntityIdentifier">
+						<xs:sequence>
+							<xs:element name="ffda" type="xs:boolean" default="false" form="unqualified" nillable="false"/>
+							<xs:element name="lastAction" type="xs:dateTime" form="unqualified" nillable="false"/>
+							<xs:element name="lastHeartbeat" type="xs:dateTime"/>
+						</xs:sequence>
+					</xs:extension>
+				</xs:complexContent>
+			</xs:complexType>
 		</xs:schema>
 	</wsdl:types>
 	<wsdl:message name="GetLoggingEntitiesRequest"/>
@@ -44,6 +51,10 @@
 	</wsdl:message>
 	<wsdl:message name="FindLoggingEntitiesResponse">
 		<wsdl:part name="entities" element="em:entities"/>
+	</wsdl:message>
+	<wsdl:message name="GetActiveFlowsRequest"/>
+	<wsdl:message name="GetActiveFlowsResponse">
+		<wsdl:part name="flows" type="xs:string"/>
 	</wsdl:message>
 	<wsdl:portType name="EntityManagement">
 		<wsdl:documentation>Retrieves information about logging entities</wsdl:documentation>
