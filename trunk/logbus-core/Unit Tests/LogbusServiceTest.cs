@@ -124,7 +124,6 @@ namespace Unit_Tests
                 {
                     new InboundChannelDefinition()
                     {
-                         name="udp",
                          type="It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus"
                     }
                 };

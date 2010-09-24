@@ -26,7 +26,7 @@ namespace LogbusDaemon
 {
     class Program
     {
-        private static ILogBus logbus;
+        private static ILogBus _logbus;
 
         static void Main(string[] args)
         {
@@ -36,11 +36,10 @@ namespace LogbusDaemon
 
             try
             {
-                logbus = LogbusSingletonHelper.Instance;
-                logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
+                _logbus = LogbusSingletonHelper.Instance;
 
-                logbus.Start();
-                WebServiceActivator.Start(logbus, 8065);
+                _logbus.Start();
+                WebServiceActivator.Start(_logbus, 8065);
 
                 Console.WriteLine("Logbus is started");
 
@@ -54,11 +53,6 @@ namespace LogbusDaemon
             }
         }
 
-        static void logbus_MessageReceived(object sender, SyslogMessageEventArgs e)
-        {
-            Console.WriteLine("Received message from: {0}, severity: {1}", e.Message.Host, e.Message.Severity);
-        }
-
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             
@@ -66,7 +60,7 @@ namespace LogbusDaemon
             try
             {
                 WebServiceActivator.Stop();
-                logbus.Dispose();
+                _logbus.Dispose();
             }
             catch { }
         }

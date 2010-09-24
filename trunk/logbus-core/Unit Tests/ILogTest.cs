@@ -85,7 +85,6 @@ namespace Unit_Tests
                 LogbusCoreConfiguration config = new LogbusCoreConfiguration();
                 config.inchannels = new InboundChannelDefinition[1];
                 config.inchannels[0] = new InboundChannelDefinition();
-                config.inchannels[0].name = "udp";
                 config.inchannels[0].type = "It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus";
                 config.inchannels[0].param = new KeyValuePair[1];
                 config.inchannels[0].param[0] =

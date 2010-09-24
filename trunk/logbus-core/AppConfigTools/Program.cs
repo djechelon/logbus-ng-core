@@ -33,7 +33,7 @@ namespace TestAppConfig
                 Console.WriteLine("Parsing Inbound channels");
                 foreach (InboundChannelDefinition inch in config.inchannels)
                 {
-                    Console.WriteLine("Defined inbound channel of name {0}, type {1}", inch.name, inch.type);
+                    Console.WriteLine("Defined inbound channel of type {0}", inch.type);
                     foreach (KeyValuePair param in inch.param)
                     {
                         Console.WriteLine("Defined parameter {0}={1}", param.name, param.value);
