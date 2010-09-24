@@ -36,19 +36,19 @@ namespace It.Unina.Dis.Logbus
     internal class LogbusService
         : MarshalByRefObject, ILogBus, IChannelManagement, IChannelSubscription
     {
-        private Thread[] hubThreads;
-        private Thread forwarding_thread;
+        private Thread[] _hubThreads;
+        private Thread _forwardingThread;
         private const int WORKER_THREADS = 4;
-        private bool configured = false, forwarding_enabled = false;
+        private bool configured = false, _forwardingEnabled = false;
 
-        private List<IInboundChannel> in_chans;
-        private List<IOutboundChannel> out_chans;
-        private IPlugin[] plugins;
+        private List<IInboundChannel> _inChans;
+        private readonly List<IOutboundChannel> _outChans;
+        private IPlugin[] _plugins;
 
         /// <summary>
         /// Returns if Logbus is running or not
         /// </summary>
-        private volatile bool running;
+        private volatile bool _running;
 
         /// <summary>
         /// If true, hub thread is going to stop
@@ -76,8 +76,8 @@ namespace It.Unina.Dis.Logbus
         {
             LogbusSingletonHelper.Instance = this;
 
-            out_chans = new List<IOutboundChannel>();
-            in_chans = new List<IInboundChannel>();
+            _outChans = new List<IOutboundChannel>();
+            _inChans = new List<IInboundChannel>();
             Log = new SimpleLogImpl(SyslogFacility.Internally, this);
 
             //Init fresh queues
@@ -129,8 +129,7 @@ namespace It.Unina.Dis.Logbus
             if (Configuration == null) throw new NotSupportedException("Cannot configure Logbus as configuration is empty");
 
             //Core filter: if not specified then it's always true
-            if (Configuration.corefilter == null) MainFilter = new TrueFilter();
-            else MainFilter = Configuration.corefilter;
+            MainFilter = Configuration.corefilter ?? new TrueFilter();
 
             try
             {
@@ -248,7 +247,7 @@ namespace It.Unina.Dis.Logbus
 
 
                     }
-                in_chans = channels;
+                _inChans = channels;
                 //Inbound channels end
 
 
@@ -296,6 +295,7 @@ namespace It.Unina.Dis.Logbus
                 //Tell that to the channel factory
                 ChannelFactory.TransportFactoryHelper = TransportFactoryHelper;
 
+
                 //Custom filters definition
                 if (Configuration.customfilters != null)
                     throw new NotImplementedException();
@@ -303,12 +303,12 @@ namespace It.Unina.Dis.Logbus
                 //Forwarding configuration
                 if (Configuration.forwardto != null && Configuration.forwardto.Length > 0)
                 {
-                    forwarding_enabled = true;
+                    _forwardingEnabled = true;
 
                     List<ILogCollector> collectors = new List<ILogCollector>();
                     foreach (ForwarderDefinition def in Configuration.forwardto)
                     {
-                        ILogCollector collector = CollectorHelper.CreateByDefinition(def);
+                        ILogCollector collector = CollectorHelper.CreateCollector(def);
                         if (collector is ILogSupport)
                             ((ILogSupport)collector).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
                         collectors.Add(collector);
@@ -350,7 +350,7 @@ namespace It.Unina.Dis.Logbus
                             LogbusConfigurationException e = new LogbusConfigurationException("Unable to configure plugins", ex);
                             e.Data.Add("pluginType", def.type);
                         }
-                        plugins = activePlugins.ToArray();
+                        _plugins = activePlugins.ToArray();
                     }
                 }
             }
@@ -367,6 +367,7 @@ namespace It.Unina.Dis.Logbus
 
                 throw ex;
             }
+            configured = true;
         }
 
         /// <summary>
@@ -396,14 +397,14 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         protected virtual List<IOutboundChannel> OutboundChannels
         {
-            get { return out_chans; }
+            get { return _outChans; }
         }
 
         IList<IOutboundChannel> ILogBus.OutboundChannels
         {
             get
             {
-                return out_chans.AsReadOnly();
+                return _outChans.AsReadOnly();
             }
         }
 
@@ -412,14 +413,14 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         protected virtual IList<IInboundChannel> InboundChannels
         {
-            get { return in_chans; }
+            get { return _inChans; }
         }
 
         IList<IInboundChannel> ILogBus.InboundChannels
         {
             get
             {
-                return in_chans.AsReadOnly();
+                return _inChans.AsReadOnly();
             }
         }
 
@@ -449,11 +450,11 @@ namespace It.Unina.Dis.Logbus
         {
             get
             {
-                if (plugins == null) return new IPlugin[0];
-                int plugincount = plugins.Length;
+                if (_plugins == null) return new IPlugin[0];
+                int plugincount = _plugins.Length;
 
                 IPlugin[] ret = new IPlugin[plugincount];
-                Array.Copy(plugins, ret, plugincount);
+                Array.Copy(_plugins, ret, plugincount);
                 return ret;
             }
         }
@@ -468,7 +469,7 @@ namespace It.Unina.Dis.Logbus
             {
                 Log.Info("LogbusService starting");
                 if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                if (running) throw new InvalidOperationException("Logbus is already started");
+                if (_running) throw new InvalidOperationException("Logbus is already started");
                 if (!configured)
                 {
                     try
@@ -491,49 +492,49 @@ namespace It.Unina.Dis.Logbus
                 try
                 {
 
-                    IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
+                    IAsyncResult[] asyncIn = new IAsyncResult[InboundChannels.Count], asyncOut = new IAsyncResult[OutboundChannels.Count];
                     int i;
 
                     //Begin async start outbound channels
                     i = 0;
                     foreach (IRunnable chan in OutboundChannels)
                     {
-                        if (chan is IAsyncRunnable) async_out[i] = ((IAsyncRunnable)chan).BeginStart();
+                        if (chan is IAsyncRunnable) asyncOut[i] = ((IAsyncRunnable)chan).BeginStart();
                         i++;
                     }
 
                     hubThreadStop = false;
 
                     //Start hub threads
-                    hubThreads = new Thread[WORKER_THREADS];
+                    _hubThreads = new Thread[WORKER_THREADS];
                     for (i = 0; i < WORKER_THREADS; i++)
                     {
-                        hubThreads[i] = new Thread(this.HubThreadLoop)
+                        _hubThreads[i] = new Thread(this.HubThreadLoop)
                         {
                             Name = string.Format("LogbusService.HubThreadLoop[{0}]", i),
                             Priority = ThreadPriority.Normal,
                             IsBackground = true
                         };
-                        hubThreads[i].Start(queues[i]);
+                        _hubThreads[i].Start(queues[i]);
                     }
 
-                    if (forwarding_enabled)
+                    if (_forwardingEnabled)
                     {
                         forwarding_queue = new BlockingFifoQueue<SyslogMessage>();
-                        forwarding_thread = new Thread(ForwardLoop)
+                        _forwardingThread = new Thread(ForwardLoop)
                             {
                                 IsBackground = true,
                                 Priority = ThreadPriority.Normal,
                                 Name = "LogbusService.ForwardLoop"
                             };
-                        forwarding_thread.Start();
+                        _forwardingThread.Start();
                     }
 
                     //End async start/sync start outbound channels
                     i = 0;
                     foreach (IRunnable chan in OutboundChannels)
                     {
-                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_out[i]);
+                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(asyncOut[i]);
                         else chan.Start();
                         i++;
                     }
@@ -543,7 +544,7 @@ namespace It.Unina.Dis.Logbus
                     foreach (IInboundChannel chan in InboundChannels)
                     {
                         chan.MessageReceived += channel_MessageReceived;
-                        if (chan is IAsyncRunnable) async_in[i] = ((IAsyncRunnable)chan).BeginStart();
+                        if (chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStart();
                         i++;
                     }
 
@@ -551,7 +552,7 @@ namespace It.Unina.Dis.Logbus
                     i = 0;
                     foreach (IRunnable chan in InboundChannels)
                     {
-                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(async_in[i]);
+                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(asyncIn[i]);
                         else chan.Start();
                         i++;
                     }
@@ -565,7 +566,7 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 if (Started != null) Started(this, EventArgs.Empty);
-                running = true;
+                _running = true;
                 Log.Info("LogbusService started");
             }
             catch
@@ -584,7 +585,7 @@ namespace It.Unina.Dis.Logbus
             {
                 Log.Info("LogbusService stopping");
                 if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                if (!running) throw new InvalidOperationException("Logbus is not started");
+                if (!_running) throw new InvalidOperationException("Logbus is not started");
 
                 if (Stopping != null)
                 {
@@ -593,16 +594,15 @@ namespace It.Unina.Dis.Logbus
                     if (e.Cancel) return;
                 }
 
-                IAsyncResult[] async_in = new IAsyncResult[InboundChannels.Count], async_out = new IAsyncResult[OutboundChannels.Count];
-                int i;
+                IAsyncResult[] asyncIn = new IAsyncResult[InboundChannels.Count], asyncOut = new IAsyncResult[OutboundChannels.Count];
                 //Reverse-order stop
 
                 //Begin async stop inbound channels
-                i = 0;
+                int i = 0;
                 foreach (IInboundChannel chan in InboundChannels)
                 {
                     chan.MessageReceived -= this.MessageReceived;
-                    if (chan is IAsyncRunnable) async_in[i] = ((IAsyncRunnable)chan).BeginStop();
+                    if (chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStop();
                     i++;
                 }
 
@@ -613,7 +613,7 @@ namespace It.Unina.Dis.Logbus
                 i = 0;
                 foreach (IRunnable chan in OutboundChannels)
                 {
-                    if (chan is IAsyncRunnable) async_out[i] = ((IAsyncRunnable)chan).BeginStop();
+                    if (chan is IAsyncRunnable) asyncOut[i] = ((IAsyncRunnable)chan).BeginStop();
                     i++;
                 }
 
@@ -621,7 +621,7 @@ namespace It.Unina.Dis.Logbus
                 i = 0;
                 foreach (IRunnable chan in InboundChannels)
                 {
-                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(async_in[i]);
+                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(asyncIn[i]);
                     else chan.Stop();
                     i++;
                 }
@@ -629,30 +629,30 @@ namespace It.Unina.Dis.Logbus
                 //Stop hub and let it flush messages
                 for (i = 0; i < WORKER_THREADS; i++)
                 {
-                    hubThreads[i].Interrupt();
+                    _hubThreads[i].Interrupt();
                 }
                 for (i = 0; i < WORKER_THREADS; i++)
                 {
-                    hubThreads[i].Join(); //Giving it all the time it needs
+                    _hubThreads[i].Join(); //Giving it all the time it needs
                 }
 
-                if (forwarding_enabled)
+                if (_forwardingEnabled)
                 {
-                    forwarding_thread.Interrupt();
+                    _forwardingThread.Interrupt();
 
-                    forwarding_thread.Join(); //Giving it all the time it needs
+                    _forwardingThread.Join(); //Giving it all the time it needs
                 }
 
                 //End async stp/sync stop out channels
                 i = 0;
                 foreach (IRunnable chan in OutboundChannels)
                 {
-                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(async_out[i]);
+                    if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(asyncOut[i]);
                     i++;
                 }
 
 
-                running = false;
+                _running = false;
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
                 Log.Info("LogbusService stopped");
@@ -741,15 +741,15 @@ namespace It.Unina.Dis.Logbus
                     throw ex;
                 }
 
-            IOutboundChannel new_chan = ChannelFactory.CreateChannel(name, description, filter);
-            new_chan.CoalescenceWindowMillis = (ulong)coalescenceWindow;
-            new_chan.ID = id;
+            IOutboundChannel newChan = ChannelFactory.CreateChannel(name, description, filter);
+            newChan.CoalescenceWindowMillis = (ulong)coalescenceWindow;
+            newChan.ID = id;
 
-            OutboundChannels.Add(new_chan);
-            if (running) new_chan.Start();
+            OutboundChannels.Add(newChan);
+            if (_running) newChan.Start();
             Log.Info(string.Format("New channel created: {0}", id));
 
-            if (OutChannelCreated != null) OutChannelCreated(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs(new_chan));
+            if (OutChannelCreated != null) OutChannelCreated(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs(newChan));
         }
 
         /// <summary>
@@ -760,12 +760,12 @@ namespace It.Unina.Dis.Logbus
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (id.Contains(":")) throw new ArgumentException("Invalid channel ID");
 
-            IOutboundChannel to_remove = null;
+            IOutboundChannel toRemove = null;
             //Find the channel
             foreach (IOutboundChannel chan in OutboundChannels)
-                if (chan.ID == id) { to_remove = chan; break; }
+                if (chan.ID == id) { toRemove = chan; break; }
 
-            if (to_remove == null)
+            if (toRemove == null)
             {
                 Log.Warning(string.Format("Failed to remove channel {0}", id));
                 LogbusException ex = new LogbusException("Channel does not exist");
@@ -773,9 +773,9 @@ namespace It.Unina.Dis.Logbus
                 throw ex;
             }
 
-            OutboundChannels.Remove(to_remove);
-            if (running) to_remove.Stop();
-            to_remove.Dispose();
+            OutboundChannels.Remove(toRemove);
+            if (_running) toRemove.Stop();
+            toRemove.Dispose();
             Log.Info(string.Format("Channel removed: {0}", id));
 
             if (OutChannelDeleted != null) OutChannelDeleted(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs(id));
@@ -834,8 +834,8 @@ namespace It.Unina.Dis.Logbus
                 throw ex;
             }
 
-            string chan_name = clientId.Substring(0, indexof), chan_client_id = clientId.Substring(indexof + 1);
-            if (string.IsNullOrEmpty(chan_name))
+            string chanName = clientId.Substring(0, indexof), chanClientId = clientId.Substring(indexof + 1);
+            if (string.IsNullOrEmpty(chanName))
             {
                 ArgumentException ex = new ArgumentException("Invalid client ID");
                 ex.Data.Add("clientId-Logbus", clientId);
@@ -845,7 +845,7 @@ namespace It.Unina.Dis.Logbus
             //First find the channel
             IOutboundChannel channel = null;
             foreach (IOutboundChannel chan in OutboundChannels)
-                if (chan.ID == chan_name) { channel = chan; break; }
+                if (chan.ID == chanName) { channel = chan; break; }
 
             if (channel == null)
             {
@@ -856,7 +856,7 @@ namespace It.Unina.Dis.Logbus
 
             try
             {
-                channel.RefreshClient(chan_client_id);
+                channel.RefreshClient(chanClientId);
             }
             catch (NotSupportedException ex)
             {
@@ -891,8 +891,8 @@ namespace It.Unina.Dis.Logbus
                 throw ex;
             }
 
-            string chan_name = clientId.Substring(0, indexof), chan_client_id = clientId.Substring(indexof + 1);
-            if (string.IsNullOrEmpty(chan_name))
+            string chanName = clientId.Substring(0, indexof), chanClientId = clientId.Substring(indexof + 1);
+            if (string.IsNullOrEmpty(chanName))
             {
                 ArgumentException ex = new ArgumentException("Invalid client ID");
                 ex.Data.Add("clientId-Logbus", clientId);
@@ -902,7 +902,7 @@ namespace It.Unina.Dis.Logbus
             //First find the channel
             IOutboundChannel channel = null;
             foreach (IOutboundChannel chan in OutboundChannels)
-                if (chan.ID == chan_name) { channel = chan; break; }
+                if (chan.ID == chanName) { channel = chan; break; }
 
             if (channel == null)
             {
@@ -913,7 +913,7 @@ namespace It.Unina.Dis.Logbus
 
             try
             {
-                channel.UnsubscribeClient(chan_client_id);
+                channel.UnsubscribeClient(chanClientId);
             }
             catch (LogbusException ex)
             {
@@ -946,8 +946,8 @@ namespace It.Unina.Dis.Logbus
                 }
                 catch { }
 
-                if (plugins != null)
-                    foreach (IPlugin plugin in plugins)
+                if (_plugins != null)
+                    foreach (IPlugin plugin in _plugins)
                         if (plugin != null)
                             try
                             {
@@ -1152,7 +1152,7 @@ namespace It.Unina.Dis.Logbus
                                 chan.SubmitMessage(newMessage);
                             }
 
-                        if (forwarding_enabled && forwarding_queue != null) forwarding_queue.Enqueue(newMessage);
+                        if (_forwardingEnabled && forwarding_queue != null) forwarding_queue.Enqueue(newMessage);
                     }
                     finally
                     {
