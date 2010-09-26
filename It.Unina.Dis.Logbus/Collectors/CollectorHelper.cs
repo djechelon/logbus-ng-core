@@ -179,7 +179,6 @@ namespace It.Unina.Dis.Logbus.Collectors
             return new SyslogTlsCollector(logbusHost, logbusPort);
         }
 
-
         #region Obsolete methods
         /// <summary>
         /// Constructs a logger basing on configuration
@@ -187,7 +186,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">No valid configuration is available. You should use another method for a manual approach</exception>
         [Obsolete("You should use CreateCollector() instead", false)]
-        public static ILogCollector CreateDefauktCollector()
+        public static ILogCollector CreateDefaultCollector()
         {
             return CreateCollector();
         }
