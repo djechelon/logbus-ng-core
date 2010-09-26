@@ -17,6 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Entities
 {
@@ -30,16 +31,28 @@ namespace It.Unina.Dis.Logbus.Entities
         private readonly bool _ffdaOnly;
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of entity filter EntityFilter
+        /// </summary>
+        /// <param name="host">Host that matches entity</param>
+        /// <param name="process">Process ID/AppName that matches entity</param>
+        /// <param name="logger">Logger that matches entity</param>
         public EntityFilter(string host, string process, string logger)
-        {
-            _host = host;
-            _process = process;
-            _logger = logger;
-            _ffdaOnly = false;
-        }
+            : this(host, process, logger, false)
+        { }
 
+        /// <summary>
+        /// Initializes a new instance of entity filter EntityFilter
+        /// </summary>
+        /// <param name="host">Host that matches entity</param>
+        /// <param name="process">Process ID/AppName that matches entity</param>
+        /// <param name="logger">Logger that matches entity</param>
+        /// <param name="ffdaOnly">Whether to allow only FFDA messages or not</param>
         public EntityFilter(string host, string process, string logger, bool ffdaOnly)
         {
+            if (host == null) throw new ArgumentNullException("host");
+            if (process == null) throw new ArgumentNullException("process");
+            if (logger == null) throw new ArgumentNullException("logger");
             _host = host;
             _process = process;
             _logger = logger;
@@ -56,7 +69,7 @@ namespace It.Unina.Dis.Logbus.Entities
                 _host == (message.Host ?? "") &&
                 _process == (message.ProcessID ?? message.ApplicationName ?? "") &&
                 _logger == (attrs.LogName ?? "") &&
-                (!_ffdaOnly || _ffdaOnly && message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Debug));
+                (!_ffdaOnly || _ffdaOnly && message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info));
         }
 
         #endregion
