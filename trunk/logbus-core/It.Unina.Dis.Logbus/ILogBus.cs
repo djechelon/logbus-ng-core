@@ -35,9 +35,38 @@ namespace It.Unina.Dis.Logbus
         string[] AvailableTransports { get; }
 
         /// <summary>
+        /// Adds an already-created outbound channel to the Logbus instance
+        /// </summary>
+        /// <param name="channel">Channel to add to the bus</param>
+        void AddOutboundChannel(IOutboundChannel channel);
+
+        /// <summary>
+        /// Finds an outbound channel by ID
+        /// </summary>
+        /// <param name="channelId">ID of channel to find</param>
+        /// <returns>Outbound channel matching ID</returns>
+        /// <exception cref="System.ArgumentNullException"><c>channelId</c> is null or empty</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.LogbusException">No channel matches given ID</exception>
+        IOutboundChannel GetOutboundChannel(string channelId);
+
+        /// <summary>
         /// Outbound channels available for subscription
         /// </summary>
         IList<IOutboundChannel> OutboundChannels { get; }
+
+        /// <summary>
+        /// Adds an inbound channel
+        /// </summary>
+        /// <param name="channel">Channel to add</param>
+        /// <exception cref="System.ArgumentNullException"><c>channel</c> is null</exception>
+        void AddInboundChannel(IInboundChannel channel);
+
+        /// <summary>
+        /// Removes an inbound channel
+        /// </summary>
+        /// <param name="channel">Channel to remove</param>
+        /// <exception cref="System.ArgumentNullException"><c>channel</c> is null</exception>
+        void RemoveInboundChannel(IInboundChannel channel);
 
         /// <summary>
         /// Inbound channels created by configuration
@@ -68,12 +97,12 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Creates a new outbound channel
         /// </summary>
-        /// <param name="id">Unique ID of channel</param>
-        /// <param name="name">Descriptive name</param>
-        /// <param name="filter">Filter to apply</param>
-        /// <param name="description">Human-readable description</param>
+        /// <param name="channelId">Unique ID of channel</param>
+        /// <param name="channelName">Descriptive name</param>
+        /// <param name="channelFilter">Filter to apply</param>
+        /// <param name="channelDescription">Human-readable description</param>
         /// <param name="coalescenceWindow">Coalescence window, in milliseconds</param>
-        void CreateChannel(string id, string name, Filters.IFilter filter, string description, long coalescenceWindow);
+        void CreateChannel(string channelId, string channelName, IFilter channelFilter, string channelDescription, long coalescenceWindow);
 
         /// <summary>
         /// Removes a channel
