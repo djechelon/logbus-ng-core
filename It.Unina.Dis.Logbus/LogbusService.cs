@@ -623,7 +623,7 @@ namespace It.Unina.Dis.Logbus
             {
                 Log.Error("LogbusService start failed");
                 Log.Debug("Error details: {0}", ex.Message);
-                LogbusException e = new LogbusException("Could not stop Logbus", ex);
+                LogbusException e = new LogbusException("Could not start Logbus", ex);
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(e, true));
                 throw e;
             }
