@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BFB27842-B100-49A7-B027-10D1EBB7A991}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
@@ -60,6 +60,7 @@
   <ItemGroup>
     <EmbeddedResource Include="LogbusSubscription.asmx" />
     <EmbeddedResource Include="LogbusManagement.asmx" />
+    <EmbeddedResource Include="EntityManagement.asmx" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -70,6 +71,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\It.Unina.Dis.Logbus.Extensions\It.Unina.Dis.Logbus.Extensions.csproj">
+      <Project>{E434F2C2-6113-4C91-903D-642A51D9759B}</Project>
+      <Name>It.Unina.Dis.Logbus.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\It.Unina.Dis.Logbus\It.Unina.Dis.Logbus.csproj">
       <Project>{9D119D96-4F98-4131-90D4-1F5FE2EC09B7}</Project>
       <Name>It.Unina.Dis.Logbus</Name>
@@ -98,6 +103,9 @@
           <IISUrl>
           </IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
