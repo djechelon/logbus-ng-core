@@ -332,6 +332,14 @@ namespace It.Unina.Dis.Logbus.Entities
         #endregion
 
         #region Proxy factory
+        private static string UserAgent
+        {
+            get
+            {
+                return string.Format("LogbusEntityClient/{0}", typeof(EntityPlugin).Assembly.GetName().Version);
+            }
+        }
+
         /// <summary>
         /// Returns the default Entity Manager proxy for the given endpoint URL
         /// </summary>
@@ -339,7 +347,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <returns></returns>
         public static IEntityManagement GetProxy(string endpointUrl)
         {
-            return new EntityManagement() { Url = endpointUrl };
+            return new EntityManagement() { Url = endpointUrl, UserAgent = UserAgent };
         }
 
         /// <summary>
