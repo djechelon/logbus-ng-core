@@ -19,6 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using It.Unina.Dis.Logbus.OutChannels;
+
 namespace It.Unina.Dis.Logbus.Wrappers
 {
     /// <summary>
@@ -46,6 +48,9 @@ namespace It.Unina.Dis.Logbus.Wrappers
             _target.Stopping += Stopping;
             _target.OutChannelCreated += OutChannelCreated;
             _target.OutChannelDeleted += OutChannelDeleted;
+            _target.ClientSubscribed += ClientSubscribed;
+            _target.ClientSubscribing += ClientSubscribing;
+            _target.ClientUnsubscribed += ClientUnsubscribed;
         }
 
         #region ILogBus Membri di
@@ -123,6 +128,16 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Required by ILogBus
         /// </summary>
+        public event EventHandler<ClientSubscribingEventArgs> ClientSubscribing;
+
+        /// <summary>
+        /// Required by ILogBus
+        /// </summary>
+        public event EventHandler<ClientSubscribedEventArgs> ClientSubscribed;
+
+        /// <summary>
+        /// Required by ILogBus
+        /// </summary>
         public string SubscribeClient(string channelId, string transportId, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> transportInstructions, out System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> clientInstructions)
         {
             return _target.SubscribeClient(channelId, transportId, transportInstructions, out clientInstructions);
@@ -135,6 +150,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         {
             _target.RefreshClient(clientId);
         }
+
+        /// <summary>
+        /// Required by ILogBus
+        /// </summary>
+        public event EventHandler<ClientUnsubscribedEventArgs> ClientUnsubscribed;
 
         /// <summary>
         /// Required by ILogBus
@@ -172,7 +192,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         {
             _target.AddOutboundChannel(channel);
         }
-        
+
         /// <summary>
         /// Required by ILogBus
         /// </summary>

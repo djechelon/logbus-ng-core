@@ -27,6 +27,7 @@ using It.Unina.Dis.Logbus.Utils;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.OutChannels;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -880,15 +881,7 @@ namespace It.Unina.Dis.Logbus
                     ex.Data.Add("channelId", id);
                     throw ex;
                 }
-                LockCookie cookie = _outLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
-                try
-                {
-                    OutboundChannels.Remove(toRemove);
-                }
-                finally
-                {
-                    _outLock.DowngradeFromWriterLock(ref cookie);
-                }
+                RemoveOutboundChannel(toRemove);
 
             }
             finally
@@ -896,11 +889,7 @@ namespace It.Unina.Dis.Logbus
                 _outLock.ReleaseReaderLock();
             }
 
-            if (_running) toRemove.Stop();
             toRemove.Dispose();
-            Log.Info(string.Format("Channel removed: {0}", id));
-
-            if (OutChannelDeleted != null) OutChannelDeleted(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs(id));
         }
 
         /// <summary>
@@ -922,9 +911,38 @@ namespace It.Unina.Dis.Logbus
                 throw ex;
             }
 
+            if (ClientSubscribing != null)
+            {
+                ClientSubscribingEventArgs e = new ClientSubscribingEventArgs(channel, transportId,
+                                                                              transportInstructions);
+                ClientSubscribing(this, e);
+                if (e.Cancel)
+                {
+                    throw new LogbusException(string.Format("You cannot subscribe to this channel for the following reasons: {0}",
+                                              string.Join(", ", e.ReasonForCanceling)));
+                }
+            }
+
             try
             {
-                return string.Format("{0}:{1}", channelId, channel.SubscribeClient(transportId, transportInstructions, out clientInstructions));
+                string clientId = string.Format("{0}:{1}", channelId, channel.SubscribeClient(transportId, transportInstructions, out clientInstructions));
+                if (ClientSubscribed != null)
+                {
+                    IDictionary<string, string> clientInstro = new Dictionary<string, string>();
+                    foreach (KeyValuePair<string, string> pair in clientInstructions)
+                    {
+                        clientInstro.Add(pair);
+                    }
+                    ClientSubscribedEventArgs e = new ClientSubscribedEventArgs(channel, transportId,
+                                                                                transportInstructions, clientId,
+                                                                                clientInstro);
+                    ClientSubscribed(this, e);
+                    clientInstructions = clientInstro;
+                }
+
+                Log.Info("A new client subscribed channel {0} with ID {1}", channel.ID, clientId);
+
+                return clientId;
             }
             catch (LogbusException ex)
             {
@@ -1031,6 +1049,14 @@ namespace It.Unina.Dis.Logbus
             try
             {
                 channel.UnsubscribeClient(chanClientId);
+
+                if (ClientUnsubscribed != null)
+                {
+                    ClientUnsubscribedEventArgs e = new ClientUnsubscribedEventArgs(channel, clientId);
+                    ClientUnsubscribed(this, e);
+                }
+
+                Log.Info("Client {0} unsubscribed from channel {1}", clientId, channel.ID);
             }
             catch (LogbusException ex)
             {
@@ -1062,7 +1088,7 @@ namespace It.Unina.Dis.Logbus
         public void RemoveOutboundChannel(string channelId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new NotImplementedException();
+            RemoveChannel(channelId);
         }
 
         /// <summary>
@@ -1071,7 +1097,33 @@ namespace It.Unina.Dis.Logbus
         public void RemoveOutboundChannel(IOutboundChannel channel)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new NotImplementedException();
+            if (channel == null) throw new ArgumentNullException("channel");
+
+            try
+            {
+                _outLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    OutboundChannels.Remove(channel);
+                }
+                finally
+                {
+                    _outLock.ReleaseWriterLock();
+                }
+
+                if (_running) channel.Stop();
+                Log.Info(string.Format("Channel removed: {0}", channel.ID));
+
+                if (OutChannelDeleted != null)
+                    OutChannelDeleted(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs(channel.ID));
+            }
+            catch (Exception ex)
+            {
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+                Log.Error("Unable to delete channel {0}");
+                Log.Debug("Error details: {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1080,7 +1132,27 @@ namespace It.Unina.Dis.Logbus
         public void AddInboundChannel(IInboundChannel channel)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new NotImplementedException();
+            if (channel == null) throw new ArgumentNullException("channel");
+
+
+            try
+            {
+                _inLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    InboundChannels.Add(channel);
+                    if (_running) try { channel.Start(); }
+                        catch (InvalidOperationException) { }
+                }
+                finally
+                {
+                    _inLock.ReleaseWriterLock();
+                }
+            }
+            catch (ApplicationException ex)
+            {
+                throw new LogbusException("Unable to add inbound channel", ex);
+            }
         }
 
         /// <summary>
@@ -1089,7 +1161,27 @@ namespace It.Unina.Dis.Logbus
         public void RemoveInboundChannel(IInboundChannel channel)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new NotImplementedException();
+            if (channel == null) throw new ArgumentNullException("channel");
+
+
+            try
+            {
+                _inLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    InboundChannels.Remove(channel);
+                    try { channel.Stop(); }
+                    catch (InvalidOperationException) { }
+                }
+                finally
+                {
+                    _inLock.ReleaseWriterLock();
+                }
+            }
+            catch (ApplicationException ex)
+            {
+                throw new LogbusException("Unable to add inbound channel", ex);
+            }
         }
 
         /// <summary>
@@ -1106,6 +1198,22 @@ namespace It.Unina.Dis.Logbus
             }
             finally { _outLock.ReleaseReaderLock(); }
         }
+
+        /// <summary>
+        /// Implements ILogBus.ClientSubscribing
+        /// </summary>
+        public event EventHandler<OutChannels.ClientSubscribingEventArgs> ClientSubscribing;
+
+        /// <summary>
+        /// Implements ILogBus.ClientSubscribed
+        /// </summary>
+        public event EventHandler<OutChannels.ClientSubscribedEventArgs> ClientSubscribed;
+
+        /// <summary>
+        /// Implements ILogBus.ClientUnsubscribed
+        /// </summary>
+        public event EventHandler<OutChannels.ClientUnsubscribedEventArgs> ClientUnsubscribed;
+
         #endregion
 
         #region IDisposable Membri di

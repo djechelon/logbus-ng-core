@@ -111,6 +111,16 @@ namespace It.Unina.Dis.Logbus
         void RemoveChannel(string id);
 
         /// <summary>
+        /// A client is subscribing to a channel
+        /// </summary>
+        event EventHandler<OutChannels.ClientSubscribingEventArgs> ClientSubscribing;
+
+        /// <summary>
+        /// A client successfully subscribed a channel
+        /// </summary>
+        event EventHandler<OutChannels.ClientSubscribedEventArgs> ClientSubscribed;
+
+        /// <summary>
         /// Subscribes a new client to the channel
         /// </summary>
         /// <param name="channelId">ID of channel</param>
@@ -127,6 +137,11 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="System.InvalidOperationException">Client is not subscribed (or already expired)</exception>
         /// <exception cref="System.NotSupportedException">Transport doesn't support refreshing</exception>
         void RefreshClient(string clientId);
+
+        /// <summary>
+        /// A client unsubscribed from a channel
+        /// </summary>
+        event EventHandler<OutChannels.ClientUnsubscribedEventArgs> ClientUnsubscribed;
 
         /// <summary>
         /// Unsubscribes a client from a channel
