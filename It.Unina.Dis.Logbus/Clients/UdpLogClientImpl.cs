@@ -34,19 +34,28 @@ namespace It.Unina.Dis.Logbus.Clients
     /// <summary>
     /// Default implementation for ILogClient
     /// </summary>
+    /// <remarks>As default, the class tries to bind a free UDP port from 20686 to 25686. This grants you to keep alive up to 5000 UDP client instances.
+    /// You shall set your firewall/NAT to properly allow/forward UDP traffic towards the above ports. If ports are exhausted (other clients or other applications
+    /// bind to all the default 5000 ports) then the UDP client will ask the operating system to assign it a random port number. If this happens, you must be sure
+    /// that your firewall doesn't block incoming UDP traffic.
+    /// </remarks>
     internal sealed class UdpLogClientImpl
         : ILogClient
     {
 
-        private Timer refresh_timer;
-        private UdpClient client;
-        private long ChannelTTL = 0;
+        public const int START_PORT = 20686, END_PORT = 25686;
         private const long MAX_REFRESH_TIME = 20000;
-        private FilterBase filter;
+
+        private Timer _refreshTimer;
+        private UdpClient _client;
+        private long _channelTtl = 0;
+
+        private readonly FilterBase filter;
         private bool ExclusiveUsage { get; set; }
         private bool Running { get; set; }
-        private Thread running_thread;
-        private string clientId, channelId;
+        private Thread _runningThread;
+        private string _clientId;
+        private readonly string _channelId;
 
         #region Constructor/Destructor
         /// <summary>
@@ -63,13 +72,13 @@ namespace It.Unina.Dis.Logbus.Clients
             ChannelSubscriber = subscription;
             this.filter = filter;
 
-            string[] ch_ids_string = manager.ListChannels();
-            ArrayList channel_ids = new ArrayList((ch_ids_string != null) ? ch_ids_string : new string[0]);
+            string[] chIdsString = manager.ListChannels();
+            ArrayList channelIds = new ArrayList(chIdsString ?? new string[0]);
 
             do
             {
-                channelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
-            } while (channel_ids.Contains(channelId));
+                _channelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
+            } while (channelIds.Contains(_channelId));
 
             Init();
         }
@@ -77,7 +86,7 @@ namespace It.Unina.Dis.Logbus.Clients
         public UdpLogClientImpl(string channelId, IChannelSubscription subscription)
         {
             ExclusiveUsage = false;
-            this.channelId = channelId;
+            this._channelId = channelId;
             ChannelSubscriber = subscription;
 
             Init();
@@ -94,7 +103,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     description = "Channel created by LogCollector",
                     filter = filter,
                     title = "AutoChannel",
-                    id = channelId
+                    id = _channelId
                 };
 
                 try
@@ -125,11 +134,11 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #endregion
 
-        private void RefreshChannel(Object Status)
+        private void RefreshChannel(Object status)
         {
             try
             {
-                ChannelSubscriber.RefreshSubscription(Status as string);
+                ChannelSubscriber.RefreshSubscription(status as string);
             }
             catch (Exception ex)
             {
@@ -171,9 +180,22 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 int port;
                 //Decide on which address to listen
-                IPAddress local_ip = getIPAddress();
-                client = new UdpClient(new IPEndPoint(local_ip, 0));
-                EndPoint ep = client.Client.LocalEndPoint;
+                IPAddress localIp = GetIpAddress();
+                for (int i = START_PORT; i <= END_PORT; i++)
+                {
+                    try
+                    {
+                        _client = new UdpClient(new IPEndPoint(localIp, i));
+                        break;
+                    }
+                    catch (SocketException)
+                    { }
+                }
+                //Unable to bind to one of the default ports.
+                //Now pray your firewall is open to all UDP ports
+                if (_client == null) _client = new UdpClient(new IPEndPoint(localIp, 0));
+
+                EndPoint ep = _client.Client.LocalEndPoint;
                 if (ep is IPEndPoint)
                 {
                     IPEndPoint ipe = (IPEndPoint)ep;
@@ -184,26 +206,25 @@ namespace It.Unina.Dis.Logbus.Clients
                     throw new NotSupportedException("Only IP networks are supported");
                 }
 
-                running_thread = new Thread(RunnerLoop);
-                running_thread.IsBackground = true;
-                running_thread.Start();
+                _runningThread = new Thread(RunnerLoop) { IsBackground = true };
+                _runningThread.Start();
 
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
                 {
-                    channelid = this.channelId,
+                    channelid = this._channelId,
                     transport = "udp",
-                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = local_ip.ToString() } }
+                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = localIp.ToString() } }
                 };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
-                clientId = res.clientid;
-                ChannelTTL = MAX_REFRESH_TIME;
+                _clientId = res.clientid;
+                _channelTtl = MAX_REFRESH_TIME;
                 foreach (KeyValuePair kvp in res.param)
                     if (kvp.name == "ttl")
-                        if (long.TryParse(kvp.value, out ChannelTTL)) break;
-                long refreshTime = Math.Min(ChannelTTL * 4 / 5, MAX_REFRESH_TIME); //80% of the max TTL, but not over max TTL
+                        if (long.TryParse(kvp.value, out _channelTtl)) break;
+                long refreshTime = Math.Min(_channelTtl * 4 / 5, MAX_REFRESH_TIME); //80% of the max TTL, but not over max TTL
 
-                refresh_timer = new Timer(RefreshChannel, clientId, refreshTime, refreshTime);
+                _refreshTimer = new Timer(RefreshChannel, _clientId, refreshTime, refreshTime);
 
                 Running = true;
 
@@ -215,7 +236,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 if (Error != null)
                     Error(this, new UnhandledExceptionEventArgs(ex, true));
 
-                throw ex;
+                throw;
             }
             catch (Exception ex)
             {
@@ -241,21 +262,21 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
 
                 //Stop refreshing
-                if (refresh_timer != null)
-                    refresh_timer.Dispose();
+                if (_refreshTimer != null)
+                    _refreshTimer.Dispose();
 
                 try
                 {
-                    ChannelSubscriber.UnsubscribeChannel(clientId);
+                    ChannelSubscriber.UnsubscribeChannel(_clientId);
                 }
                 catch (LogbusException) { }
-                clientId = null;
+                _clientId = null;
 
                 try
                 {
-                    client.Close(); //Trigger SocketException if thread is blocked into listening
-                    running_thread.Join();
-                    running_thread = null;
+                    _client.Close(); //Trigger SocketException if thread is blocked into listening
+                    _runningThread.Join();
+                    _runningThread = null;
                 }
                 catch (Exception) { } //Really nothing?
 
@@ -291,7 +312,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void DestroyChannel()
         {
-            ChannelManager.DeleteChannel(channelId);
+            ChannelManager.DeleteChannel(_channelId);
         }
 
         public void Dispose(bool disposing)
@@ -307,8 +328,8 @@ namespace It.Unina.Dis.Logbus.Clients
 
             if (disposing)
             {
-                client.Close();
-                client = null;
+                _client.Close();
+                _client = null;
             }
             Disposed = true;
         }
@@ -317,16 +338,16 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void RunnerLoop()
         {
-            IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
+            IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
             while (true)
             {
                 try
                 {
-                    byte[] payload = client.Receive(ref remote_endpoint);
+                    byte[] payload = _client.Receive(ref remoteEndpoint);
                     try
                     {
-                        SyslogMessage new_message = SyslogMessage.Parse(payload);
-                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(new_message));
+                        SyslogMessage newMessage = SyslogMessage.Parse(payload);
+                        if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(newMessage));
                     }
                     catch (FormatException)
                     {
@@ -347,9 +368,9 @@ namespace It.Unina.Dis.Logbus.Clients
         /// Selects the best IP address to use for listening
         /// </summary>
         /// <returns></returns>
-        private IPAddress getIPAddress()
+        private IPAddress GetIpAddress()
         {
-            
+
             /*
              * If client is using OUR proxy, ie. no one re-implemented the
              * subscription interface with another mechanism like CORBA or
@@ -370,7 +391,7 @@ namespace It.Unina.Dis.Logbus.Clients
              * the Syslog messages are deployed into different machines
              * that run in different subnets, especially if they have WAN
              * access. We will fix this situation too, but it's very rare.
-            */ 
+            */
             if (ChannelSubscriber is ChannelSubscription)
             {
                 try
@@ -378,21 +399,21 @@ namespace It.Unina.Dis.Logbus.Clients
                     ChannelSubscription cs = ChannelSubscriber as ChannelSubscription;
                     string hostname = Regex.Match(cs.Url, "^(?<protocol>https?)://(?<host>[-A-Z0-9.]+)(?<port>:[0-9]{1,5})?(?<file>/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(?<parameters>\\?[-A-Z0-9+&@#/%=~_|!:,.;]*)?",
                         RegexOptions.IgnoreCase).Groups["host"].Value;
-                    IPAddress host_ip = Dns.GetHostAddresses(hostname)[0];
+                    IPAddress hostIp = Dns.GetHostAddresses(hostname)[0];
 
                     //If we are contacting a local host, tell to use loopback
-                    if (host_ip.Equals(IPAddress.Loopback)) return IPAddress.Loopback;
+                    if (hostIp.Equals(IPAddress.Loopback)) return IPAddress.Loopback;
 
                     //Just force a routing table lookup, we don't need more
-                    UdpClient fake_client = new UdpClient();
-                    fake_client.Connect(hostname, 65534);
-                    return ((IPEndPoint)fake_client.Client.LocalEndPoint).Address;
+                    UdpClient fakeClient = new UdpClient();
+                    fakeClient.Connect(hostname, 65534);
+                    return ((IPEndPoint)fakeClient.Client.LocalEndPoint).Address;
 
                 }
                 catch { } //Never mind...
             }
             //Else try to find the best WAN address to use
-            
+
 
             /*
              *  The following mechanism might not work in the following scenario:
