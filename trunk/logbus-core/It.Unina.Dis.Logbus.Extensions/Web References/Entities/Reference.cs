@@ -164,14 +164,31 @@ namespace It.Unina.Dis.Logbus.Entities {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
     public partial class LoggingEntity : LoggingEntityIdentifier {
         
+        private string appNameField;
+        
         private bool ffdaField;
         
         private System.DateTime lastActionField;
         
         private System.DateTime lastHeartbeatField;
         
+        private string channelIdField;
+        
+        private string ffdaChannelIdField;
+        
         public LoggingEntity() {
             this.ffdaField = false;
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string appName {
+            get {
+                return this.appNameField;
+            }
+            set {
+                this.appNameField = value;
+            }
         }
         
         /// <remarks/>
@@ -204,6 +221,28 @@ namespace It.Unina.Dis.Logbus.Entities {
             }
             set {
                 this.lastHeartbeatField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string channelId {
+            get {
+                return this.channelIdField;
+            }
+            set {
+                this.channelIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string ffdaChannelId {
+            get {
+                return this.ffdaChannelIdField;
+            }
+            set {
+                this.ffdaChannelIdField = value;
             }
         }
     }
@@ -272,6 +311,8 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private string maxinactivityField;
         
+        private string appNameField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public bool ffda {
@@ -302,6 +343,17 @@ namespace It.Unina.Dis.Logbus.Entities {
             }
             set {
                 this.maxinactivityField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string appName {
+            get {
+                return this.appNameField;
+            }
+            set {
+                this.appNameField = value;
             }
         }
     }

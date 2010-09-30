@@ -22,6 +22,7 @@
             <xs:sequence>
               <xs:element minOccurs="0" form="unqualified" name="ffda" type="xs:boolean" />
               <xs:element minOccurs="0" name="max-inactivity" type="xs:integer" />
+              <xs:element minOccurs="0" form="unqualified" name="appName" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
@@ -31,9 +32,12 @@
         <xs:complexContent mixed="false">
           <xs:extension base="em:LoggingEntityIdentifier">
             <xs:sequence>
+              <xs:element form="unqualified" name="appName" nillable="true" type="xs:string" />
               <xs:element default="false" form="unqualified" name="ffda" type="xs:boolean" />
               <xs:element form="unqualified" name="lastAction" type="xs:dateTime" />
-              <xs:element name="lastHeartbeat" type="xs:dateTime" />
+              <xs:element form="unqualified" name="lastHeartbeat" type="xs:dateTime" />
+              <xs:element minOccurs="0" form="unqualified" name="channelId" type="xs:string" />
+              <xs:element minOccurs="0" form="unqualified" name="ffdaChannelId" type="xs:string" />
             </xs:sequence>
           </xs:extension>
         </xs:complexContent>
