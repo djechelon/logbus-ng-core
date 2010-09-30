@@ -20,18 +20,21 @@
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     internal sealed class SimpleOutChannelFactory
-        :IOutboundChannelFactory
+        :IOutboundChannelFactory, ILogSupport
     {
 
         #region IOutboundChannelFactory Membri di
 
-        IOutboundChannel IOutboundChannelFactory.CreateChannel(string name, string description, It.Unina.Dis.Logbus.Filters.IFilter filter)
+        IOutboundChannel IOutboundChannelFactory.CreateChannel(string name, string description, Filters.IFilter filter)
         {
-            IOutboundChannel ret = new SimpleOutChannel();
-            ret.Name = name;
-            ret.Description = description;
-            ret.Filter = filter;
-            ret.TransportFactoryHelper = TransportFactoryHelper;
+            IOutboundChannel ret = new SimpleOutChannel
+                                       {
+                                           Name = name,
+                                           Description = description,
+                                           Filter = filter,
+                                           TransportFactoryHelper = TransportFactoryHelper,
+                                           Log = Log
+                                       };
             return ret;
         }
 
@@ -40,6 +43,12 @@ namespace It.Unina.Dis.Logbus.OutChannels
             get;
             set;
         }
+
+        #endregion
+
+        #region ILogSupport Membri di
+
+        public Loggers.ILog Log { private get; set; }
 
         #endregion
     }

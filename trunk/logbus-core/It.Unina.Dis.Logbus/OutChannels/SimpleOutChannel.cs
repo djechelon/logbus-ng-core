@@ -31,24 +31,31 @@ namespace It.Unina.Dis.Logbus.OutChannels
     /// Simple implementation of IOutboundChannel
     /// </summary>
     internal sealed class SimpleOutChannel
-        : IOutboundChannel, IAsyncRunnable
+        : IOutboundChannel, IAsyncRunnable, ILogSupport
     {
 
-        private Dictionary<string, IOutboundTransport> transports = new Dictionary<string, IOutboundTransport>();
-        private Timer coalescence_timer;
-        private Thread worker_thread;
-        private BlockingFifoQueue<SyslogMessage> message_queue;
+        private readonly Dictionary<string, IOutboundTransport> _transports = new Dictionary<string, IOutboundTransport>();
+        private Timer _coalescenceTimer;
+        private Thread _workerThread;
+        private BlockingFifoQueue<SyslogMessage> _messageQueue;
 
-        private volatile bool withinCoalescenceWindow;
-        private volatile bool running;
+        private volatile bool _withinCoalescenceWindow, _running;
+
+        /// <summary>
+        /// Flag that blocks messages until the first subscription.
+        /// Theorically, channels might block all messages when no clients
+        /// are subscribed, but checking could add overhead (class needs to
+        /// inspect transports' list of clients, involving some locks)
+        /// </summary>
+        private volatile bool _block = true;
 
 
         #region Constructor/Destructor
 
         public SimpleOutChannel()
         {
-            startDelegate = new ThreadStart(Start);
-            stopDelegate = new ThreadStart(Stop);
+            _startDelegate = new ThreadStart(Start);
+            _stopDelegate = new ThreadStart(Stop);
         }
 
         ~SimpleOutChannel()
@@ -59,13 +66,13 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private void Dispose(bool disposing)
         {
             if (Disposed) return;
-            if (running)
-                ((IOutboundChannel)this).Stop();
+            if (_running)
+                Stop();
 
 
             if (disposing)
             {
-                foreach (KeyValuePair<string, IOutboundTransport> trans in transports) trans.Value.Dispose();
+                foreach (KeyValuePair<string, IOutboundTransport> trans in _transports) trans.Value.Dispose();
             }
 
             Disposed = true;
@@ -82,7 +89,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
-        string IOutboundChannel.ID
+        public string ID
         {
             get;
             set;
@@ -103,7 +110,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            message_queue.Enqueue(message);
+            if (_block || _withinCoalescenceWindow) return; //Discard message
+            _messageQueue.Enqueue(message);
         }
 
         int IOutboundChannel.SubscribedClients
@@ -111,7 +119,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             get
             {
                 int ret = 0;
-                foreach (KeyValuePair<string, IOutboundTransport> kvp in transports) ret += kvp.Value.SubscribedClients;
+                foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports) ret += kvp.Value.SubscribedClients;
                 return ret;
             }
         }
@@ -119,11 +127,12 @@ namespace It.Unina.Dis.Logbus.OutChannels
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Start()
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_running) throw new InvalidOperationException("Channel is already started");
+
             try
             {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                if (running) throw new InvalidOperationException("Channel is already started");
-
+                Log.Info("Channel {0} starting", ID);
                 if (Starting != null)
                 {
                     CancelEventArgs e = new CancelEventArgs();
@@ -131,18 +140,20 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (e.Cancel) return;
                 }
 
-                message_queue = new BlockingFifoQueue<SyslogMessage>();
+                _messageQueue = new BlockingFifoQueue<SyslogMessage>();
 
-                worker_thread = new Thread(RunnerLoop);
-                worker_thread.IsBackground = true;
-                worker_thread.Start();
+                _workerThread = new Thread(RunnerLoop) { IsBackground = true };
+                _workerThread.Start();
 
-                running = true;
+                _running = true;
 
                 if (Started != null) Started(this, EventArgs.Empty);
+                Log.Info("Channel {0} started", ID);
             }
             catch (Exception ex)
             {
+                Log.Error("Unable to start channel {0}", ID);
+                Log.Error("Error details: {0}", ex);
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 throw;
             }
@@ -151,11 +162,12 @@ namespace It.Unina.Dis.Logbus.OutChannels
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Stop()
         {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (!_running) throw new InvalidOperationException("Channel is not running");
+
             try
             {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                if (!running) throw new InvalidOperationException("Channel is not running");
-
+                Log.Info("Channel {0} stopping", ID);
                 if (Stopping != null)
                 {
                     CancelEventArgs e = new CancelEventArgs();
@@ -164,35 +176,38 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 }
 
                 //Tell the thread to stop, the good way
-                running = false;
-                if (worker_thread.ThreadState == ThreadState.WaitSleepJoin)
-                    worker_thread.Join(5000); //Wait if the thread is already doing something "useful"
-                if (worker_thread.ThreadState != ThreadState.Stopped)
+                _running = false;
+                if (_workerThread.ThreadState == ThreadState.WaitSleepJoin)
+                    _workerThread.Join(5000); //Wait if the thread is already doing something "useful"
+                if (_workerThread.ThreadState != ThreadState.Stopped)
                 {
                     //Thread was locked. Going by brute force!!!
                     try
                     {
                         Thread.BeginCriticalRegion();
-                        worker_thread.Interrupt();
+                        _workerThread.Interrupt();
                     }
                     finally
                     {
                         Thread.EndCriticalRegion();
                     }
-                    worker_thread.Join(); //Giving it all the time it needs
+                    _workerThread.Join(); //Giving it all the time it needs
                 }
-                message_queue = null;
+                _messageQueue = null;
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
+                Log.Info("Channel {0} stopped", ID);
             }
             catch (Exception ex)
             {
+                Log.Error("Unable to stop channel {0}", ID);
+                Log.Error("Error details: {0}", ex);
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 throw;
             }
         }
 
-        public It.Unina.Dis.Logbus.Filters.IFilter Filter
+        public Filters.IFilter Filter
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             get;
@@ -222,38 +237,53 @@ namespace It.Unina.Dis.Logbus.OutChannels
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(transportId)) throw new ArgumentNullException("transportId", "Transport ID cannot be null");
 
-            IOutboundTransport to_subscribe;
-            if (transports.ContainsKey(transportId))
-            {
-                to_subscribe = transports[transportId];
-            }
-            else
-            {
-                try
-                {
-                    to_subscribe = TransportFactoryHelper.GetFactory(transportId).CreateTransport();
-                }
-                catch (NotSupportedException e)
-                {
-                    throw new LogbusException("Given transport is not supported on this node", e);
-                }
-                transports.Add(transportId, to_subscribe);
-            }
-
             try
             {
-                return string.Format("{0}:{1}", transportId, to_subscribe.SubscribeClient(inputInstructions, out outputInstructions));
+                Log.Info("New client subscribing on channel {0}", ID);
+                IOutboundTransport toSubscribe;
+                if (_transports.ContainsKey(transportId))
+                {
+                    toSubscribe = _transports[transportId];
+                }
+                else
+                {
+                    try
+                    {
+                        toSubscribe = TransportFactoryHelper.GetFactory(transportId).CreateTransport();
+                    }
+                    catch (NotSupportedException e)
+                    {
+                        throw new LogbusException("Given transport is not supported on this node", e);
+                    }
+                    _transports.Add(transportId, toSubscribe);
+                }
+
+                try
+                {
+                    _block = false;
+                    string clientId = string.Format("{0}:{1}", transportId,
+                                         toSubscribe.SubscribeClient(inputInstructions, out outputInstructions));
+                    Log.Info("New client subscribed on channel {0} with ID {1}", ID, clientId);
+                    return clientId;
+                }
+                catch (LogbusException ex)
+                {
+                    ex.Data.Add("transportId", transportId);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    LogbusException ex = new LogbusException("Could not subscribe transport", e);
+                    ex.Data.Add("transportId", transportId);
+                    throw ex;
+                }
             }
-            catch (LogbusException ex)
+            catch (Exception ex)
             {
-                ex.Data.Add("transportId", transportId);
+                Log.Error("Unable to subscribe new client on channel {0}", ID);
+                Log.Debug("Error details: {0}", ex.Message);
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 throw;
-            }
-            catch (Exception e)
-            {
-                LogbusException ex = new LogbusException("Could not subscribe transport", e);
-                ex.Data.Add("transportId", transportId);
-                throw ex;
             }
         }
 
@@ -269,8 +299,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 throw ex;
             }
 
-            string transport_id = clientId.Substring(0, indexof), transport_client_id = clientId.Substring(indexof + 1);
-            if (string.IsNullOrEmpty(transport_id))
+            string transportId = clientId.Substring(0, indexof), transportClientId = clientId.Substring(indexof + 1);
+            if (string.IsNullOrEmpty(transportId))
             {
                 ArgumentException ex = new ArgumentException("Invalid client ID");
                 ex.Data.Add("clientId-channel", clientId);
@@ -279,33 +309,40 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
 
             //First find the transport
-            if (!transports.ContainsKey(transport_id))
+            if (!_transports.ContainsKey(transportId))
             {
                 ArgumentException ex = new ArgumentException("Invalid client ID");
                 ex.Data.Add("clientId-channel", clientId);
                 throw ex;
             }
-            IOutboundTransport trans = transports[transport_id];
-
+            IOutboundTransport trans = _transports[transportId];
 
             try
             {
-                trans.RefreshClient(transport_client_id);
+                try
+                {
+                    trans.RefreshClient(transportClientId);
+                }
+                catch (NotSupportedException ex)
+                {
+                    ex.Data.Add("client-channel", clientId);
+                    throw;
+                }
+                catch (LogbusException ex)
+                {
+                    ex.Data.Add("client-channel", clientId);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    LogbusException ex = new LogbusException("Unable to refresh client", e);
+                    ex.Data.Add("client-channel", clientId);
+                    throw;
+                }
             }
-            catch (NotSupportedException ex)
+            catch (Exception ex)
             {
-                ex.Data.Add("client-channel", clientId);
-                throw;
-            }
-            catch (LogbusException ex)
-            {
-                ex.Data.Add("client-channel", clientId);
-                throw;
-            }
-            catch (Exception e)
-            {
-                LogbusException ex = new LogbusException("Unable to refresh client", e);
-                ex.Data.Add("client-channel", clientId);
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 throw;
             }
         }
@@ -313,7 +350,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void UnsubscribeClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
+            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("clientId", "Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {
@@ -322,8 +359,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 throw ex;
             }
 
-            string transport_id = clientId.Substring(0, indexof), transport_client_id = clientId.Substring(indexof + 1);
-            if (string.IsNullOrEmpty(transport_id))
+            string transportId = clientId.Substring(0, indexof), transportClientId = clientId.Substring(indexof + 1);
+            if (string.IsNullOrEmpty(transportId))
             {
                 ArgumentException ex = new ArgumentException("Invalid client ID");
                 ex.Data.Add("clientId-channel", clientId);
@@ -332,33 +369,44 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
 
             //First find the transport
-            if (!transports.ContainsKey(transport_id))
+            if (!_transports.ContainsKey(transportId))
             {
                 ArgumentException ex = new ArgumentException("Invalid client ID");
                 ex.Data.Add("clientId-channel", clientId);
                 throw ex;
             }
-            IOutboundTransport trans = transports[transport_id];
-
+            IOutboundTransport trans = _transports[transportId];
 
             try
             {
-                trans.UnsubscribeClient(transport_client_id);
-                if (trans.SubscribedClients == 0)
+                try
                 {
-                    transports.Remove(transport_id);
-                    trans.Dispose();
+                    trans.UnsubscribeClient(transportClientId);
+
+                    Log.Info("Client {0} unsubscribed from channel {1}", clientId, ID);
+                    if (trans.SubscribedClients == 0)
+                    {
+                        _transports.Remove(transportId);
+                        trans.Dispose();
+                    }
+                }
+                catch (LogbusException ex)
+                {
+                    ex.Data.Add("client-channel", clientId);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    LogbusException ex = new LogbusException("Unable to unsubscribe client", e);
+                    ex.Data.Add("client-channel", clientId);
+                    throw;
                 }
             }
-            catch (LogbusException ex)
+            catch (Exception ex)
             {
-                ex.Data.Add("client-channel", clientId);
-                throw;
-            }
-            catch (Exception e)
-            {
-                LogbusException ex = new LogbusException("Unable to unsubscribe client", e);
-                ex.Data.Add("client-channel", clientId);
+                Log.Error("Unable to unsubscribe client {0} from channel {1}", clientId, ID);
+                Log.Debug("Error details: {0}", ex.Message);
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 throw;
             }
         }
@@ -368,7 +416,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         #region IDisposable Membri di
 
-        void System.IDisposable.Dispose()
+        void IDisposable.Dispose()
         {
             Dispose(true);
         }
@@ -383,19 +431,19 @@ namespace It.Unina.Dis.Logbus.OutChannels
         {
             try
             {
-                while (running)
+                while (_running)
                 {
-                    SyslogMessage msg = message_queue.Dequeue();
-                    if (!withinCoalescenceWindow)
+                    SyslogMessage msg = _messageQueue.Dequeue();
+                    if (!_withinCoalescenceWindow)
                         if (Filter.IsMatch(msg))
                         {
                             if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
-                            foreach (KeyValuePair<string, IOutboundTransport> kvp in transports)
+                            foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports)
                                 kvp.Value.SubmitMessage(msg);
                             if (CoalescenceWindowMillis > 0)
                             {
-                                coalescence_timer = new Timer(ResetCoalescence, null, (int)CoalescenceWindowMillis, Timeout.Infinite);
-                                withinCoalescenceWindow = true;
+                                _coalescenceTimer = new Timer(ResetCoalescence, null, (int)CoalescenceWindowMillis, Timeout.Infinite);
+                                _withinCoalescenceWindow = true;
                             }
                         }
                 }
@@ -404,18 +452,18 @@ namespace It.Unina.Dis.Logbus.OutChannels
             { }
             finally
             {
-                if (coalescence_timer != null) coalescence_timer.Dispose();
+                if (_coalescenceTimer != null) _coalescenceTimer.Dispose();
                 //Someone is telling me to stop
                 //Flush and terminate
-                IEnumerable<SyslogMessage> left_messages = message_queue.FlushAndDispose();
+                IEnumerable<SyslogMessage> leftMessages = _messageQueue.FlushAndDispose();
 
-                if (!withinCoalescenceWindow)
+                if (!_withinCoalescenceWindow)
                 {
-                    foreach (SyslogMessage msg in left_messages)
+                    foreach (SyslogMessage msg in leftMessages)
                         if (Filter.IsMatch(msg))
                         {
                             if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
-                            foreach (KeyValuePair<string, IOutboundTransport> kvp in transports)
+                            foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports)
                                 kvp.Value.SubmitMessage(msg);
                             if (CoalescenceWindowMillis > 0) break;
                         }
@@ -425,22 +473,22 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         private void ResetCoalescence(object state)
         {
-            withinCoalescenceWindow = false;
+            _withinCoalescenceWindow = false;
         }
 
-        private ILog Log
+        public ILog Log
         {
-            get;
+            private get;
             set;
         }
 
         #region IRunnable Membri di
 
         /// <remarks/>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
         /// <remarks/>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         /// <remarks/>
         public event EventHandler Started;
@@ -459,31 +507,31 @@ namespace It.Unina.Dis.Logbus.OutChannels
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            return startDelegate.BeginInvoke(null, null);
+            return _startDelegate.BeginInvoke(null, null);
         }
 
         void IAsyncRunnable.EndStart(IAsyncResult result)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            startDelegate.EndInvoke(result);
+            _startDelegate.EndInvoke(result);
         }
 
         IAsyncResult IAsyncRunnable.BeginStop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            return stopDelegate.BeginInvoke(null, null);
+            return _stopDelegate.BeginInvoke(null, null);
         }
 
         void IAsyncRunnable.EndStop(IAsyncResult result)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            stopDelegate.EndInvoke(result);
+            _stopDelegate.EndInvoke(result);
         }
 
-        private ThreadStart startDelegate, stopDelegate;
+        private readonly ThreadStart _startDelegate, _stopDelegate;
 
         #endregion
     }
