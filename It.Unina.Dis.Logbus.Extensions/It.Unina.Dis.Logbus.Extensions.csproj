@@ -125,10 +125,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://www.zighinetto.org/upload/logbus-entitymanager.wsdl">
+    <WebReferenceUrl Include="http://www.zighinetto.org/logbus-entitymanager.wsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Entities\</RelPath>
-      <UpdateFromURL>http://www.zighinetto.org/upload/logbus-entitymanager.wsdl</UpdateFromURL>
+      <UpdateFromURL>http://www.zighinetto.org/logbus-entitymanager.wsdl</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

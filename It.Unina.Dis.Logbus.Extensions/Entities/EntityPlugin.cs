@@ -23,6 +23,7 @@ using It.Unina.Dis.Logbus.Utils;
 using System.Threading;
 using It.Unina.Dis.Logbus.Configuration;
 using System.Text.RegularExpressions;
+using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Entities
 {
     /// <summary>
@@ -40,7 +41,7 @@ namespace It.Unina.Dis.Logbus.Entities
         private readonly BlockingFifoQueue<SyslogMessage> _messageQueue;
         private readonly Thread _workerThread;
 
-        private readonly DataColumn _colHost, _colProc, _colLogger, _colFfda, _colLastAction, _colLastHeartbeat;
+        private readonly DataColumn _colHost, _colProc, _colLogger, _colAppName, _colFfda, _colLastAction, _colLastHeartbeat, _colChannelId, _colFfdaChannelId;
         private readonly UniqueConstraint _primaryKey;
         private readonly DataTable _entityTable;
 
@@ -73,6 +74,12 @@ namespace It.Unina.Dis.Logbus.Entities
                 ReadOnly = true,
                 Unique = false
             };
+            _colAppName = new DataColumn("AppName", typeof(string))
+            {
+                AllowDBNull = true,
+                ReadOnly = true,
+                Unique = false
+            };
             _colFfda = new DataColumn("FFDA", typeof(bool))
             {
                 AllowDBNull = false,
@@ -94,13 +101,28 @@ namespace It.Unina.Dis.Logbus.Entities
                 Unique = false,
                 DateTimeMode = DataSetDateTime.Utc,
             };
+            _colChannelId = new DataColumn("ChannelId", typeof(string))
+            {
+                AllowDBNull = true,
+                ReadOnly = true,
+                Unique = true
+            };
+            _colFfdaChannelId = new DataColumn("FFdaChannelId", typeof(string))
+            {
+                AllowDBNull = true,
+                ReadOnly = true,
+                Unique = true
+            };
 
             _entityTable.Columns.Add(_colHost);
             _entityTable.Columns.Add(_colProc);
             _entityTable.Columns.Add(_colLogger);
+            _entityTable.Columns.Add(_colAppName);
             _entityTable.Columns.Add(_colFfda);
             _entityTable.Columns.Add(_colLastAction);
             _entityTable.Columns.Add(_colLastHeartbeat);
+            _entityTable.Columns.Add(_colChannelId);
+            _entityTable.Columns.Add(_colFfdaChannelId);
 
             _primaryKey = new UniqueConstraint(new DataColumn[] { _colHost, _colProc, _colLogger }, true)
             {
@@ -231,6 +253,9 @@ namespace It.Unina.Dis.Logbus.Entities
                     SyslogAttributes attrs = message.GetAdvancedAttributes();
                     DateTime? lastHb = null;
 
+                    string host = message.Host ?? "", process = message.ProcessID ?? message.ApplicationName ?? "", logger = attrs.LogName ?? "";
+
+
                     bool ffda = message.MessageId == "FFDA";
                     if (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug)
                         lastHb = message.Timestamp;
@@ -238,13 +263,16 @@ namespace It.Unina.Dis.Logbus.Entities
                     {
                         try
                         {
-                            _entityTable.Rows.Add(
-                                message.Host ?? "",
-                                message.ProcessID ?? message.ApplicationName ?? "",
-                                attrs.LogName ?? "",
+                            DataRow newRow = _entityTable.Rows.Add(
+                                host,
+                                process,
+                                logger,
+                                message.ApplicationName ?? "",
                                 ffda,
                                 message.Timestamp,
-                                lastHb
+                                lastHb,
+                                DBNull.Value,
+                                DBNull.Value
                                 );
 
                             Log.Debug("Acquired new entity: ({0}|{1}|{2}), {3}FFDA-enabled",
@@ -252,14 +280,66 @@ namespace It.Unina.Dis.Logbus.Entities
                                 message.ProcessID ?? message.ApplicationName ?? "NULL",
                                 attrs.LogName ?? "NULL",
                                 ffda ? "" : "not ");
+
+                            //Now creating channel for new entity
+                            IFilter entityFilter = new EntityFilter(host, process, logger);
+                            string description = string.Format("Channel monitoring logs from entity ({0}|{1}|{2})",
+                                                               message.Host ?? "NULL",
+                                                               message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                                               attrs.LogName ?? "NULL");
+                            do
+                            {
+                                string randomChannelId = "em_" + Utils.Randomizer.RandomAlphanumericString(15);
+                                try
+                                {
+                                    _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
+                                                          description, 0);
+                                    //Edit row accordingly
+                                    newRow[_colChannelId] = randomChannelId;
+                                    break;
+
+                                }
+                                catch (LogbusException) //Duplicate channel ID
+                                { continue; }
+                            }
+                            //Not necessarily a poor choice. With 15 chars we have billions of opportunities.
+                            //In a real system, we can't have more than thousands of entities. This algorithm
+                            //might go into stall only if randomizer is not "random" enough
+                            while (true);
+
+                            if (ffda) //Create FFDA channel too
+                            {
+                                entityFilter = new EntityFilter(host, process, logger, true);
+                                description = string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
+                                                                   message.Host ?? "NULL",
+                                                                   message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                                                   attrs.LogName ?? "NULL");
+                                do
+                                {
+                                    string randomChannelId = "em_" + Utils.Randomizer.RandomAlphanumericString(15);
+                                    try
+                                    {
+                                        _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
+                                                              description, 0);
+                                        //Edit row accordingly
+                                        newRow[_colFfdaChannelId] = randomChannelId;
+                                        break;
+
+                                    }
+                                    catch (LogbusException) //Duplicate channel ID
+                                    { continue; }
+                                }
+                                //Like above
+                                while (true);
+                            }
                         }
                         catch (ConstraintException)
                         {
                             //We suppose we are trying to insert a duplicate primary key, then now we switch to update
                             object[] keys = new object[]{
-                                message.Host ?? "",
-                                message.ProcessID ?? message.ApplicationName ?? "",
-                                attrs.LogName ?? "",
+                                host,
+                                process,
+                                logger,
                             };
                             DataRow existingRow = _entityTable.Rows.Find(keys);
                             bool oldFfda = (bool)existingRow[_colFfda];
@@ -275,10 +355,37 @@ namespace It.Unina.Dis.Logbus.Entities
                             existingRow.EndEdit();
 
                             if (ffda && !oldFfda)
+                            {
                                 Log.Debug("Entity ({0}|{1}|{2}) is now FFDA-enabled",
-                                    message.Host ?? "NULL",
-                                    message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                    attrs.LogName ?? "NULL");
+                                          message.Host ?? "NULL",
+                                          message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                          attrs.LogName ?? "NULL");
+
+                                //Create FFDA channel
+                                IFilter entityFilter = new EntityFilter(host, process, logger, true);
+                                string description = string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
+                                                                   message.Host ?? "NULL",
+                                                                   message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                                                   attrs.LogName ?? "NULL");
+                                do
+                                {
+                                    string randomChannelId = "em_" + Utils.Randomizer.RandomAlphanumericString(15);
+                                    try
+                                    {
+                                        _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
+                                                              description, 0);
+                                        //Edit row accordingly
+                                        existingRow[_colFfdaChannelId] = randomChannelId;
+                                        break;
+
+                                    }
+                                    catch (LogbusException) //Duplicate channel ID
+                                    { continue; }
+                                }
+                                //Like above
+                                while (true);
+
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -310,9 +417,15 @@ namespace It.Unina.Dis.Logbus.Entities
                                  host = (string)rows[i][_colHost],
                                  process = (string)rows[i][_colProc],
                                  logger = (string)rows[i][_colLogger],
+                                 appName = (string)rows[i][_colAppName],
                                  ffda = (bool)rows[i][_colFfda],
                                  lastAction = (DateTime)rows[i][_colLastAction],
-                                 lastHeartbeat = (rows[i][_colLastHeartbeat] is DBNull) ? DateTime.MinValue : (DateTime)rows[i][_colLastHeartbeat]
+                                 lastHeartbeat =
+                                     (rows[i][_colLastHeartbeat] is DBNull)
+                                         ? DateTime.MinValue
+                                         : (DateTime)rows[i][_colLastHeartbeat],
+                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
+                                 ffdaChannelId = (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
                              };
             }
 

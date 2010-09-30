@@ -53,6 +53,10 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private System.DateTime lastActionField;
         
+        private System.DateTime lastHeartbeatField;
+        
+        private string processNameField;
+        
         public LoggingEntity() {
             this.ffdaField = false;
         }
@@ -76,6 +80,28 @@ namespace It.Unina.Dis.Logbus.Entities {
             }
             set {
                 this.lastActionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public System.DateTime lastHeartbeat {
+            get {
+                return this.lastHeartbeatField;
+            }
+            set {
+                this.lastHeartbeatField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string processName {
+            get {
+                return this.processNameField;
+            }
+            set {
+                this.processNameField = value;
             }
         }
     }
@@ -144,6 +170,8 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private string maxinactivityField;
         
+        private string processNameField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public bool ffda {
@@ -174,6 +202,17 @@ namespace It.Unina.Dis.Logbus.Entities {
             }
             set {
                 this.maxinactivityField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string processName {
+            get {
+                return this.processNameField;
+            }
+            set {
+                this.processNameField = value;
             }
         }
     }
