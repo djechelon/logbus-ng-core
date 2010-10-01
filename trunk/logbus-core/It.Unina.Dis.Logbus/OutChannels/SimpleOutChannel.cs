@@ -110,7 +110,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (_block || _withinCoalescenceWindow) return; //Discard message
+            if (_block || _withinCoalescenceWindow || !_running) return; //Discard message
             _messageQueue.Enqueue(message);
         }
 
@@ -231,7 +231,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             set;
         }
 
-
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public string SubscribeClient(string transportId, IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -287,6 +287,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void RefreshClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -347,6 +348,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void UnsubscribeClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -408,6 +410,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 Log.Debug("Error details: {0}", ex.Message);
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 throw;
+            }
+            finally
+            {
+                if (((IOutboundChannel)this).SubscribedClients == 0) _block = true;
             }
         }
 
