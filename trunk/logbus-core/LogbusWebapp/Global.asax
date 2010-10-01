@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="LogbusWebapp.Global" Language="C#" %>
+﻿<%@ Application Inherits="It.Unina.Dis.Logbus.WebServices.LogbusWebApplication, It.Unina.Dis.Logbus" Language="C#" %>

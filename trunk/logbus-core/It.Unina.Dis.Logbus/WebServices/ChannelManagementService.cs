@@ -18,13 +18,7 @@
 */
 
 using System.Web.Services;
-using System.Web.Services.Protocols;
-using System;
-using It.Unina.Dis.Logbus.Filters;
-using System.Globalization;
 using It.Unina.Dis.Logbus.RemoteLogbus;
-using System.Threading;
-using It.Unina.Dis.Logbus.Wrappers;
 
 namespace It.Unina.Dis.Logbus.WebServices
 {
@@ -48,26 +42,18 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         /// <remarks/>
         public ChannelManagementService()
-            : base()
         {
-            if (Application[APPLICATION_KEY] != null)
-                TargetChannelManager = Application[APPLICATION_KEY] as IChannelManagement;
+
+            if (Application[APPLICATION_KEY] != null && Application[APPLICATION_KEY] is IChannelManagement)
+                TargetChannelManager = (IChannelManagement)Application[APPLICATION_KEY];
             else
             {
-                object AppDomainData = Thread.GetDomain().GetData("Logbus");
-                if (AppDomainData != null)
-                    try
-                    {
-                        TargetChannelManager = (AppDomainData is IChannelManagement) ?
-                            AppDomainData as IChannelManagement : new Logbus2SoapAdapter((ILogBus)AppDomainData);
-                    }
-                    catch { }
+                throw new LogbusException("Logbus instance not set by Global.asax");
             }
         }
 
         /// <remarks/>
         public ChannelManagementService(IChannelManagement target)
-            : base()
         {
             TargetChannelManager = target;
         }
@@ -77,7 +63,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         /// <summary>
         /// Target to be proxies
         /// </summary>
-        public virtual IChannelManagement TargetChannelManager
+        public IChannelManagement TargetChannelManager
         {
             get;
             set;
@@ -91,7 +77,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
-        public string[] ListChannels()
+        public virtual string[] ListChannels()
         {
             return TargetChannelManager.ListChannels();
         }
@@ -102,15 +88,10 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation)
 #else
-        public void CreateChannel(ChannelCreationInformation channelcreation)
+        public virtual void CreateChannel(ChannelCreationInformation channelcreation)
 #endif
-
         {
-            try
-            {
-                TargetChannelManager.CreateChannel(channelcreation);
-            }
-            catch { throw; } //What to do?
+            TargetChannelManager.CreateChannel(channelcreation);
         }
 
         /// <remarks/>
@@ -120,15 +101,10 @@ namespace It.Unina.Dis.Logbus.WebServices
         [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
         public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
 #else
-        public ChannelInformation GetChannelInformation(string message)
+        public virtual ChannelInformation GetChannelInformation(string message)
 #endif
-        
         {
-            try
-            {
-                return TargetChannelManager.GetChannelInformation(message);
-            }
-            catch { throw; }
+            return TargetChannelManager.GetChannelInformation(message);
         }
 
         /// <remarks/>
@@ -137,15 +113,10 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
 #else
-        public void DeleteChannel(string message)
+        public virtual void DeleteChannel(string message)
 #endif
-        
         {
-            try
-            {
-                TargetChannelManager.DeleteChannel(message);
-            }
-            catch { throw; }
+            TargetChannelManager.DeleteChannel(message);
         }
 
         #endregion
