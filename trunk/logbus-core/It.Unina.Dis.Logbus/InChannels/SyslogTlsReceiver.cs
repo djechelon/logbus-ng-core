@@ -28,6 +28,9 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
+using System.Web;
+using It.Unina.Dis.Logbus.Configuration;
+
 namespace It.Unina.Dis.Logbus.InChannels
 {
     /// <summary>
@@ -205,23 +208,29 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void LoadCertificate(string path)
         {
+            string abspath = Path.GetFullPath(path);
+            if (!File.Exists(abspath))
+            {
+                //Then we might have a problem :(
+                if (HttpContext.Current != null) //We are running ASP.NET, use Server
+                {
+                    abspath = HttpContext.Current.Server.MapPath(path);
+                }
+            }
+
+            if (!File.Exists(abspath)) //No way to load certificate!!!
+                throw new LogbusConfigurationException("Certificate file specified does not exist",
+                                                       new FileNotFoundException(
+                                                           "Certificate file specified does not exist", path));
             try
             {
-                if (path.EndsWith(".pem"))
-                {
-                    Certificate = LoadPemCertificate(path);
-                    return;
-                }
-                else //Should be .p12
-                {
-                    Certificate = new X509Certificate2(path);
-                }
+                Certificate = path.EndsWith(".pem") ? LoadPemCertificate(abspath) : new X509Certificate2(abspath);
             }
             catch (Exception ex)
             {
                 Log.Error("Unable to load X.509 certificate for TLS listener");
                 Log.Debug(string.Format("Exception message: {0}", ex.Message));
-                throw;
+                throw new LogbusConfigurationException("Invalid certificate path", ex);
             }
         }
 

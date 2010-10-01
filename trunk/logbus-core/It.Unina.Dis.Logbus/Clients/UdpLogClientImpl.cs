@@ -48,9 +48,9 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private Timer _refreshTimer;
         private UdpClient _client;
-        private long _channelTtl = 0;
+        private long _channelTtl;
 
-        private readonly FilterBase filter;
+        private readonly FilterBase _filter;
         private bool ExclusiveUsage { get; set; }
         private bool Running { get; set; }
         private Thread _runningThread;
@@ -59,18 +59,19 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #region Constructor/Destructor
         /// <summary>
-        /// 
+        /// Initializes a new instance of UdpLogClientImpl for running on an exclusive channel
         /// </summary>
-        /// <param name="filter"></param>
-        /// <param name="manager"></param>
-        /// <param name="subscription"></param>
+        /// <param name="filter">Filter for exclusive channel</param>
+        /// <param name="manager">Reference to Channel Manager</param>
+        /// <param name="subscription">Reference to Channel Subscriber</param>
         /// <exception cref="LogbusException">Thrown when an error prevents to create a new channel</exception>
         public UdpLogClientImpl(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
         {
+            _channelTtl = 0;
             ExclusiveUsage = true;
             ChannelManager = manager;
             ChannelSubscriber = subscription;
-            this.filter = filter;
+            _filter = filter;
 
             string[] chIdsString = manager.ListChannels();
             ArrayList channelIds = new ArrayList(chIdsString ?? new string[0]);
@@ -83,10 +84,16 @@ namespace It.Unina.Dis.Logbus.Clients
             Init();
         }
 
+        /// <summary>
+        /// Initializes a new instance of UdpLogClientImpl for running on a shared channel
+        /// </summary>
+        /// <param name="channelId">ID of channel to subscribe</param>
+        /// <param name="subscription">Reference to Channel Subscriber</param>
         public UdpLogClientImpl(string channelId, IChannelSubscription subscription)
         {
+            _channelTtl = 0;
             ExclusiveUsage = false;
-            this._channelId = channelId;
+            _channelId = channelId;
             ChannelSubscriber = subscription;
 
             Init();
@@ -97,14 +104,14 @@ namespace It.Unina.Dis.Logbus.Clients
             if (ExclusiveUsage)
             {
                 //Create channel
-                ChannelCreationInformation info = new ChannelCreationInformation()
-                {
-                    coalescenceWindow = 0,
-                    description = "Channel created by LogCollector",
-                    filter = filter,
-                    title = "AutoChannel",
-                    id = _channelId
-                };
+                ChannelCreationInformation info = new ChannelCreationInformation
+                                                      {
+                                                          coalescenceWindow = 0,
+                                                          description = "Channel created by LogCollector",
+                                                          filter = _filter,
+                                                          title = "AutoChannel",
+                                                          id = _channelId
+                                                      };
 
                 try
                 {
@@ -155,9 +162,9 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #region IRunnable Membri di
 
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         public event EventHandler Started;
 
@@ -185,7 +192,10 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     try
                     {
-                        _client = new UdpClient(new IPEndPoint(localIp, i)) { ExclusiveAddressUse = true };
+                        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { ExclusiveAddressUse = true };
+                        socket.Bind(new IPEndPoint(localIp, i));
+
+                        _client = new UdpClient { Client = socket };
                         break;
                     }
                     catch (SocketException)
@@ -193,7 +203,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 //Unable to bind to one of the default ports.
                 //Now pray your firewall is open to all UDP ports
-                if (_client == null || !_client.ExclusiveAddressUse) _client = new UdpClient(new IPEndPoint(localIp, 0));
+                if (_client == null) _client = new UdpClient(new IPEndPoint(localIp, 0));
 
                 EndPoint ep = _client.Client.LocalEndPoint;
                 if (ep is IPEndPoint)
@@ -212,9 +222,13 @@ namespace It.Unina.Dis.Logbus.Clients
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest()
                 {
-                    channelid = this._channelId,
+                    channelid = _channelId,
                     transport = "udp",
-                    param = new KeyValuePair[2] { new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, new KeyValuePair() { name = "ip", value = localIp.ToString() } }
+                    param = new KeyValuePair[] 
+                    { 
+                        new KeyValuePair() { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, 
+                        new KeyValuePair() { name = "ip", value = localIp.ToString() } 
+                    }
                 };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 _clientId = res.clientid;
@@ -275,10 +289,11 @@ namespace It.Unina.Dis.Logbus.Clients
                 try
                 {
                     _client.Close(); //Trigger SocketException if thread is blocked into listening
+                    _runningThread.Interrupt();
                     _runningThread.Join();
                     _runningThread = null;
                 }
-                catch (Exception) { } //Really nothing?
+                catch (SocketException) { } //Really nothing?
 
                 Running = false;
 
@@ -290,7 +305,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 if (Error != null)
                     Error(this, new UnhandledExceptionEventArgs(ex, true));
 
-                if (ex is LogbusException) throw ex;
+                if (ex is LogbusException) throw;
                 throw new LogbusException("Unable to Unsubscribe Channel", ex);
             }
         }
@@ -432,7 +447,7 @@ namespace It.Unina.Dis.Logbus.Clients
              *  times, it's not the only possible scenario.
             */
 
-            return Utils.NetworkUtils.GetMyIPAddress();
+            return NetworkUtils.GetMyIPAddress();
         }
 
     }
