@@ -92,6 +92,7 @@ namespace It.Unina.Dis.Logbus.Collectors
                             throw new ArgumentNullException("value");
                         try
                         {
+                            value = Path.GetFullPath(value);
                             using (StreamWriter fs = File.AppendText(value)) ;
                             FilePath = value;
                         }
