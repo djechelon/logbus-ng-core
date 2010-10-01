@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private readonly Dictionary<string, IOutboundTransport> _transports = new Dictionary<string, IOutboundTransport>();
         private Timer _coalescenceTimer;
         private Thread _workerThread;
-        private BlockingFifoQueue<SyslogMessage> _messageQueue;
+        private readonly BlockingFifoQueue<SyslogMessage> _messageQueue = new BlockingFifoQueue<SyslogMessage>();
 
         private volatile bool _withinCoalescenceWindow, _running;
 
@@ -140,8 +140,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (e.Cancel) return;
                 }
 
-                _messageQueue = new BlockingFifoQueue<SyslogMessage>();
-
                 _workerThread = new Thread(RunnerLoop) { IsBackground = true };
                 _workerThread.Start();
 
@@ -177,23 +175,9 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
                 //Tell the thread to stop, the good way
                 _running = false;
-                if (_workerThread.ThreadState == ThreadState.WaitSleepJoin)
-                    _workerThread.Join(5000); //Wait if the thread is already doing something "useful"
-                if (_workerThread.ThreadState != ThreadState.Stopped)
-                {
-                    //Thread was locked. Going by brute force!!!
-                    try
-                    {
-                        Thread.BeginCriticalRegion();
-                        _workerThread.Interrupt();
-                    }
-                    finally
-                    {
-                        Thread.EndCriticalRegion();
-                    }
-                    _workerThread.Join(); //Giving it all the time it needs
-                }
-                _messageQueue = null;
+
+                _workerThread.Interrupt();
+                _workerThread.Join(5000); //Giving it all the time it needs
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
                 Log.Info("Channel {0} stopped", ID);
