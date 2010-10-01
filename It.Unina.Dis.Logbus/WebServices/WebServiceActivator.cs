@@ -36,7 +36,8 @@ namespace It.Unina.Dis.Logbus.WebServices
     /// <remarks>Credits to http://msdn.microsoft.com/en-us/magazine/cc163879.aspx</remarks>
     public sealed class WebServiceActivator
     {
-        private const string AsmxTemplate = @"<%@ WebService Language=""C#"" Class=""{0}"" %>";
+        private const string AsmxTemplate = @"<%@ WebService Language=""C#"" Class=""{0}"" %>",
+            GlobalTemplate = @"<%@ Application Inherits=""{0}"" Language=""C#"" %>";
 
         #region Constructor
 
@@ -172,6 +173,15 @@ namespace It.Unina.Dis.Logbus.WebServices
                         StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, subFname)),
                                                            Encoding.Default))
                         sw.Write(wsDeclaration);
+                }
+
+                {
+                    string globalDeclaration = string.Format(GlobalTemplate,
+                                                             typeof(LogbusWebApplication).AssemblyQualifiedName);
+                    using (
+                        StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, "Global.asax")),
+                                                           Encoding.Default))
+                        sw.Write(globalDeclaration);
                 }
 
                 string bindir = Path.Combine(fullpath, "bin");
