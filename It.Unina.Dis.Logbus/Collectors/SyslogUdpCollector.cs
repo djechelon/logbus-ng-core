@@ -155,6 +155,12 @@ namespace It.Unina.Dis.Logbus.Collectors
                         }
                         catch (Exception ex)
                         {
+                            try
+                            {
+                                _remoteAddr = Dns.GetHostEntry(value).AddressList[0];
+                                break;
+                            }
+                            catch { }
                             throw new ArgumentException("Invalid IP address for remote endpoint", "value", ex);
                         }
                         break;
