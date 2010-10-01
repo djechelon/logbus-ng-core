@@ -130,7 +130,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                         if (!string.IsNullOrEmpty(def.type)) typename = def.type;
                         permanent = def.permanent;
                     }
-                    catch (Exception) { }
+                    catch(LogbusException) { }
 
                     if (!string.IsNullOrEmpty(typename))
                     {
@@ -152,7 +152,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                         }
                     }
                 }
-                ILogger ret = Activator.CreateInstance(loggerType) as ILogger;
+                ILogger ret = (ILogger) Activator.CreateInstance(loggerType);
                 ret.LogName = loggerName;
                 if (permanent) _loggers.Add(loggerName, ret);
                 return ret;
@@ -212,15 +212,28 @@ namespace It.Unina.Dis.Logbus.Loggers
         }
 
         /// <summary>
-        /// Creates a logger by
+        /// Creates a logger by name
         /// </summary>
-        /// <param name="loggerName"></param>
+        /// <param name="loggerName">Name of logger</param>
         /// <returns></returns>
         public static ILog GetLogger(string loggerName)
         {
             ILog ret = InstantiateLogger(loggerName);
-            //WRONG!!! Loggers can be configured with a specific collector
-            ret.Collector = CollectorHelper.CreateCollector();
+            ret.Collector = CollectorHelper.CreateCollector(GetDefinition(loggerName).collectorid);
+            return ret;
+        }
+
+        /// <summary>
+        /// Creates a logger by name
+        /// </summary>
+        /// <param name="loggerName">Name of logger</param>
+        /// <param name="facility">Syslog facility to use</param>
+        /// <returns></returns>
+        public static ILog GetLogger(string loggerName, SyslogFacility facility)
+        {
+            ILogger ret = InstantiateLogger(loggerName);
+            ret.Collector = CollectorHelper.CreateCollector(GetDefinition(loggerName).collectorid);
+            ret.Facility = facility;
             return ret;
         }
 
