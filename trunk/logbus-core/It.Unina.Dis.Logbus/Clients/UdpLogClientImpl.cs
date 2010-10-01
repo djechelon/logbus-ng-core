@@ -185,7 +185,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     try
                     {
-                        _client = new UdpClient(new IPEndPoint(localIp, i));
+                        _client = new UdpClient(new IPEndPoint(localIp, i)) { ExclusiveAddressUse = true };
                         break;
                     }
                     catch (SocketException)
@@ -193,7 +193,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 //Unable to bind to one of the default ports.
                 //Now pray your firewall is open to all UDP ports
-                if (_client == null) _client = new UdpClient(new IPEndPoint(localIp, 0));
+                if (_client == null || !_client.ExclusiveAddressUse) _client = new UdpClient(new IPEndPoint(localIp, 0));
 
                 EndPoint ep = _client.Client.LocalEndPoint;
                 if (ep is IPEndPoint)
