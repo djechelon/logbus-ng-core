@@ -48,9 +48,9 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            using (TextWriter tw = new StreamWriter(File.Open(FilePath, FileMode.Append), Encoding.UTF8))
+            using (StreamWriter sw = File.AppendText(FilePath))
             {
-                tw.WriteLine(message.ToRfc5424String());
+                sw.WriteLine(message.ToRfc5424String());
             }
         }
 
@@ -92,7 +92,7 @@ namespace It.Unina.Dis.Logbus.Collectors
                             throw new ArgumentNullException("value");
                         try
                         {
-                            new System.IO.FileInfo(value);
+                            using (StreamWriter fs = File.AppendText(value)) ;
                             FilePath = value;
                         }
                         catch (Exception ex)
