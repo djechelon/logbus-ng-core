@@ -19,6 +19,9 @@
 
 using System;
 using System.Net;
+#if MONO
+using System.Net.NetworkInformation;
+#endif
 using It.Unina.Dis.Logbus.RemoteLogbus;
 using System.Threading;
 using System.ComponentModel;
@@ -188,8 +191,30 @@ namespace It.Unina.Dis.Logbus.Clients
                 int port;
                 //Decide on which address to listen
                 IPAddress localIp = GetIpAddress();
+#if MONO
+                IPEndPoint[] eps = IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners();
+#endif
                 for (int i = START_PORT; i <= END_PORT; i++)
                 {
+#if MONO
+                    //Workaround to Mono bug 64375
+                    bool found = false;
+                    for (int c = 0; c < eps.Length; c++)
+                    {
+                        if (eps[c].Port == i && (eps[c].Address.Equals(IPAddress.Any) || eps[c].Address.Equals(localIp)))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                        socket.Bind(new IPEndPoint(localIp, i));
+                        _client = new UdpClient { Client = socket };
+                        break;
+                    }
+#else
                     try
                     {
                         Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { ExclusiveAddressUse = true };
@@ -200,6 +225,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     }
                     catch (SocketException)
                     { }
+#endif
                 }
                 //Unable to bind to one of the default ports.
                 //Now pray your firewall is open to all UDP ports
