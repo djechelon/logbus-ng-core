@@ -868,9 +868,9 @@ namespace It.Unina.Dis.Logbus
 
             IOutboundChannel toRemove = null;
             //Find the channel
+            _outLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
             try
             {
-                _outLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
                 foreach (IOutboundChannel chan in OutboundChannels)
                     if (chan.ID == id) { toRemove = chan; break; }
 
@@ -881,7 +881,16 @@ namespace It.Unina.Dis.Logbus
                     ex.Data.Add("channelId", id);
                     throw ex;
                 }
-                RemoveOutboundChannel(toRemove);
+
+                LockCookie ck = _outLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    RemoveOutboundChannel(toRemove);
+                }
+                finally
+                {
+                    _outLock.DowngradeFromWriterLock(ref ck);
+                }
 
             }
             finally
