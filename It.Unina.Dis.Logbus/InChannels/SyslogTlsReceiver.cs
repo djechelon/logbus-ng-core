@@ -30,6 +30,7 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using It.Unina.Dis.Logbus.Configuration;
+using System.Resources;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
@@ -56,13 +57,10 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// </summary>
         public new const int WORKER_THREADS = 4;
 
-        private Dictionary<string, string> config = new Dictionary<string, string>();
         private TcpListener _listener;
         private string _certificatePath;
-
         private Thread[] _listenerThreads;
-
-        private List<TcpClient> clients = new List<TcpClient>();
+        private readonly List<TcpClient> _clients = new List<TcpClient>();
 
         /// <summary>
         /// Port to listen on
@@ -101,10 +99,17 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = TLS_PORT;
             }
 
-            IPEndPoint localEp;
-            localEp = IpAddress == null ? new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            IPEndPoint localEp = IpAddress == null ? new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
-            if (Certificate == null) throw new InvalidOperationException("Certificate not specified");
+            if (Certificate == null)
+                try
+                {
+                    LoadCertificate(null);
+                }
+                catch
+                {
+                    throw new InvalidOperationException("Certificate not specified");
+                }
 
             try
             {
@@ -119,9 +124,11 @@ namespace It.Unina.Dis.Logbus.InChannels
             _listenerThreads = new Thread[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
             {
-                _listenerThreads[i] = new Thread(ListenerLoop);
-                _listenerThreads[i].Name = string.Format("SyslogTlsReceiver[{1}].ListenerLoop[{0}]", i, Name);
-                _listenerThreads[i].IsBackground = true;
+                _listenerThreads[i] = new Thread(ListenerLoop)
+                                          {
+                                              Name = string.Format("SyslogTlsReceiver[{1}].ListenerLoop[{0}]", i, Name),
+                                              IsBackground = true
+                                          };
                 _listenerThreads[i].Start();
             }
         }
@@ -131,8 +138,8 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// </summary>
         protected override void OnStop()
         {
-            lock (clients)
-                foreach (TcpClient client in clients)
+            lock (_clients)
+                foreach (TcpClient client in _clients)
                 {
                     try
                     {
@@ -208,6 +215,23 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void LoadCertificate(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                //Load default self-signed certificate
+                Log.Warning("No SSL certificate specified for TLS receiver. Using default Logbus-ng self-signed certificate");
+
+                using (Stream stream = GetType().Assembly.GetManifestResourceStream("It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
+                {
+                    if (stream == null)
+                        throw new LogbusException("Unable to find default self-signed SSL certificate");
+
+                    byte[] payload = new byte[stream.Length];
+                    stream.Read(payload, 0, (int)stream.Length);
+                    Certificate = new X509Certificate2(payload);
+                    return;
+                }
+            }
+
             string abspath = Path.GetFullPath(path);
             if (!File.Exists(abspath))
             {
@@ -277,7 +301,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             using (TcpClient client = (TcpClient)clientObj)
             {
-                lock (clients) clients.Add(client);
+                lock (_clients) _clients.Add(client);
                 // A client has connected. Create the 
                 // SslStream using the client's network stream.
                 using (SslStream sslStream = new SslStream(client.GetStream(), false))
@@ -315,7 +339,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     catch { return; }
                     finally
                     {
-                        lock (clients) clients.Remove(client);
+                        lock (_clients) _clients.Remove(client);
                     }
             }
 

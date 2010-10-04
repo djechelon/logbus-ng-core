@@ -248,6 +248,8 @@
     <None Include="AutoClassDiagram.cd" />
     <None Include="Release.txt" />
     <None Include="Schemas\make-wsdl-skeleton.bat" />
+    <EmbeddedResource Include="Security\DefaultCertificate.p12">
+    </EmbeddedResource>
     <None Include="Web References\RemoteLogbus\ChannelInformation.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
