@@ -30,21 +30,11 @@ namespace It.Unina.Dis.Logbus.Utils
     public sealed class BlockingFifoQueue<T>
         : IDisposable
     {
-        private Queue<T> the_queue;
-        private Semaphore sema;
-        private volatile bool disposed_value;
+        private readonly Queue<T> _theQueue;
+        private Semaphore _sema;
+        private long _count = 0;
 
-        private bool Disposed
-        {
-            get
-            {
-                return disposed_value;
-            }
-            set
-            {
-                disposed_value = value;
-            }
-        }
+        private volatile bool _disposed;
 
         #region Constructor/Destructor
 
@@ -53,10 +43,29 @@ namespace It.Unina.Dis.Logbus.Utils
         /// </summary>
         public BlockingFifoQueue()
         {
-            disposed_value = false;
+            _theQueue = new Queue<T>();
+            _sema = new Semaphore(0, int.MaxValue);
+        }
 
-            the_queue = new Queue<T>();
-            sema = new Semaphore(0, int.MaxValue);
+        /// <summary>
+        /// Initializes the blocking FIFO queue with a starting collection of elements
+        /// </summary>
+        /// <param name="collection">Collection of elements to insert into the queue</param>
+        public BlockingFifoQueue(IEnumerable<T> collection)
+        {
+            _theQueue=new Queue<T>(collection);
+            _sema = new Semaphore(_theQueue.Count, int.MaxValue);
+            _count = _theQueue.Count;
+        }
+    
+        /// <summary>
+        /// Initializes the blocking FIFO queue with an initial capacity
+        /// </summary>
+        /// <param name="capacity">Initial capacity to set</param>
+        public BlockingFifoQueue(int capacity)
+        {
+            _theQueue=new Queue<T>(capacity);
+            _sema = new Semaphore(0, capacity);
         }
 
         /// <remarks/>
@@ -72,10 +81,11 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <param name="item">Object to enqueue</param>
         public void Enqueue(T item)
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            lock (the_queue)
-                the_queue.Enqueue(item);
-            sema.Release();
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+            lock (_theQueue)
+                _theQueue.Enqueue(item);
+            Interlocked.Increment(ref _count);
+            _sema.Release();
         }
 
         /// <summary>
@@ -84,10 +94,11 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <returns>The first object enqueued</returns>
         public T Dequeue()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            sema.WaitOne();
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            lock (the_queue) return the_queue.Dequeue();
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+            _sema.WaitOne();
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+            Interlocked.Decrement(ref _count);
+            lock (_theQueue) return _theQueue.Dequeue();
         }
 
         /// <summary>
@@ -95,7 +106,7 @@ namespace It.Unina.Dis.Logbus.Utils
         /// </summary>
         public int Count
         {
-            get { return the_queue.Count; }
+            get { return (int)Interlocked.Read(ref _count); }
         }
 
         /// <summary>
@@ -104,14 +115,16 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <returns></returns>
         public T[] Flush()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            lock (the_queue)
+            lock (_theQueue)
             {
-                T[] ret = the_queue.ToArray();
-                the_queue.Clear();
+                T[] ret = _theQueue.ToArray();
+                _theQueue.Clear();
+                Interlocked.Exchange(ref _count, 0);
+                
                 //Note: we will need to change the behaviour soon
-                sema = new Semaphore(0, int.MaxValue);
+                _sema = new Semaphore(0, int.MaxValue);
                 return ret;
             }
         }
@@ -122,14 +135,14 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <returns></returns>
         public T[] FlushAndDispose()
         {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
             try
             {
-                lock (the_queue)
+                lock (_theQueue)
                 {
-                    T[] ret = the_queue.ToArray();
-                    the_queue.Clear();
+                    T[] ret = _theQueue.ToArray();
+                    _theQueue.Clear();
                     return ret;
                 }
             }
@@ -145,12 +158,12 @@ namespace It.Unina.Dis.Logbus.Utils
         {
             GC.SuppressFinalize(this);
 
-            sema.Close();
+            _sema.Close();
             if (disposing)
             {
             }
 
-            Disposed = true;
+            _disposed = true;
             GC.ReRegisterForFinalize(this);
         }
 

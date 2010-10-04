@@ -26,16 +26,23 @@ using System.Threading;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    internal sealed class SyslogUdpTransport : IOutboundTransport
+    internal sealed class SyslogUdpTransport :
+        IOutboundTransport, ILogSupport
     {
+        private readonly Timer _clearTimer;
+        private readonly Dictionary<String, UdpClientExpire> _clients;
+        private volatile bool _disposed;
+        private readonly ReaderWriterLock _listlock;
+        private const int DEFAULT_JOIN_TIMEOUT = 5000;
 
-        #region Constructor
+        #region Constructor/Destructor
         public SyslogUdpTransport(long timeToLive)
         {
             SubscriptionTtl = timeToLive;
-            Disposed = false;
-            Clients = new Dictionary<String, UdpClientExpire>();
-            clear_timer = new Timer(ClearList, null, SubscriptionTtl, SubscriptionTtl);
+            _disposed = false;
+            _clients = new Dictionary<String, UdpClientExpire>();
+            _clearTimer = new Timer(TimeoutExpiredClients, null, SubscriptionTtl, SubscriptionTtl);
+            _listlock = new ReaderWriterLock();
         }
 
         ~SyslogUdpTransport()
@@ -44,48 +51,66 @@ namespace It.Unina.Dis.Logbus.OutTransports
         }
         #endregion
 
-        #region Support properties
-        private Dictionary<String, UdpClientExpire> Clients { get; set; }
-
-        private bool Disposed { get; set; }
-        #endregion
-
-        private Timer clear_timer;
-
-        private UdpClient FindClient(string clientid)
-        {
-            lock (Clients)
-            {
-                if (Clients.ContainsKey(clientid))
-                    return Clients[clientid].Client;
-                else
-                    return null;
-            }
-        }
-
         #region IOutboundTransport Membri di
 
-        private void ClearList(Object Status)
+        private void TimeoutExpiredClients(Object status)
         {
-            lock (Clients)
+            if (_disposed)
+                return;
+
+            List<string> toRemove = new List<string>();
+
+            _listlock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+            try
             {
-                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
-                while (enumeratore.MoveNext())
+                foreach (KeyValuePair<string, UdpClientExpire> udpClientExpire in _clients)
                 {
-                    DateTime expire = enumeratore.Current.Value.LastRefresh.Value;
+                    DateTime expire = udpClientExpire.Value.LastRefresh;
                     TimeSpan diff = DateTime.Now.Subtract(expire);
                     if (diff.TotalMilliseconds > SubscriptionTtl)
-                        UnsubscribeClient(enumeratore.Current.Key);
+                    {
+                        toRemove.Add(udpClientExpire.Key);
+                        Log.Notice("Client {0} timed out", udpClientExpire.Key);
+                    }
                 }
+
+                if (toRemove.Count > 0)
+                {
+                    LockCookie ck = _listlock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
+                    try
+                    {
+                        foreach (string key in toRemove)
+                        {
+                            _clients.Remove(key);
+
+                        }
+                    }
+                    finally
+                    {
+                        _listlock.DowngradeFromWriterLock(ref ck);
+                    }
+                }
+            }
+            finally
+            {
+                _listlock.ReleaseReaderLock();
             }
         }
 
+        /// <summary>
+        /// Implements ILogCollector.SubmitMessage
+        /// </summary>
         public void SubmitMessage(SyslogMessage message)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             byte[] dgram = message.ToByteArray();
-            lock (Clients)
+
+            _listlock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+            try
             {
-                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = Clients.GetEnumerator();
+                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = _clients.GetEnumerator();
 
                 while (enumeratore.MoveNext())
                 {
@@ -93,20 +118,41 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     if (client != null)
                         try
                         {
-                            client.Send(dgram, dgram.Length);
+                            client.BeginSend(dgram, dgram.Length, null, null);
                         }
                         catch (SocketException)
                         {
                             //What to do????
-                            //For now, ignore and lose message
+                            //For now, ignore and drop message
                         }
                 }
             }
+            finally
+            {
+                _listlock.ReleaseReaderLock();
+            }
         }
 
+        /// <summary>
+        /// Implements IOutboundTransport.SubscribedClients
+        /// </summary>
         public int SubscribedClients
         {
-            get { lock (Clients)return Clients.Count; }
+            get
+            {
+                if (_disposed)
+                    throw new ObjectDisposedException(GetType().FullName);
+
+                _listlock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    return _clients.Count;
+                }
+                finally
+                {
+                    _listlock.ReleaseReaderLock();
+                }
+            }
         }
 
         /// <summary>
@@ -126,7 +172,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// <returns></returns>
         public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
-            if (Disposed)
+            if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
 
             outputInstructions = new Dictionary<string, string>();
@@ -156,9 +202,16 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     throw new TransportException("Invalid IP address");
 
                 string clientid = ipstring + ":" + port;
-                UdpClientExpire new_client = new UdpClientExpire { Client = new UdpClient(ipstring, port), LastRefresh = DateTime.Now };
-                lock (Clients)
-                    Clients.Add(clientid, new_client);
+                UdpClientExpire newClient = new UdpClientExpire { Client = new UdpClient(ipstring, port), LastRefresh = DateTime.Now };
+                _listlock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    _clients.Add(clientid, newClient);
+                }
+                finally
+                {
+                    _listlock.ReleaseWriterLock();
+                }
 
                 return clientid;
 
@@ -166,7 +219,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             catch (TransportException ex)
             {
                 ex.Data["input"] = inputInstructions;
-                throw ex;
+                throw;
             }
             catch (Exception ex)
             {
@@ -178,67 +231,114 @@ namespace It.Unina.Dis.Logbus.OutTransports
             }
         }
 
+        /// <summary>
+        /// Implements IOutboundTransport.RequiresRefres
+        /// </summary>
         public bool RequiresRefresh
         {
             get { return true; }
         }
 
+        /// <summary>
+        /// Implements IOutboundTransport.RefreshClient
+        /// </summary>
         public void RefreshClient(string clientId)
         {
-            lock (Clients)
-                if (Clients.ContainsKey(clientId))
-                    Clients[clientId].LastRefresh = DateTime.Now;
+            lock (_clients)
+                if (_clients.ContainsKey(clientId))
+                    _clients[clientId].LastRefresh = DateTime.Now;
                 else
                     throw new TransportException("Client not subscribed");
         }
 
+        /// <summary>
+        /// Implements IOutboundTransport.UnsubscribeClient
+        /// </summary>
         public void UnsubscribeClient(string clientId)
         {
-            lock (Clients)
+            _listlock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+            try
             {
-                try
-                {
-                    Clients[clientId].Client.Close();
-                    Clients.Remove(clientId);
-                }
-                catch (Exception ex)
-                {
-                    throw new TransportException("Unable to unsubscribe client", ex);
-                }
+                _clients[clientId].Client.Close();
+                _clients.Remove(clientId);
+            }
+            catch (Exception ex)
+            {
+                throw new TransportException("Unable to unsubscribe client", ex);
+            }
+            finally
+            {
+                _listlock.ReleaseWriterLock();
             }
         }
 
+        /// <summary>
+        /// Implements IOutboundTransport.SubscriptionTtl
+        /// </summary>
         public long SubscriptionTtl { get; set; }
 
         #endregion
 
         #region IDisposable Membri di
 
+        /// <summary>
+        /// Implements IDisposable.Dispose
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
         }
 
-        public void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             GC.SuppressFinalize(this);
+            _disposed = true;
+
+            _clearTimer.Dispose();
             if (disposing)
             {
-                lock (Clients)
-                {
-                    foreach (KeyValuePair<string, UdpClientExpire> kvp in Clients)
-                        if (kvp.Value != null && kvp.Value.Client != null)
-                            try
-                            {
-                                kvp.Value.Client.Close();
-                            }
-                            catch (SocketException)
-                            { }
-                }
+                foreach (KeyValuePair<string, UdpClientExpire> kvp in _clients)
+                    if (kvp.Value != null && kvp.Value.Client != null)
+                        try
+                        {
+                            kvp.Value.Client.Close();
+                        }
+                        catch (SocketException)
+                        { }
+
             }
-            Disposed = true;
         }
         #endregion
 
+        /// <summary>
+        /// Support class for holding the last refresh of every client
+        /// </summary>
+        private class UdpClientExpire
+        {
+            public UdpClientExpire()
+            {
+                LastRefresh = DateTime.Now;
+            }
+
+            /// <summary>
+            /// UDP socket to client
+            /// </summary>
+            public UdpClient Client;
+
+            /// <summary>
+            /// Last time client invoked RefreshSubscription
+            /// </summary>
+            public DateTime LastRefresh;
+        }
+
+        #region ILogSupport Membri di
+
+        public Loggers.ILog Log
+        {
+            private get;
+            set;
+        }
+
+        #endregion
     }
 }

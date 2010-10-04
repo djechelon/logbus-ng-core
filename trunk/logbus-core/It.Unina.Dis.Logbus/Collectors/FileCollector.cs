@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
@@ -44,11 +45,13 @@ namespace It.Unina.Dis.Logbus.Collectors
             set;
         }
 
+        private string _absoluteFilePath;
+
         #region ILogCollector Membri di
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            using (StreamWriter sw = File.AppendText(FilePath))
+            using (StreamWriter sw = File.AppendText(_absoluteFilePath))
             {
                 sw.WriteLine(message.ToRfc5424String());
             }
@@ -92,28 +95,28 @@ namespace It.Unina.Dis.Logbus.Collectors
                             throw new ArgumentNullException("value");
                         try
                         {
-                            value = Path.GetFullPath(value);
-                            using (StreamWriter fs = File.AppendText(value)) ;
+                            string fpath = HttpContext.Current != null ? HttpContext.Current.Server.MapPath(value) : Path.GetFullPath(value);
+#pragma warning disable 642
+                            using (File.AppendText(fpath)) ; //Dummy open to get IOException or SecurityException
+#pragma warning restore 642
                             FilePath = value;
+                            _absoluteFilePath = fpath;
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) //Expecting IOException or SecurityException
                         {
                             throw new LogbusException("File path error", ex);
                         }
 
                         break;
                     }
-
                 default:
-
-
-                    throw new NotSupportedException("Invalid key");
+                    throw new NotSupportedException("Configuration key not supported");
 
             }
         }
 
         /// <remarks/>
-        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        public IEnumerable<KeyValuePair<string, string>> Configuration
         {
             set
             {

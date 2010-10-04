@@ -24,16 +24,16 @@ namespace It.Unina.Dis.Logbus.OutTransports
 {
     [Design.TransportFactory("udp", Name = "RFC5426 transport", Description = "Syslog over UDP transport according to RFC5426")]
     internal sealed class SyslogUdpTransportFactory
-        : IOutboundTransportFactory
+        : IOutboundTransportFactory, ILogSupport
     {
-
-        private long defaultTTL = 20000;
+        private Loggers.ILog _logger;
+        private long _defaultTtl = 20000;
 
         #region IOutboundTransportFactory Membri di
 
         IOutboundTransport IOutboundTransportFactory.CreateTransport()
         {
-            return new SyslogUdpTransport(defaultTTL);
+            return new SyslogUdpTransport(_defaultTtl) { Log = _logger };
         }
 
         string IConfigurable.GetConfigurationParameter(string key)
@@ -44,7 +44,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             {
                 case "ttl":
                     {
-                        return defaultTTL.ToString(CultureInfo.InvariantCulture);
+                        return _defaultTtl.ToString(CultureInfo.InvariantCulture);
                     }
                 default:
                     {
@@ -61,7 +61,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             {
                 case "ttl":
                     {
-                        if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out defaultTTL)) throw new InvalidOperationException("Invalid value for ttl");
+                        if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _defaultTtl)) throw new InvalidOperationException("Invalid value for ttl");
                         break;
                     }
                 default:
@@ -71,11 +71,25 @@ namespace It.Unina.Dis.Logbus.OutTransports
             }
         }
 
-        System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IConfigurable.Configuration
+        IEnumerable<KeyValuePair<string, string>> IConfigurable.Configuration
         {
             set
             {
                 foreach (KeyValuePair<string, string> kvp in value) ((IConfigurable)this).SetConfigurationParameter(kvp.Key, kvp.Value);
+            }
+        }
+
+        #endregion
+
+        #region ILogSupport Membri di
+
+        public Loggers.ILog Log
+        {
+            set
+            {
+                _logger = value;
+                if (string.IsNullOrEmpty(_logger.LogName))
+                    _logger.LogName = "SyslogUdpTransport";
             }
         }
 
