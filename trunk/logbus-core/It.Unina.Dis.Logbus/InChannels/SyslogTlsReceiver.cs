@@ -30,7 +30,6 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using It.Unina.Dis.Logbus.Configuration;
-using System.Resources;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
