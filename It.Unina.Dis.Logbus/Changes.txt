@@ -19,7 +19,8 @@ SVN trunk
 *Default TTL for UDP outbound transport is 20 seconds
 *Added GetAvailableFilters and DescribeFilter methods to ChannelSubscription WSDL
 *New events for channel creation and deletion
-*Implemented TLS inbound channel, logger and forwarder, according to RFC 5425
+*Implemented TLS inbound channel, logger, forwarder, client and transport, according
+	to RFC 5425
 
 version 1.3.1
 First public release
