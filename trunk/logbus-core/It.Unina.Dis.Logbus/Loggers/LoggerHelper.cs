@@ -130,7 +130,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                         if (!string.IsNullOrEmpty(def.type)) typename = def.type;
                         permanent = def.permanent;
                     }
-                    catch(LogbusException) { }
+                    catch (LogbusException) { }
 
                     if (!string.IsNullOrEmpty(typename))
                     {
@@ -152,8 +152,35 @@ namespace It.Unina.Dis.Logbus.Loggers
                         }
                     }
                 }
-                ILogger ret = (ILogger) Activator.CreateInstance(loggerType);
+                ILogger ret = (ILogger)Activator.CreateInstance(loggerType);
                 ret.LogName = loggerName;
+
+                //Let's see if the collector name is well-known
+                try
+                {
+                    WellKnownLogger knownLogger = (WellKnownLogger)Enum.Parse(typeof(WellKnownLogger), loggerName);
+                    ret.HeartbeatInterval = 0;
+                    switch (knownLogger)
+                    {
+                        case WellKnownLogger.Logbus:
+                            {
+                                ret.Facility = SyslogFacility.Internally;
+                                break;
+                            }
+                        case WellKnownLogger.CollectorInternal:
+                            {
+                                ret.Facility = SyslogFacility.Internally;
+                                break;
+                            }
+                        case WellKnownLogger.Client:
+                            {
+                                ret.Facility = SyslogFacility.Local5;
+                                break;
+                            }
+                    }
+                }
+                catch (FormatException) { }
+
                 if (permanent) _loggers.Add(loggerName, ret);
                 return ret;
             }
@@ -212,6 +239,16 @@ namespace It.Unina.Dis.Logbus.Loggers
         }
 
         /// <summary>
+        /// Gets a well-known logger
+        /// </summary>
+        /// <param name="knownLogger">Logger to retrieve</param>
+        /// <returns></returns>
+        public static ILog GetLogger(WellKnownLogger knownLogger)
+        {
+            return GetLogger(Enum.GetName(typeof(WellKnownLogger), knownLogger));
+        }
+
+        /// <summary>
         /// Creates a logger by name
         /// </summary>
         /// <param name="loggerName">Name of logger</param>
@@ -219,7 +256,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         public static ILog GetLogger(string loggerName)
         {
             ILog ret = InstantiateLogger(loggerName);
-            ret.Collector = CollectorHelper.CreateCollector(GetDefinition(loggerName).collectorid);
+            ret.Collector = CollectorHelper.CreateCollectorForLogger(loggerName);
             return ret;
         }
 
@@ -232,7 +269,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         public static ILog GetLogger(string loggerName, SyslogFacility facility)
         {
             ILogger ret = InstantiateLogger(loggerName);
-            ret.Collector = CollectorHelper.CreateCollector(GetDefinition(loggerName).collectorid);
+            ret.Collector = CollectorHelper.CreateCollectorForLogger(loggerName);
             ret.Facility = facility;
             return ret;
         }

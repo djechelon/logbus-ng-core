@@ -75,6 +75,8 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\ClientBase.cs" />
+    <Compile Include="Clients\SyslogTlsClient.cs" />
     <Compile Include="Collectors\CollectorHelper.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
     <Compile Include="Configuration\ForwarderDefinition.cs" />
@@ -106,7 +108,7 @@
     <Compile Include="Clients\ClientHelper.cs" />
     <Compile Include="Loggers\ILogger.cs" />
     <Compile Include="Loggers\LoggerHelper.cs" />
-    <Compile Include="Clients\UdpLogClientImpl.cs" />
+    <Compile Include="Clients\SyslogUdpClient.cs" />
     <Compile Include="Configuration\AssemblyToScan.cs" />
     <Compile Include="Configuration\CustomFiltersConfiguration.cs">
       <SubType>Code</SubType>
@@ -170,6 +172,7 @@
     <Compile Include="Collectors\MultiCollector.cs" />
     <Compile Include="Collectors\NullCollector.cs" />
     <Compile Include="Collectors\SyslogTlsCollector.cs" />
+    <Compile Include="Loggers\WellKnownLogger.cs" />
     <Compile Include="OutChannels\ClientSubscribedEventArgs.cs" />
     <Compile Include="OutChannels\ClientSubscribingEventArgs.cs" />
     <Compile Include="OutChannels\ClientSubscriptionEventArgs.cs" />
@@ -201,6 +204,7 @@
     <Compile Include="OutTransports\TransportException.cs" />
     <Compile Include="Utils\BlockingFifoQueue.cs" />
     <Compile Include="Loggers\SimpleLogImpl.cs" />
+    <Compile Include="Utils\CertificateUtilities.cs" />
     <Compile Include="Utils\NetworkUtils.cs" />
     <Compile Include="Utils\Randomizer.cs" />
     <Compile Include="Collectors\SyslogUdpCollector.cs" />
@@ -288,7 +292,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

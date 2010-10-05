@@ -22,6 +22,12 @@ using System.Globalization;
 using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.OutTransports
 {
+    /// <remarks>
+    /// Supported configuration parameters:
+    /// <list>
+    /// <item><c>ttl</c>: time to live for clients. After that time without the client to refresh its subscription, it's considered dead and gets unsubscribed</item>
+    /// </list>
+    /// </remarks>
     [Design.TransportFactory("udp", Name = "RFC5426 transport", Description = "Syslog over UDP transport according to RFC5426")]
     internal sealed class SyslogUdpTransportFactory
         : IOutboundTransportFactory, ILogSupport
