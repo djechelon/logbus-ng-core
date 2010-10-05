@@ -18,22 +18,54 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Web;
+using It.Unina.Dis.Logbus.Configuration;
+
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    internal class SyslogTlsTransportFactory
-        : IOutboundTransportFactory
+    /// <remarks>
+    /// Supported configuration parameters:
+    /// <list>
+    /// <item><c>validateClientCertificate</c> (true|false [case insensitive]): whether to accept or not a client's subscription only if the client owns a valid certificate*</item>
+    /// </list>
+    /// 
+    /// *Logbus-ng client must own a valid SSL SERVER certificate, see documentation for details
+    /// </remarks>
+    [Design.TransportFactory("tls", Name = "TLS transport", Description = "Reliable transport implementing RFC 5425")]
+    internal sealed class SyslogTlsTransportFactory
+        : IOutboundTransportFactory, ILogSupport
     {
+        private string _certificatePath;
 
         public SyslogTlsTransportFactory()
         {
-            throw new NotImplementedException();
+            using (Stream stream = GetType().Assembly.GetManifestResourceStream("It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
+            {
+                if (stream == null)
+                    throw new LogbusException("Unable to find default self-signed SSL certificate");
+
+                byte[] payload = new byte[stream.Length];
+                stream.Read(payload, 0, (int)stream.Length);
+                ServerCertificate = new X509Certificate2(payload);
+                return;
+            }
         }
+
+        /// <summary>
+        /// Whether to validate or not client certificate
+        /// </summary>
+        public bool ValidateClientCertificate { get; set; }
+
+        public X509Certificate2 ServerCertificate { get; set; }
 
         #region IOutboundTransportFactory Membri di
 
         public IOutboundTransport CreateTransport()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -42,17 +74,79 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public string GetConfigurationParameter(string key)
         {
-            throw new System.NotImplementedException();
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
+
+            switch (key)
+            {
+                case "certificatePath":
+                    {
+                        return _certificatePath;
+                    }
+                case "validateClientCertificate":
+                    {
+                        return ValidateClientCertificate ? "true" : "false";
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter not supported by TLS transport");
+                    }
+            }
         }
 
         public void SetConfigurationParameter(string key, string value)
         {
-            throw new System.NotImplementedException();
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
+
+            switch (key)
+            {
+                case "certificatePath":
+                    {
+                        try
+                        {
+                            ServerCertificate = Utils.CertificateUtilities.LoadCertificate(value);
+                            _certificatePath = value;
+                        }
+                        catch (LogbusException ex)
+                        {
+                            throw new LogbusConfigurationException("Invalid certificate configuration", ex);
+                        }
+                        break;
+                    }
+                case "validateClientCertificate":
+                    {
+                        try
+                        {
+                            ValidateClientCertificate = bool.Parse(value.ToLower());
+                        }
+                        catch (FormatException ex)
+                        {
+                            throw new LogbusConfigurationException("TLS transport \"validateClientCertificate\" parameter must be boolean", ex);
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter not supported by TLS transport");
+                    }
+            }
         }
 
-        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        public IEnumerable<KeyValuePair<string, string>> Configuration
         {
-            set { throw new System.NotImplementedException(); }
+            set
+            {
+                foreach (KeyValuePair<string, string> kvp in value) SetConfigurationParameter(kvp.Key, kvp.Value);
+            }
+        }
+
+        #endregion
+
+        #region ILogSupport Membri di
+
+        public Loggers.ILog Log
+        {
+            private get;
+            set;
         }
 
         #endregion

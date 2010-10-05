@@ -49,7 +49,7 @@ namespace DemoWarningClient
 
             try
             {
-                logclient = ClientHelper.CreateDefaultClient(warning_filter);
+                logclient = ClientHelper.CreateUnreliableClient(warning_filter);
                 logclient.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logclient_MessageReceived);
 
                 logclient.Start();

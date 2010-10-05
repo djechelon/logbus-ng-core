@@ -20,28 +20,19 @@
 using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    class SimpleTransportHelper
+    /// <summary>
+    /// Factory-of-factory for Outbound Transports
+    /// </summary>
+    internal class SimpleTransportHelper
         : Dictionary<string, IOutboundTransportFactory>, ITransportFactoryHelper
     {
 
         #region ITransportFactoryHelper Membri di
 
         public SimpleTransportHelper()
-            : base()
         {
-            base.Add("udp", new OutTransports.SyslogUdpTransportFactory());
-        }
-
-        IOutboundTransportFactory ITransportFactoryHelper.this[string transportId]
-        {
-            get
-            {
-                return this[transportId];
-            }
-            set
-            {
-                this[transportId] = value;
-            }
+            Add("udp", new SyslogUdpTransportFactory());
+            Add("tls", new SyslogTlsTransportFactory());
         }
 
         IOutboundTransportFactory ITransportFactoryHelper.GetFactory(string transportId)
@@ -51,12 +42,12 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         void ITransportFactoryHelper.AddFactory(string transportId, IOutboundTransportFactory factory)
         {
-            this.Add(transportId, factory);
+            Add(transportId, factory);
         }
 
         void ITransportFactoryHelper.RemoveFactory(string transportId)
         {
-            if (!this.Remove(transportId)) throw new LogbusException("Object not found");
+            if (!Remove(transportId)) throw new LogbusException("Transport factory not found");
         }
 
         string[] ITransportFactoryHelper.AvailableTransports

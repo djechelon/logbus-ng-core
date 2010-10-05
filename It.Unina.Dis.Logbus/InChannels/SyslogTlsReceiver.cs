@@ -101,14 +101,17 @@ namespace It.Unina.Dis.Logbus.InChannels
             IPEndPoint localEp = IpAddress == null ? new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
             if (Certificate == null)
-                try
-                {
-                    LoadCertificate(null);
-                }
-                catch
-                {
-                    throw new InvalidOperationException("Certificate not specified");
-                }
+                if (string.IsNullOrEmpty(_certificatePath))
+                    Certificate = Utils.CertificateUtilities.DefaultCertificate;
+                else
+                    try
+                    {
+                        Certificate = Utils.CertificateUtilities.LoadCertificate(_certificatePath);
+                    }
+                    catch
+                    {
+                        throw new InvalidOperationException("Certificate not specified");
+                    }
 
             try
             {
@@ -201,59 +204,22 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
                 case "certificate":
                     {
+
+                        try
+                        {
+                            Certificate = Utils.CertificateUtilities.LoadCertificate(value);
+                        }
+                        catch (LogbusException ex)
+                        {
+                            throw new LogbusConfigurationException("Invalid certificate configuration", ex);
+                        }
                         _certificatePath = value;
-                        LoadCertificate(value);
                         break;
                     }
                 default:
                     {
                         throw new NotSupportedException("Configuration parameter is not supported");
                     }
-            }
-        }
-
-        private void LoadCertificate(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                //Load default self-signed certificate
-                Log.Warning("No SSL certificate specified for TLS receiver. Using default Logbus-ng self-signed certificate");
-
-                using (Stream stream = GetType().Assembly.GetManifestResourceStream("It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
-                {
-                    if (stream == null)
-                        throw new LogbusException("Unable to find default self-signed SSL certificate");
-
-                    byte[] payload = new byte[stream.Length];
-                    stream.Read(payload, 0, (int)stream.Length);
-                    Certificate = new X509Certificate2(payload);
-                    return;
-                }
-            }
-
-            string abspath = Path.GetFullPath(path);
-            if (!File.Exists(abspath))
-            {
-                //Then we might have a problem :(
-                if (HttpContext.Current != null) //We are running ASP.NET, use Server
-                {
-                    abspath = HttpContext.Current.Server.MapPath(path);
-                }
-            }
-
-            if (!File.Exists(abspath)) //No way to load certificate!!!
-                throw new LogbusConfigurationException("Certificate file specified does not exist",
-                                                       new FileNotFoundException(
-                                                           "Certificate file specified does not exist", path));
-            try
-            {
-                Certificate = path.EndsWith(".pem") ? LoadPemCertificate(abspath) : new X509Certificate2(abspath);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Unable to load X.509 certificate for TLS listener");
-                Log.Debug(string.Format("Exception message: {0}", ex.Message));
-                throw new LogbusConfigurationException("Invalid certificate path", ex);
             }
         }
 
@@ -344,38 +310,5 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         }
 
-        #region PEM support
-
-        /*
-         * Code taken from http://social.msdn.microsoft.com/Forums/en/csharpgeneral/thread/d7e2ccea-4bea-4f22-890b-7e48c267657f
-         * */
-        private byte[] GetPem(string type, byte[] data)
-        {
-            string pem = Encoding.UTF8.GetString(data);
-            string header = String.Format(@"-----BEGIN {0}-----", type);
-            string footer = String.Format(@"-----END {0}-----", type);
-            int start = pem.IndexOf(header) + header.Length;
-            int end = pem.IndexOf(footer, start);
-            string base64 = pem.Substring(start, (end - start));
-            return Convert.FromBase64String(base64);
-        }
-
-        private X509Certificate2 LoadPemCertificate(string filename)
-        {
-            using (FileStream fs = File.OpenRead(filename))
-            {
-                byte[] data = new byte[fs.Length];
-                byte[] res = null;
-                fs.Read(data, 0, data.Length);
-                if (data[0] != 0x30)
-                {
-                    res = GetPem("RSA PRIVATE KEY", data);
-                }
-                X509Certificate2 x509 = new X509Certificate2(res); //Exception hit here
-                return x509;
-            }
-        }
-
-        #endregion
     }
 }
