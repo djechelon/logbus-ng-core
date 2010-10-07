@@ -68,7 +68,39 @@ namespace It.Unina.Dis.Logbus.Collectors
                 if (def.name == loggerName) return CreateCollector(def.collectorid);
             }
 
+            //Let's see if the collector name is well-known
+            try
+            {
+                WellKnownLogger knownLogger = (WellKnownLogger)Enum.Parse(typeof(WellKnownLogger), loggerName);
+                switch (knownLogger)
+                {
+                    case WellKnownLogger.Logbus:
+                        {
+                            return LogbusSingletonHelper.Instance;
+                        }
+                    case WellKnownLogger.CollectorInternal:
+                        {
+                            return new ConsoleCollector();
+                        }
+                    case WellKnownLogger.Client:
+                        {
+                            return new ConsoleCollector();
+                        }
+                }
+            }
+            catch (ArgumentException) { }
+
             throw new LogbusConfigurationException(string.Format("Collector {0} not found", loggerName));
+        }
+
+        /// <summary>
+        /// Creates collector for well known logger
+        /// </summary>
+        /// <param name="knownLogger">Well-known default logger</param>
+        /// <returns></returns>
+        public static ILogCollector CreateCollector(WellKnownLogger knownLogger)
+        {
+            return CreateCollector(Enum.GetName(typeof (WellKnownLogger), knownLogger));
         }
 
         /// <summary>
