@@ -265,8 +265,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="e">Event arguments</param>
         protected virtual void OnMessageReceived(SyslogMessageEventArgs e)
         {
-            if (Started != null)
-                Started(this, e);
+            if (MessageReceived != null)
+                MessageReceived(this, e);
         }
 
         /// <summary>
