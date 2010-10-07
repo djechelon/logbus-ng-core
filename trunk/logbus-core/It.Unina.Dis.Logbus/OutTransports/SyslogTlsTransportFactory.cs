@@ -23,6 +23,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using It.Unina.Dis.Logbus.Configuration;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
@@ -39,6 +40,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         : IOutboundTransportFactory, ILogSupport
     {
         private string _certificatePath;
+        private ILog _logger;
 
         public SyslogTlsTransportFactory()
         {
@@ -143,10 +145,24 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         #region ILogSupport Membri di
 
-        public Loggers.ILog Log
+        public ILog Log
         {
-            private get;
-            set;
+            private get
+            {
+                if (_logger == null)
+                {
+                    _logger = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
+                    _logger.LogName = "SyslogUdpTransport";
+                }
+
+                return _logger;
+            }
+            set
+            {
+                _logger = value;
+                if (string.IsNullOrEmpty(_logger.LogName))
+                    _logger.LogName = "SyslogUdpTransport";
+            }
         }
 
         #endregion
