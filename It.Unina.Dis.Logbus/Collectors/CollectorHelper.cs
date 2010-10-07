@@ -114,7 +114,7 @@ namespace It.Unina.Dis.Logbus.Collectors
                         }
                 }
             }
-            catch (FormatException) { }
+            catch (ArgumentException) { }
 
             //Else throw error: collector is not defined in configuration
             throw new LogbusException(string.Format("Collector {0} not found", collectorName));

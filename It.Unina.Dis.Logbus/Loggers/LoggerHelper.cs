@@ -179,7 +179,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                             }
                     }
                 }
-                catch (FormatException) { }
+                catch (ArgumentException) { }
 
                 if (permanent) _loggers.Add(loggerName, ret);
                 return ret;
