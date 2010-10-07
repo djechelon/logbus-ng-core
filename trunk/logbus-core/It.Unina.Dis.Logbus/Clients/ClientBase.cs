@@ -65,7 +65,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 ChannelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
             } while (channelIds.Contains(ChannelId));
 
-            //Init();
+            Init();
         }
 
         /// <summary>
