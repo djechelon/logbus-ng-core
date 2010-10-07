@@ -20,6 +20,7 @@
 using System;
 using System.Globalization;
 using System.Collections.Generic;
+using It.Unina.Dis.Logbus.Loggers;
 namespace It.Unina.Dis.Logbus.OutTransports
 {
     /// <remarks>
@@ -39,7 +40,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         IOutboundTransport IOutboundTransportFactory.CreateTransport()
         {
-            return new SyslogUdpTransport(_defaultTtl) { Log = _logger };
+            return new SyslogUdpTransport(_defaultTtl) { Log = Log };
         }
 
         string IConfigurable.GetConfigurationParameter(string key)
@@ -89,8 +90,18 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         #region ILogSupport Membri di
 
-        public Loggers.ILog Log
+        public ILog Log
         {
+            private get
+            {
+                if (_logger == null)
+                {
+                    _logger = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
+                    _logger.LogName = "SyslogUdpTransport";
+                }
+
+                return _logger;
+            }
             set
             {
                 _logger = value;

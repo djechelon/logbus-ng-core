@@ -18,13 +18,14 @@
 */
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 namespace It.Unina.Dis.Logbus.OutTransports
 {
     /// <summary>
     /// Factory-of-factory for Outbound Transports
     /// </summary>
     internal class SimpleTransportHelper
-        : Dictionary<string, IOutboundTransportFactory>, ITransportFactoryHelper
+        : Dictionary<string, IOutboundTransportFactory>, ITransportFactoryHelper, ILogSupport
     {
 
         #region ITransportFactoryHelper Membri di
@@ -57,6 +58,22 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 string[] ret = new string[Keys.Count];
                 Keys.CopyTo(ret, 0);
                 return ret;
+            }
+        }
+
+        #endregion
+
+
+        #region ILogSupport Membri di
+
+        Loggers.ILog ILogSupport.Log
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set {
+                foreach (IOutboundTransportFactory factory in Values)
+                {
+                    if (factory is ILogSupport) ((ILogSupport) factory).Log = value;
+                }
             }
         }
 
