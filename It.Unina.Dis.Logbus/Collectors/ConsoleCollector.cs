@@ -32,10 +32,11 @@ namespace It.Unina.Dis.Logbus.Collectors
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             string tstamp = (message.LocalTimestamp.HasValue) ? message.LocalTimestamp.Value.ToString("yyyy-MM-dd-HH:mm:ss") : "-";
-            System.Console.WriteLine("{0} - {1}: {2}",
+            System.Console.WriteLine("{0} - {1}[{3}]: {2}",
                 tstamp,
                 System.Enum.GetName(typeof(SyslogSeverity), message.Severity),
-                message.Text
+                message.Text,
+                message.MessageId ?? ""
              );
         }
 
