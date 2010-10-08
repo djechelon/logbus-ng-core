@@ -17,6 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+#if X64
+using COUNTER_TYPE = System.Int64;
+#else
+using COUNTER_TYPE = System.Int32;
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -43,6 +49,7 @@ namespace It.Unina.Dis.Logbus
         private Thread _forwardingThread;
         private const int WORKER_THREADS = 4;
         private bool _configured = false, _forwardingEnabled = false;
+        private COUNTER_TYPE _currentQueue;
 
         private List<IInboundChannel> _inChans;
         private readonly List<IOutboundChannel> _outChans;
@@ -84,6 +91,7 @@ namespace It.Unina.Dis.Logbus
             Log = new SimpleLogImpl(SyslogFacility.Internally, this);
 
             //Init fresh queues
+            _currentQueue = COUNTER_TYPE.MinValue;
             Queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
                 Queues[i] = new BlockingFifoQueue<SyslogMessage>();
@@ -809,8 +817,8 @@ namespace It.Unina.Dis.Logbus
         /// <param name="msg"></param>
         public void SubmitMessage(SyslogMessage msg)
         {
-            //Pick a random queue. Don't need to use the Random class, just a rudimental randomizer
-            Queues[Environment.TickCount % WORKER_THREADS].Enqueue(msg);
+            //Round-robin queues. Need to compute modulo twice in order to deal with negative indexes
+            Queues[(((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].Enqueue(msg);
         }
 
         /// <summary>

@@ -17,6 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+#if X64
+using COUNTER_TYPE = System.Int64;
+#else
+using COUNTER_TYPE = System.Int32;
+#endif
+
 using System;
 using System.Threading;
 using It.Unina.Dis.Logbus.Utils;
@@ -33,14 +39,18 @@ namespace It.Unina.Dis.Logbus.InChannels
         : IInboundChannel, IAsyncRunnable, ILogSupport
     {
 
+        private Thread[] _queueThreads;
+        private BlockingFifoQueue<SyslogMessage>[] _queues;
+        private COUNTER_TYPE _currentQueue;
+
         #region Constructor/Destructor
         /// <summary>
         /// Initializes a new instance of SyslogUdpReceiver
         /// </summary>
-        public ReceiverBase()
+        protected ReceiverBase()
         {
-            startDelegate = new ThreadStart(Start);
-            stopDelegate = new ThreadStart(Stop);
+            _startDelegate = new ThreadStart(Start);
+            _stopDelegate = new ThreadStart(Stop);
         }
 
         /// <summary>
@@ -86,9 +96,6 @@ namespace It.Unina.Dis.Logbus.InChannels
             private set;
         }
 
-        private Thread[] _queueThreads;
-        private BlockingFifoQueue<SyslogMessage>[] _queues;
-
         /// <summary>
         /// Number of worker threads concurrently listening for datagrams
         /// </summary>
@@ -125,27 +132,27 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Implements IRunnable.Starting
         /// </summary>
-        public event System.EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
         /// <summary>
         /// Implements IRunnable.Stopping
         /// </summary>
-        public event System.EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         /// <summary>
         /// Implements IRunnable.Started
         /// </summary>
-        public event System.EventHandler Started;
+        public event EventHandler Started;
 
         /// <summary>
         /// Implements IRunnable.Stopped
         /// </summary>
-        public event System.EventHandler Stopped;
+        public event EventHandler Stopped;
 
         /// <summary>
         /// Implements IRunnable.Error
         /// </summary>
-        public event System.UnhandledExceptionEventHandler Error;
+        public event UnhandledExceptionEventHandler Error;
 
         /// <summary>
         /// Implements IRunnable.Start
@@ -170,10 +177,11 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
                 }
 
-                OnStart();
-
                 Running = true;
                 _queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
+                _currentQueue = COUNTER_TYPE.MinValue;
+
+                OnStart();
 
                 _queueThreads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
@@ -305,31 +313,31 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            return startDelegate.BeginInvoke(null, null);
+            return _startDelegate.BeginInvoke(null, null);
         }
 
         void IAsyncRunnable.EndStart(IAsyncResult result)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            startDelegate.EndInvoke(result);
+            _startDelegate.EndInvoke(result);
         }
 
         IAsyncResult IAsyncRunnable.BeginStop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            return stopDelegate.BeginInvoke(null, null);
+            return _stopDelegate.BeginInvoke(null, null);
         }
 
         void IAsyncRunnable.EndStop(IAsyncResult result)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            stopDelegate.EndInvoke(result);
+            _stopDelegate.EndInvoke(result);
         }
 
-        private ThreadStart startDelegate, stopDelegate;
+        private readonly ThreadStart _startDelegate, _stopDelegate;
 
         #endregion
 
@@ -340,7 +348,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         protected void ForwardMessage(SyslogMessage msg)
         {
             msg.AdjustTimestamp();
-            _queues[Environment.TickCount % WORKER_THREADS].Enqueue(msg);
+            _queues[(((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].Enqueue(msg);
         }
 
         private void QueueLoop(object queueId)
@@ -374,9 +382,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region ILogSupport Membri di
 
-        public It.Unina.Dis.Logbus.Loggers.ILog Log
+        public Loggers.ILog Log
         {
-            get;
+            private get;
             set;
         }
 
