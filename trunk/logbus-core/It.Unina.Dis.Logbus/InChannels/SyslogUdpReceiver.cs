@@ -17,6 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+#if X64
+using COUNTER_TYPE = System.Int64;
+#else
+using COUNTER_TYPE = System.Int32;
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -40,14 +46,16 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// </summary>
         public const int DEFAULT_PORT = 514;
 
+        /// <summary>
+        /// Default number of worker threads
+        /// </summary>
         public const int WORKER_THREADS = 4;
 
         private Thread[] _listenerThreads, _parserThreads;
 
         private UdpClient _client;
-
         private BlockingFifoQueue<byte[]>[] _byteQueues;
-
+        private COUNTER_TYPE _currentQueue;
         private bool _listen = false;
 
         /// <summary>
@@ -78,9 +86,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = DEFAULT_PORT;
             }
 
-            IPEndPoint localEp;
-            if (IpAddress == null) localEp = new IPEndPoint(IPAddress.Any, Port);
-            else localEp = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            IPEndPoint localEp = IpAddress == null ?
+                new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
             try
             {
@@ -93,7 +100,8 @@ namespace It.Unina.Dis.Logbus.InChannels
             _listen = true;
             _listenerThreads = new Thread[WORKER_THREADS];
             _parserThreads = new Thread[WORKER_THREADS];
-            _byteQueues= new BlockingFifoQueue<byte[]>[WORKER_THREADS];
+            _byteQueues = new BlockingFifoQueue<byte[]>[WORKER_THREADS];
+            _currentQueue = COUNTER_TYPE.MinValue;
             for (int i = 0; i < WORKER_THREADS; i++)
             {
                 _byteQueues[i] = new BlockingFifoQueue<byte[]>();
@@ -254,7 +262,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                 {
                     byte[] payload = _client.Receive(ref remoteEndpoint);
 
-                    _byteQueues[queueId].Enqueue(payload);
+                    _byteQueues[(((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].Enqueue(payload);
                 }
                 catch (SocketException)
                 {
