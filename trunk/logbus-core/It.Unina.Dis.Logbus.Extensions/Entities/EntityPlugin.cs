@@ -38,7 +38,7 @@ namespace It.Unina.Dis.Logbus.Entities
         public const string PLUGIN_ID = "Logbus.EntityManager";
 
         private ILogBus _logbus;
-        private readonly BlockingFifoQueue<SyslogMessage> _messageQueue;
+        private readonly IFifoQueue<SyslogMessage> _messageQueue;
         private readonly Thread _workerThread;
 
         private readonly DataColumn _colHost, _colProc, _colLogger, _colAppName, _colFfda, _colLastAction, _colLastHeartbeat, _colChannelId, _colFfdaChannelId;
@@ -49,7 +49,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         public EntityPlugin()
         {
-            _messageQueue = new BlockingFifoQueue<SyslogMessage>();
+            _messageQueue = new FastFifoQueue<SyslogMessage>();
 
             _workerThread = new Thread(WorkerLoop) { IsBackground = true, Name = "EntityPlugin.WorkerLoop" };
             _workerThread.Start();

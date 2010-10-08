@@ -23,12 +23,11 @@ using System;
 namespace It.Unina.Dis.Logbus.Utils
 {
     /// <summary>
-    /// The blocking FIFO queue holds elements the same as regular FIFO queue, but allows clients to wait until a new item is available.
-    /// The class has a special destructor that allows to empty the queue
+    /// Dynamic queue implementation of IFifoQueue
     /// </summary>
     /// <typeparam name="T">Type of object the queue will hold</typeparam>
     public sealed class BlockingFifoQueue<T>
-        : IDisposable
+        : IFifoQueue<T>
     {
         private readonly Queue<T> _theQueue;
         private Semaphore _sema;

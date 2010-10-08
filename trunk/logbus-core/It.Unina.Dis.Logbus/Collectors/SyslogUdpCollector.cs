@@ -64,6 +64,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         private UdpClient _client;
         private IPAddress _remoteAddr;
         private int _port;
+        private IAsyncResult _result;
 
         #region ILogCollector Membri di
 
@@ -73,24 +74,20 @@ namespace It.Unina.Dis.Logbus.Collectors
             {
                 if (_port == 0 || _remoteAddr == null)
                     throw new InvalidOperationException("Logger is not configured");
-                else
-                {
-                    RemoteEndPoint = new IPEndPoint(_remoteAddr, _port);
-                }
+
+                RemoteEndPoint = new IPEndPoint(_remoteAddr, _port);
             }
 
 
             byte[] payload = Encoding.UTF8.GetBytes(message.ToRfc5424String());
             try
             {
-                _client.Send(payload, payload.Length, RemoteEndPoint);
+                _result = _client.BeginSend(payload, payload.Length, RemoteEndPoint, null, null);
             }
             catch (IOException)
-            {
-            }
+            { }
             catch (SocketException)
-            {
-            }
+            { }
             catch (Exception ex)
             {
                 throw new LogbusException("Unable to send Syslog message", ex);
@@ -109,6 +106,10 @@ namespace It.Unina.Dis.Logbus.Collectors
         private void Dispose(bool disposing)
         {
             GC.SuppressFinalize(this);
+
+            if (_client != null && _result != null)
+                _client.EndSend(_result);
+
             if (disposing && _client != null)
                 _client.Close();
 

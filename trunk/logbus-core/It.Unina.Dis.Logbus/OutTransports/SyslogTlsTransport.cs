@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         private bool _disposed = false;
         private readonly ReaderWriterLock _listLock;
         private readonly Thread _worker;
-        private readonly BlockingFifoQueue<SyslogMessage> _queue;
+        private readonly IFifoQueue<SyslogMessage> _queue;
         private readonly Timer _cleaner;
 
         private const int DEFAULT_JOIN_TIMEOUT = 5000;
@@ -52,7 +52,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _listLock = new ReaderWriterLock();
             ServerCertificate = serverCert;
             ValidateClientCertificate = validateClientCert;
-            _queue = new BlockingFifoQueue<SyslogMessage>();
+            _queue = new FastFifoQueue<SyslogMessage>();
             _worker = new Thread(DispatchLoop)
                           {
                               IsBackground = true
