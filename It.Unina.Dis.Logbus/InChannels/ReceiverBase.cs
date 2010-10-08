@@ -181,8 +181,6 @@ namespace It.Unina.Dis.Logbus.InChannels
                 _queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
                 _currentQueue = COUNTER_TYPE.MinValue;
 
-                OnStart();
-
                 _queueThreads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
@@ -196,6 +194,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                                            };
                     _queueThreads[i].Start(i);
                 }
+                
+                OnStart();
 
                 if (Started != null) Started(this, EventArgs.Empty);
                 Log.Info("Inbound channel {0} started", Name);
