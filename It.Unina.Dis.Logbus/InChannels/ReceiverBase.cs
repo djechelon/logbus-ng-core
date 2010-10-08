@@ -40,7 +40,7 @@ namespace It.Unina.Dis.Logbus.InChannels
     {
 
         private Thread[] _queueThreads;
-        private BlockingFifoQueue<SyslogMessage>[] _queues;
+        private IFifoQueue<SyslogMessage>[] _queues;
         private COUNTER_TYPE _currentQueue;
 
         #region Constructor/Destructor
@@ -178,13 +178,13 @@ namespace It.Unina.Dis.Logbus.InChannels
                 }
 
                 Running = true;
-                _queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
+                _queues = new FastFifoQueue<SyslogMessage>[WORKER_THREADS];
                 _currentQueue = COUNTER_TYPE.MinValue;
 
                 _queueThreads = new Thread[WORKER_THREADS];
                 for (int i = 0; i < WORKER_THREADS; i++)
                 {
-                    _queues[i] = new BlockingFifoQueue<SyslogMessage>();
+                    _queues[i] = new FastFifoQueue<SyslogMessage>();
                     _queueThreads[i] = new Thread(QueueLoop)
                                            {
                                                IsBackground = true,

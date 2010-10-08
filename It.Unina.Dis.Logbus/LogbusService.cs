@@ -65,8 +65,8 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         private volatile bool _hubThreadStop;
 
-        protected BlockingFifoQueue<SyslogMessage>[] Queues;
-        protected BlockingFifoQueue<SyslogMessage> ForwardingQueue;
+        protected IFifoQueue<SyslogMessage>[] Queues;
+        protected IFifoQueue<SyslogMessage> ForwardingQueue;
         private readonly ReaderWriterLock _outLock = new ReaderWriterLock(), _inLock = new ReaderWriterLock();
         protected ILogCollector Forwarder;
 
@@ -92,9 +92,9 @@ namespace It.Unina.Dis.Logbus
 
             //Init fresh queues
             _currentQueue = COUNTER_TYPE.MinValue;
-            Queues = new BlockingFifoQueue<SyslogMessage>[WORKER_THREADS];
+            Queues = new IFifoQueue<SyslogMessage>[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
-                Queues[i] = new BlockingFifoQueue<SyslogMessage>();
+                Queues[i] = new FastFifoQueue<SyslogMessage>();
         }
 
         /// <summary>
@@ -552,7 +552,7 @@ namespace It.Unina.Dis.Logbus
 
                     if (_forwardingEnabled)
                     {
-                        ForwardingQueue = new BlockingFifoQueue<SyslogMessage>();
+                        ForwardingQueue = new FastFifoQueue<SyslogMessage>();
                         _forwardingThread = new Thread(ForwardLoop)
                             {
                                 IsBackground = true,
@@ -1428,7 +1428,7 @@ namespace It.Unina.Dis.Logbus
 
         private void HubThreadLoop(object queue)
         {
-            BlockingFifoQueue<SyslogMessage> localQueue = (BlockingFifoQueue<SyslogMessage>)queue;
+            IFifoQueue<SyslogMessage> localQueue = (IFifoQueue<SyslogMessage>)queue;
             //Loop until end
             try
             {
