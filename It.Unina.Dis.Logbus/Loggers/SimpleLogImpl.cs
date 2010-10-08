@@ -42,7 +42,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         internal const string ENTERPRISE_ID = "8289";
 
-        private Timer _heartbeatTimer;
+        private readonly Timer _heartbeatTimer;
         private int _hbInterval;
         private volatile Int32 _sequenceId = 1;
 
@@ -61,7 +61,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <param name="facility">Syslog facility</param>
         public SimpleLogImpl(SyslogFacility facility)
         {
-            this.Facility = facility;
+            Facility = facility;
 
             _heartbeatTimer = new Timer(HeartbeatCallback, null, Timeout.Infinite, Timeout.Infinite);
         }
@@ -103,7 +103,10 @@ namespace It.Unina.Dis.Logbus.Loggers
             set
             {
                 _hbInterval = value;
-                _heartbeatTimer.Change(value * 1000, value * 1000);
+                if (value == 0)
+                    _heartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                else
+                    _heartbeatTimer.Change(value * 1000, value * 1000);
             }
         }
 
