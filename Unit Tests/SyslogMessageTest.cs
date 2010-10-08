@@ -113,7 +113,7 @@ namespace Unit_Tests
                                              Text = @"’su root’ failed for lonvick on /dev/pts/8"
                                          }; // TODO: Eseguire l'inizializzazione a un valore appropriato
 
-            SyslogMessage? actual = null;
+            SyslogMessage actual = null;
             try
             {
                 actual = SyslogMessage.Parse(payload);
@@ -219,7 +219,7 @@ namespace Unit_Tests
                 Assert.Fail("Failed parsing: {0}", ex);
             }
             Assert.IsNotNull(actual);
-            IDictionary<String, String> test = actual.Value.Data["exampleSDID@32473"];
+            IDictionary<String, String> test = actual.Data["exampleSDID@32473"];
             Assert.AreEqual("Wow\\]", test["escapeParentesis"]);
             Assert.AreEqual("\\\"", test["escapeQuotes"]);
             Assert.AreEqual("\\\\\\\\\\\\\\\"", test["moreEscape"]);
@@ -274,7 +274,7 @@ namespace Unit_Tests
                 Assert.Fail("Failed parsing: {0}", ex);
             }
             Assert.IsNotNull(actual);
-            test = actual.Value.Data["CallerData@8289"];
+            test = actual.Data["CallerData@8289"];
             Assert.AreEqual("System.RuntimeMethodHandle", test["ClassName"]);
             Assert.AreEqual("_InvokeMethodFast", test["MethodName"]);
         }
