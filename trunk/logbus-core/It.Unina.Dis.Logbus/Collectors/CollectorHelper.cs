@@ -60,14 +60,13 @@ namespace It.Unina.Dis.Logbus.Collectors
         /// <returns></returns>
         public static ILogCollector CreateCollectorForLogger(string loggerName)
         {
-            if (Configuration == null || Configuration.logger == null || Configuration.logger.Length == 0)
-                throw new LogbusConfigurationException("No or invalid logger configuration specified");
-
-            foreach (LoggerDefinition def in Configuration.logger)
-            {
-                if (def.name == loggerName) return CreateCollector(def.collectorid);
-            }
-
+            if (Configuration != null && Configuration.logger != null && Configuration.logger.Length > 0)
+            
+                foreach (LoggerDefinition def in Configuration.logger)
+                {
+                    if (def.name == loggerName) return CreateCollector(def.collectorid);
+                }
+            
             //Let's see if the collector name is well-known
             try
             {
@@ -100,7 +99,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         /// <returns></returns>
         public static ILogCollector CreateCollector(WellKnownLogger knownLogger)
         {
-            return CreateCollector(Enum.GetName(typeof (WellKnownLogger), knownLogger));
+            return CreateCollector(Enum.GetName(typeof(WellKnownLogger), knownLogger));
         }
 
         /// <summary>
