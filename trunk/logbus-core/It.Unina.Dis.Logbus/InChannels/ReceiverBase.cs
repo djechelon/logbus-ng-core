@@ -17,12 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-#if X64
-using COUNTER_TYPE = System.Int64;
-#else
-using COUNTER_TYPE = System.Int32;
-#endif
-
 using System;
 using System.Threading;
 using It.Unina.Dis.Logbus.Utils;
@@ -39,10 +33,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         : IInboundChannel, IAsyncRunnable, ILogSupport
     {
 
-        private Thread[] _queueThreads;
-        private IFifoQueue<SyslogMessage>[] _queues;
-        private COUNTER_TYPE _currentQueue;
-
+        
         #region Constructor/Destructor
         /// <summary>
         /// Initializes a new instance of SyslogUdpReceiver
@@ -178,23 +169,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                 }
 
                 Running = true;
-                _queues = new FastFifoQueue<SyslogMessage>[WORKER_THREADS];
-                _currentQueue = COUNTER_TYPE.MinValue;
 
-                _queueThreads = new Thread[WORKER_THREADS];
-                for (int i = 0; i < WORKER_THREADS; i++)
-                {
-                    _queues[i] = new FastFifoQueue<SyslogMessage>();
-                    _queueThreads[i] = new Thread(QueueLoop)
-                                           {
-                                               IsBackground = true,
-                                               Name =
-                                                   string.Format(CultureInfo.InvariantCulture,
-                                                                 "ReceiverBase[{1}].QueueLoop[{0}]", i, Name)
-                                           };
-                    _queueThreads[i].Start(i);
-                }
-                
                 OnStart();
 
                 if (Started != null) Started(this, EventArgs.Empty);
@@ -236,14 +211,6 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Running = false;
 
                 OnStop();
-
-                for (int i = 0; i < WORKER_THREADS; i++)
-                    _queueThreads[i].Interrupt();
-
-                for (int i = 0; i < WORKER_THREADS; i++)
-                    _queueThreads[i].Join();
-
-                _queueThreads = null;
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
                 Log.Info("Inbound channel {0} stopped", Name);
@@ -348,27 +315,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         protected void ForwardMessage(SyslogMessage msg)
         {
             msg.AdjustTimestamp();
-            _queues[(((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].Enqueue(msg);
-        }
-
-        private void QueueLoop(object queueId)
-        {
-            int id = (int)queueId;
-            while (Running)
-            {
-                try
-                {
-                    SyslogMessage newMessage = _queues[id].Dequeue();
-                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(newMessage));
-                }
-                catch (ThreadInterruptedException) { return; } //End thread
-                catch (Exception ex)
-                {
-                    //Most probably the exception was thrown by a malformed event handler, anyway log it!
-                    Log.Error("Unable to process Syslog message in channel {0}'s processing queue", Name);
-                    Log.Debug("Error details: {0}", ex.Message);
-                }
-            }
+            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
         }
 
         /// <summary>

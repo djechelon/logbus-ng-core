@@ -19,14 +19,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
-namespace It.Unina.Dis.Logbus.Utils
+
+namespace
+    It.Unina.Dis.Logbus.Utils
 {
     /// <summary>
     /// Implements the FIFO queue with static array and two semaphores for best performance in producers/consumers problem
     /// </summary>
-    public sealed class FastFifoQueue<T>
-        : IFifoQueue<T>
+    /// <remarks>Currently unusable. The queue actually LEAKS when concurrently accessed in write mode.
+    /// No explanation for this absurde behaviour as all operations on pointers are thread safe</remarks>
+    public sealed class
+        FastFifoQueue<T>
+        : IFifoQueue<T> where T : class
     {
 
         private T[] _array;
@@ -34,11 +40,11 @@ namespace It.Unina.Dis.Logbus.Utils
         private readonly int _capacity;
         private bool _disposed;
 
-        private Semaphore _readSema, _writeSema;
+        private readonly Semaphore _readSema, _writeSema;
 
         #region Constructor
         /// <summary>
-        /// 
+        /// Initializes a new instance of FastFifoQueue
         /// </summary>
         public FastFifoQueue()
             : this(512)
@@ -47,7 +53,7 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <summary>
         /// Initializes FastFifoQueue with the specified capacity
         /// </summary>
-        /// <param name="size"></param>
+        /// <param name="size">Maximum number of elements to store</param>
         public FastFifoQueue(int size)
         {
             //Check if size is power of 2
@@ -58,8 +64,8 @@ namespace It.Unina.Dis.Logbus.Utils
             _capacity = size;
             _array = new T[size];
             _count = 0;
-            _head = -1;
-            _tail = -1;
+            _head = int.MinValue;
+            _tail = int.MinValue;
 
             _readSema = new Semaphore(0, _capacity);
             _writeSema = new Semaphore(_capacity, _capacity);
@@ -69,26 +75,47 @@ namespace It.Unina.Dis.Logbus.Utils
 
         #region IFifoQueue<T> Membri di
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Enqueue(T item)
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            /*if (item == null)
+            {
+                return;
+            }*/
+
             _writeSema.WaitOne();
-            int index = (((Interlocked.Increment(ref _head)) % _capacity) + _capacity) % _capacity;
-            _array[index] = item;
-            _readSema.Release();
+            int index = Interlocked.Increment(ref _head);
+            index %= _capacity;
+            if (index < 0) index += _capacity;
+            //_array[index] = item;
+            T leak = Interlocked.Exchange(ref _array[index], item);
+            
+            //Diagnostic code
+            if (leak != null)
+            {
+                throw new InvalidOperationException("Too bad...");
+            }
             Interlocked.Increment(ref _count);
+
+            _readSema.Release();
+
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public T Dequeue()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-            _readSema.WaitOne();
-            int index = (((Interlocked.Increment(ref _tail)) % _capacity) + _capacity) % _capacity;
-            T ret = _array[index];
 
-            _array[index] = default(T); //Null
-            _writeSema.Release();
+            _readSema.WaitOne();
+            int index = Interlocked.Increment(ref _tail);
+            index %= _capacity;
+            if (index < 0) index += _capacity;
+            T ret = Interlocked.Exchange(ref _array[index], null);
             Interlocked.Decrement(ref _count);
+            _writeSema.Release();
+
             return ret;
         }
 
@@ -143,10 +170,12 @@ namespace It.Unina.Dis.Logbus.Utils
             List<T> ret = new List<T>(_count);
             while (_readSema.WaitOne(10))
             {
-                int index = (((Interlocked.Increment(ref _tail)) % _capacity) + _capacity) % _capacity;
+                int index = Interlocked.Increment(ref _tail);
+                index %= _capacity;
+                if (index < 0) index += _capacity;
                 Interlocked.Decrement(ref _count);
                 ret.Add(_array[index]);
-                _array[index] = default(T);
+                _array[index] = null;
             }
             return ret.ToArray();
         }

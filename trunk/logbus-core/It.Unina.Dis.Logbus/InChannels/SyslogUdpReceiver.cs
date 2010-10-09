@@ -100,11 +100,11 @@ namespace It.Unina.Dis.Logbus.InChannels
             _listen = true;
             _listenerThreads = new Thread[WORKER_THREADS];
             _parserThreads = new Thread[WORKER_THREADS];
-            _byteQueues = new FastFifoQueue<byte[]>[WORKER_THREADS];
+            _byteQueues = new BlockingFifoQueue<byte[]>[WORKER_THREADS];
             _currentQueue = COUNTER_TYPE.MinValue;
             for (int i = 0; i < WORKER_THREADS; i++)
             {
-                _byteQueues[i] = new FastFifoQueue<byte[]>();
+                _byteQueues[i] = new BlockingFifoQueue<byte[]>();
 
                 _listenerThreads[i] = new Thread(ListenerLoop)
                                           {
