@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
 
@@ -50,6 +52,8 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
+            if (message == null) throw new ArgumentNullException("message");
+
             bool ret = true;
             foreach (IFilter flt in filter) ret &= flt.IsMatch(message);
             return ret;

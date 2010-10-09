@@ -17,6 +17,7 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 using System.Text.RegularExpressions;
 namespace It.Unina.Dis.Logbus.Filters
 {
@@ -65,6 +66,8 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
+            if (message == null) throw new ArgumentNullException("message");
+
             //Review implementation and compile regex for best performance
             return pattern_regex.IsMatch(message.Text);
         }

@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
@@ -49,6 +51,8 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
+            if (message == null) throw new ArgumentNullException("message");
+
             //Comparison by name. We make it work!
             string msgname, filtername;
             msgname = System.Enum.GetName(typeof(SyslogFacility), message.Facility);

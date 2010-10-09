@@ -143,6 +143,8 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
+            if (message == null) throw new ArgumentNullException("message");
+
             object property;
             switch (propertyName)
             {
