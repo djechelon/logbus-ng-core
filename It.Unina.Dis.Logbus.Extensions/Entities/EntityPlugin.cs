@@ -49,7 +49,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         public EntityPlugin()
         {
-            _messageQueue = new FastFifoQueue<SyslogMessage>();
+            _messageQueue = new BlockingFifoQueue<SyslogMessage>();
 
             _workerThread = new Thread(WorkerLoop) { IsBackground = true, Name = "EntityPlugin.WorkerLoop" };
             _workerThread.Start();

@@ -94,7 +94,7 @@ namespace It.Unina.Dis.Logbus
             _currentQueue = COUNTER_TYPE.MinValue;
             Queues = new IFifoQueue<SyslogMessage>[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
-                Queues[i] = new FastFifoQueue<SyslogMessage>();
+                Queues[i] = new BlockingFifoQueue<SyslogMessage>();
         }
 
         /// <summary>
@@ -552,7 +552,7 @@ namespace It.Unina.Dis.Logbus
 
                     if (_forwardingEnabled)
                     {
-                        ForwardingQueue = new FastFifoQueue<SyslogMessage>();
+                        ForwardingQueue = new BlockingFifoQueue<SyslogMessage>();
                         _forwardingThread = new Thread(ForwardLoop)
                             {
                                 IsBackground = true,

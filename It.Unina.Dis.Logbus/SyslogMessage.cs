@@ -765,9 +765,11 @@ namespace It.Unina.Dis.Logbus
         /// <param name="payload">Binary payload to parse</param>
         /// <returns>A new instance of SyslogMessage</returns>
         /// <exception cref="System.ArgumentNullException">Argument is null</exception>
-        /// <exception cref="FormatException">Message is not in Syslog format</exception>
+        /// <exception cref="System.FormatException">Message is not in Syslog format</exception>
         public static SyslogMessage Parse(byte[] payload)
         {
+            if (payload == null) throw new ArgumentNullException("payload");
+
             return Parse(System.Text.Encoding.UTF8.GetString(payload));
         }
 
