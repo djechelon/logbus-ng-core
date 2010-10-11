@@ -34,7 +34,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         : IOutboundTransportFactory, ILogSupport
     {
         private Loggers.ILog _logger;
-        private long _defaultTtl = 20000;
+        private long _defaultTtl = 60000;
 
         #region IOutboundTransportFactory Membri di
 

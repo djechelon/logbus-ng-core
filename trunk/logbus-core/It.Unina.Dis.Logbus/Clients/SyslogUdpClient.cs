@@ -22,15 +22,13 @@ using System.Net;
 #if MONO
 using System.Net.NetworkInformation;
 #endif
+using It.Unina.Dis.Logbus.OutTransports;
 using It.Unina.Dis.Logbus.RemoteLogbus;
 using System.Threading;
 using System.ComponentModel;
 using System.Net.Sockets;
 using It.Unina.Dis.Logbus.Filters;
-using System.Collections;
-using It.Unina.Dis.Logbus.Utils;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -47,7 +45,7 @@ namespace It.Unina.Dis.Logbus.Clients
     {
 
         public const int START_PORT = 20686, END_PORT = 25686;
-        private const long MAX_REFRESH_TIME = 20000;
+        private const long MAX_REFRESH_TIME = 60000;
 
         private Timer _refreshTimer;
         private UdpClient _client;
@@ -89,14 +87,47 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void RefreshChannel(Object status)
         {
+            string clientId = (string)status;
             try
             {
-                ChannelSubscriber.RefreshSubscription(status as string);
+                ChannelSubscriber.RefreshSubscription(clientId);
+            }
+            catch (ClientNotSubscribedException)
+            {
+                Log.Notice("Client {0} on channel {1} expired. Trying to subscribe again", clientId, ChannelId);
+
+                Stop();
+
+                //Might fail in case of network problems
+                Start();
             }
             catch (Exception ex)
             {
-                //Really kill the application?
-                throw new LogbusException("Unable to Refresh", ex);
+                OnError(new UnhandledExceptionEventArgs(ex, false));
+
+                Log.Warning("Unable to refresh subscription of client {0} on channel {1}", _clientId, ChannelId);
+                Log.Debug("Error details: {0}", ex.Message);
+
+                try
+                {
+                    //Take some rest
+                    Thread.Sleep((int)(_channelTtl / 20));
+
+                    ChannelSubscriber.RefreshSubscription(clientId);
+                }
+                catch (Exception e)
+                {
+                    OnError(new UnhandledExceptionEventArgs(e, true));
+
+                    Log.Error("Unable to refresh subscription of client {0} on channel {1} for the second consecutive time", _clientId, ChannelId);
+                    Log.Debug("Error details: {0}", e.Message);
+
+                    try
+                    {
+                        Stop();
+                    }
+                    catch { }
+                }
             }
         }
 
@@ -241,7 +272,6 @@ namespace It.Unina.Dis.Logbus.Clients
                 try
                 {
                     _client.Close(); //Trigger SocketException if thread is blocked into listening
-                    
                 }
                 catch (SocketException) { } //Really nothing?
 
@@ -258,6 +288,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 OnError(new UnhandledExceptionEventArgs(ex, true));
 
                 if (ex is LogbusException) throw;
+
                 throw new LogbusException("Unable to Unsubscribe Channel", ex);
             }
         }

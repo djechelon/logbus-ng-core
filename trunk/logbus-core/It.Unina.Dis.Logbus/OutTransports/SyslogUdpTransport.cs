@@ -244,11 +244,18 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// </summary>
         public void RefreshClient(string clientId)
         {
-            lock (_clients)
+            _listlock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+            try
+            {
                 if (_clients.ContainsKey(clientId))
                     _clients[clientId].LastRefresh = DateTime.Now;
                 else
-                    throw new TransportException("Client not subscribed");
+                    throw new ClientNotSubscribedException();
+            }
+            finally
+            {
+                _listlock.ReleaseReaderLock();
+            }
         }
 
         /// <summary>
@@ -256,20 +263,33 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// </summary>
         public void UnsubscribeClient(string clientId)
         {
-            _listlock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+            _listlock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
             try
             {
-                _clients[clientId].Client.Close();
-                _clients.Remove(clientId);
-            }
-            catch (Exception ex)
-            {
-                throw new TransportException("Unable to unsubscribe client", ex);
+                if (!_clients.ContainsKey(clientId))
+                    throw new ClientNotSubscribedException();
+
+                LockCookie ck = _listlock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
+                try
+                {
+                    UdpClientExpire client = _clients[clientId];
+                    _clients.Remove(clientId);
+
+                    client.Client.Close();
+                }
+                catch (Exception ex)
+                {
+                    throw new TransportException("Unable to unsubscribe client", ex);
+                }
+                finally
+                {
+                    _listlock.DowngradeFromWriterLock(ref ck);
+                }
             }
             finally
             {
-                _listlock.ReleaseWriterLock();
-            }
+                _listlock.ReleaseReaderLock();
+            }            
         }
 
         /// <summary>
