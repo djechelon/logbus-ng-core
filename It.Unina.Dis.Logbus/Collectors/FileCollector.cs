@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Web;
 namespace It.Unina.Dis.Logbus.Collectors
@@ -48,7 +49,8 @@ namespace It.Unina.Dis.Logbus.Collectors
         private string _absoluteFilePath;
 
         #region ILogCollector Membri di
-
+        
+        [MethodImpl(MethodImplOptions.Synchronized)]
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             using (StreamWriter sw = File.AppendText(_absoluteFilePath))
