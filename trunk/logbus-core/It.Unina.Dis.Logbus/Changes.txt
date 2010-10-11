@@ -6,7 +6,8 @@ SVN trunk
 	*Loggers can be configured as permanent and with heartbeat function
 	*Default logger, collector and heartbeat can be globally specified
 	*Each logger refers to a configured collector
-*Default "well-known" logger, named "Logbus", directly inject messages into Logbus
+*Default "well-known" loggers, for Logbus core, loggers and clients defined for
+	diagnostic purposes
 *MultiLogger is not supported as logger, but is used internally
 *LogbusService is no more publicly visible, and the only way to instantiate it as the
 	default implementation of ILogBus is through LogbusSingletonHelper. Configuration
@@ -15,8 +16,8 @@ SVN trunk
 *All Logbus-related entities can log their major events to the Logbus logger
 *All log messages from Logbus core can be forwarded to other loggers, including
 	remote Logbus-ng nodes
-*Logbus-ng core can be configured with runtime plugins
-*Default TTL for UDP outbound transport is 20 seconds
+*Logbus-ng core can be configured with dynamically loaded runtime plugins
+*Default TTL for UDP outbound transport is 60 seconds
 *Added GetAvailableFilters and DescribeFilter methods to ChannelSubscription WSDL
 *New events for channel creation and deletion
 *Implemented TLS inbound channel, logger, forwarder, client and transport, according
