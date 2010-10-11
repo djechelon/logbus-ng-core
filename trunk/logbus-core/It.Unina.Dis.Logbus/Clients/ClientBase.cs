@@ -78,7 +78,7 @@ namespace It.Unina.Dis.Logbus.Clients
             _exclusiveUsage = false;
             ChannelId = channelId;
             ChannelSubscriber = subscription;
-            
+
             Init();
         }
 
@@ -89,7 +89,18 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void Dispose(bool disposing)
         {
-            if (_exclusiveUsage) DestroyChannel();
+            GC.SuppressFinalize(this);
+
+            if (_exclusiveUsage)
+                try
+                {
+                    DestroyChannel();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Unable to dispose of channel {0}", ChannelId);
+                    Log.Debug("Error details: {0}", ex.Message);
+                }
 
             Disposed = true;
         }

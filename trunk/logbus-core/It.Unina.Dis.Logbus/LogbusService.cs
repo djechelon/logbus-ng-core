@@ -863,7 +863,7 @@ namespace It.Unina.Dis.Logbus
             if (_running) newChan.Start();
             Log.Info(string.Format("New channel created: {0}", channelId));
 
-            if (OutChannelCreated != null) OutChannelCreated(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs(newChan));
+            if (OutChannelCreated != null) OutChannelCreated(this, new OutChannelCreationEventArgs(newChan));
         }
 
         /// <summary>
@@ -872,6 +872,9 @@ namespace It.Unina.Dis.Logbus
         public void RemoveChannel(string id)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
+
             if (id.Contains(":")) throw new ArgumentException("Invalid channel ID");
 
             IOutboundChannel toRemove = null;
