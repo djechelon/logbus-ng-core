@@ -554,11 +554,11 @@ namespace It.Unina.Dis.Logbus
                     {
                         ForwardingQueue = new BlockingFifoQueue<SyslogMessage>();
                         _forwardingThread = new Thread(ForwardLoop)
-                            {
-                                IsBackground = true,
-                                Priority = ThreadPriority.Normal,
-                                Name = "LogbusService.ForwardLoop"
-                            };
+                        {
+                            IsBackground = true,
+                            Priority = ThreadPriority.Normal,
+                            Name = "LogbusService.ForwardLoop"
+                        };
                         _forwardingThread.Start();
                     }
 
@@ -1283,41 +1283,55 @@ namespace It.Unina.Dis.Logbus
 
         #region IChannelManagement Membri di
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         string[] IChannelManagement.ListChannels()
         {
-            string[] ret = new string[OutboundChannels.Count];
-            int i = 0;
-            foreach (IOutboundChannel chan in OutboundChannels)
+            _outLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+            try
             {
-                ret[i] = chan.ID;
-                i++;
+                string[] ret = new string[OutboundChannels.Count];
+                int i = 0;
+                foreach (IOutboundChannel chan in OutboundChannels)
+                {
+                    ret[i] = chan.ID;
+                    i++;
+                }
+                return ret;
             }
-            return ret;
+            finally
+            {
+                _outLock.ReleaseReaderLock();
+            }
         }
 
-        void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
+        void IChannelManagement.CreateChannel(RemoteLogbus.ChannelCreationInformation description)
         {
             if (description == null) throw new ArgumentNullException("description");
             CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation IChannelManagement.GetChannelInformation(string id)
+        RemoteLogbus.ChannelInformation IChannelManagement.GetChannelInformation(string id)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
             IOutboundChannel chan = null;
 
-            foreach (IOutboundChannel ch in OutboundChannels)
-                if (ch.ID == id)
-                {
-                    chan = ch;
-                    break;
-                }
+            _outLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+            try
+            {
+                foreach (IOutboundChannel ch in OutboundChannels)
+                    if (ch.ID == id)
+                    {
+                        chan = ch;
+                        break;
+                    }
+            }
+            finally
+            {
+                _outLock.ReleaseReaderLock();
+            }
 
             if (chan == null) return null; //Really?
 
-            return new It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation()
+            return new RemoteLogbus.ChannelInformation()
             {
                 clients = chan.SubscribedClients.ToString(),
                 coalescenceWindow = (long)chan.CoalescenceWindowMillis,
@@ -1328,24 +1342,9 @@ namespace It.Unina.Dis.Logbus
             };
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         void IChannelManagement.DeleteChannel(string id)
         {
-            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
-            IOutboundChannel chan = null;
-
-            foreach (IOutboundChannel ch in OutboundChannels)
-                if (ch.ID == id)
-                {
-                    chan = ch;
-                    break;
-                }
-
-            if (chan == null) throw new LogbusException("Channel not found");
-
-            if (chan.SubscribedClients > 0) throw new InvalidOperationException("Unable to delete channels to which there are still subscribed clients");
-            chan.Stop();
-            OutboundChannels.Remove(chan);
+            RemoveChannel(id);
         }
 
         #endregion
