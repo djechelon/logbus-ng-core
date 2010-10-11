@@ -181,6 +181,7 @@
     <Compile Include="OutChannels\OutChannelDeletionEventArgs.cs" />
     <Compile Include="OutChannels\SimpleOutChannel.cs" />
     <Compile Include="OutChannels\SimpleOutChannelFactory.cs" />
+    <Compile Include="OutTransports\ClientNotSubscribedException.cs" />
     <Compile Include="OutTransports\SimpleTransportHelper.cs" />
     <Compile Include="OutTransports\SyslogMulticastTransport.cs" />
     <Compile Include="OutTransports\SyslogMulticastTransportFactory.cs" />
@@ -294,7 +295,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
