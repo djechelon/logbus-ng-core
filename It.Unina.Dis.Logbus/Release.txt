@@ -1,5 +1,8 @@
 ﻿Logbus-ng Release Notes
 
+version 2.0
+*Syslog TLS outbound transport is disabled in Mono due to certificate parsing error
+
 version 1.3.1
 *WindowsEventLogListener is not supported
 *MulticastUdpReceiver is not supported

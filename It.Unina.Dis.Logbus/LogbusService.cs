@@ -867,7 +867,7 @@ namespace It.Unina.Dis.Logbus
         }
 
         /// <summary>
-        /// Implements ILogBus.DeleteChannel
+        /// Implements ILogBus.RemoveChannel
         /// </summary>
         public void RemoveChannel(string id)
         {
@@ -893,16 +893,39 @@ namespace It.Unina.Dis.Logbus
                     throw ex;
                 }
 
-                LockCookie ck = _outLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
                 try
                 {
-                    RemoveOutboundChannel(toRemove);
-                }
-                finally
-                {
-                    _outLock.DowngradeFromWriterLock(ref ck);
-                }
 
+                    LockCookie ck = _outLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
+
+                    try
+                    {
+                        OutboundChannels.Remove(toRemove);
+                    }
+                    finally
+                    {
+                        _outLock.DowngradeFromWriterLock(ref ck);
+                    }
+
+                    try
+                    {
+                        toRemove.Dispose();
+                    }
+                    catch (InvalidOperationException)
+                    { }
+
+                    Log.Info(string.Format("Channel removed: {0}", id));
+
+                    if (OutChannelDeleted != null)
+                        OutChannelDeleted(this, new OutChannelDeletionEventArgs(id));
+                }
+                catch (Exception ex)
+                {
+                    if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+                    Log.Error("Unable to delete channel {0}", id);
+                    Log.Debug("Error details: {0}", ex.Message);
+                    throw;
+                }
             }
             finally
             {
@@ -1108,43 +1131,11 @@ namespace It.Unina.Dis.Logbus
         public void RemoveOutboundChannel(string channelId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
             RemoveChannel(channelId);
         }
 
-        /// <summary>
-        /// Implements ILogBus.RemoveOutboundChannel
-        /// </summary>
-        public void RemoveOutboundChannel(IOutboundChannel channel)
-        {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (channel == null) throw new ArgumentNullException("channel");
 
-            try
-            {
-                _outLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
-                try
-                {
-                    OutboundChannels.Remove(channel);
-                }
-                finally
-                {
-                    _outLock.ReleaseWriterLock();
-                }
-
-                if (_running) channel.Stop();
-                Log.Info(string.Format("Channel removed: {0}", channel.ID));
-
-                if (OutChannelDeleted != null)
-                    OutChannelDeleted(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs(channel.ID));
-            }
-            catch (Exception ex)
-            {
-                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
-                Log.Error("Unable to delete channel {0}");
-                Log.Debug("Error details: {0}", ex.Message);
-                throw;
-            }
-        }
 
         /// <summary>
         /// Implements ILogBus.AddInboundChannel
@@ -1458,7 +1449,6 @@ namespace It.Unina.Dis.Logbus
                                 //Could lead to a threading disaster in case of large rates of messages
                                 chan.SubmitMessage(newMessage);
                             }
-
                         }
                         finally
                         {
