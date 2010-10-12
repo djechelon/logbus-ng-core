@@ -95,26 +95,23 @@ namespace Unit_Tests
 
         private void LoopProducer(object queue)
         {
+            long writes = 0;
             try
             {
                 IFifoQueue<object> q = (IFifoQueue<object>)queue;
                 while (true)
                 {
-                    try
-                    {
-                        q.Enqueue(new object());
-                    }
-                    catch
-                    { }
-
+                    q.Enqueue(new object());
+                    writes++;
                 }
             }
             catch (ThreadAbortException)
-            { }
+            { TestContext.WriteLine("Wrote {0} elements", writes); }
         }
 
         private void LoopConsumer(object queue)
         {
+            long reads = 0;
             try
             {
                 IFifoQueue<object> q = (IFifoQueue<object>)queue;
@@ -122,10 +119,11 @@ namespace Unit_Tests
                 {
                     object item = q.Dequeue();
                     if (item == null) Interlocked.Increment(ref _errors);
+                    else reads++;
                 }
             }
             catch (ThreadAbortException)
-            { }
+            { TestContext.WriteLine("Read {0} elements", reads); }
 
         }
 

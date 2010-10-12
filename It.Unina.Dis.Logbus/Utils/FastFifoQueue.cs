@@ -75,35 +75,27 @@ namespace
 
         #region IFifoQueue<T> Membri di
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        /* Credit to Dan Tao and Les from stackoverflow.com
+         * http://stackoverflow.com/questions/3898204/can-a-c-blocking-fifo-queue-leak-messages-whats-wrong-in-my-code */
+
         public void Enqueue(T item)
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-
-            /*if (item == null)
-            {
-                return;
-            }*/
 
             _writeSema.WaitOne();
             int index = Interlocked.Increment(ref _head);
             index %= _capacity;
             if (index < 0) index += _capacity;
             //_array[index] = item;
-            T leak = Interlocked.Exchange(ref _array[index], item);
-            
-            //Diagnostic code
-            if (leak != null)
-            {
-                throw new InvalidOperationException("Too bad...");
-            }
+            while (Interlocked.CompareExchange(ref _array[index], item, null) != null)
+                Thread.Sleep(0);
+
             Interlocked.Increment(ref _count);
 
             _readSema.Release();
 
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public T Dequeue()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
@@ -112,7 +104,10 @@ namespace
             int index = Interlocked.Increment(ref _tail);
             index %= _capacity;
             if (index < 0) index += _capacity;
-            T ret = Interlocked.Exchange(ref _array[index], null);
+            T ret;
+            while ((ret = Interlocked.Exchange(ref _array[index], null)) == null)
+                Thread.Sleep(0);
+
             Interlocked.Decrement(ref _count);
             _writeSema.Release();
 
