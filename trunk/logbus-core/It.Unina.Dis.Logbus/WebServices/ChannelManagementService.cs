@@ -99,24 +99,24 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
+        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid)
 #else
-        public virtual ChannelInformation GetChannelInformation(string message)
+        public virtual ChannelInformation GetChannelInformation(string channelid)
 #endif
         {
-            return TargetChannelManager.GetChannelInformation(message);
+            return TargetChannelManager.GetChannelInformation(channelid);
         }
 
         /// <remarks/>
 #if MONO
         [System.Web.Services.WebMethodAttribute()]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string message)
+        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid)
 #else
-        public virtual void DeleteChannel(string message)
+        public virtual void DeleteChannel(string channelid)
 #endif
         {
-            TargetChannelManager.DeleteChannel(message);
+            TargetChannelManager.DeleteChannel(channelid);
         }
 
         #endregion
