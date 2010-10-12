@@ -73,6 +73,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             if (disposing)
             {
                 foreach (KeyValuePair<string, IOutboundTransport> trans in _transports) trans.Value.Dispose();
+                _messageQueue.Dispose();
             }
 
             Disposed = true;
@@ -445,7 +446,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 if (_coalescenceTimer != null) _coalescenceTimer.Dispose();
                 //Someone is telling me to stop
                 //Flush and terminate
-                IEnumerable<SyslogMessage> leftMessages = _messageQueue.FlushAndDispose();
+                IEnumerable<SyslogMessage> leftMessages = _messageQueue.Flush();
 
                 if (!_withinCoalescenceWindow)
                 {
