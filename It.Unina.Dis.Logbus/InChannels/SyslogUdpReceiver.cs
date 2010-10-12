@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
-using System.IO;
 using System.Globalization;
 using System.Net;
 using It.Unina.Dis.Logbus.Utils;
@@ -41,6 +40,16 @@ namespace It.Unina.Dis.Logbus.InChannels
     public sealed class SyslogUdpReceiver :
         ReceiverBase
     {
+
+        /// <summary>
+        /// Initializes a new instance of SyslogUdpReceiver
+        /// </summary>
+        public SyslogUdpReceiver()
+        {
+            ReceiveBufferSize = -1;
+        }
+
+
         /// <summary>
         /// Default port to listen
         /// </summary>
@@ -77,6 +86,15 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
 
         /// <summary>
+        /// Gets or sets the receive buffer size of UDP
+        /// </summary>
+        public int ReceiveBufferSize
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Implements IRunnable.Start
         /// </summary>
         protected override void OnStart()
@@ -91,9 +109,20 @@ namespace It.Unina.Dis.Logbus.InChannels
 
             try
             {
-                _client = new UdpClient(localEp);
+                Socket clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+                                        {
+#if !MONO
+                                            //Related to Mono bug 643475
+                                            ExclusiveAddressUse = true,
+#endif
+                                        };
+
+                if (ReceiveBufferSize >= 0) clientSock.ReceiveBufferSize = ReceiveBufferSize;
+
+                clientSock.Bind(localEp);
+                _client = new UdpClient { Client = clientSock };
             }
-            catch (IOException ex)
+            catch (SocketException ex)
             {
                 throw new LogbusException("Cannot start UDP listener", ex);
             }
@@ -112,7 +141,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                                               IsBackground = true,
                                               Priority = ThreadPriority.AboveNormal
                                           };
-                _listenerThreads[i].Start(i);
+                _listenerThreads[i].Start();
 
                 _parserThreads[i] = new Thread(ParserLoop)
                                         {
@@ -163,6 +192,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                     return IpAddress;
                 case "port":
                     return Port.ToString(CultureInfo.InvariantCulture);
+                case "receiveBufferSize":
+                    return ReceiveBufferSize.ToString(CultureInfo.InvariantCulture);
                 default:
                     {
                         throw new NotSupportedException("Configuration parameter is not supported");
@@ -186,6 +217,11 @@ namespace It.Unina.Dis.Logbus.InChannels
                 case "port":
                     {
                         Port = int.Parse(value);
+                        break;
+                    }
+                case "receiveBufferSize":
+                    {
+                        ReceiveBufferSize = int.Parse(value);
                         break;
                     }
                 default:
@@ -252,9 +288,8 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
-        private void ListenerLoop(object queue)
+        private void ListenerLoop()
         {
-            int queueId = (int)queue;
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
             while (_listen)
             {

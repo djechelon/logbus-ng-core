@@ -87,11 +87,6 @@ namespace It.Unina.Dis.Logbus.InChannels
             private set;
         }
 
-        /// <summary>
-        /// Number of worker threads concurrently listening for datagrams
-        /// </summary>
-        public const int WORKER_THREADS = 4;
-
         #region IInboundChannel Membri di
 
         /// <summary>

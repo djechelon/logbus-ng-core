@@ -296,27 +296,27 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <summary>
         /// Implements IRunnable.Starting
         /// </summary>
-        public event System.EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
         /// <summary>
         /// Implements IRunnable.Stopping
         /// </summary>
-        public event System.EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         /// <summary>
         /// Implements IRunnable.Started
         /// </summary>
-        public event System.EventHandler Started;
+        public event EventHandler Started;
 
         /// <summary>
         /// Implements IRunnable.Stopped
         /// </summary>
-        public event System.EventHandler Stopped;
+        public event EventHandler Stopped;
 
         /// <summary>
         /// Implements IRunnable.Error
         /// </summary>
-        public event System.UnhandledExceptionEventHandler Error;
+        public event UnhandledExceptionEventHandler Error;
 
         /// <summary>
         /// Implements IRunnable.Start
