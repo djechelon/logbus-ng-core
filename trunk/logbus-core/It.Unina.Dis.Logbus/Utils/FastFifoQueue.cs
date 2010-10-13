@@ -81,6 +81,7 @@ namespace
         public void Enqueue(T item)
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (item == null) throw new ArgumentNullException("item");
 
             _writeSema.WaitOne();
             int index = Interlocked.Increment(ref _head);
