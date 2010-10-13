@@ -107,7 +107,8 @@ namespace It.Unina.Dis.Logbus.Clients
                 int port;
                 //Decide on which address to listen
                 IPAddress localIp = GetIpAddress();
-                _localhost = Dns.GetHostEntry(localIp).Aliases[0];
+                _localhost = (IPAddress.IsLoopback(localIp)) ? "localhost" : Dns.GetHostName();
+
 
                 for (int i = START_PORT; i <= END_PORT; i++)
                 {
@@ -123,6 +124,8 @@ namespace It.Unina.Dis.Logbus.Clients
                 //Now pray your firewall is open to all TCP ports
                 if (_server == null) _server = new TcpListener(new IPEndPoint(localIp, 0));
 
+                _server.Start(1);
+
                 EndPoint ep = _server.Server.LocalEndPoint;
                 if (ep is IPEndPoint)
                 {
@@ -133,7 +136,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     throw new NotSupportedException("Only IP networks are supported");
                 }
-                _server.Start(1);
+                
 
                 _runningThread = new Thread(RunnerLoop) { IsBackground = true };
                 _runningThread.Start();

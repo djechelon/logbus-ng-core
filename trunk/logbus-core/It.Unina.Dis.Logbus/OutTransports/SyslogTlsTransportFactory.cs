@@ -67,7 +67,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public IOutboundTransport CreateTransport()
         {
-            throw new NotImplementedException();
+            return new SyslogTlsTransport(ServerCertificate, ValidateClientCertificate) { Log = Log };
         }
 
         #endregion

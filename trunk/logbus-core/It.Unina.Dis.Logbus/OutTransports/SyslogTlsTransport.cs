@@ -328,7 +328,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             TlsClient client = kvp.Value;
                             try
                             {
-                                client.Stream.BeginWrite(payload, 0, len, null, null);
+                                client.Stream.Write(payload, 0, len);
                             }
                             catch (IOException)
                             { }

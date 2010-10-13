@@ -1355,7 +1355,7 @@ namespace It.Unina.Dis.Logbus
             return AvailableTransports;
         }
 
-        It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionRequest request)
+        RemoteLogbus.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(RemoteLogbus.ChannelSubscriptionRequest request)
         {
             IEnumerable<KeyValuePair<string, string>> out_params;
             Dictionary<string, string> in_params = new Dictionary<string, string>();
@@ -1366,17 +1366,21 @@ namespace It.Unina.Dis.Logbus
             {
                 clientid = SubscribeClient(request.channelid, request.transport, in_params, out out_params);
             }
-            catch
+            catch (LogbusException)
             {
                 throw;
             }
+            catch (Exception ex)
+            {
+                throw new LogbusException("Unable to subscribe to channel", ex);
+            }
 
-            It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse ret = new It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse();
-            ret.clientid = clientid;
+            RemoteLogbus.ChannelSubscriptionResponse ret = new RemoteLogbus.ChannelSubscriptionResponse
+                                                               {clientid = clientid};
 
-            List<It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair> lst = new List<It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair>();
+            List<RemoteLogbus.KeyValuePair> lst = new List<RemoteLogbus.KeyValuePair>();
             foreach (KeyValuePair<string, string> kvp in out_params)
-                lst.Add(new It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair() { name = kvp.Key, value = kvp.Value });
+                lst.Add(new RemoteLogbus.KeyValuePair { name = kvp.Key, value = kvp.Value });
             ret.param = lst.ToArray();
 
             return ret;
