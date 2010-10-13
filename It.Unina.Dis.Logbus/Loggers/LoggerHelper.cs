@@ -131,6 +131,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                         permanent = def.permanent;
                     }
                     catch (LogbusException) { }
+                    catch (InvalidOperationException) { }
 
                     if (!string.IsNullOrEmpty(typename))
                     {
