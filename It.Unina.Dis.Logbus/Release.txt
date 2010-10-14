@@ -1,7 +1,10 @@
 ﻿Logbus-ng Release Notes
 
 version 2.0
-*Syslog TLS outbound transport is disabled in Mono due to certificate parsing error
+*Recommended version of Mono (if applicable): 2.6.7, but the software has been tested with
+	Mono 2.8
+*Syslog TLS transport: setting ValidateClientCertificate=true causes NotImplementedException
+*TLS outbound transport is not to be considered stable
 
 version 1.3.1
 *WindowsEventLogListener is not supported
