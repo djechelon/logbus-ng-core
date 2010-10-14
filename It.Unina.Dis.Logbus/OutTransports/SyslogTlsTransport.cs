@@ -369,27 +369,30 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     if (!kvp.Value.Client.Connected) toRemove.Add(kvp.Key);
                 }
 
-                _listLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
-                try
+                if (toRemove.Count > 0)
                 {
-                    foreach (string id in toRemove)
+                    LockCookie ck = _listLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
+                    try
                     {
-                        try
+                        foreach (string id in toRemove)
                         {
-                            TlsClient client = _clients[id];
-                            _clients.Remove(id);
-                            client.Dispose();
-                        }
-                        catch (KeyNotFoundException ex)
-                        {
-                            //Strange
-                            Log.Debug("Error occurred when purging dead TLS client: {0}", ex.Message);
+                            try
+                            {
+                                TlsClient client = _clients[id];
+                                _clients.Remove(id);
+                                client.Dispose();
+                            }
+                            catch (KeyNotFoundException ex)
+                            {
+                                //Strange
+                                Log.Debug("Error occurred when purging dead TLS client: {0}", ex.Message);
+                            }
                         }
                     }
-                }
-                finally
-                {
-                    _listLock.ReleaseWriterLock();
+                    finally
+                    {
+                        _listLock.DowngradeFromWriterLock(ref ck);
+                    }
                 }
             }
             finally
