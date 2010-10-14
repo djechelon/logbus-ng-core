@@ -45,16 +45,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public SyslogTlsTransportFactory()
         {
-            using (Stream stream = GetType().Assembly.GetManifestResourceStream("It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
-            {
-                if (stream == null)
-                    throw new LogbusException("Unable to find default self-signed SSL certificate");
-
-                byte[] payload = new byte[stream.Length];
-                stream.Read(payload, 0, (int)stream.Length);
-                ServerCertificate = new X509Certificate2(payload);
-                return;
-            }
+            ServerCertificate = CertificateUtilities.DefaultCertificate;
         }
 
         /// <summary>
