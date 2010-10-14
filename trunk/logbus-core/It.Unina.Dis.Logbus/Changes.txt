@@ -1,6 +1,6 @@
 ﻿Logbus-ng Change Log
 
-SVN trunk
+version 2.0
 *Major changes in Logger configuration:
 	*Loggers are distinguished by Collectors
 	*Loggers can be configured as permanent and with heartbeat function
