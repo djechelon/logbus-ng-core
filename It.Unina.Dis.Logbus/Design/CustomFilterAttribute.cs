@@ -33,7 +33,7 @@ namespace It.Unina.Dis.Logbus.Design
         /// <param name="name"></param>
         public CustomFilterAttribute(string name)
         {
-            this.Tag = name;
+            Tag = name;
         }
 
         /// <summary>

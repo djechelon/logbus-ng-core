@@ -33,9 +33,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         public SimpleTransportHelper()
         {
             Add("udp", new SyslogUdpTransportFactory());
-#if !MONO
             Add("tls", new SyslogTlsTransportFactory());
-#endif
         }
 
         IOutboundTransportFactory ITransportFactoryHelper.GetFactory(string transportId)
@@ -71,10 +69,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
         Loggers.ILog ILogSupport.Log
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
-            set {
+            set
+            {
                 foreach (IOutboundTransportFactory factory in Values)
                 {
-                    if (factory is ILogSupport) ((ILogSupport) factory).Log = value;
+                    if (factory is ILogSupport) ((ILogSupport)factory).Log = value;
                 }
             }
         }

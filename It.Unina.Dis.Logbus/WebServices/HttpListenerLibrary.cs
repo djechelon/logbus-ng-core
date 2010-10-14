@@ -63,7 +63,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             _listener.Configure(_prefixes, _virtualDir, _physicalDir);
             _listener.Start();
 
-            _pump = new Thread(new ThreadStart(Pump));
+            _pump = new Thread(Pump);
             _pump.Start();
         }
 
@@ -148,9 +148,9 @@ namespace It.Unina.Dis.Logbus.WebServices
 
     internal class HttpListenerWorkerRequest : HttpWorkerRequest
     {
-        private HttpListenerContext _context;
-        private string _virtualDir;
-        private string _physicalDir;
+        private readonly HttpListenerContext _context;
+        private readonly string _virtualDir;
+        private readonly string _physicalDir;
 
         public HttpListenerWorkerRequest(
             HttpListenerContext context, string vdir, string pdir)
@@ -224,7 +224,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         public override void SendKnownResponseHeader(int index, string value)
         {
             _context.Response.Headers[
-                HttpWorkerRequest.GetKnownResponseHeaderName(index)] = value;
+                GetKnownResponseHeaderName(index)] = value;
         }
         public override void SendResponseFromMemory(byte[] data, int length)
         {
