@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private readonly Dictionary<string, IOutboundTransport> _transports = new Dictionary<string, IOutboundTransport>();
         private Timer _coalescenceTimer;
         private Thread _workerThread;
-        private readonly IFifoQueue<SyslogMessage> _messageQueue = new BlockingFifoQueue<SyslogMessage>();
+        private readonly IFifoQueue<SyslogMessage> _messageQueue = new FastFifoQueue<SyslogMessage>(16384);
 
         private volatile bool _withinCoalescenceWindow, _running;
 

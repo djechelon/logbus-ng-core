@@ -22,6 +22,8 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
+using System.Security;
+using System.Security.Cryptography;
 
 namespace It.Unina.Dis.Logbus.Utils
 {
@@ -44,7 +46,26 @@ namespace It.Unina.Dis.Logbus.Utils
 
                     byte[] payload = new byte[stream.Length];
                     stream.Read(payload, 0, (int)stream.Length);
-                    return new X509Certificate2(payload);
+                    try { return new X509Certificate2(payload); }
+                    catch (CryptographicException)
+                    {
+                        //Workaround to Mono bug 646491
+                        string fname = Path.GetTempFileName();
+                        try
+                        {
+                            using (FileStream fs = File.Create(fname))
+                            {
+                                fs.Write(payload, 0, payload.Length);
+                            }
+                            return new X509Certificate2(fname);
+                        }
+                        finally
+                        {
+                            File.Delete(fname);
+                        }
+
+
+                    }
                 }
             }
         }
@@ -57,7 +78,7 @@ namespace It.Unina.Dis.Logbus.Utils
         public static X509Certificate2 LoadCertificate(string relativePath)
         {
             if (string.IsNullOrEmpty(relativePath))
-                return DefaultCertificate;
+                throw new ArgumentNullException("relativePath");
 
             string abspath = Path.GetFullPath(relativePath);
             if (!File.Exists(abspath))

@@ -101,17 +101,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             IPEndPoint localEp = IpAddress == null ? new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
             if (Certificate == null)
-                if (string.IsNullOrEmpty(_certificatePath))
-                    Certificate = Utils.CertificateUtilities.DefaultCertificate;
-                else
-                    try
-                    {
-                        Certificate = Utils.CertificateUtilities.LoadCertificate(_certificatePath);
-                    }
-                    catch
-                    {
-                        throw new InvalidOperationException("Certificate not specified");
-                    }
+                Certificate = Utils.CertificateUtilities.DefaultCertificate;
 
             try
             {

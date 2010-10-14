@@ -24,6 +24,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using It.Unina.Dis.Logbus.Configuration;
 using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
@@ -105,7 +106,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     {
                         try
                         {
-                            ServerCertificate = Utils.CertificateUtilities.LoadCertificate(value);
+                            ServerCertificate = (string.IsNullOrEmpty(value)) ? 
+                                null : CertificateUtilities.LoadCertificate(value);
                             _certificatePath = value;
                         }
                         catch (LogbusException ex)
