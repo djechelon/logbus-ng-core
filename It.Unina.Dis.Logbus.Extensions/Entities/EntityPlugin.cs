@@ -107,10 +107,10 @@ namespace It.Unina.Dis.Logbus.Entities
                 ReadOnly = true,
                 Unique = true
             };
-            _colFfdaChannelId = new DataColumn("FFdaChannelId", typeof(string))
+            _colFfdaChannelId = new DataColumn("FfdaChannelId", typeof(string))
             {
                 AllowDBNull = true,
-                ReadOnly = true,
+                ReadOnly = false,
                 Unique = true
             };
 
