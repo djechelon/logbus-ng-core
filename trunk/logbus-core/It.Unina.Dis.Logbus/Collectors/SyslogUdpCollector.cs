@@ -65,11 +65,15 @@ namespace It.Unina.Dis.Logbus.Collectors
         private IPAddress _remoteAddr;
         private int _port;
         private IAsyncResult _result;
+        private volatile bool _disposed = false;
 
         #region ILogCollector Membri di
 
         public void SubmitMessage(SyslogMessage message)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (RemoteEndPoint == null)
             {
                 if (_port == 0 || _remoteAddr == null)
@@ -107,6 +111,8 @@ namespace It.Unina.Dis.Logbus.Collectors
         {
             GC.SuppressFinalize(this);
 
+            _disposed = true;
+
             if (_client != null && _result != null)
                 _client.EndSend(_result);
 
@@ -122,6 +128,9 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public string GetConfigurationParameter(string key)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException("key", "Key cannot be null");
             switch (key)
@@ -142,6 +151,9 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public void SetConfigurationParameter(string key, string value)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException("key", "Key cannot be null");
             if (string.IsNullOrEmpty(value))
@@ -192,10 +204,13 @@ namespace It.Unina.Dis.Logbus.Collectors
             }
         }
 
-        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        public IEnumerable<KeyValuePair<string, string>> Configuration
         {
             set
             {
+                if (_disposed)
+                    throw new ObjectDisposedException(GetType().FullName);
+
                 foreach (KeyValuePair<string, string> kvp in value)
                     SetConfigurationParameter(kvp.Key, kvp.Value);
             }

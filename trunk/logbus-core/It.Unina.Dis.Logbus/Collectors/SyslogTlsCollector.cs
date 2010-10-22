@@ -55,6 +55,8 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         private void Dispose(bool disposing)
         {
+            _disposed = true;
+
             if (disposing)
             {
                 if (_client != null) _client.Close();
@@ -72,11 +74,15 @@ namespace It.Unina.Dis.Logbus.Collectors
         private string _certificatePath;
         private X509Certificate _clientCertificate;
         private StreamWriter _sw;
+        private volatile bool _disposed = false;
 
         #region ILogCollector Membri di
 
         public void SubmitMessage(SyslogMessage message)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (_client == null)
             {
                 if (_host == null) throw new InvalidOperationException("Remote address not specified");
@@ -89,8 +95,7 @@ namespace It.Unina.Dis.Logbus.Collectors
                 try
                 {
                     _client.Connect(_host, _port);
-                    _remoteStream = new SslStream(_client.GetStream(), false, tls_server_validator, tls_client_selector);
-                    _remoteStream.WriteTimeout = 3600000;
+                    _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector) { WriteTimeout = 3600000 };
 
                     //remote_stream.AuthenticateAsClient(host, null, SslProtocols.Tls, true);
                     _remoteStream.AuthenticateAsClient(_host);
@@ -106,12 +111,12 @@ namespace It.Unina.Dis.Logbus.Collectors
             _sw.Write(string.Format("{0} {1}", payload.Length.ToString(CultureInfo.InvariantCulture), payload));
         }
 
-        private bool tls_server_validator(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        protected virtual bool TlsServerValidator(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             return true;
         }
 
-        private X509Certificate tls_client_selector(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        protected virtual X509Certificate TlsClientSelector(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             return _clientCertificate;
         }
@@ -130,6 +135,9 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public string GetConfigurationParameter(string key)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException("key", "Key cannot be null");
             switch (key)
@@ -152,6 +160,9 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public void SetConfigurationParameter(string key, string value)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException("key", "Key cannot be null");
             if (string.IsNullOrEmpty(value))
@@ -205,10 +216,13 @@ namespace It.Unina.Dis.Logbus.Collectors
             }
         }
 
-        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        public IEnumerable<KeyValuePair<string, string>> Configuration
         {
             set
             {
+                if (_disposed)
+                    throw new ObjectDisposedException(GetType().FullName);
+
                 foreach (KeyValuePair<string, string> kvp in value)
                     SetConfigurationParameter(kvp.Key, kvp.Value);
             }
