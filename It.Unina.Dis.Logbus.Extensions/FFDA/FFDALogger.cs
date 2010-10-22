@@ -18,6 +18,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using It.Unina.Dis.Logbus.Loggers;
@@ -85,6 +87,17 @@ namespace It.Unina.Dis.Logbus.FFDA
         protected override void PreProcessMessage(ref SyslogMessage msg)
         {
             base.PreProcessMessage(ref msg);
+
+            StackTrace stackTrace = new StackTrace();
+            StackFrame[] stackFrames = stackTrace.GetFrames();
+            IDictionary<string, string> callerData = msg.Data["CallerData@" + ENTERPRISE_ID];
+
+            if (stackFrames != null && stackFrames.Length >= 5)
+            {
+                callerData["ClassName"] = stackFrames[4].GetMethod().DeclaringType.FullName;
+                callerData["MethodName"] = stackFrames[4].GetMethod().Name;
+                callerData["ModuleName"] = stackFrames[4].GetMethod().DeclaringType.Assembly.GetName().Name;
+            }
 
             msg.MessageId = "FFDA";
         }
