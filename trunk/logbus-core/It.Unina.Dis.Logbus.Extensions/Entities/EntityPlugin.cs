@@ -104,14 +104,14 @@ namespace It.Unina.Dis.Logbus.Entities
             _colChannelId = new DataColumn("ChannelId", typeof(string))
             {
                 AllowDBNull = true,
-                ReadOnly = true,
-                Unique = true
+                ReadOnly = false,
+                Unique = false
             };
             _colFfdaChannelId = new DataColumn("FfdaChannelId", typeof(string))
             {
                 AllowDBNull = true,
                 ReadOnly = false,
-                Unique = true
+                Unique = false
             };
 
             _entityTable.Columns.Add(_colHost);
@@ -201,10 +201,10 @@ namespace It.Unina.Dis.Logbus.Entities
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
             WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition()
-                                             {
-                                                 SkeletonType = typeof(EntityManagementSkeleton),
-                                                 UrlFileName = "EntityManagement"
-                                             };
+            {
+                SkeletonType = typeof(EntityManagementSkeleton),
+                UrlFileName = "EntityManagement"
+            };
             return new WsdlSkeletonDefinition[] { ret };
         }
 
@@ -289,7 +289,7 @@ namespace It.Unina.Dis.Logbus.Entities
                                                                attrs.LogName ?? "NULL");
                             do
                             {
-                                string randomChannelId = "em_" + Utils.Randomizer.RandomAlphanumericString(15);
+                                string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
                                 try
                                 {
                                     _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
@@ -413,20 +413,20 @@ namespace It.Unina.Dis.Logbus.Entities
             for (int i = 0; i < rows.Length; i++)
             {
                 ret[i] = new LoggingEntity()
-                             {
-                                 host = (string)rows[i][_colHost],
-                                 process = (string)rows[i][_colProc],
-                                 logger = (string)rows[i][_colLogger],
-                                 appName = (string)rows[i][_colAppName],
-                                 ffda = (bool)rows[i][_colFfda],
-                                 lastAction = (DateTime)rows[i][_colLastAction],
-                                 lastHeartbeat =
-                                     (rows[i][_colLastHeartbeat] is DBNull)
-                                         ? DateTime.MinValue
-                                         : (DateTime)rows[i][_colLastHeartbeat],
-                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
-                                 ffdaChannelId = (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
-                             };
+                {
+                    host = (string)rows[i][_colHost],
+                    process = (string)rows[i][_colProc],
+                    logger = (string)rows[i][_colLogger],
+                    appName = (string)rows[i][_colAppName],
+                    ffda = (bool)rows[i][_colFfda],
+                    lastAction = (DateTime)rows[i][_colLastAction],
+                    lastHeartbeat =
+                        (rows[i][_colLastHeartbeat] is DBNull)
+                            ? DateTime.MinValue
+                            : (DateTime)rows[i][_colLastHeartbeat],
+                    channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
+                    ffdaChannelId = (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
+                };
             }
 
             return ret;
