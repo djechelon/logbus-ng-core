@@ -63,6 +63,8 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         private void Dispose(bool disposing)
         {
+            GC.SuppressFinalize(this);
+
             Log("SDW", SyslogSeverity.Info);
 
             _disposed = true;
