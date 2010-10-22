@@ -39,7 +39,6 @@ namespace It.Unina.Dis.Logbus.FFDA
         public FFDALogger(SyslogFacility facility, ILogCollector target)
             : base(facility, target)
         {
-            GC.SuppressFinalize(base.Collector);
             Log("SUP", SyslogSeverity.Info);
         }
 
@@ -55,7 +54,7 @@ namespace It.Unina.Dis.Logbus.FFDA
             Dispose(false);
         }
 
-        private volatile bool _disposed;
+        private volatile bool _disposed = false;
 
         public void Dispose()
         {
@@ -66,12 +65,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         {
             Log("SDW", SyslogSeverity.Info);
 
-            if (disposing)
-            {
-                if (base.Collector is IDisposable) ((IDisposable)base.Collector).Dispose();
-            }
-
-            GC.ReRegisterForFinalize(base.Collector);
+            _disposed = true;
         }
         #endregion
 
@@ -99,102 +93,131 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         public void LogSST()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("SST-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogSST(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
             Log("SST-" + id, SyslogSeverity.Info);
         }
 
-
         public void LogSEN()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("SEN-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogSEN(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
             Log("SEN-" + id, SyslogSeverity.Info);
         }
 
-
         public void LogEIS()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("EIS-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogEIS(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
             Log("EIS-" + id, SyslogSeverity.Info);
         }
 
-
         public void LogEIE()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("EIE-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogEIE(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
             Log("EIE-" + id, SyslogSeverity.Info);
         }
 
-
         public void LogRIS()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("RIS-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogRIS(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
             Log("RIS-" + id, SyslogSeverity.Info);
         }
 
-
         public void LogRIE()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("RIE-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogRIE(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
             Log("RIE-" + id, SyslogSeverity.Info);
         }
 
-
         public void LogCMP()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             Log("CMP-" + GetFlowId(), SyslogSeverity.Info);
         }
 
-
         public void LogCMP(string id)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
             if (id == null)
                 throw new ArgumentNullException("id");
 
@@ -202,6 +225,5 @@ namespace It.Unina.Dis.Logbus.FFDA
         }
 
         #endregion
-
     }
 }
