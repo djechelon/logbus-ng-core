@@ -46,7 +46,7 @@ namespace It.Unina.Dis.Logbus.FFDA
             {
                 collector = CollectorHelper.CreateCollector();
             }
-            return new FFDALogger(collector) { LogName = loggerName };
+            return new FFDALogger(collector, loggerName);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace It.Unina.Dis.Logbus.FFDA
             {
                 collector = CollectorHelper.CreateCollector();
             }
-            return new FFDALogger(collector) { LogName = loggerName };
+            return new FFDALogger(collector, loggerName);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <returns>An FFD logger that works on unreliable transport</returns>
         public static IFFDALogger CreateUnreliableFFDALogger(string loggerName, string host, int port)
         {
-            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port)) { LogName = loggerName };
+            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <returns>An FFD logger that works on unreliable transport</returns>
         public static IFFDALogger CreateUnreliableFFDALogger(string loggerName, IPAddress host, int port)
         {
-            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port)) { LogName = loggerName };
+            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <remarks>Log messages are not subject to loss, however this may affect performance</remarks>
         public static IFFDALogger CreateReliableFFDALogger(string loggerName, string host, int port)
         {
-            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port)) { LogName = loggerName };
+            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
         }
     }
 }

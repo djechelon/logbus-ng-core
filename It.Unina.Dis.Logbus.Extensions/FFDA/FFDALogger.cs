@@ -45,11 +45,33 @@ namespace It.Unina.Dis.Logbus.FFDA
         }
 
         /// <summary>
+        /// Initializes the FFDA logger with given Syslog facility and concrete logger
+        /// </summary>
+        /// <param name="facility">Syslog facility that will be used for all the messages</param>
+        /// <param name="target">Concrete logger that will collect FFDA messages</param>
+        /// <param name="loggerName">Name of logger</param>
+        public FFDALogger(SyslogFacility facility, ILogCollector target, string loggerName)
+            : base(facility, target)
+        {
+            LogName = loggerName;
+
+            Log("SUP", SyslogSeverity.Info);
+        }
+
+        /// <summary>
         /// Initializes the FFDA logger with the concrete underlying logger
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(ILogCollector target)
             : this(SyslogFacility.Local0, target) { }
+
+        /// <summary>
+        /// Initializes the FFDA logger with the concrete underlying logger
+        /// </summary>
+        /// <param name="target">Concrete logger that will collect FFDA messages</param>
+        /// <param name="loggerName">Name of logger</param>
+        public FFDALogger(ILogCollector target, string loggerName)
+            : this(SyslogFacility.Local0, target, loggerName) { }
 
         ~FFDALogger()
         {
