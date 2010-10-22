@@ -185,7 +185,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             origin.Add("ip", Utils.NetworkUtils.GetMyIPAddress().ToString());
             origin.Add("enterpriseId", ENTERPRISE_ID);
             origin.Add("software", "Logbus-ng-sharp");
-            origin.Add("swVersion", GetType().Assembly.GetName().Version.ToString(3));
+            origin.Add("swVersion", typeof(SimpleLogImpl).Assembly.GetName().Version.ToString(3));
 
             //Meta-info
             Dictionary<string, string> meta = new Dictionary<string, string>();

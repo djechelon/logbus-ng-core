@@ -121,6 +121,10 @@ namespace It.Unina.Dis.Logbus.FFDA
                 callerData["ModuleName"] = stackFrames[4].GetMethod().DeclaringType.Assembly.GetName().Name;
             }
 
+            IDictionary<string, string> origin = msg.Data["origin"];
+            origin["software"] = "Logbus-ng-ffda-sharp";
+            origin["swVersion"] = typeof(FFDALogger).Assembly.GetName().Version.ToString(3);
+
             msg.MessageId = "FFDA";
         }
 
