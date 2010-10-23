@@ -22,12 +22,13 @@ using System;
 using System.Net;
 using System.Globalization;
 using It.Unina.Dis.Logbus.Wrappers;
-using System.Web.Hosting;
-using System.Web;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+#if MONO
+using Mono.WebServer;
+#endif
 namespace It.Unina.Dis.Logbus.WebServices
 {
     /// <summary>
@@ -58,20 +59,38 @@ namespace It.Unina.Dis.Logbus.WebServices
         }
         #endregion
 
-        private static WebServiceActivator instance
-        {
-            get;
-            set;
-        }
+        private static WebServiceActivator _instance;
 
         private readonly ILogBus _target;
         private readonly int _httpPort;
+#if MONO
+        private ApplicationServer _appserver;
+#else
         private HttpListenerController _ctr;
+#endif
         private string _physicalPath;
 
         private void StartService()
         {
             string appPath = InstallRuntime();
+
+#if MONO
+            WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
+
+            _appserver = new ApplicationServer(ws, appPath);
+            _appserver.AddApplication(null, _httpPort, "/", appPath);
+            _appserver.Start(true);
+
+            MarshalByRefObject wrapper = (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target);
+            AppDomain.CurrentDomain.SetData("Logbus", wrapper);
+
+            foreach (IPlugin plugin in _target.Plugins)
+            {
+                MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                if (pluginRoot != null) AppDomain.CurrentDomain.SetData(plugin.Name, pluginRoot);
+            }
+#else
+            
             string[] prefixes = new string[] { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
 
             _ctr = new HttpListenerController(prefixes, "/", appPath);
@@ -86,11 +105,16 @@ namespace It.Unina.Dis.Logbus.WebServices
                 MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
                 if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
             }
+#endif
         }
 
         private void StopService()
         {
+#if MONO
+            _appserver.Stop();
+#else
             _ctr.Stop();
+#endif
             UninstallRuntime(_physicalPath);
         }
 
@@ -111,14 +135,15 @@ namespace It.Unina.Dis.Logbus.WebServices
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void Start(ILogBus service, int httpPort)
         {
-            if (instance != null) throw new NotSupportedException("Currently, only one instance is supported");
+            if (_instance != null) throw new NotSupportedException("Currently, only one instance is supported");
+
             if (!HttpListener.IsSupported) throw new PlatformNotSupportedException("This action is not supported on this platform");
             try
             {
-                instance = new WebServiceActivator(service, httpPort);
-                instance.StartService();
+                _instance = new WebServiceActivator(service, httpPort);
+                _instance.StartService();
             }
-            catch (Exception) { instance = null; throw; }
+            catch (Exception) { _instance = null; throw; }
         }
 
         /// <summary>
@@ -127,12 +152,12 @@ namespace It.Unina.Dis.Logbus.WebServices
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void Stop()
         {
-            if (instance == null) throw new InvalidOperationException("Web service listener is not started");
+            if (_instance == null) throw new InvalidOperationException("Web service listener is not started");
             try
             {
-                instance.StopService();
+                _instance.StopService();
             }
-            finally { instance = null; }
+            finally { _instance = null; }
         }
 
         /// <summary>
