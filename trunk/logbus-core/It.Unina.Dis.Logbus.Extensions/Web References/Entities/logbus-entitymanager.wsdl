@@ -21,7 +21,7 @@
           <xs:extension base="em:LoggingEntityIdentifier">
             <xs:sequence>
               <xs:element minOccurs="0" form="unqualified" name="ffda" type="xs:boolean" />
-              <xs:element minOccurs="0" name="max-inactivity" type="xs:integer" />
+              <xs:element minOccurs="0" form="unqualified" name="max-inactivity" nillable="true" type="xs:integer" />
               <xs:element minOccurs="0" form="unqualified" name="appName" type="xs:string" />
             </xs:sequence>
           </xs:extension>

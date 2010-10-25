@@ -49,16 +49,31 @@ namespace It.Unina.Dis.Logbus.Entities {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
     public partial class LoggingEntity : LoggingEntityIdentifier {
         
+        private string appNameField;
+        
         private bool ffdaField;
         
         private System.DateTime lastActionField;
         
         private System.DateTime lastHeartbeatField;
         
-        private string processNameField;
+        private string channelIdField;
+        
+        private string ffdaChannelIdField;
         
         public LoggingEntity() {
             this.ffdaField = false;
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string appName {
+            get {
+                return this.appNameField;
+            }
+            set {
+                this.appNameField = value;
+            }
         }
         
         /// <remarks/>
@@ -95,13 +110,24 @@ namespace It.Unina.Dis.Logbus.Entities {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
-        public string processName {
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string channelId {
             get {
-                return this.processNameField;
+                return this.channelIdField;
             }
             set {
-                this.processNameField = value;
+                this.channelIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string ffdaChannelId {
+            get {
+                return this.ffdaChannelIdField;
+            }
+            set {
+                this.ffdaChannelIdField = value;
             }
         }
     }
@@ -170,7 +196,7 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private string maxinactivityField;
         
-        private string processNameField;
+        private string appNameField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
@@ -195,7 +221,7 @@ namespace It.Unina.Dis.Logbus.Entities {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("max-inactivity", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, DataType="integer")]
+        [System.Xml.Serialization.XmlElementAttribute("max-inactivity", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, DataType="integer", IsNullable=true)]
         public string maxinactivity {
             get {
                 return this.maxinactivityField;
@@ -207,12 +233,12 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public string processName {
+        public string appName {
             get {
-                return this.processNameField;
+                return this.appNameField;
             }
             set {
-                this.processNameField = value;
+                this.appNameField = value;
             }
         }
     }

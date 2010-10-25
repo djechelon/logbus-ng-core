@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:em="http://www.dis.unina.it/logbus-ng/em" targetNamespace="http://www.dis.unina.it/logbus-ng/em">
 	<wsdl:types>
 		<xs:schema targetNamespace="http://www.dis.unina.it/logbus-ng/em" elementFormDefault="unqualified" attributeFormDefault="unqualified">
@@ -21,7 +22,8 @@
 					<xs:extension base="em:LoggingEntityIdentifier">
 						<xs:sequence>
 							<xs:element name="ffda" type="xs:boolean" form="unqualified" nillable="false" minOccurs="0"/>
-							<xs:element name="max-inactivity" type="xs:integer" minOccurs="0"/>
+							<!-- Maximum inactivity in SECONDS -->
+							<xs:element name="max-inactivity" type="xs:integer" form="unqualified" nillable="true" minOccurs="0"/>
 							<xs:element name="appName" type="xs:string" form="unqualified" minOccurs="0"/>
 						</xs:sequence>
 					</xs:extension>

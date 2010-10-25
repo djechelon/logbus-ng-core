@@ -18,12 +18,14 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using It.Unina.Dis.Logbus.Utils;
 using System.Threading;
 using It.Unina.Dis.Logbus.Configuration;
 using System.Text.RegularExpressions;
 using It.Unina.Dis.Logbus.Filters;
+using System.Globalization;
 namespace It.Unina.Dis.Logbus.Entities
 {
     /// <summary>
@@ -138,7 +140,10 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private void Dispose(bool disposing)
         {
-            _workerThread.Interrupt();
+            if (_disposed) return;
+
+            _workerThread.Abort();
+            _workerThread.Join();
 
             if (disposing)
             {
@@ -162,8 +167,8 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            this._logbus = logbus;
-            logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
+            _logbus = logbus;
+            logbus.MessageReceived += LogbusMessageReceived;
         }
 
         /// <summary>
@@ -173,13 +178,13 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            _logbus.MessageReceived -= logbus_MessageReceived;
+            _logbus.MessageReceived -= LogbusMessageReceived;
         }
 
         /// <summary>
         /// Implements ILogSupport.Log
         /// </summary>
-        public It.Unina.Dis.Logbus.Loggers.ILog Log
+        public Loggers.ILog Log
         {
             private get;
             set;
@@ -200,8 +205,8 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition()
-            {
+            WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition
+                                             {
                 SkeletonType = typeof(EntityManagementSkeleton),
                 UrlFileName = "EntityManagement"
             };
@@ -211,7 +216,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <summary>
         /// Implements IPlugin.GetPluginRoot
         /// </summary>
-        public System.MarshalByRefObject GetPluginRoot()
+        public MarshalByRefObject GetPluginRoot()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
@@ -227,13 +232,12 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public void Dispose()
         {
-            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new System.NotImplementedException();
+            Dispose(true);
         }
 
         #endregion
 
-        private void logbus_MessageReceived(object sender, SyslogMessageEventArgs e)
+        private void LogbusMessageReceived(object sender, SyslogMessageEventArgs e)
         {
             SyslogMessage message = e.Message;
             if (message.Facility == SyslogFacility.Internally) return; //Skip all syslog-internal messages
@@ -254,7 +258,6 @@ namespace It.Unina.Dis.Logbus.Entities
                     DateTime? lastHb = null;
 
                     string host = message.Host ?? "", process = message.ProcessID ?? message.ApplicationName ?? "", logger = attrs.LogName ?? "";
-
 
                     bool ffda = message.MessageId == "FFDA";
                     if (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug)
@@ -316,7 +319,7 @@ namespace It.Unina.Dis.Logbus.Entities
                                                                    attrs.LogName ?? "NULL");
                                 do
                                 {
-                                    string randomChannelId = "em_" + Utils.Randomizer.RandomAlphanumericString(15);
+                                    string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
                                     try
                                     {
                                         _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
@@ -369,7 +372,7 @@ namespace It.Unina.Dis.Logbus.Entities
                                                                    attrs.LogName ?? "NULL");
                                 do
                                 {
-                                    string randomChannelId = "em_" + Utils.Randomizer.RandomAlphanumericString(15);
+                                    string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
                                     try
                                     {
                                         _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
@@ -396,6 +399,7 @@ namespace It.Unina.Dis.Logbus.Entities
                 }
             }
             catch (ThreadInterruptedException) { }
+            catch (ThreadAbortException) { }
         }
 
         #region IEntityManagement Membri di
@@ -406,14 +410,50 @@ namespace It.Unina.Dis.Logbus.Entities
         public LoggingEntity[] GetLoggingEntities()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+            return FindLoggingEntities(null);
+        }
 
-            DataRow[] rows = _entityTable.Select();
+        /// <summary>
+        /// Implements IEntityManagement.FindLoggingEntities
+        /// </summary>
+        public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
+        {
+            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
+            
+            DataRow[] rows;
+
+            if (query == null)
+                rows = _entityTable.Select();
+            else
+            {
+                List<string> filters = new List<string>(6);
+                if (!string.IsNullOrEmpty(query.appName))
+                    filters.Add(string.Format("{0} = \"{1}\"", _colAppName.ColumnName, query.appName));
+                if (!string.IsNullOrEmpty(query.host))
+                    filters.Add(string.Format("{0} = \"{1}\"", _colHost.ColumnName, query.host));
+                if (!string.IsNullOrEmpty(query.logger))
+                    filters.Add(string.Format("{0} = \"{1}\"", _colLogger.ColumnName, query.logger));
+                if (!string.IsNullOrEmpty(query.process))
+                    filters.Add(string.Format("{0} = \"{1}\"", _colProc.ColumnName, query.process));
+                if (query.ffdaSpecified)
+                    filters.Add(string.Format("{0} = {1}", _colFfda.ColumnName, query.ffda));
+                int maxinactivity;
+                if (!string.IsNullOrEmpty(query.maxinactivity) && int.TryParse(query.maxinactivity, NumberStyles.Integer, CultureInfo.InvariantCulture, out maxinactivity))
+                {
+                    DateTime lastActivity = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(maxinactivity));
+                    filters.Add(string.Format("({0} >= {2} OR {1} >= {2}}", _colLastAction.ColumnName, _colLastHeartbeat.ColumnName, lastActivity.ToString(CultureInfo.InvariantCulture)));
+                }
+
+                string filter = string.Join(" AND ", filters.ToArray());
+                rows = _entityTable.Select(filter);
+            }
+
             LoggingEntity[] ret = new LoggingEntity[rows.Length];
 
             for (int i = 0; i < rows.Length; i++)
             {
-                ret[i] = new LoggingEntity()
-                {
+                ret[i] = new LoggingEntity
+                             {
                     host = (string)rows[i][_colHost],
                     process = (string)rows[i][_colProc],
                     logger = (string)rows[i][_colLogger],
@@ -430,16 +470,6 @@ namespace It.Unina.Dis.Logbus.Entities
             }
 
             return ret;
-        }
-
-        /// <summary>
-        /// Implements IEntityManagement.FindLoggingEntities
-        /// </summary>
-        public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
-        {
-            if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -460,7 +490,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <returns></returns>
         public static IEntityManagement GetProxy(string endpointUrl)
         {
-            return new EntityManagement() { Url = endpointUrl, UserAgent = UserAgent };
+            return new EntityManagement { Url = endpointUrl, UserAgent = UserAgent };
         }
 
         /// <summary>
