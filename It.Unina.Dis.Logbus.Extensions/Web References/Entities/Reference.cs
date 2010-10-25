@@ -336,7 +336,7 @@ namespace It.Unina.Dis.Logbus.Entities {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("max-inactivity", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, DataType="integer")]
+        [System.Xml.Serialization.XmlElementAttribute("max-inactivity", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, DataType="integer", IsNullable=true)]
         public string maxinactivity {
             get {
                 return this.maxinactivityField;
