@@ -19,6 +19,8 @@
 
 using System;
 using System.Web;
+using It.Unina.Dis.Logbus.Wrappers;
+
 namespace It.Unina.Dis.Logbus.WebServices
 {
     public class LogbusWebApplication : HttpApplication
@@ -32,6 +34,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             else
             {
                 logbus = LogbusSingletonHelper.Instance;
+                AppDomain.CurrentDomain.SetData("Logbus", (logbus is MarshalByRefObject) ? logbus : new LogBusTie(logbus));
                 logbus.Start();
             }
 
@@ -88,7 +91,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         protected void Application_End(object sender, EventArgs e)
         {
-            (Application["LogbusInstance"] as IDisposable).Dispose();
+            ((IDisposable) Application["LogbusInstance"]).Dispose();
         }
     }
 }
