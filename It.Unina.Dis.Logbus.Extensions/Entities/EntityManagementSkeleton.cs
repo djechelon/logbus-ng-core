@@ -32,7 +32,7 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             _proxy = (Application[EntityPlugin.PLUGIN_ID] as IEntityManagement ?? AppDomain.CurrentDomain.GetData(EntityPlugin.PLUGIN_ID)) as IEntityManagement;
 
-            if (_proxy==null) throw new InvalidOperationException("No Entity Manager proxy found");
+            if (_proxy==null) throw new InvalidOperationException("No Entity Manager proxy found. Perhaps it has not been activated in App.config/Web.config.");
         }
 
         #region IEntityManagement Membri di
