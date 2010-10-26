@@ -30,6 +30,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         private readonly ILogSource _theSource;
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of FFDAParser
+        /// </summary>
         public FFDAParser() { }
 
         /// <summary>
@@ -41,7 +44,7 @@ namespace It.Unina.Dis.Logbus.FFDA
             if (source == null) throw new ArgumentNullException("source", "Source must be an existing and active log source");
 
             _theSource = source;
-            _theSource.MessageReceived += new EventHandler<SyslogMessageEventArgs>(the_source_MessageReceived);
+            _theSource.MessageReceived += the_source_MessageReceived;
         }
 
         #endregion
@@ -69,46 +72,60 @@ namespace It.Unina.Dis.Logbus.FFDA
         {
             try
             {
-                if (msg.MessageId == "FFDA")
+                FFDAInformation info = new FFDAInformation(msg);
+
+                FFDAEventArgs e = new FFDAEventArgs
+                                      {
+                                          Host = info.Host,
+                                          EventType = info.Event,
+                                          FlowId = info.FlowId,
+                                          LoggerName = info.Logger,
+                                          Process = info.Process
+                                      };
+
+                if (GotFFDA != null) GotFFDA(this, e);
+
+                switch (info.Event)
                 {
-                    string txt = msg.Text;
-                    if (txt == null) return;
-
-                    SyslogAttributes advancedAttrs = msg.GetAdvancedAttributes();
-                    FFDAEventArgs e = new FFDAEventArgs
-                                          {
-                                              Host = msg.Host,
-                                              Process = msg.ProcessID ?? msg.ApplicationName,
-                                              LoggerName = advancedAttrs.LogName
-                                          };
-
-                    string prefix = txt.Substring(0, 3);
-                    if (txt[3] == '-' && txt.Length > 4)
-                    {
-                        e.FlowId = txt.Substring(4);
-                    }
-
-                    e.EventType = (FFDAEvent)Enum.Parse(typeof(FFDAEvent), prefix.ToUpper());
-
-                    if (GotFFDA != null) GotFFDA(this, e);
-
-                    switch (e.EventType)
-                    {
-                        case FFDAEvent.SUP: { if (GotSUP != null) GotSUP(this, e); break; }
-                        case FFDAEvent.SDW: { if (GotSDW != null) GotSDW(this, e); break; }
-                        case FFDAEvent.SST: { if (GotSST != null) GotSST(this, e); break; }
-                        case FFDAEvent.SEN: { if (GotSEN != null) GotSEN(this, e); break; }
-                        case FFDAEvent.RIS: { if (GotRIS != null) GotRIS(this, e); break; }
-                        case FFDAEvent.RIE: { if (GotRIE != null) GotRIE(this, e); break; }
-                        case FFDAEvent.EIS: { if (GotEIS != null) GotEIS(this, e); break; }
-                        case FFDAEvent.EIE: { if (GotEIE != null) GotEIE(this, e); break; }
-                        case FFDAEvent.CMP: { if (GotCMP != null) GotCMP(this, e); break; }
-                    }
+                    case FFDAEvent.SUP:
+                        {
+                            if (GotSUP != null) GotSUP(this, e); break;
+                        }
+                    case FFDAEvent.SDW:
+                        {
+                            if (GotSDW != null) GotSDW(this, e); break;
+                        }
+                    case FFDAEvent.SST:
+                        {
+                            if (GotSST != null) GotSST(this, e); break;
+                        }
+                    case FFDAEvent.SEN:
+                        {
+                            if (GotSEN != null) GotSEN(this, e); break;
+                        }
+                    case FFDAEvent.EIS:
+                        {
+                            if (GotEIS != null) GotEIS(this, e); break;
+                        }
+                    case FFDAEvent.EIE:
+                        {
+                            if (GotEIE != null) GotEIE(this, e); break;
+                        }
+                    case FFDAEvent.RIS:
+                        {
+                            if (GotRIS != null) GotRIS(this, e); break;
+                        }
+                    case FFDAEvent.RIE:
+                        {
+                            if (GotRIE != null) GotRIE(this, e); break;
+                        }
+                    case FFDAEvent.CMP:
+                        {
+                            if (GotCMP != null) GotCMP(this, e); break;
+                        }
                 }
             }
-            catch (FormatException) { } //Someone is fooling us with an unknown FFDA prefix, or it's just a newer specification
-            catch (IndexOutOfRangeException) { } //skip!
-            catch { }
+            catch (InvalidOperationException) { }
 
         }
 
