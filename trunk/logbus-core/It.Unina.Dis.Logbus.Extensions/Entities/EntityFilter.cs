@@ -19,18 +19,31 @@
 
 using System;
 using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.Design;
+using System.Collections.Generic;
 namespace It.Unina.Dis.Logbus.Entities
 {
     /// <summary>
-    /// Used by EntityPlugin to create entity-specific channels
+    /// Filters messages from a specific logging entity
     /// </summary>
-    internal sealed class EntityFilter
-        : IFilter
+    [CustomFilter("logbus-entity", Description = "Only messages from a certain entity match this filter")]
+    public sealed class EntityFilter
+        : ICustomFilter
     {
-        private readonly string _host, _process, _logger;
-        private readonly bool _ffdaOnly;
+        static EntityFilter()
+        {
+            CustomFilterHelper.Instance.RegisterCustomFilter(typeof(EntityFilter));
+        }
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of entity filter EntityFilter
+        /// </summary>
+        public EntityFilter()
+        {
+            FfdaOnly = false;
+        }
+
         /// <summary>
         /// Initializes a new instance of entity filter EntityFilter
         /// </summary>
@@ -53,12 +66,36 @@ namespace It.Unina.Dis.Logbus.Entities
             if (host == null) throw new ArgumentNullException("host");
             if (process == null) throw new ArgumentNullException("process");
             if (logger == null) throw new ArgumentNullException("logger");
-            _host = host;
-            _process = process;
-            _logger = logger;
-            _ffdaOnly = ffdaOnly;
+            Host = host;
+            Process = process;
+            Logger = logger;
+            FfdaOnly = ffdaOnly;
         }
         #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Host that generated the message
+        /// </summary>
+        public string Host { get; set; }
+
+        /// <summary>
+        /// Process that generated the message
+        /// </summary>
+        public string Process { get; set; }
+
+        /// <summary>
+        /// Logger that generated the message
+        /// </summary>
+        public string Logger { get; set; }
+
+        /// <summary>
+        /// Whether to accept or not only FFDA messages
+        /// </summary>
+        public bool FfdaOnly { get; set; }
+        #endregion
+
 
         #region IFilter Membri di
 
@@ -66,10 +103,82 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             SyslogAttributes attrs = message.GetAdvancedAttributes();
             return (
-                _host == (message.Host ?? "") &&
-                _process == (message.ProcessID ?? message.ApplicationName ?? "") &&
-                _logger == (attrs.LogName ?? "") &&
-                (!_ffdaOnly || _ffdaOnly && message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info));
+                Host == (message.Host ?? "") &&
+                Process == (message.ProcessID ?? message.ApplicationName ?? "") &&
+                Logger == (attrs.LogName ?? "") &&
+                (!FfdaOnly || FfdaOnly && ((message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info)
+                || (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug))));
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Casts to FilterBase to ease use from clients
+        /// </summary>
+        /// <param name="filter">Filter to cast</param>
+        /// <returns>An XML proxy to the filter</returns>
+        public static implicit operator FilterBase(EntityFilter filter)
+        {
+            CustomFilter ret = new CustomFilter
+                                   {
+                                       name = "logbus-entity"
+                                   };
+
+
+            List<FilterParameter> @params = new List<FilterParameter>(4);
+            if (!string.IsNullOrEmpty(filter.Host))
+                @params.Add(new FilterParameter { name = "host", value = filter.Host });
+            if (!string.IsNullOrEmpty(filter.Process))
+                @params.Add(new FilterParameter { name = "process", value = filter.Process });
+            if (!string.IsNullOrEmpty(filter.Logger))
+                @params.Add(new FilterParameter { name = "logger", value = filter.Logger });
+            @params.Add(new FilterParameter { name = "ffdaOnly", value = filter.FfdaOnly });
+
+            ret.parameter = @params.ToArray();
+
+            return ret;
+        }
+
+        #region ICustomFilter Membri di
+
+        public IEnumerable<FilterParameter> Configuration
+        {
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+
+                foreach (FilterParameter parameter in value)
+                {
+                    switch (parameter.name)
+                    {
+                        case "host":
+                            {
+                                Host = parameter.value as string;
+                                break;
+                            }
+                        case "process":
+                            {
+                                Process = parameter.value as string;
+                                break;
+                            }
+                        case "logger":
+                            {
+                                Logger = parameter.value as string;
+                                break;
+                            }
+                        case "ffdaOnly":
+                            {
+                                FfdaOnly = (bool)parameter.value;
+                                break;
+                            }
+                        default:
+                            {
+                                throw new NotSupportedException(
+                                    string.Format("Configuration parameter not supported: {0}", parameter.name));
+                            }
+                    }
+                }
+            }
         }
 
         #endregion
