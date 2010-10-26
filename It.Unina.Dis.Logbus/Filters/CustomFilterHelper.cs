@@ -31,11 +31,11 @@ namespace It.Unina.Dis.Logbus.Filters
     public sealed class CustomFilterHelper
     {
         #region Singleton control
-        private static CustomFilterHelper instance;
+        private static readonly CustomFilterHelper _instance;
 
         static CustomFilterHelper()
         {
-            instance = new CustomFilterHelper();
+            _instance = new CustomFilterHelper();
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus.Filters
         /// </summary>
         public static CustomFilterHelper Instance
         {
-            get { return instance; }
+            get { return _instance; }
         }
         #endregion
 
@@ -74,6 +74,38 @@ namespace It.Unina.Dis.Logbus.Filters
 
 
                 if (attr != null) RegisterCustomFilter(attr.Tag, typename, attr.Description);
+            }
+        }
+
+        /// <summary>
+        /// Registers a custom filter that is decorated with CustomFilterAttribute
+        /// </summary>
+        /// <param name="t">Type of the filter to register</param>
+        public void RegisterCustomFilter(Type t)
+        {
+            if (t == null) throw new ArgumentNullException("t");
+            object[] customAttrs = t.GetCustomAttributes(typeof(CustomFilterAttribute), false);
+
+            if (customAttrs.Length < 1)
+                throw new ArgumentException("Given type is not decorated with CustomFilterAttribute");
+            CustomFilterAttribute attr = customAttrs[0] as CustomFilterAttribute;
+
+            if (attr != null)
+            {
+                string typeName = t.AssemblyQualifiedName;
+                if (!typeof(ICustomFilter).IsAssignableFrom(t))
+                {
+                    LogbusException ex = new LogbusException("Given type does not implement ICustomFilter");
+                    ex.Data.Add("typeName", t);
+                    throw ex;
+                }
+
+
+                if (_registeredTypes.ContainsKey(attr.Tag))
+                    _registeredTypes.Remove(attr.Tag);
+
+                _registeredTypes.Add(attr.Tag, typeName);
+                _registeredDescriptions.Add(attr.Tag, attr.Description);
             }
         }
 
@@ -171,17 +203,6 @@ namespace It.Unina.Dis.Logbus.Filters
         }
 
         /// <summary>
-        /// Sets the description for a filter
-        /// </summary>
-        /// <param name="tag">Tag of the filter</param>
-        /// <param name="description">Description for the filter</param>
-        private void SetDescription(string tag, string description)
-        {
-            if (_registeredDescriptions.ContainsKey(tag)) _registeredDescriptions.Remove(tag);
-            _registeredDescriptions.Add(tag, description);
-        }
-
-        /// <summary>
         /// Returns the list of registered filters and their descriptions
         /// </summary>
         public IDictionary<string, string> AvailableFilters
@@ -198,9 +219,9 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <returns>String array containing all the keys</returns>
         public string[] GetAvailableCustomFilters()
         {
-            string[] ret = new string[this._registeredTypes.Count];
+            string[] ret = new string[_registeredTypes.Count];
             int i = 0;
-            foreach (KeyValuePair<string, string> kvp in this._registeredTypes)
+            foreach (KeyValuePair<string, string> kvp in _registeredTypes)
             {
                 ret[i] = kvp.Key;
                 i++;
@@ -216,8 +237,8 @@ namespace It.Unina.Dis.Logbus.Filters
         public FilterDescription DescribeFilter(string key)
         {
             if (!_registeredTypes.ContainsKey(key)) return null;
-            return new FilterDescription()
-            {
+            return new FilterDescription
+                       {
                 id = key,
                 description = _registeredDescriptions[key]
             };
