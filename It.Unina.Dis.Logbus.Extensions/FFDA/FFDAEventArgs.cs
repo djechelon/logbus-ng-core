@@ -24,7 +24,7 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// Supports the event of receiving an FFDA message
     /// </summary>
     public sealed class FFDAEventArgs
-        : EventArgs
+        : SyslogMessageEventArgs
     {
 
         /// <summary>
@@ -51,5 +51,6 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// Name of logger that generated FFDA message
         /// </summary>
         public string LoggerName;
+
     }
 }
