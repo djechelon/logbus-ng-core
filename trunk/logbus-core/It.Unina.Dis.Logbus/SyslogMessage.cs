@@ -210,6 +210,17 @@ namespace It.Unina.Dis.Logbus
                     if (origin.ContainsKey("software")) ret.OriginatorSoftware = origin["software"];
                     if (origin.ContainsKey("swVersion")) ret.OriginatorSoftwareVersion = origin["swVersion"];
                 }
+
+                if (Data.ContainsKey("meta"))
+                {
+                    IDictionary<string, string> meta = Data["meta"];
+                    if (meta.ContainsKey("sequenceId"))
+                        int.TryParse(meta["sequenceId"], NumberStyles.Integer, CultureInfo.InvariantCulture,
+                                     out ret.SequenceId);
+                    if (meta.ContainsKey("sysUpTime"))
+                        long.TryParse(meta["sysUpTime"], NumberStyles.Integer, CultureInfo.InvariantCulture,
+                                     out ret.SystemUptime);
+                }
             }
 
             return ret;
@@ -409,11 +420,11 @@ namespace It.Unina.Dis.Logbus
         public static explicit operator SyslogMessage(EventLogEntry eventLogEntry)
         {
             SyslogMessage message = new SyslogMessage
-                                        {
-                                            Timestamp = eventLogEntry.TimeGenerated,
-                                            Host = eventLogEntry.MachineName,
-                                            Text = eventLogEntry.Message
-                                        };
+            {
+                Timestamp = eventLogEntry.TimeGenerated,
+                Host = eventLogEntry.MachineName,
+                Text = eventLogEntry.Message
+            };
 
 
             //No "official" matching between Windows and Syslog severities exist.
