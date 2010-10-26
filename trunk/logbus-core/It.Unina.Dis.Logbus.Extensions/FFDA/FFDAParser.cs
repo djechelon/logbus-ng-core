@@ -80,7 +80,8 @@ namespace It.Unina.Dis.Logbus.FFDA
                                           EventType = info.Event,
                                           FlowId = info.FlowId,
                                           LoggerName = info.Logger,
-                                          Process = info.Process
+                                          Process = info.Process,
+                                          Message = msg
                                       };
 
                 if (GotFFDA != null) GotFFDA(this, e);
