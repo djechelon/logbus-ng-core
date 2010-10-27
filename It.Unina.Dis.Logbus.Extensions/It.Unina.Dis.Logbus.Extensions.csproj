@@ -95,7 +95,7 @@
     <Compile Include="FFDA\IFFDALogger.cs" />
     <Compile Include="FFDA\IFFDAMonitorLogger.cs" />
     <Compile Include="FFDA\IInstrumentedLogger.cs" />
-    <Compile Include="FFDA\SyslogMessageExtensions.cs" />
+    <Compile Include="SyslogMessageExtensions.cs" />
     <Compile Include="log4net\Log4netLogger.cs" />
     <Compile Include="log4net\OldSyslogLayout.cs" />
     <Compile Include="log4net\SyslogLayout.cs" />
