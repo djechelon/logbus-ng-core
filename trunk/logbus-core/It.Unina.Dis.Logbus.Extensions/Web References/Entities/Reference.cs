@@ -172,6 +172,8 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private System.DateTime lastHeartbeatField;
         
+        private bool lastHeartbeatFieldSpecified;
+        
         private string channelIdField;
         
         private string ffdaChannelIdField;
@@ -221,6 +223,17 @@ namespace It.Unina.Dis.Logbus.Entities {
             }
             set {
                 this.lastHeartbeatField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool lastHeartbeatSpecified {
+            get {
+                return this.lastHeartbeatFieldSpecified;
+            }
+            set {
+                this.lastHeartbeatFieldSpecified = value;
             }
         }
         

@@ -35,9 +35,9 @@
 					<xs:extension base="em:LoggingEntityIdentifier">
 						<xs:sequence>
 							<xs:element name="appName" type="xs:string" form="unqualified" nillable="true"/>
-							<xs:element name="ffda" type="xs:boolean" default="false" form="unqualified" nillable="false"/>
-							<xs:element name="lastAction" type="xs:dateTime" form="unqualified" nillable="false"/>
-							<xs:element name="lastHeartbeat" type="xs:dateTime" form="unqualified"/>
+							<xs:element name="ffda" type="xs:boolean" default="false" form="unqualified"/>
+							<xs:element name="lastAction" type="xs:dateTime" form="unqualified"/>
+							<xs:element name="lastHeartbeat" type="xs:dateTime" form="unqualified" minOccurs="0"/>
 							<xs:element name="channelId" type="xs:string" form="unqualified" minOccurs="0"/>
 							<xs:element name="ffdaChannelId" type="xs:string" form="unqualified" minOccurs="0"/>
 						</xs:sequence>
