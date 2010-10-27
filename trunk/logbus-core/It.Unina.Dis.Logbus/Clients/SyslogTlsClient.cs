@@ -115,16 +115,20 @@ namespace It.Unina.Dis.Logbus.Clients
                     try
                     {
                         _server = new TcpListener(new IPEndPoint(localIp, i));
+                        _server.Start(1);
                         break;
                     }
                     catch (SocketException)
-                    { }
+                    {
+                    }
                 }
                 //Unable to bind to one of the default ports.
                 //Now pray your firewall is open to all TCP ports
-                if (_server == null) _server = new TcpListener(new IPEndPoint(localIp, 0));
-
-                _server.Start(1);
+                if (_server == null)
+                {
+                    _server = new TcpListener(new IPEndPoint(localIp, 0));
+                    _server.Start();
+                }
 
                 EndPoint ep = _server.Server.LocalEndPoint;
                 if (ep is IPEndPoint)
@@ -136,7 +140,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     throw new NotSupportedException("Only IP networks are supported");
                 }
-                
+
 
                 _runningThread = new Thread(RunnerLoop) { IsBackground = true };
                 _runningThread.Start();
