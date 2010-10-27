@@ -63,9 +63,6 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <param name="ffdaOnly">Whether to allow only FFDA messages or not</param>
         public EntityFilter(string host, string process, string logger, bool ffdaOnly)
         {
-            if (host == null) throw new ArgumentNullException("host");
-            if (process == null) throw new ArgumentNullException("process");
-            if (logger == null) throw new ArgumentNullException("logger");
             Host = host;
             Process = process;
             Logger = logger;
@@ -102,12 +99,21 @@ namespace It.Unina.Dis.Logbus.Entities
         public bool IsMatch(SyslogMessage message)
         {
             SyslogAttributes attrs = message.GetAdvancedAttributes();
-            return (
-                Host == (message.Host ?? "") &&
-                Process == (message.ProcessID ?? message.ApplicationName ?? "") &&
-                Logger == (attrs.LogName ?? "") &&
-                (!FfdaOnly || FfdaOnly && ((message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info)
-                || (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug))));
+
+            if (Host != null)
+                if (Host != (message.Host ?? string.Empty)) return false;
+
+            if (Process != null)
+                if (Process != (message.ProcessID ?? string.Empty)) return false;
+
+            if (Logger != null)
+                if (Logger != (attrs.LogName ?? string.Empty)) return false;
+
+            if (FfdaOnly)
+                return ((message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info)
+                        || (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug));
+
+            return true;
         }
 
         #endregion
@@ -126,11 +132,11 @@ namespace It.Unina.Dis.Logbus.Entities
 
 
             List<FilterParameter> @params = new List<FilterParameter>(4);
-            if (!string.IsNullOrEmpty(filter.Host))
+            if (filter.Host != null)
                 @params.Add(new FilterParameter { name = "host", value = filter.Host });
-            if (!string.IsNullOrEmpty(filter.Process))
+            if (filter.Process != null)
                 @params.Add(new FilterParameter { name = "process", value = filter.Process });
-            if (!string.IsNullOrEmpty(filter.Logger))
+            if (filter.Logger != null)
                 @params.Add(new FilterParameter { name = "logger", value = filter.Logger });
             @params.Add(new FilterParameter { name = "ffdaOnly", value = filter.FfdaOnly });
 
@@ -153,17 +159,17 @@ namespace It.Unina.Dis.Logbus.Entities
                     {
                         case "host":
                             {
-                                Host = parameter.value as string;
+                                Host = (parameter.value as string) ?? string.Empty;
                                 break;
                             }
                         case "process":
                             {
-                                Process = parameter.value as string;
+                                Process = (parameter.value as string) ?? string.Empty;
                                 break;
                             }
                         case "logger":
                             {
-                                Logger = parameter.value as string;
+                                Logger = (parameter.value as string) ?? string.Empty;
                                 break;
                             }
                         case "ffdaOnly":
