@@ -17,7 +17,9 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.FFDA
+using It.Unina.Dis.Logbus.FFDA;
+
+namespace It.Unina.Dis.Logbus
 {
     /// <summary>
     /// Extensions for <see cref="It.Unina.Dis.Logbus.SyslogMessage"/>
