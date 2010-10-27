@@ -57,6 +57,11 @@ namespace It.Unina.Dis.Logbus.FFDA
         public event EventHandler<FFDAEventArgs> GotFFDA;
 
         /// <summary>
+        /// Got heartbeat message
+        /// </summary>
+        public event EventHandler<SyslogMessageEventArgs> GotHeartbeat;
+
+        /// <summary>
         /// FFDA-specific events
         /// </summary>
         public event EventHandler<FFDAEventArgs> GotSST, GotSEN, GotEIS, GotEIE, GotRIS, GotRIE, GotSUP, GotSDW, GotCMP;
@@ -72,6 +77,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         {
             try
             {
+                if (msg.MessageId == "HEARTBEAT" && msg.Severity == SyslogSeverity.Debug && GotHeartbeat != null)
+                    GotHeartbeat(this, new SyslogMessageEventArgs(msg));
+
                 FFDAInformation info = new FFDAInformation(msg);
 
                 FFDAEventArgs e = new FFDAEventArgs
