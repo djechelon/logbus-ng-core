@@ -209,7 +209,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 catch (SocketException) { } //Really nothing?
 
-                _runningThread.Interrupt();
+                _runningThread.Abort();
                 _runningThread.Join();
                 _runningThread = null;
 
@@ -293,7 +293,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 catch (SocketException) { Stop(); }
                 catch (IOException) { Stop(); }*/
             }
-            catch (ThreadInterruptedException) { }
+            catch (ThreadAbortException) { }
         }
 
         private bool RemoteCertificateValidation(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
