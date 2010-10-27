@@ -157,6 +157,7 @@ namespace It.Unina.Dis.Logbus
                         //Try to instantiate
                         Type factoryType = Type.GetType(Configuration.outChannelFactoryType, true, false);
 
+
                         if (!factoryType.IsAssignableFrom(typeof(IOutboundChannelFactory)))
                         {
                             LogbusConfigurationException ex = new LogbusConfigurationException("Given Outbound Channel Factory does not implement IOutboundChannelFactory");
@@ -165,6 +166,7 @@ namespace It.Unina.Dis.Logbus
                         }
 
                         ChannelFactory = Activator.CreateInstance(factoryType) as IOutboundChannelFactory;
+
                     }
                     catch (TypeLoadException ex)
                     {
@@ -458,12 +460,12 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Implements ILogBus.OutChannelCreated
         /// </summary>
-        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs> OutChannelCreated;
+        public event EventHandler<OutChannelCreationEventArgs> OutChannelCreated;
 
         /// <summary>
         /// Implements ILogBus.OutChannelDeleted
         /// </summary>
-        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
+        public event EventHandler<OutChannelDeletionEventArgs> OutChannelDeleted;
 
         /// <summary>
         /// Implements ILogBus.Plugins
@@ -541,7 +543,7 @@ namespace It.Unina.Dis.Logbus
                     _hubThreads = new Thread[WORKER_THREADS];
                     for (i = 0; i < WORKER_THREADS; i++)
                     {
-                        _hubThreads[i] = new Thread(this.HubThreadLoop)
+                        _hubThreads[i] = new Thread(HubThreadLoop)
                         {
                             Name = string.Format("LogbusService.HubThreadLoop[{0}]", i),
                             Priority = ThreadPriority.Normal,
@@ -587,7 +589,7 @@ namespace It.Unina.Dis.Logbus
                         i = 0;
                         foreach (IInboundChannel chan in InboundChannels)
                         {
-                            chan.MessageReceived += channel_MessageReceived;
+                            chan.MessageReceived += ChannelMessageReceived;
                             if (chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStart();
                             i++;
                         }
@@ -667,7 +669,7 @@ namespace It.Unina.Dis.Logbus
                     i = 0;
                     foreach (IInboundChannel chan in InboundChannels)
                     {
-                        chan.MessageReceived -= this.MessageReceived;
+                        chan.MessageReceived -= MessageReceived;
                         if (chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStop();
                         i++;
                     }
@@ -767,12 +769,12 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Implements IRunnable.Starting
         /// </summary>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
         /// <summary>
         /// Implements IRunnable.Stopping
         /// </summary>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         /// <summary>
         /// Implements IRunnable.Started
@@ -835,29 +837,21 @@ namespace It.Unina.Dis.Logbus
             newChan.ID = channelId;
 
             //First find if there is one with same ID
+            if (GetOutboundChannel(channelId) != null)
+            {
+                LogbusException ex = new LogbusException("Channel already exists");
+                ex.Data.Add("channelId", channelId);
+                throw ex;
+            }
+
+            _outLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
             try
             {
-                _outLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
-                if (GetOutboundChannel(channelId) != null)
-                {
-                    LogbusException ex = new LogbusException("Channel already exists");
-                    ex.Data.Add("channelId", channelId);
-                    throw ex;
-                }
-
-                LockCookie cookie = _outLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
-                try
-                {
-                    OutboundChannels.Add(newChan);
-                }
-                finally
-                {
-                    _outLock.DowngradeFromWriterLock(ref cookie);
-                }
+                OutboundChannels.Add(newChan);
             }
             finally
             {
-                _outLock.ReleaseReaderLock();
+                _outLock.ReleaseWriterLock();
             }
 
             if (_running) newChan.Start();
@@ -1061,7 +1055,7 @@ namespace It.Unina.Dis.Logbus
         public void UnsubscribeClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("Client ID must not be null");
+            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("clientId", "Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {
@@ -1117,12 +1111,19 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Implements ILogBus.AddOutboundChannel
         /// </summary>
-        public void AddOutboundChannel(IOutboundChannel channel)
+        void ILogBus.AddOutboundChannel(IOutboundChannel channel)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            throw new NotImplementedException();
 
-            if (OutChannelCreated != null) OutChannelCreated(this, new It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs(channel));
+            _outLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+            try
+            {
+                OutboundChannels.Add(channel);
+            }
+            finally
+            {
+                _outLock.ReleaseWriterLock();
+            }
         }
 
         /// <summary>
@@ -1135,16 +1136,13 @@ namespace It.Unina.Dis.Logbus
             RemoveChannel(channelId);
         }
 
-
-
         /// <summary>
         /// Implements ILogBus.AddInboundChannel
         /// </summary>
-        public void AddInboundChannel(IInboundChannel channel)
+        void ILogBus.AddInboundChannel(IInboundChannel channel)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (channel == null) throw new ArgumentNullException("channel");
-
 
             try
             {
@@ -1167,9 +1165,9 @@ namespace It.Unina.Dis.Logbus
         }
 
         /// <summary>
-        /// Implements ILogBus.AddInboundChannel
+        /// Implements ILogBus.RemoveInboundChannel
         /// </summary>
-        public void RemoveInboundChannel(IInboundChannel channel)
+        void ILogBus.RemoveInboundChannel(IInboundChannel channel)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (channel == null) throw new ArgumentNullException("channel");
@@ -1213,17 +1211,17 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Implements ILogBus.ClientSubscribing
         /// </summary>
-        public event EventHandler<OutChannels.ClientSubscribingEventArgs> ClientSubscribing;
+        public event EventHandler<ClientSubscribingEventArgs> ClientSubscribing;
 
         /// <summary>
         /// Implements ILogBus.ClientSubscribed
         /// </summary>
-        public event EventHandler<OutChannels.ClientSubscribedEventArgs> ClientSubscribed;
+        public event EventHandler<ClientSubscribedEventArgs> ClientSubscribed;
 
         /// <summary>
         /// Implements ILogBus.ClientUnsubscribed
         /// </summary>
-        public event EventHandler<OutChannels.ClientUnsubscribedEventArgs> ClientUnsubscribed;
+        public event EventHandler<ClientUnsubscribedEventArgs> ClientUnsubscribed;
 
         #endregion
 
@@ -1269,7 +1267,7 @@ namespace It.Unina.Dis.Logbus
             set;
         }
 
-        private void channel_MessageReceived(object sender, SyslogMessageEventArgs e)
+        private void ChannelMessageReceived(object sender, SyslogMessageEventArgs e)
         {
             SubmitMessage(e.Message);
         }
@@ -1325,15 +1323,15 @@ namespace It.Unina.Dis.Logbus
 
             if (chan == null) return null; //Really?
 
-            return new RemoteLogbus.ChannelInformation()
-            {
-                clients = chan.SubscribedClients.ToString(),
-                coalescenceWindow = (long)chan.CoalescenceWindowMillis,
-                description = chan.Description,
-                filter = chan.Filter as FilterBase,
-                id = chan.ID,
-                title = chan.Name
-            };
+            return new RemoteLogbus.ChannelInformation
+                       {
+                           clients = chan.SubscribedClients.ToString(),
+                           coalescenceWindow = (long)chan.CoalescenceWindowMillis,
+                           description = chan.Description,
+                           filter = chan.Filter as FilterBase,
+                           id = chan.ID,
+                           title = chan.Name
+                       };
         }
 
         void IChannelManagement.DeleteChannel(string id)
@@ -1357,14 +1355,14 @@ namespace It.Unina.Dis.Logbus
 
         RemoteLogbus.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(RemoteLogbus.ChannelSubscriptionRequest request)
         {
-            IEnumerable<KeyValuePair<string, string>> out_params;
-            Dictionary<string, string> in_params = new Dictionary<string, string>();
-            foreach (It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair kvp in request.param)
-                in_params.Add(kvp.name, kvp.value);
+            IEnumerable<KeyValuePair<string, string>> outParams;
+            Dictionary<string, string> inParams = new Dictionary<string, string>();
+            foreach (RemoteLogbus.KeyValuePair kvp in request.param)
+                inParams.Add(kvp.name, kvp.value);
             string clientid;
             try
             {
-                clientid = SubscribeClient(request.channelid, request.transport, in_params, out out_params);
+                clientid = SubscribeClient(request.channelid, request.transport, inParams, out outParams);
             }
             catch (LogbusException)
             {
@@ -1375,11 +1373,10 @@ namespace It.Unina.Dis.Logbus
                 throw new LogbusException("Unable to subscribe to channel", ex);
             }
 
-            RemoteLogbus.ChannelSubscriptionResponse ret = new RemoteLogbus.ChannelSubscriptionResponse
-                                                               {clientid = clientid};
+            RemoteLogbus.ChannelSubscriptionResponse ret = new RemoteLogbus.ChannelSubscriptionResponse { clientid = clientid };
 
             List<RemoteLogbus.KeyValuePair> lst = new List<RemoteLogbus.KeyValuePair>();
-            foreach (KeyValuePair<string, string> kvp in out_params)
+            foreach (KeyValuePair<string, string> kvp in outParams)
                 lst.Add(new RemoteLogbus.KeyValuePair { name = kvp.Key, value = kvp.Value });
             ret.param = lst.ToArray();
 
@@ -1388,26 +1385,12 @@ namespace It.Unina.Dis.Logbus
 
         void IChannelSubscription.UnsubscribeChannel(string id)
         {
-            try
-            {
-                UnsubscribeClient(id);
-            }
-            catch
-            {
-                throw;
-            }
+            UnsubscribeClient(id);
         }
 
         void IChannelSubscription.RefreshSubscription(string id)
         {
-            try
-            {
-                RefreshClient(id);
-            }
-            catch
-            {
-                throw;
-            }
+            RefreshClient(id);
         }
 
         string[] IChannelSubscription.GetAvailableFilters()
@@ -1415,7 +1398,7 @@ namespace It.Unina.Dis.Logbus
             return CustomFilterHelper.Instance.GetAvailableCustomFilters();
         }
 
-        It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription IChannelSubscription.DescribeFilter(string filterid)
+        RemoteLogbus.FilterDescription IChannelSubscription.DescribeFilter(string filterid)
         {
             return CustomFilterHelper.Instance.DescribeFilter(filterid);
         }
