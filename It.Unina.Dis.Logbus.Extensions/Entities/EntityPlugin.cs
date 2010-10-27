@@ -49,6 +49,9 @@ namespace It.Unina.Dis.Logbus.Entities
 
         #region Constructor/Destructor
 
+        /// <summary>
+        /// Initializes a new instance of EntityPlugin
+        /// </summary>
         public EntityPlugin()
         {
             _messageQueue = new BlockingFifoQueue<SyslogMessage>();
@@ -207,9 +210,9 @@ namespace It.Unina.Dis.Logbus.Entities
 
             WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition
                                              {
-                SkeletonType = typeof(EntityManagementSkeleton),
-                UrlFileName = "EntityManagement"
-            };
+                                                 SkeletonType = typeof(EntityManagementSkeleton),
+                                                 UrlFileName = "EntityManagement"
+                                             };
             return new WsdlSkeletonDefinition[] { ret };
         }
 
@@ -419,7 +422,7 @@ namespace It.Unina.Dis.Logbus.Entities
         public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
-            
+
             DataRow[] rows;
 
             if (query == null)
@@ -454,19 +457,20 @@ namespace It.Unina.Dis.Logbus.Entities
             {
                 ret[i] = new LoggingEntity
                              {
-                    host = (string)rows[i][_colHost],
-                    process = (string)rows[i][_colProc],
-                    logger = (string)rows[i][_colLogger],
-                    appName = (string)rows[i][_colAppName],
-                    ffda = (bool)rows[i][_colFfda],
-                    lastAction = (DateTime)rows[i][_colLastAction],
-                    lastHeartbeat =
-                        (rows[i][_colLastHeartbeat] is DBNull)
-                            ? DateTime.MinValue
-                            : (DateTime)rows[i][_colLastHeartbeat],
-                    channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
-                    ffdaChannelId = (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
-                };
+                                 host = (string)rows[i][_colHost],
+                                 process = (string)rows[i][_colProc],
+                                 logger = (string)rows[i][_colLogger],
+                                 appName = (string)rows[i][_colAppName],
+                                 ffda = (bool)rows[i][_colFfda],
+                                 lastAction = (DateTime)rows[i][_colLastAction],
+                                 lastHeartbeatSpecified = !(rows[i][_colLastHeartbeat] is DBNull),
+                                 lastHeartbeat =
+                                     (rows[i][_colLastHeartbeat] is DBNull)
+                                         ? default(DateTime)
+                                         : (DateTime)rows[i][_colLastHeartbeat],
+                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
+                                 ffdaChannelId = (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
+                             };
             }
 
             return ret;
