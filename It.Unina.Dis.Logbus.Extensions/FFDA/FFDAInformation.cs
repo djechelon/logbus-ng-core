@@ -41,7 +41,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         {
             try
             {
-                if (message.MessageId == "FFDA")
+                if (message.MessageId == "FFDA" && message.Severity==SyslogSeverity.Info)
                 {
                     string txt = message.Text;
                     if (txt == null) throw new InvalidOperationException("Message is not FFD");
