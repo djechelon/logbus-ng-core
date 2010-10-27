@@ -186,9 +186,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 sslStream.AuthenticateAsClient(host);
 
                 TlsClient newClient = new TlsClient(newTcpClient, sslStream);
+                string id = newClient.GetHashCode().ToString();
 
                 _listLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
-                string id = newClient.GetHashCode().ToString();
                 try
                 {
                     _clients.Add(id, newClient);
@@ -397,7 +397,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             }
             finally
             {
-                _listLock.ReleaseWriterLock();
+                _listLock.ReleaseReaderLock();
             }
 
             Log.Notice("TLS transport {0} cleaned up {1} dead clients", GetHashCode(), toRemove.Count);
