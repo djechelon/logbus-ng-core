@@ -25,6 +25,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// <summary>
     /// Configuration error for Logbus
     /// </summary>
+    [Serializable]
     public class LogbusConfigurationException
         : LogbusException
     {

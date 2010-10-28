@@ -86,7 +86,7 @@ namespace It.Unina.Dis.Logbus
         /// <returns>Client ID in channel-specific format</returns>
         /// <exception cref="System.ArgumentNullException">Transport ID is null</exception>
         /// <exception cref="System.ArgumentException">Argument is invalid</exception>
-        /// <exception cref="TransportException">Exception reported by transport (ie. bad parameters)</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.TransportException">Exception reported by transport (ie. bad parameters)</exception>
         /// <exception cref="LogbusException"></exception>
         CLIENT_ID_TYPE SubscribeClient(string transportId, TRANSPORT_INSTRUCTIONS_TYPE inputInstructions,
                                        out CLIENT_INSTRUCTIONS_TYPE outputInstructions);
@@ -99,7 +99,7 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="System.ArgumentException">Argument is invalid</exception>
         /// <exception cref="LogbusException"></exception>
         /// <exception cref="System.InvalidOperationException">Client is not subscribed (or already expired)</exception>
-        /// <exception cref="TransportException">Exception reported by transport (ie. refresh not supported)</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.TransportException">Exception reported by transport (ie. refresh not supported)</exception>
         void RefreshClient(CLIENT_ID_TYPE clientId);
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="System.ArgumentNullException">Argument is null</exception>
         /// <exception cref="System.ArgumentException">Argument is invalid</exception>
         /// <exception cref="LogbusException"></exception>
-        /// <exception cref="TransportException">Exception reported by transport (ie. client not found)</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.TransportException">Exception reported by transport (ie. client not found)</exception>
         void UnsubscribeClient(CLIENT_ID_TYPE clientId);
     }
 }
