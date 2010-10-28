@@ -43,7 +43,7 @@ namespace It.Unina.Dis.Logbus.InChannels
     /// <item><c>ip</c></item>
     /// </list>
     /// </remarks>
-    public sealed class SyslogTlsReceiver
+    internal sealed class SyslogTlsReceiver
         : ReceiverBase
     {
         /// <summary>
@@ -54,7 +54,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Number of worker threads concurrently listening for datagrams
         /// </summary>
-        public new const int WORKER_THREADS = 4;
+        public const int WORKER_THREADS = 4;
 
         private TcpListener _listener;
         private string _certificatePath;

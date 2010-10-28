@@ -86,6 +86,9 @@ namespace It.Unina.Dis.Logbus.Loggers
         public SimpleLogImpl(ILogCollector target)
             : this(SyslogFacility.Local4, target) { }
 
+        /// <summary>
+        /// Destroys SimpleLogImpl
+        /// </summary>
         ~SimpleLogImpl()
         {
             if (_heartbeatTimer != null) _heartbeatTimer.Dispose();
@@ -141,7 +144,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                         MessageId = "HEARTBEAT"
                     };
 
-                    PreProcessMessage(ref msg);
+                    PreProcessMessage(msg);
 
                     msg.Data.Remove("origin");
                     msg.Data.Remove("timeQuality");
@@ -157,7 +160,11 @@ namespace It.Unina.Dis.Logbus.Loggers
             }
         }
 
-        protected virtual void PreProcessMessage(ref SyslogMessage msg)
+        /// <summary>
+        /// Processes the message before sending, adding contextual information
+        /// </summary>
+        /// <param name="msg">Message that is going to be sent</param>
+        protected virtual void PreProcessMessage(SyslogMessage msg)
         {
             // Getting the caller information (note that index is 3 because of Log is called by another local Method... 
             StackTrace stackTrace = new StackTrace();
@@ -207,6 +214,11 @@ namespace It.Unina.Dis.Logbus.Loggers
 #endif
         }
 
+        /// <summary>
+        /// Concretely performs logging
+        /// </summary>
+        /// <param name="message">Text message</param>
+        /// <param name="severity">Severity of message</param>
         protected virtual void Log(string message, SyslogSeverity severity)
         {
             //Reset heartbeating
@@ -223,13 +235,14 @@ namespace It.Unina.Dis.Logbus.Loggers
                 ApplicationName = appname
             };
 
-            PreProcessMessage(ref msg);
+            PreProcessMessage(msg);
 
             Collector.SubmitMessage(msg);
         }
 
         #region ILog Membri di
 
+        /// <remarks/>
         public string LogName
         {
             get;
@@ -276,42 +289,42 @@ namespace It.Unina.Dis.Logbus.Loggers
             Log(message, SyslogSeverity.Emergency);
         }
 
-        public void Debug(string format, params object[] args)
+        void ILog.Debug(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Debug);
         }
 
-        public void Info(string format, params object[] args)
+        void ILog.Info(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Info);
         }
 
-        public void Notice(string format, params object[] args)
+        void ILog.Notice(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Notice);
         }
 
-        public void Warning(string format, params object[] args)
+        void ILog.Warning(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Warning);
         }
 
-        public void Error(string format, params object[] args)
+        void ILog.Error(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Error);
         }
 
-        public void Critical(string format, params object[] args)
+        void ILog.Critical(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Critical);
         }
 
-        public void Alert(string format, params object[] args)
+        void ILog.Alert(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Alert);
         }
 
-        public void Emergency(string format, params object[] args)
+        void ILog.Emergency(string format, params object[] args)
         {
             Log(string.Format(format, args), SyslogSeverity.Emergency);
         }

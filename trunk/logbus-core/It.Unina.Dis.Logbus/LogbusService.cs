@@ -458,6 +458,14 @@ namespace It.Unina.Dis.Logbus
         }
 
         /// <summary>
+        /// Implements IRunnable.Running
+        /// </summary>
+        bool IRunnable.Running
+        {
+            get { return _running; }
+        }
+
+        /// <summary>
         /// Implements ILogBus.OutChannelCreated
         /// </summary>
         public event EventHandler<OutChannelCreationEventArgs> OutChannelCreated;

@@ -82,6 +82,9 @@ namespace It.Unina.Dis.Logbus.Clients
             Init();
         }
 
+        /// <summary>
+        /// Destroys ClientBase
+        /// </summary>
         ~ClientBase()
         {
             Dispose(false);
@@ -106,8 +109,14 @@ namespace It.Unina.Dis.Logbus.Clients
         }
         #endregion
 
+        /// <summary>
+        /// Whether the object has been disposed of or not
+        /// </summary>
         protected bool Disposed { get; private set; }
 
+        /// <summary>
+        /// ID of channel this object is subscribing to
+        /// </summary>
         protected string ChannelId { get; private set; }
 
         /// <summary>
@@ -294,6 +303,11 @@ namespace It.Unina.Dis.Logbus.Clients
         #region IRunnable Membri di
 
         /// <summary>
+        /// Implements IRunnable.Running
+        /// </summary>
+        public virtual bool Running { get; protected set; }
+
+        /// <summary>
         /// Implements IRunnable.Starting
         /// </summary>
         public event EventHandler<CancelEventArgs> Starting;
@@ -353,6 +367,9 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #region ILogSupport Membri di
 
+        /// <summary>
+        /// Implements ILogSupport.Log
+        /// </summary>
         public Loggers.ILog Log
         {
             protected get;

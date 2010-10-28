@@ -81,7 +81,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Whether the channel facility is running or not
         /// </summary>
-        protected bool Running
+        public bool Running
         {
             get;
             private set;
@@ -324,6 +324,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region ILogSupport Membri di
 
+        /// <summary>
+        /// Implements ILogSupport.Log
+        /// </summary>
         public Loggers.ILog Log
         {
             private get;

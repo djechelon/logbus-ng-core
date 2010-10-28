@@ -36,7 +36,8 @@ namespace It.Unina.Dis.Logbus.Configuration
         private int heartbeatintervalField;
 
         private bool permanentField;
-
+        
+        /// <remarks/>
         public LoggerDefinition()
         {
             this.heartbeatintervalField = 0;

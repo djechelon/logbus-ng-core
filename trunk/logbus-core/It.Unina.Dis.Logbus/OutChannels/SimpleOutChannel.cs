@@ -414,10 +414,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// 
         private void RunnerLoop()
         {
             try
@@ -474,6 +470,11 @@ namespace It.Unina.Dis.Logbus.OutChannels
         }
 
         #region IRunnable Membri di
+        /// <remarks/>
+        public bool Running
+        {
+            get { return _running; }
+        }
 
         /// <remarks/>
         public event EventHandler<CancelEventArgs> Starting;

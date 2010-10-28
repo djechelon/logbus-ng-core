@@ -17,7 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using log4net;
 using log4net.Layout;
 using System.Diagnostics;
 using System.Globalization;
@@ -25,15 +24,23 @@ using System.Net;
 using log4net.Core;
 namespace It.Unina.Dis.Logbus.log4net
 {
+    /// <summary>
+    /// Log4net layout class for Syslog 2009 format
+    /// </summary>
     public sealed class SyslogLayout
         : ILayout
     {
-
+        /// <summary>
+        /// Initializes a new instance of SyslogLayout
+        /// </summary>
         public SyslogLayout()
         {
             Facility = SyslogFacility.User;
         }
 
+        /// <summary>
+        /// Facility for SyslogLayout messages
+        /// </summary>
         public SyslogFacility Facility
         {
             get;

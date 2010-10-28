@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.InChannels
     /// Collects Syslog messages over UDP unicast channels
     /// </summary>
     /// <remarks>Implements RFC5426</remarks>
-    public sealed class SyslogUdpReceiver :
+    internal sealed class SyslogUdpReceiver :
         ReceiverBase
     {
 
@@ -152,6 +152,9 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
+        /// <summary>
+        /// Performs stop operations on UDP receiver
+        /// </summary>
         protected override void OnStop()
         {
             _listen = false;

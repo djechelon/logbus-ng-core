@@ -78,7 +78,7 @@ namespace
         /* Credit to Dan Tao and Les from stackoverflow.com
          * http://stackoverflow.com/questions/3898204/can-a-c-blocking-fifo-queue-leak-messages-whats-wrong-in-my-code */
 
-        public void Enqueue(T item)
+        void IFifoQueue<T>.Enqueue(T item)
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
             if (item == null) throw new ArgumentNullException("item");
@@ -97,7 +97,7 @@ namespace
 
         }
 
-        public T Dequeue()
+        T IFifoQueue<T>.Dequeue()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
@@ -115,7 +115,7 @@ namespace
             return ret;
         }
 
-        public int Count
+        int IFifoQueue<T>.Count
         {
             get
             {
@@ -124,13 +124,13 @@ namespace
             }
         }
 
-        public T[] Flush()
+        T[] IFifoQueue<T>.Flush()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
             return FlushInternal();
         }
 
-        public T[] FlushAndDispose()
+        T[] IFifoQueue<T>.FlushAndDispose()
         {
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
@@ -150,6 +150,9 @@ namespace
 
         #region IDisposable Membri di
 
+        /// <summary>
+        /// Implements IDisposable.Dispose
+        /// </summary>
         public void Dispose()
         {
             _disposed = true;

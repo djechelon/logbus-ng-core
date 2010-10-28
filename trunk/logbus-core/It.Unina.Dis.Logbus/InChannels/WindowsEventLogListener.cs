@@ -30,7 +30,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         : IInboundChannel, ILogSource
     {
 
-        private EventLog log;
+        private EventLog _log;
 
         #region Constructor/Destructor
 
@@ -77,7 +77,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         }
         #endregion
 
-        private bool Running { get; set; }
+        public bool Running { get; private set; }
 
         void log_EntryWritten(object sender, EntryWrittenEventArgs e)
         {
@@ -141,8 +141,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                 throw new LogbusException("Unable to start channel. Missing security clearance for the chosen machine", ex);
             }
 
-            log = new EventLog(LogName, Hostname);
-            log.EntryWritten += new EntryWrittenEventHandler(log_EntryWritten);
+            _log = new EventLog(LogName, Hostname);
+            _log.EntryWritten += new EntryWrittenEventHandler(log_EntryWritten);
         }
 
         public void Stop()
@@ -150,9 +150,9 @@ namespace It.Unina.Dis.Logbus.InChannels
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (!Running) throw new InvalidOperationException("Windows Event Log Listener is not running");
 
-            log.EntryWritten -= log_EntryWritten;
-            log.Close();
-            log = null;
+            _log.EntryWritten -= log_EntryWritten;
+            _log.Close();
+            _log = null;
         }
 
         public event EventHandler<ParseErrorEventArgs> ParseError;

@@ -106,9 +106,9 @@ namespace It.Unina.Dis.Logbus.FFDA
             return Thread.CurrentThread.GetHashCode().ToString(CultureInfo.InvariantCulture);
         }
 
-        protected override void PreProcessMessage(ref SyslogMessage msg)
+        protected override void PreProcessMessage(SyslogMessage msg)
         {
-            base.PreProcessMessage(ref msg);
+            base.PreProcessMessage(msg);
 
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
