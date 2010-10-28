@@ -25,11 +25,8 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// <summary>
     /// Helper class that provides configuration objects
     /// </summary>
-    public sealed class ConfigurationHelper
+    public static class ConfigurationHelper
     {
-        private ConfigurationHelper()
-        {
-        }
 
         private static LogbusCoreConfiguration _core;
         private static LogbusClientConfiguration _client;

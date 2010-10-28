@@ -93,16 +93,14 @@ namespace It.Unina.Dis.Logbus.Filters
             if (a == null) throw new ArgumentNullException("a");
             if (b == null) throw new ArgumentNullException("b");
 
-            FilterBase[] a_array = null, b_array = null;
+            FilterBase[] aArray = (a is OrFilter) ? ((OrFilter) a).filter : new[] {a};
+            FilterBase[] bArray = (b is OrFilter) ? ((OrFilter) b).filter : new[] {b};
 
-            a_array = (a is OrFilter) ? ((OrFilter) a).filter : new[] {a};
-            b_array = (b is OrFilter) ? ((OrFilter) b).filter : new[] {b};
+            FilterBase[] finalArray = new FilterBase[aArray.Length + bArray.Length];
+            Array.Copy(aArray, 0, finalArray, 0, aArray.Length);
+            Array.Copy(bArray, 0, finalArray, aArray.Length, bArray.Length);
 
-            FilterBase[] final_array = new FilterBase[a_array.Length + b_array.Length];
-            Array.Copy(a_array, 0, final_array, 0, a_array.Length);
-            Array.Copy(b_array, 0, final_array, a_array.Length, b_array.Length);
-
-            return new OrFilter {filter = final_array};
+            return new OrFilter {filter = finalArray};
         }
 
         /// <summary>
@@ -119,16 +117,14 @@ namespace It.Unina.Dis.Logbus.Filters
             if (a == null) throw new ArgumentNullException("a");
             if (b == null) throw new ArgumentNullException("b");
 
-            FilterBase[] a_array = null, b_array = null;
+            FilterBase[] aArray = (a is AndFilter) ? ((AndFilter) a).filter : new[] {a};
+            FilterBase[] bArray = (b is AndFilter) ? ((AndFilter) b).filter : new[] {b};
 
-            a_array = (a is AndFilter) ? ((AndFilter) a).filter : new[] {a};
-            b_array = (b is AndFilter) ? ((AndFilter) b).filter : new[] {b};
+            FilterBase[] finalArray = new FilterBase[aArray.Length + bArray.Length];
+            Array.Copy(aArray, 0, finalArray, 0, aArray.Length);
+            Array.Copy(bArray, 0, finalArray, aArray.Length, bArray.Length);
 
-            FilterBase[] final_array = new FilterBase[a_array.Length + b_array.Length];
-            Array.Copy(a_array, 0, final_array, 0, a_array.Length);
-            Array.Copy(b_array, 0, final_array, a_array.Length, b_array.Length);
-
-            return new AndFilter {filter = final_array};
+            return new AndFilter {filter = finalArray};
         }
     }
 }

@@ -237,7 +237,7 @@ namespace It.Unina.Dis.Logbus
 
         private int PriVal
         {
-            get { return (int) Facility*8 + (int) Severity; }
+            get { return (int)Facility * 8 + (int)Severity; }
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace It.Unina.Dis.Logbus
             return ToRfc5424String();
         }
 
-        private static string ToStringData(string key, IDictionary<string, string> data)
+        private static string ToStringData(string key, IEnumerable<KeyValuePair<string, string>> data)
         {
             StringBuilder ret = new StringBuilder();
 
@@ -388,7 +388,7 @@ namespace It.Unina.Dis.Logbus
             List<string> elements = new List<string>();
             foreach (KeyValuePair<string, string> kvp in data)
             {
-                elements.Add(string.Format(@"{0}=""{1}""", kvp.Key, Escape(kvp.Value, new[] {'"', '\\', ']'})));
+                elements.Add(string.Format(@"{0}=""{1}""", kvp.Key, Escape(kvp.Value, new[] { '"', '\\', ']' })));
             }
 
             if (elements.Count > 0)
@@ -401,7 +401,7 @@ namespace It.Unina.Dis.Logbus
             return ret.ToString();
         }
 
-        private static string Escape(string input, char[] specialChars)
+        private static string Escape(IEnumerable<char> input, IEnumerable<char> specialChars)
         {
             StringBuilder ret = new StringBuilder();
             foreach (char c in input)
@@ -498,9 +498,9 @@ namespace It.Unina.Dis.Logbus
 
                 //Calculate prival = Facility*8 + Severity...
                 String prival = newPayload.Split('>')[0];
-                Int32 severity = 0;
-                ret.Facility = (SyslogFacility) Math.DivRem(Int32.Parse(prival), 8, out severity);
-                ret.Severity = (SyslogSeverity) severity;
+                Int32 severity;
+                ret.Facility = (SyslogFacility)Math.DivRem(Int32.Parse(prival), 8, out severity);
+                ret.Severity = (SyslogSeverity)severity;
                 pointer += prival.Length + 1;
 
                 //Calculate Timestamp...
@@ -509,8 +509,7 @@ namespace It.Unina.Dis.Logbus
                 pointer += 4;
                 newPayload = payload.Substring(pointer);
 
-                Int32 day = 0;
-                day = Int32.Parse(newPayload[0] == ' ' ? newPayload.Substring(1, 1) : newPayload.Substring(0, 2));
+                int day = Int32.Parse(newPayload[0] == ' ' ? newPayload.Substring(1, 1) : newPayload.Substring(0, 2));
                 pointer += 3;
                 newPayload = payload.Substring(pointer);
 
@@ -588,9 +587,9 @@ namespace It.Unina.Dis.Logbus
 
                 //Calculate prival = Facility*8 + Severity...
                 String prival = newPayload.Split('>')[0];
-                Int32 severity = 0;
-                ret.Facility = (SyslogFacility) Math.DivRem(Int32.Parse(prival), 8, out severity);
-                ret.Severity = (SyslogSeverity) severity;
+                Int32 severity;
+                ret.Facility = (SyslogFacility)Math.DivRem(Int32.Parse(prival), 8, out severity);
+                ret.Severity = (SyslogSeverity)severity;
                 pointer += prival.Length + 1;
 
                 //Calculate Version...
@@ -622,8 +621,8 @@ namespace It.Unina.Dis.Logbus
                     if (elem[1].Contains("-"))
                     {
                         elem2 = elem[1].Split('-');
-                        fusoH = Int32.Parse(elem2[1].Split(':')[0])*-1;
-                        fusoM = Int32.Parse(elem2[1].Split(':')[1])*-1;
+                        fusoH = Int32.Parse(elem2[1].Split(':')[0]) * -1;
+                        fusoM = Int32.Parse(elem2[1].Split(':')[1]) * -1;
                     }
                     else if (elem[1].Contains("+"))
                     {
@@ -728,9 +727,9 @@ namespace It.Unina.Dis.Logbus
                     if (newPayload.EndsWith("\r\n")) newPayload = newPayload.Substring(0, newPayload.Length - 2);
                     else if (newPayload.EndsWith("\n")) newPayload = newPayload.Substring(0, newPayload.Length - 1);
 
-                    byte[] BOM = {0xef, 0xbb, 0xbf}, utf8String = Encoding.UTF8.GetBytes(newPayload);
+                    byte[] bom = { 0xef, 0xbb, 0xbf }, utf8String = Encoding.UTF8.GetBytes(newPayload);
 
-                    if (BOM[0] == utf8String[0] && BOM[1] == utf8String[1] && BOM[2] == utf8String[2])
+                    if (bom[0] == utf8String[0] && bom[1] == utf8String[1] && bom[2] == utf8String[2])
                         ret.Text = Encoding.UTF8.GetString(utf8String, 3, utf8String.Length - 3); //Cut BOM
                     else
                         ret.Text = newPayload;
@@ -765,18 +764,18 @@ namespace It.Unina.Dis.Logbus
             if (payload[0] != '<')
                 //RFC5424 messages ALL start with LT, so this is either a No-PRI RFC3164 message or completely invalid message
                 return Parse3164(payload);
-                //Message begins with LT, so there must be GT
-            else if (char.IsDigit(payload[payload.IndexOf('>') + 1]))
+            //Message begins with LT, so there must be GT
+            if (char.IsDigit(payload[payload.IndexOf('>') + 1]))
                 //After GT there is a number. It should be the Version number of RFC5424
                 return Parse5424(payload);
-            else if (char.IsLetter(payload[payload.IndexOf('>') + 1]))
+            if (char.IsLetter(payload[payload.IndexOf('>') + 1]))
             {
                 //It should be the name of a month. Trying with 3164
                 return Parse3164(payload);
             }
-            else
-                //Definitely bad message
-                throw new FormatException("The message is not formatted into any supported Syslog format");
+
+            //Definitely bad message
+            throw new FormatException("The message is not formatted into any supported Syslog format");
         }
 
         /// <summary>

@@ -79,7 +79,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
             return new ChannelInformation
                        {
                            clients = chan.SubscribedClients.ToString(),
-                           coalescenceWindow = (long) chan.CoalescenceWindowMillis,
+                           coalescenceWindow = (long)chan.CoalescenceWindowMillis,
                            description = chan.Description,
                            filter = chan.Filter as FilterBase,
                            id = chan.ID,
@@ -99,11 +99,18 @@ namespace It.Unina.Dis.Logbus.Wrappers
                     break;
                 }
 
-            if (chan.SubscribedClients > 0)
-                throw new InvalidOperationException(
-                    "Unable to delete channels to which there are still subscribed clients");
-            chan.Stop();
-            _target.OutboundChannels.Remove(chan);
+            if (chan != null)
+            {
+                if (chan.SubscribedClients > 0)
+                    throw new InvalidOperationException(
+                        "Unable to delete channels to which there are still subscribed clients");
+                chan.Stop();
+                _target.OutboundChannels.Remove(chan);
+            }
+            else
+            {
+                throw new LogbusException(string.Format("Channel {0} not found", id));
+            }
         }
 
         #endregion
@@ -141,7 +148,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
             List<KeyValuePair> lst = new List<KeyValuePair>();
             foreach (KeyValuePair<string, string> kvp in out_params)
-                lst.Add(new KeyValuePair {name = kvp.Key, value = kvp.Value});
+                lst.Add(new KeyValuePair { name = kvp.Key, value = kvp.Value });
             ret.param = lst.ToArray();
 
             return ret;

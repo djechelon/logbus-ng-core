@@ -75,6 +75,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _disposed = true;
 
             _worker.Interrupt();
+            _cleaner.Dispose();
 
             if (disposing)
             {
