@@ -89,8 +89,12 @@ namespace It.Unina.Dis.Logbus.FFDA
         {
             try
             {
-                if (msg.MessageId == "HEARTBEAT" && msg.Severity == SyslogSeverity.Debug && GotHeartbeat != null)
-                    GotHeartbeat(this, new SyslogMessageEventArgs(msg));
+                if (msg.MessageId == "HEARTBEAT" && msg.Severity == SyslogSeverity.Debug)
+                {
+                    if (GotHeartbeat != null)
+                        GotHeartbeat(this, new SyslogMessageEventArgs(msg));
+                    return;
+                }
 
                 FFDAInformation info = new FFDAInformation(msg);
 
