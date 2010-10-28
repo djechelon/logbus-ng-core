@@ -22,21 +22,13 @@ using System.Web.Services;
 
 namespace It.Unina.Dis.Logbus.Entities
 {
-#if MONO
-    /// <summary>
-    /// WSDL skeleton class for EntityPlugin
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
-    [System.Web.Services.WebServiceBindingAttribute(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggingEntityIdentifier))]
-#endif
-
     /// <summary>
     /// WSDL skeleton class for EntityPlugin
     /// </summary>
     public sealed class EntityManagementSkeleton
         : WebService, IEntityManagement
     {
+
         private readonly IEntityManagement _proxy;
 
         /// <summary>
@@ -55,29 +47,19 @@ namespace It.Unina.Dis.Logbus.Entities
 
         #region IEntityManagement Membri di
 
-#if MONO
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetLoggingEntities", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable = false)]
-#endif
-
-        LoggingEntity[] IEntityManagement.GetLoggingEntities()
+        /// <summary>
+        /// Implements IEntityManagement.GetLoggingEntities
+        /// </summary>
+        public LoggingEntity[] GetLoggingEntities()
         {
             return _proxy.GetLoggingEntities();
         }
 
-#if MONO
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#FindLoggingEntities", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable = false)]
-        LoggingEntity[] IEntityManagement.FindLoggingEntities([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query)
+        /// <summary>
+        /// Implements IEntityManagement.FindLoggingEntities
+        /// </summary>
+        public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
         {
-#else
-        LoggingEntity[] IEntityManagement.FindLoggingEntities(TemplateQuery query)
-        {
-#endif
             return _proxy.FindLoggingEntities(query);
         }
 
