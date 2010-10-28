@@ -17,18 +17,24 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class LoggerDefinition : TypeAndParamBase
+    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class LoggerDefinition : TypeAndParamBase
     {
-
         private string nameField;
 
         private string collectoridField;
@@ -36,70 +42,46 @@ namespace It.Unina.Dis.Logbus.Configuration
         private int heartbeatintervalField;
 
         private bool permanentField;
-        
+
         /// <remarks/>
         public LoggerDefinition()
         {
-            this.heartbeatintervalField = 0;
-            this.permanentField = false;
+            heartbeatintervalField = 0;
+            permanentField = false;
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string name
         {
-            get
-            {
-                return this.nameField;
-            }
-            set
-            {
-                this.nameField = value;
-            }
+            get { return nameField; }
+            set { nameField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute("collector-id")]
+        [XmlAttribute("collector-id")]
         public string collectorid
         {
-            get
-            {
-                return this.collectoridField;
-            }
-            set
-            {
-                this.collectoridField = value;
-            }
+            get { return collectoridField; }
+            set { collectoridField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute("heartbeat-interval")]
-        [System.ComponentModel.DefaultValueAttribute(0)]
+        [XmlAttribute("heartbeat-interval")]
+        [DefaultValue(0)]
         public int heartbeatinterval
         {
-            get
-            {
-                return this.heartbeatintervalField;
-            }
-            set
-            {
-                this.heartbeatintervalField = value;
-            }
+            get { return heartbeatintervalField; }
+            set { heartbeatintervalField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        [System.ComponentModel.DefaultValueAttribute(false)]
+        [XmlAttribute]
+        [DefaultValue(false)]
         public bool permanent
         {
-            get
-            {
-                return this.permanentField;
-            }
-            set
-            {
-                this.permanentField = value;
-            }
+            get { return permanentField; }
+            set { permanentField = value; }
         }
     }
 }

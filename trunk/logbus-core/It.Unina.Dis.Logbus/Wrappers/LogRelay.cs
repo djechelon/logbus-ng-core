@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Wrappers
 {
     /// <summary>
@@ -44,7 +46,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Implements ILogSource.MessageReceived
         /// </summary>
-        public event System.EventHandler<SyslogMessageEventArgs> MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
     }

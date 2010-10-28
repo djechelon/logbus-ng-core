@@ -17,8 +17,9 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.Collectors;
 using System.Net;
+using It.Unina.Dis.Logbus.Collectors;
+
 namespace It.Unina.Dis.Logbus.FFDA
 {
     /// <summary>
@@ -26,7 +27,6 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// </summary>
     public sealed class FFDAHelper
     {
-
         /// <summary>
         /// Creates an FFDA logger by logger name. If logger is maked as static and has been already instanced, the method returns the current
         /// instance of the logger

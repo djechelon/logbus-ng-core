@@ -18,17 +18,17 @@
 */
 
 using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.OutTransports;
+using It.Unina.Dis.Logbus.RemoteLogbus;
 #if MONO
 using System.Net.NetworkInformation;
 #endif
-using It.Unina.Dis.Logbus.OutTransports;
-using It.Unina.Dis.Logbus.RemoteLogbus;
-using System.Threading;
-using System.ComponentModel;
-using System.Net.Sockets;
-using It.Unina.Dis.Logbus.Filters;
-using System.Globalization;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -43,21 +43,20 @@ namespace It.Unina.Dis.Logbus.Clients
     internal sealed class SyslogUdpClient
         : ClientBase
     {
-
         public const int START_PORT = 20686, END_PORT = 25686;
         private const long MAX_REFRESH_TIME = 60000;
 
         private Timer _refreshTimer;
         private UdpClient _client;
-        private long _channelTtl = 0;
+        private long _channelTtl;
 
 
         private string _clientId;
         private bool _running;
         private Thread _runningThread;
 
-
         #region Constructor/Destructor
+
         /// <summary>
         /// Initializes a new instance of SyslogUdpClient for running on an exclusive channel
         /// </summary>
@@ -67,7 +66,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <exception cref="LogbusException">Thrown when an error prevents to create a new channel</exception>
         public SyslogUdpClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
             : base(filter, manager, subscription)
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of SyslogUdpClient for running on a shared channel
@@ -76,7 +76,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="subscription">Reference to Channel Subscriber</param>
         public SyslogUdpClient(string channelId, IChannelSubscription subscription)
             : base(channelId, subscription)
-        { }
+        {
+        }
 
         ~SyslogUdpClient()
         {
@@ -87,7 +88,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void RefreshChannel(Object status)
         {
-            string clientId = (string)status;
+            string clientId = (string) status;
             try
             {
                 ChannelSubscriber.RefreshSubscription(clientId);
@@ -111,7 +112,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 try
                 {
                     //Take some rest
-                    Thread.Sleep((int)(_channelTtl / 20));
+                    Thread.Sleep((int) (_channelTtl/20));
 
                     ChannelSubscriber.RefreshSubscription(clientId);
                 }
@@ -119,14 +120,18 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     OnError(new UnhandledExceptionEventArgs(e, true));
 
-                    Log.Error("Unable to refresh subscription of client {0} on channel {1} for the second consecutive time", _clientId, ChannelId);
+                    Log.Error(
+                        "Unable to refresh subscription of client {0} on channel {1} for the second consecutive time",
+                        _clientId, ChannelId);
                     Log.Debug("Error details: {0}", e.Message);
 
                     try
                     {
                         Stop();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
             }
         }
@@ -139,7 +144,6 @@ namespace It.Unina.Dis.Logbus.Clients
             if (_running) throw new NotSupportedException("Client is already running");
             try
             {
-
                 CancelEventArgs arg = new CancelEventArgs();
                 OnStarting(arg);
                 if (arg.Cancel)
@@ -178,14 +182,16 @@ namespace It.Unina.Dis.Logbus.Clients
 #else
                     try
                     {
-                        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { ExclusiveAddressUse = true };
+                        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+                                            {ExclusiveAddressUse = true};
                         socket.Bind(new IPEndPoint(localIp, i));
 
-                        _client = new UdpClient { Client = socket };
+                        _client = new UdpClient {Client = socket};
                         break;
                     }
                     catch (SocketException)
-                    { }
+                    {
+                    }
 #endif
                 }
                 //Unable to bind to one of the default ports.
@@ -195,7 +201,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 EndPoint ep = _client.Client.LocalEndPoint;
                 if (ep is IPEndPoint)
                 {
-                    IPEndPoint ipe = (IPEndPoint)ep;
+                    IPEndPoint ipe = (IPEndPoint) ep;
                     port = ipe.Port;
                 }
                 else
@@ -203,27 +209,35 @@ namespace It.Unina.Dis.Logbus.Clients
                     throw new NotSupportedException("Only IP networks are supported");
                 }
 
-                _runningThread = new Thread(RunnerLoop) { IsBackground = true };
+                _runningThread = new Thread(RunnerLoop) {IsBackground = true};
                 _runningThread.Start();
 
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest
-                {
-                    channelid = ChannelId,
-                    transport = "udp",
-                    param = new KeyValuePair[] 
-                    { 
-                        new KeyValuePair { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, 
-                        new KeyValuePair { name = "ip", value = localIp.ToString() } 
-                    }
-                };
+                                                     {
+                                                         channelid = ChannelId,
+                                                         transport = "udp",
+                                                         param = new[]
+                                                                     {
+                                                                         new KeyValuePair
+                                                                             {
+                                                                                 name = "port",
+                                                                                 value =
+                                                                                     port.ToString(
+                                                                                         CultureInfo.InvariantCulture)
+                                                                             },
+                                                                         new KeyValuePair
+                                                                             {name = "ip", value = localIp.ToString()}
+                                                                     }
+                                                     };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 _clientId = res.clientid;
                 _channelTtl = MAX_REFRESH_TIME;
                 foreach (KeyValuePair kvp in res.param)
                     if (kvp.name == "ttl")
                         if (long.TryParse(kvp.value, out _channelTtl)) break;
-                long refreshTime = Math.Min(_channelTtl * 4 / 5, MAX_REFRESH_TIME); //80% of the max TTL, but not over max TTL
+                long refreshTime = Math.Min(_channelTtl*4/5, MAX_REFRESH_TIME);
+                    //80% of the max TTL, but not over max TTL
 
                 _refreshTimer = new Timer(RefreshChannel, _clientId, refreshTime, refreshTime);
 
@@ -251,7 +265,6 @@ namespace It.Unina.Dis.Logbus.Clients
             if (!_running) throw new NotSupportedException("Client is not running");
             try
             {
-
                 CancelEventArgs arg = new CancelEventArgs();
                 OnStopping(arg);
                 if (arg.Cancel)
@@ -266,14 +279,18 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     ChannelSubscriber.UnsubscribeChannel(_clientId);
                 }
-                catch (LogbusException) { }
+                catch (LogbusException)
+                {
+                }
                 _clientId = null;
 
                 try
                 {
                     _client.Close(); //Trigger SocketException if thread is blocked into listening
                 }
-                catch (SocketException) { } //Really nothing?
+                catch (SocketException)
+                {
+                } //Really nothing?
 
                 _runningThread.Interrupt();
                 _runningThread.Join();
@@ -310,7 +327,9 @@ namespace It.Unina.Dis.Logbus.Clients
             {
                 Stop();
             }
-            catch { }
+            catch
+            {
+            }
 
             if (disposing)
             {
@@ -347,7 +366,9 @@ namespace It.Unina.Dis.Logbus.Clients
                     //if (Stopped) //Yes, we are closing
                     return;
                 }
-                catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
+                catch (Exception)
+                {
+                } //Really do nothing? Shouldn't we stop the service?
             }
         }
     }

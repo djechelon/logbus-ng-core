@@ -25,7 +25,6 @@ namespace It.Unina.Dis.Logbus
     /// </summary>
     public interface ILogCollector
     {
-
         /// <summary>
         /// Submits a Syslog message to the Log bus for possible forwarding
         /// </summary>

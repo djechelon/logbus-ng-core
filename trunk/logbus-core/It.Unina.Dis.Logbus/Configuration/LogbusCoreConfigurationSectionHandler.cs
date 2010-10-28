@@ -17,30 +17,29 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Configuration;
-using System.Xml.Serialization;
-using System.Xml;
 using System;
+using System.Configuration;
+using System.Xml;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
     /// Configuration section handler for App.config/Web.config
     /// </summary>
-    public class LogbusCoreConfigurationSectionHandler: IConfigurationSectionHandler
+    public class LogbusCoreConfigurationSectionHandler : IConfigurationSectionHandler
     {
-       
-
         #region IConfigurationSectionHandler Membri di
 
         /// <summary>
         /// Read configuration and return a <see cref="It.Unina.Dis.Logbus.Configuration.LogbusCoreConfiguration"/> object by design contract
         /// </summary>
         /// <returns></returns>
-        object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
+        object IConfigurationSectionHandler.Create(object parent, object configContext, XmlNode section)
         {
             try
             {
-                return new XmlSerializer(typeof(LogbusCoreConfiguration)).Deserialize(new XmlNodeReader(section));
+                return new XmlSerializer(typeof (LogbusCoreConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {

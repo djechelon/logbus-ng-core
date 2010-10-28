@@ -17,18 +17,23 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("logbus-logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class LogbusLoggerConfiguration
+    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("logbus-logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class LogbusLoggerConfiguration
     {
-
         private LogbusCollectorDefinition[] collectorField;
 
         private LoggerDefinition[] loggerField;
@@ -42,78 +47,48 @@ namespace It.Unina.Dis.Logbus.Configuration
         /// <remarks/>
         public LogbusLoggerConfiguration()
         {
-            this.defaultheartbeatintervalField = 0;
+            defaultheartbeatintervalField = 0;
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("collector")]
+        [XmlElement("collector")]
         public LogbusCollectorDefinition[] collector
         {
-            get
-            {
-                return this.collectorField;
-            }
-            set
-            {
-                this.collectorField = value;
-            }
+            get { return collectorField; }
+            set { collectorField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("logger")]
+        [XmlElement("logger")]
         public LoggerDefinition[] logger
         {
-            get
-            {
-                return this.loggerField;
-            }
-            set
-            {
-                this.loggerField = value;
-            }
+            get { return loggerField; }
+            set { loggerField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute("default-logger-type")]
+        [XmlAttribute("default-logger-type")]
         public string defaultloggertype
         {
-            get
-            {
-                return this.defaultloggertypeField;
-            }
-            set
-            {
-                this.defaultloggertypeField = value;
-            }
+            get { return defaultloggertypeField; }
+            set { defaultloggertypeField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute("default-collector")]
+        [XmlAttribute("default-collector")]
         public string defaultcollector
         {
-            get
-            {
-                return this.defaultcollectorField;
-            }
-            set
-            {
-                this.defaultcollectorField = value;
-            }
+            get { return defaultcollectorField; }
+            set { defaultcollectorField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute("default-heartbeat-interval")]
-        [System.ComponentModel.DefaultValueAttribute(0)]
+        [XmlAttribute("default-heartbeat-interval")]
+        [DefaultValue(0)]
         public int defaultheartbeatinterval
         {
-            get
-            {
-                return this.defaultheartbeatintervalField;
-            }
-            set
-            {
-                this.defaultheartbeatintervalField = value;
-            }
+            get { return defaultheartbeatintervalField; }
+            set { defaultheartbeatintervalField = value; }
         }
     }
 }

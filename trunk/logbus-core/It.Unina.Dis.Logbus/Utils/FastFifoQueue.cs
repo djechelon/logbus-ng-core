@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace
@@ -34,7 +33,6 @@ namespace
         FastFifoQueue<T>
         : IFifoQueue<T> where T : class
     {
-
         private T[] _array;
         private int _head, _tail, _count;
         private readonly int _capacity;
@@ -43,12 +41,14 @@ namespace
         private readonly Semaphore _readSema, _writeSema;
 
         #region Constructor
+
         /// <summary>
         /// Initializes a new instance of FastFifoQueue
         /// </summary>
         public FastFifoQueue()
             : this(512)
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes FastFifoQueue with the specified capacity
@@ -94,7 +94,6 @@ namespace
             Interlocked.Increment(ref _count);
 
             _readSema.Release();
-
         }
 
         T IFifoQueue<T>.Dequeue()

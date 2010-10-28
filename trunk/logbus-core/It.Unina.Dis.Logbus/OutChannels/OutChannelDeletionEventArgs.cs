@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     /// <summary>
@@ -26,13 +27,11 @@ namespace It.Unina.Dis.Logbus.OutChannels
     public sealed class OutChannelDeletionEventArgs
         : EventArgs
     {
-
         /// <summary>
         /// Initializes a new instance of OutChannelDeletionEventArgs
         /// </summary>
         /// <param name="channelId">ID of channel just deleted</param>
         public OutChannelDeletionEventArgs(string channelId)
-            : base()
         {
             if (string.IsNullOrEmpty(channelId)) throw new ArgumentNullException("channelId");
             ChannelId = channelId;

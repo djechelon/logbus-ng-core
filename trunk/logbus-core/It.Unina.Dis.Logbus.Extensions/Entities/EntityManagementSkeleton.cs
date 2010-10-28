@@ -17,11 +17,11 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Web.Services;
 using System;
+using System.Web.Services;
+
 namespace It.Unina.Dis.Logbus.Entities
 {
-   
 #if MONO
     /// <summary>
     /// WSDL skeleton class for EntityPlugin
@@ -30,13 +30,13 @@ namespace It.Unina.Dis.Logbus.Entities
     [System.Web.Services.WebServiceBindingAttribute(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggingEntityIdentifier))]
 #endif
+
     /// <summary>
     /// WSDL skeleton class for EntityPlugin
     /// </summary>
     public sealed class EntityManagementSkeleton
         : WebService, IEntityManagement
     {
-
         private readonly IEntityManagement _proxy;
 
         /// <summary>
@@ -44,9 +44,13 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public EntityManagementSkeleton()
         {
-            _proxy = (Application[EntityPlugin.PLUGIN_ID] as IEntityManagement ?? AppDomain.CurrentDomain.GetData(EntityPlugin.PLUGIN_ID)) as IEntityManagement;
+            _proxy =
+                (Application[EntityPlugin.PLUGIN_ID] as IEntityManagement ??
+                 AppDomain.CurrentDomain.GetData(EntityPlugin.PLUGIN_ID)) as IEntityManagement;
 
-            if (_proxy==null) throw new InvalidOperationException("No Entity Manager proxy found. Perhaps it has not been activated in App.config/Web.config.");
+            if (_proxy == null)
+                throw new InvalidOperationException(
+                    "No Entity Manager proxy found. Perhaps it has not been activated in App.config/Web.config.");
         }
 
         #region IEntityManagement Membri di
@@ -57,6 +61,7 @@ namespace It.Unina.Dis.Logbus.Entities
         [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable = false)]
 #endif
+
         LoggingEntity[] IEntityManagement.GetLoggingEntities()
         {
             return _proxy.GetLoggingEntities();

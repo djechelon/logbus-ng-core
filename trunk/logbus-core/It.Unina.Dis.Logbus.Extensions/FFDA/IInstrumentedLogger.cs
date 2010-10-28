@@ -18,13 +18,14 @@
 */
 
 using It.Unina.Dis.Logbus.Loggers;
+
 namespace It.Unina.Dis.Logbus.FFDA
 {
     /// <summary>
     /// Interface that mixes classic logging with advanced FFDA logging
     /// </summary>
     public interface IInstrumentedLogger
-        :ILog, IFFDALogger
+        : ILog, IFFDALogger
     {
     }
 }

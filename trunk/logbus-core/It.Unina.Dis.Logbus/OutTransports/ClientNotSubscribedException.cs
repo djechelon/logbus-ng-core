@@ -32,7 +32,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// </summary>
         public ClientNotSubscribedException()
             : base("Client not subscribed")
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of ClientNotSubscribedException
@@ -40,6 +41,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// <param name="innerException">Exception that caused ClientNotSubscribedException</param>
         public ClientNotSubscribedException(Exception innerException)
             : base("Client not subscribed", innerException)
-        { }
+        {
+        }
     }
 }

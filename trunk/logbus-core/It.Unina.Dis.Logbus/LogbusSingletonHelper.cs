@@ -34,15 +34,12 @@ namespace It.Unina.Dis.Logbus
             get
             {
                 if (_instance == null)
-                    lock (typeof(LogbusSingletonHelper))
+                    lock (typeof (LogbusSingletonHelper))
                         if (_instance == null)
                             _instance = new LogbusService();
                 return _instance;
             }
-            internal set
-            {
-                _instance = value;
-            }
+            internal set { _instance = value; }
         }
     }
 }

@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Design
 {
     /// <summary>
@@ -25,17 +27,16 @@ namespace It.Unina.Dis.Logbus.Design
     /// The attribute MUST be applied to a subclass of <see cref="IOutboundTransportFactory"/> and NOT to
     /// a subclass of <see cref="IOutboundTransport"/>
     /// </summary>
-    [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public sealed class TransportFactoryAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public sealed class TransportFactoryAttribute : Attribute
     {
-
         /// <summary>
         /// Initializes TransportFactoryAttribute with the required tag
         /// </summary>
         /// <param name="tag"></param>
         public TransportFactoryAttribute(string tag)
         {
-            this.Tag = tag;
+            Tag = tag;
         }
 
         /// <summary>

@@ -55,6 +55,5 @@ namespace It.Unina.Dis.Logbus.Utils
         /// </summary>
         /// <returns></returns>
         T[] FlushAndDispose();
-
     }
 }

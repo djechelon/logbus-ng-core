@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.Diagnostics;
 
 namespace It.Unina.Dis.Logbus.FFDA
 {
@@ -30,7 +29,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// Initializes a new instance of FFDAInformation
         /// </summary>
-        public FFDAInformation() { }
+        public FFDAInformation()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of FFDAInformation
@@ -41,7 +42,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         {
             try
             {
-                if (message.MessageId == "FFDA" && message.Severity==SyslogSeverity.Info)
+                if (message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info)
                 {
                     string txt = message.Text;
                     if (txt == null) throw new InvalidOperationException("Message is not FFD");
@@ -51,7 +52,7 @@ namespace It.Unina.Dis.Logbus.FFDA
                     Host = message.Host;
                     Process = message.ProcessID ?? message.ApplicationName;
                     Logger = advancedAttrs.LogName;
-                    
+
 
                     string prefix = txt.Substring(0, 3);
                     if (txt[3] == '-' && txt.Length > 4)
@@ -59,11 +60,13 @@ namespace It.Unina.Dis.Logbus.FFDA
                         FlowId = txt.Substring(4);
                     }
 
-                    Event = (FFDAEvent)Enum.Parse(typeof(FFDAEvent), prefix.ToUpper());
+                    Event = (FFDAEvent) Enum.Parse(typeof (FFDAEvent), prefix.ToUpper());
                 }
             }
             catch (InvalidOperationException)
-            { throw; }
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new InvalidOperationException("Message is not FFD", ex);

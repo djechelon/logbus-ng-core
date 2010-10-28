@@ -17,12 +17,13 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Net;
-using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
@@ -36,6 +37,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         private const int DEFAULT_JOIN_TIMEOUT = 5000;
 
         #region Constructor/Destructor
+
         public SyslogUdpTransport(long timeToLive)
         {
             SubscriptionTtl = timeToLive;
@@ -49,6 +51,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             Dispose(false);
         }
+
         #endregion
 
         #region IOutboundTransport Membri di
@@ -82,7 +85,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         foreach (string key in toRemove)
                         {
                             _clients.Remove(key);
-
                         }
                     }
                     finally
@@ -110,7 +112,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _listlock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
             try
             {
-                Dictionary<String, UdpClientExpire>.Enumerator enumeratore = _clients.GetEnumerator();
+                Dictionary<string, UdpClientExpire>.Enumerator enumeratore = _clients.GetEnumerator();
 
                 while (enumeratore.MoveNext())
                 {
@@ -170,13 +172,14 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// </list>
         /// </param>
         /// <returns></returns>
-        public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
+        public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions,
+                                      out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
             if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
 
             outputInstructions = new Dictionary<string, string>();
-            ((Dictionary<string, string>)outputInstructions).Add("ttl", this.SubscriptionTtl.ToString());
+            ((Dictionary<string, string>) outputInstructions).Add("ttl", SubscriptionTtl.ToString());
 
             try
             {
@@ -202,7 +205,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     throw new TransportException("Invalid IP address");
 
                 string clientid = ipstring + ":" + port;
-                UdpClientExpire newClient = new UdpClientExpire { Client = new UdpClient(ipstring, port), LastRefresh = DateTime.Now };
+                UdpClientExpire newClient = new UdpClientExpire
+                                                {Client = new UdpClient(ipstring, port), LastRefresh = DateTime.Now};
                 _listlock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
                 try
                 {
@@ -214,7 +218,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 }
 
                 return clientid;
-
             }
             catch (TransportException ex)
             {
@@ -289,7 +292,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             finally
             {
                 _listlock.ReleaseReaderLock();
-            }            
+            }
         }
 
         /// <summary>
@@ -324,10 +327,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             kvp.Value.Client.Close();
                         }
                         catch (SocketException)
-                        { }
-
+                        {
+                        }
             }
         }
+
         #endregion
 
         /// <summary>
@@ -353,11 +357,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         #region ILogSupport Membri di
 
-        public Loggers.ILog Log
-        {
-            private get;
-            set;
-        }
+        public ILog Log { private get; set; }
 
         #endregion
     }

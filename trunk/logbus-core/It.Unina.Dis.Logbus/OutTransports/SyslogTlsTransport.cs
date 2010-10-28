@@ -19,14 +19,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Runtime.CompilerServices;
-using It.Unina.Dis.Logbus.Utils;
 using System.IO;
 using System.Net.Security;
+using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
+using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
@@ -34,7 +34,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         : IOutboundTransport, ILogSupport
     {
         private readonly Dictionary<string, TlsClient> _clients;
-        private bool _disposed = false;
+        private bool _disposed;
         private readonly ReaderWriterLock _listLock;
         private readonly Thread _worker;
         private readonly IFifoQueue<SyslogMessage> _queue;
@@ -44,6 +44,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         private const int TIMER_CYCLE_TIMEOUT = 60000;
 
         #region Constructor/Destructor
+
         public SyslogTlsTransport(X509Certificate2 serverCert, bool validateClientCert)
         {
             _clients = new Dictionary<string, TlsClient>();
@@ -87,7 +88,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         {
                             kvp.Value.Client.Close();
                         }
-                        catch { } //Don't care
+                        catch
+                        {
+                        } //Don't care
                     }
                     _clients.Clear();
                 }
@@ -98,6 +101,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             }
             _worker.Join(DEFAULT_JOIN_TIMEOUT);
         }
+
         #endregion
 
         /// <summary>
@@ -143,7 +147,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// 
         /// Output instructions: none
         /// </remarks>
-        public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
+        public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions,
+                                      out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
             if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
@@ -181,7 +186,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
             try
             {
                 TcpClient newTcpClient = new TcpClient(host, port);
-                SslStream sslStream = new SslStream(newTcpClient.GetStream(), false, RemoteCertificateValidation, LocalCertificateSelection);
+                SslStream sslStream = new SslStream(newTcpClient.GetStream(), false, RemoteCertificateValidation,
+                                                    LocalCertificateSelection);
 
                 sslStream.AuthenticateAsClient(host);
 
@@ -265,9 +271,17 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 _listLock.ReleaseReaderLock();
                 if (client != null)
                 {
-                    try { client.Stream.Flush(); }
-                    catch { }
-                    finally { client.Dispose(); }
+                    try
+                    {
+                        client.Stream.Flush();
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        client.Dispose();
+                    }
                 }
             }
         }
@@ -297,11 +311,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         #region ILogSupport Membri di
 
-        public Loggers.ILog Log
-        {
-            private get;
-            set;
-        }
+        public ILog Log { private get; set; }
 
         #endregion
 
@@ -329,9 +339,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
                                 client.Stream.Write(payload, 0, len);
                             }
                             catch (IOException)
-                            { }
+                            {
+                            }
                             catch (ObjectDisposedException)
-                            { }
+                            {
+                            }
                         }
                     }
                     finally
@@ -341,7 +353,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 }
             }
             catch (ThreadInterruptedException)
-            { }
+            {
+            }
         }
 
         private void CleanupClients(object state)
@@ -364,7 +377,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         kvp.Value.Stream.Flush();
                     }
                     catch (IOException)
-                    { } //Flush did its real job
+                    {
+                    } //Flush did its real job
 
                     if (!kvp.Value.Client.Connected) toRemove.Add(kvp.Key);
                 }
@@ -403,14 +417,17 @@ namespace It.Unina.Dis.Logbus.OutTransports
             Log.Notice("TLS transport {0} cleaned up {1} dead clients", GetHashCode(), toRemove.Count);
         }
 
-        private bool RemoteCertificateValidation(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private bool RemoteCertificateValidation(Object sender, X509Certificate certificate, X509Chain chain,
+                                                 SslPolicyErrors sslPolicyErrors)
         {
             if (!ValidateClientCertificate) return true;
 
             throw new NotImplementedException("No validation logic yet");
         }
 
-        private X509Certificate LocalCertificateSelection(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        private X509Certificate LocalCertificateSelection(Object sender, string targetHost,
+                                                          X509CertificateCollection localCertificates,
+                                                          X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             return ServerCertificate;
         }

@@ -17,62 +17,62 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("parameter", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = true)]
-    public partial class FilterParameter : object, System.ComponentModel.INotifyPropertyChanged
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("parameter", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = true)]
+    public class FilterParameter : object, INotifyPropertyChanged
     {
-
         private object valueField;
 
         private string nameField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = true)]
+        [XmlElement(Form = XmlSchemaForm.Unqualified, IsNullable = true)]
         public object value
         {
-            get
-            {
-                return this.valueField;
-            }
+            get { return valueField; }
             set
             {
-                this.valueField = value;
-                this.RaisePropertyChanged("value");
+                valueField = value;
+                RaisePropertyChanged("value");
             }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
+        [XmlAttribute]
         public string name
         {
-            get
-            {
-                return this.nameField;
-            }
+            get { return nameField; }
             set
             {
-                this.nameField = value;
-                this.RaisePropertyChanged("name");
+                nameField = value;
+                RaisePropertyChanged("name");
             }
         }
 
         /// <remarks/>
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <remarks/>
         protected void RaisePropertyChanged(string propertyName)
         {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            PropertyChangedEventHandler propertyChanged = PropertyChanged;
             if ((propertyChanged != null))
             {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }

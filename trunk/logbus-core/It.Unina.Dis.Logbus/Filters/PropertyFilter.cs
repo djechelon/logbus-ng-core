@@ -18,27 +18,31 @@
 */
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections;
-using System.Globalization;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("Property", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class PropertyFilter : FilterBase
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("Property", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class PropertyFilter : FilterBase
     {
-
         /// <remarks/>
         public PropertyFilter()
         {
-            this.PropertyChanged += PropertyFilter_PropertyChanged;
+            PropertyChanged += PropertyFilter_PropertyChanged;
         }
 
-        void PropertyFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void PropertyFilter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "propertyName") prop_set = true;
             else if (e.PropertyName == "comparison") cmp_set = true;
@@ -51,24 +55,31 @@ namespace It.Unina.Dis.Logbus.Filters
                         {
                             try
                             {
-                                targetvalue = Enum.Parse(typeof(Severity), value);
+                                targetvalue = Enum.Parse(typeof (Severity), value);
                             }
-                            catch { throw new ArgumentException("Value is incompatible with property"); }
+                            catch
+                            {
+                                throw new ArgumentException("Value is incompatible with property");
+                            }
                             break;
                         }
                     case Property.Facility:
                         {
                             try
                             {
-                                targetvalue = Enum.Parse(typeof(Facility), value);
+                                targetvalue = Enum.Parse(typeof (Facility), value);
                             }
-                            catch { throw new ArgumentException("Value is incompatible with property"); }
+                            catch
+                            {
+                                throw new ArgumentException("Value is incompatible with property");
+                            }
                             break;
                         }
                     case Property.Timestamp:
                         {
                             DateTime val;
-                            if (!DateTime.TryParse(value, out val)) throw new ArgumentException("Value is incompatible with property");
+                            if (!DateTime.TryParse(value, out val))
+                                throw new ArgumentException("Value is incompatible with property");
                             targetvalue = val;
                             break;
                         }
@@ -97,44 +108,35 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <remarks/>
         public string value
         {
-            get
-            {
-                return this.valueField;
-            }
+            get { return valueField; }
             set
             {
-                this.valueField = value;
-                this.RaisePropertyChanged("value");
+                valueField = value;
+                RaisePropertyChanged("value");
             }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public Property propertyName
         {
-            get
-            {
-                return this.propertyNameField;
-            }
+            get { return propertyNameField; }
             set
             {
-                this.propertyNameField = value;
-                this.RaisePropertyChanged("propertyName");
+                propertyNameField = value;
+                RaisePropertyChanged("propertyName");
             }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public ComparisonOperator comparison
         {
-            get
-            {
-                return this.comparisonField;
-            }
+            get { return comparisonField; }
             set
             {
-                this.comparisonField = value;
-                this.RaisePropertyChanged("comparison");
+                comparisonField = value;
+                RaisePropertyChanged("comparison");
             }
         }
 
@@ -245,27 +247,27 @@ namespace It.Unina.Dis.Logbus.Filters
                 {
                     case ComparisonOperator.eq:
                         {
-                            return (int)property == (int)targetvalue;
+                            return (int) property == (int) targetvalue;
                         }
                     case ComparisonOperator.geq:
                         {
-                            return (int)property >= (int)targetvalue;
+                            return (int) property >= (int) targetvalue;
                         }
                     case ComparisonOperator.gt:
                         {
-                            return (int)property > (int)targetvalue;
+                            return (int) property > (int) targetvalue;
                         }
                     case ComparisonOperator.leq:
                         {
-                            return (int)property <= (int)targetvalue;
+                            return (int) property <= (int) targetvalue;
                         }
                     case ComparisonOperator.lt:
                         {
-                            return (int)property < (int)targetvalue;
+                            return (int) property < (int) targetvalue;
                         }
                     case ComparisonOperator.neq:
                         {
-                            return (int)property != (int)targetvalue;
+                            return (int) property != (int) targetvalue;
                         }
                     default:
                         {
@@ -279,27 +281,27 @@ namespace It.Unina.Dis.Logbus.Filters
                 {
                     case ComparisonOperator.eq:
                         {
-                            return (DateTime)property == (DateTime)targetvalue;
+                            return (DateTime) property == (DateTime) targetvalue;
                         }
                     case ComparisonOperator.geq:
                         {
-                            return (DateTime)property >= (DateTime)targetvalue;
+                            return (DateTime) property >= (DateTime) targetvalue;
                         }
                     case ComparisonOperator.gt:
                         {
-                            return (DateTime)property > (DateTime)targetvalue;
+                            return (DateTime) property > (DateTime) targetvalue;
                         }
                     case ComparisonOperator.leq:
                         {
-                            return (DateTime)property <= (DateTime)targetvalue;
+                            return (DateTime) property <= (DateTime) targetvalue;
                         }
                     case ComparisonOperator.lt:
                         {
-                            return (DateTime)property < (DateTime)targetvalue;
+                            return (DateTime) property < (DateTime) targetvalue;
                         }
                     case ComparisonOperator.neq:
                         {
-                            return (DateTime)property != (DateTime)targetvalue;
+                            return (DateTime) property != (DateTime) targetvalue;
                         }
                     default:
                         {
@@ -310,6 +312,6 @@ namespace It.Unina.Dis.Logbus.Filters
             throw new InvalidProgramException("Software bug!");
         }
 
-        private bool prop_set = false, cmp_set = false, val_set = false;
+        private bool prop_set, cmp_set, val_set;
     }
 }

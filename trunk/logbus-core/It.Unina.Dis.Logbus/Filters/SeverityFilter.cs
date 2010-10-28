@@ -18,59 +18,58 @@
 */
 
 using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("Severity", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class SeverityFilter : FilterBase
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("Severity", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class SeverityFilter : FilterBase
     {
-
         private ComparisonOperator comparisonField;
 
         private Severity severityField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public ComparisonOperator comparison
         {
-            get
-            {
-                return this.comparisonField;
-            }
+            get { return comparisonField; }
             set
             {
-                this.comparisonField = value;
-                this.RaisePropertyChanged("comparison");
+                comparisonField = value;
+                RaisePropertyChanged("comparison");
             }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public Severity severity
         {
-            get
-            {
-                return this.severityField;
-            }
+            get { return severityField; }
             set
             {
-                this.severityField = value;
-                this.RaisePropertyChanged("severity");
+                severityField = value;
+                RaisePropertyChanged("severity");
             }
         }
 
-        
+
         /// <remarks>"Higher" severity has lower code</remarks>
         public override bool IsMatch(SyslogMessage message)
         {
             if (message == null) throw new ArgumentNullException("message");
 
-            int result = ((int)message.Severity).CompareTo((int)severity);
+            int result = ((int) message.Severity).CompareTo((int) severity);
             switch (comparison)
             {
                 case ComparisonOperator.eq:
@@ -102,7 +101,6 @@ namespace It.Unina.Dis.Logbus.Filters
                         throw new InvalidOperationException();
                     }
             }
-
         }
     }
 }

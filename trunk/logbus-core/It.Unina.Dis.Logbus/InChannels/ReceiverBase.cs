@@ -18,11 +18,12 @@
 */
 
 using System;
-using System.Threading;
-using It.Unina.Dis.Logbus.Utils;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using It.Unina.Dis.Logbus.Loggers;
+
 namespace It.Unina.Dis.Logbus.InChannels
 {
     /// <summary>
@@ -32,9 +33,8 @@ namespace It.Unina.Dis.Logbus.InChannels
     public abstract class ReceiverBase
         : IInboundChannel, IAsyncRunnable, ILogSupport
     {
-
-        
         #region Constructor/Destructor
+
         /// <summary>
         /// Initializes a new instance of SyslogUdpReceiver
         /// </summary>
@@ -60,7 +60,9 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 Stop();
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+            }
 
             if (disposing)
             {
@@ -71,45 +73,35 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Whether the object has been disposed or not
         /// </summary>
-        protected bool Disposed
-        {
-            get;
-            private set;
-        }
+        protected bool Disposed { get; private set; }
+
         #endregion
 
         /// <summary>
         /// Whether the channel facility is running or not
         /// </summary>
-        public bool Running
-        {
-            get;
-            private set;
-        }
+        public bool Running { get; private set; }
 
         #region IInboundChannel Membri di
 
         /// <summary>
         /// Implements IInboundChannel.Name
         /// </summary>
-        public virtual string Name
-        {
-            get;
-            set;
-        }
+        public virtual string Name { get; set; }
 
         /// <summary>
         /// Implements IInboundChannel.ParseError
         /// </summary>
-        public event System.EventHandler<ParseErrorEventArgs> ParseError;
+        public event EventHandler<ParseErrorEventArgs> ParseError;
 
         #endregion
 
         #region ILogSource Membri di
+
         /// <summary>
         /// Implements ILogSource.MessageReceived
         /// </summary>
-        public event System.EventHandler<SyslogMessageEventArgs> MessageReceived;
+        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
 
@@ -236,8 +228,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Implements IConfigurable.Configuration
         /// </summary>
-        public abstract System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
-        { set; }
+        public abstract IEnumerable<KeyValuePair<string, string>> Configuration { set; }
 
         #endregion
 
@@ -250,7 +241,6 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             Dispose(true);
         }
-
 
         #endregion
 
@@ -265,7 +255,6 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// Executes class-specific actions upon stop
         /// </summary>
         protected abstract void OnStop();
-
 
         #endregion
 
@@ -327,11 +316,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Implements ILogSupport.Log
         /// </summary>
-        public Loggers.ILog Log
-        {
-            private get;
-            set;
-        }
+        public ILog Log { private get; set; }
 
         #endregion
     }

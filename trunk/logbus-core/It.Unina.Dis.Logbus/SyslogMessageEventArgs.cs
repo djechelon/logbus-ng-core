@@ -29,18 +29,15 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Syslog message
         /// </summary>
-        public SyslogMessage Message
+        public SyslogMessage Message { get; set; }
+
+        /// <remarks/>
+        public SyslogMessageEventArgs()
         {
-            get;
-            set;
         }
 
         /// <remarks/>
-        public SyslogMessageEventArgs() : base() { }
-
-        /// <remarks/>
         public SyslogMessageEventArgs(SyslogMessage msg)
-            : base()
         {
             Message = msg;
         }

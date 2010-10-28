@@ -18,33 +18,33 @@
 */
 
 using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
 
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("Or", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class OrFilter : FilterBase
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("Or", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class OrFilter : FilterBase
     {
-
         private FilterBase[] filterField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("filter")]
+        [XmlElement("filter")]
         public FilterBase[] filter
         {
-            get
-            {
-                return this.filterField;
-            }
+            get { return filterField; }
             set
             {
-                this.filterField = value;
-                this.RaisePropertyChanged("filter");
+                filterField = value;
+                RaisePropertyChanged("filter");
             }
         }
 

@@ -23,13 +23,14 @@ using It.Unina.Dis.Logbus.Loggers;
 namespace It.Unina.Dis.Logbus.FFDA
 {
     internal sealed class FFDAMonitorLogger
-    : SimpleLogImpl, IFFDAMonitorLogger
+        : SimpleLogImpl, IFFDAMonitorLogger
     {
-
         #region Constructor
 
         public FFDAMonitorLogger(ILogCollector target)
-            : base(target) { }
+            : base(target)
+        {
+        }
 
         #endregion
 

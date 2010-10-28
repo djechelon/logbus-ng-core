@@ -17,8 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Runtime.Serialization;
 using System;
+using System.Runtime.Serialization;
 
 namespace It.Unina.Dis.Logbus.Configuration
 {
@@ -26,29 +26,34 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// Configuration error for Logbus
     /// </summary>
     public class LogbusConfigurationException
-        :LogbusException
+        : LogbusException
     {
-
         /// <remarks/>
         public LogbusConfigurationException()
-            : base() { }
+        {
+        }
 
         /// <remarks/>
         public LogbusConfigurationException(string message)
-            : base(message) { }
+            : base(message)
+        {
+        }
 
         /// <remarks/>
         protected LogbusConfigurationException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
+            : base(info, context)
+        {
+        }
 
         /// <remarks/>
         public LogbusConfigurationException(string message, Exception innerException)
-            : base(message, innerException) { }
+            : base(message, innerException)
+        {
+        }
 
         /// <summary>
         /// Object that represents Logbus configuration
         /// </summary>
-        public object ConfigurationObject
-        { get; set; }
+        public object ConfigurationObject { get; set; }
     }
 }

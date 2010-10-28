@@ -18,10 +18,11 @@
 */
 
 using System;
-
 using CLIENT_ID_TYPE = System.String;
-using CLIENT_INSTRUCTIONS_TYPE = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
-using TRANSPORT_INSTRUCTIONS_TYPE = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
+using CLIENT_INSTRUCTIONS_TYPE =
+    System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
+using TRANSPORT_INSTRUCTIONS_TYPE =
+    System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -31,7 +32,6 @@ namespace It.Unina.Dis.Logbus
     public interface IOutboundTransport
         : ILogCollector, IDisposable
     {
-
         /// <summary>
         /// Gets the number of clients subscribed to this transport within the channel
         /// </summary>
@@ -43,7 +43,8 @@ namespace It.Unina.Dis.Logbus
         /// <param name="inputInstructions">Input instructions for the channel</param>
         /// <param name="outputInstructions">Output instructions for the client</param>
         /// <returns>Client ID to use in refresh and unsubscribe call</returns>
-        CLIENT_ID_TYPE SubscribeClient(TRANSPORT_INSTRUCTIONS_TYPE inputInstructions, out CLIENT_INSTRUCTIONS_TYPE outputInstructions);
+        CLIENT_ID_TYPE SubscribeClient(TRANSPORT_INSTRUCTIONS_TYPE inputInstructions,
+                                       out CLIENT_INSTRUCTIONS_TYPE outputInstructions);
 
         /// <summary>
         /// Gets if the current transport requires client refresh

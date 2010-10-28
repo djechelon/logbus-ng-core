@@ -19,6 +19,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+
 namespace It.Unina.Dis.Logbus.Utils
 {
     internal sealed class NetworkUtils
@@ -32,7 +33,7 @@ namespace It.Unina.Dis.Logbus.Utils
         public static IPAddress GetMyIPAddress()
         {
             //All IPs available on this machine
-            System.Net.IPAddress[] a = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
+            IPAddress[] a = Dns.GetHostAddresses(Dns.GetHostName());
 
             IPAddress preferred_v4 = null, preferred_v6 = null, ret = null;
             bool wan_found = false;
@@ -44,14 +45,19 @@ namespace It.Unina.Dis.Logbus.Utils
                     if (a[i].ToString().Contains("localhost"))
                         continue;
                     else if (a[i].GetAddressBytes()[0] == 0 ||
-                        a[i].GetAddressBytes()[0] == 255 ||
-                        a[i].GetAddressBytes()[0] == 240 ||
-                        (a[i].GetAddressBytes()[0] == 203 && a[i].GetAddressBytes()[1] == 0 && a[i].GetAddressBytes()[2] == 113) ||
-                        (a[i].GetAddressBytes()[0] == 198 && a[i].GetAddressBytes()[1] == 51 && a[i].GetAddressBytes()[2] == 100) ||
-                        (a[i].GetAddressBytes()[0] == 198 && ((a[i].GetAddressBytes()[1] | 1) & 18) != 0) ||
-                        (a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 0 && a[i].GetAddressBytes()[2] == 2) ||
-                        (a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 0 && a[i].GetAddressBytes()[2] == 0) ||
-                        (a[i].GetAddressBytes()[0] == 198 && a[i].GetAddressBytes()[1] == 51 && a[i].GetAddressBytes()[2] == 100))
+                             a[i].GetAddressBytes()[0] == 255 ||
+                             a[i].GetAddressBytes()[0] == 240 ||
+                             (a[i].GetAddressBytes()[0] == 203 && a[i].GetAddressBytes()[1] == 0 &&
+                              a[i].GetAddressBytes()[2] == 113) ||
+                             (a[i].GetAddressBytes()[0] == 198 && a[i].GetAddressBytes()[1] == 51 &&
+                              a[i].GetAddressBytes()[2] == 100) ||
+                             (a[i].GetAddressBytes()[0] == 198 && ((a[i].GetAddressBytes()[1] | 1) & 18) != 0) ||
+                             (a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 0 &&
+                              a[i].GetAddressBytes()[2] == 2) ||
+                             (a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 0 &&
+                              a[i].GetAddressBytes()[2] == 0) ||
+                             (a[i].GetAddressBytes()[0] == 198 && a[i].GetAddressBytes()[1] == 51 &&
+                              a[i].GetAddressBytes()[2] == 100))
                         //No network interface should return this
                         continue;
                     else if (a[i].GetAddressBytes()[0] == 255)
@@ -61,8 +67,8 @@ namespace It.Unina.Dis.Logbus.Utils
                         //Local address. We don't want to use it
                         continue;
                     else if ((a[i].GetAddressBytes()[0] == 192 && a[i].GetAddressBytes()[1] == 168) ||
-                        a[i].GetAddressBytes()[0] == 169 && a[i].GetAddressBytes()[1] == 254 ||
-                        a[i].GetAddressBytes()[0] == 10)
+                             a[i].GetAddressBytes()[0] == 169 && a[i].GetAddressBytes()[1] == 254 ||
+                             a[i].GetAddressBytes()[0] == 10)
                     {
                         //Local-scope address. While we don't like these, they could be our only choice
                         if (preferred_v4 == null && !wan_found)

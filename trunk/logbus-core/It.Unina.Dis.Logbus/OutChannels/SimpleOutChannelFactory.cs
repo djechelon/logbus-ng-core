@@ -17,15 +17,17 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.Loggers;
+
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     internal sealed class SimpleOutChannelFactory
-        :IOutboundChannelFactory, ILogSupport
+        : IOutboundChannelFactory, ILogSupport
     {
-
         #region IOutboundChannelFactory Membri di
 
-        IOutboundChannel IOutboundChannelFactory.CreateChannel(string name, string description, Filters.IFilter filter)
+        IOutboundChannel IOutboundChannelFactory.CreateChannel(string name, string description, IFilter filter)
         {
             IOutboundChannel ret = new SimpleOutChannel
                                        {
@@ -38,17 +40,13 @@ namespace It.Unina.Dis.Logbus.OutChannels
             return ret;
         }
 
-        public ITransportFactoryHelper TransportFactoryHelper
-        {
-            get;
-            set;
-        }
+        public ITransportFactoryHelper TransportFactoryHelper { get; set; }
 
         #endregion
 
         #region ILogSupport Membri di
 
-        public Loggers.ILog Log { private get; set; }
+        public ILog Log { private get; set; }
 
         #endregion
     }

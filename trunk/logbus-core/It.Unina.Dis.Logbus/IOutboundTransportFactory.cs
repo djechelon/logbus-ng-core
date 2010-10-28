@@ -19,7 +19,6 @@
 
 namespace It.Unina.Dis.Logbus
 {
-    
     /// <summary>
     /// Creates transports according to configuration.
     /// Each outbound transport has its own factory that is aware of transport-specific configuration.
@@ -34,7 +33,7 @@ namespace It.Unina.Dis.Logbus
     /// </example>
     /// </summary>
     public interface IOutboundTransportFactory
-        :IConfigurable
+        : IConfigurable
     {
         /// <summary>
         /// Instantiates an outbound transport to which clients must be subscribe when they subscribe to an outbound channel

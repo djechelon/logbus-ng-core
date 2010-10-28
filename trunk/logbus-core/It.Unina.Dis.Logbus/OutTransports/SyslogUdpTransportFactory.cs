@@ -18,9 +18,11 @@
 */
 
 using System;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
+using It.Unina.Dis.Logbus.Design;
 using It.Unina.Dis.Logbus.Loggers;
+
 namespace It.Unina.Dis.Logbus.OutTransports
 {
     /// <remarks>
@@ -29,18 +31,19 @@ namespace It.Unina.Dis.Logbus.OutTransports
     /// <item><c>ttl</c>: time to live for clients. After that time without the client to refresh its subscription, it's considered dead and gets unsubscribed</item>
     /// </list>
     /// </remarks>
-    [Design.TransportFactory("udp", Name = "RFC5426 transport", Description = "Syslog over UDP transport according to RFC5426")]
+    [TransportFactory("udp", Name = "RFC5426 transport", Description = "Syslog over UDP transport according to RFC5426")
+    ]
     internal sealed class SyslogUdpTransportFactory
         : IOutboundTransportFactory, ILogSupport
     {
-        private Loggers.ILog _logger;
+        private ILog _logger;
         private long _defaultTtl = 60000;
 
         #region IOutboundTransportFactory Membri di
 
         IOutboundTransport IOutboundTransportFactory.CreateTransport()
         {
-            return new SyslogUdpTransport(_defaultTtl) { Log = Log };
+            return new SyslogUdpTransport(_defaultTtl) {Log = Log};
         }
 
         string IConfigurable.GetConfigurationParameter(string key)
@@ -68,7 +71,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
             {
                 case "ttl":
                     {
-                        if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _defaultTtl)) throw new InvalidOperationException("Invalid value for ttl");
+                        if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _defaultTtl))
+                            throw new InvalidOperationException("Invalid value for ttl");
                         break;
                     }
                 default:
@@ -82,7 +86,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             set
             {
-                foreach (KeyValuePair<string, string> kvp in value) ((IConfigurable)this).SetConfigurationParameter(kvp.Key, kvp.Value);
+                foreach (KeyValuePair<string, string> kvp in value)
+                    ((IConfigurable) this).SetConfigurationParameter(kvp.Key, kvp.Value);
             }
         }
 

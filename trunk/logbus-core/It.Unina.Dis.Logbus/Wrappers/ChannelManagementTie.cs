@@ -17,6 +17,9 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using It.Unina.Dis.Logbus.RemoteLogbus;
+
 namespace It.Unina.Dis.Logbus.Wrappers
 {
     /// <summary>
@@ -25,7 +28,6 @@ namespace It.Unina.Dis.Logbus.Wrappers
     public sealed class ChannelManagementTie
         : IChannelManagement
     {
-
         /// <summary>
         /// Initializes ChannelManagementTie with proxied object
         /// </summary>
@@ -33,7 +35,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <exception cref="System.ArgumentNullException">targetInstance is null</exception>
         public ChannelManagementTie(IChannelManagement targetInstance)
         {
-            if (targetInstance == null) throw new System.ArgumentNullException("targetInstance");
+            if (targetInstance == null) throw new ArgumentNullException("targetInstance");
             target = targetInstance;
         }
 
@@ -48,13 +50,13 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         /// <remarks/>
-        public void CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
+        public void CreateChannel(ChannelCreationInformation description)
         {
             target.CreateChannel(description);
         }
 
         /// <remarks/>
-        public It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation GetChannelInformation(string id)
+        public ChannelInformation GetChannelInformation(string id)
         {
             return target.GetChannelInformation(id);
         }

@@ -20,12 +20,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using It.Unina.Dis.Logbus.Utils;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading;
 using It.Unina.Dis.Logbus.Configuration;
-using System.Text.RegularExpressions;
 using It.Unina.Dis.Logbus.Filters;
-using System.Globalization;
+using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.Utils;
+
 namespace It.Unina.Dis.Logbus.Entities
 {
     /// <summary>
@@ -43,7 +45,16 @@ namespace It.Unina.Dis.Logbus.Entities
         private readonly IFifoQueue<SyslogMessage> _messageQueue;
         private readonly Thread _workerThread;
 
-        private readonly DataColumn _colHost, _colProc, _colLogger, _colAppName, _colFfda, _colLastAction, _colLastHeartbeat, _colChannelId, _colFfdaChannelId;
+        private readonly DataColumn _colHost,
+                                    _colProc,
+                                    _colLogger,
+                                    _colAppName,
+                                    _colFfda,
+                                    _colLastAction,
+                                    _colLastHeartbeat,
+                                    _colChannelId,
+                                    _colFfdaChannelId;
+
         private readonly UniqueConstraint _primaryKey;
         private readonly DataTable _entityTable;
 
@@ -56,68 +67,68 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             _messageQueue = new BlockingFifoQueue<SyslogMessage>();
 
-            _workerThread = new Thread(WorkerLoop) { IsBackground = true, Name = "EntityPlugin.WorkerLoop" };
+            _workerThread = new Thread(WorkerLoop) {IsBackground = true, Name = "EntityPlugin.WorkerLoop"};
             _workerThread.Start();
 
             _entityTable = new DataTable("Entities");
 
-            _colHost = new DataColumn("Host", typeof(string))
-            {
-                AllowDBNull = true,
-                ReadOnly = true,
-                Unique = false
-            };
-            _colProc = new DataColumn("Process", typeof(string))
-            {
-                AllowDBNull = true,
-                ReadOnly = true,
-                Unique = false
-            };
-            _colLogger = new DataColumn("Logger", typeof(string))
-            {
-                AllowDBNull = true,
-                ReadOnly = true,
-                Unique = false
-            };
-            _colAppName = new DataColumn("AppName", typeof(string))
-            {
-                AllowDBNull = true,
-                ReadOnly = true,
-                Unique = false
-            };
-            _colFfda = new DataColumn("FFDA", typeof(bool))
-            {
-                AllowDBNull = false,
-                DefaultValue = false,
-                ReadOnly = false,
-                Unique = false
-            };
-            _colLastAction = new DataColumn("LastAction", typeof(DateTime))
-            {
-                AllowDBNull = false,
-                ReadOnly = false,
-                Unique = false,
-                DateTimeMode = DataSetDateTime.Utc,
-            };
-            _colLastHeartbeat = new DataColumn("LstHeartbeat", typeof(DateTime))
-            {
-                AllowDBNull = true,
-                ReadOnly = false,
-                Unique = false,
-                DateTimeMode = DataSetDateTime.Utc,
-            };
-            _colChannelId = new DataColumn("ChannelId", typeof(string))
-            {
-                AllowDBNull = true,
-                ReadOnly = false,
-                Unique = false
-            };
-            _colFfdaChannelId = new DataColumn("FfdaChannelId", typeof(string))
-            {
-                AllowDBNull = true,
-                ReadOnly = false,
-                Unique = false
-            };
+            _colHost = new DataColumn("Host", typeof (string))
+                           {
+                               AllowDBNull = true,
+                               ReadOnly = true,
+                               Unique = false
+                           };
+            _colProc = new DataColumn("Process", typeof (string))
+                           {
+                               AllowDBNull = true,
+                               ReadOnly = true,
+                               Unique = false
+                           };
+            _colLogger = new DataColumn("Logger", typeof (string))
+                             {
+                                 AllowDBNull = true,
+                                 ReadOnly = true,
+                                 Unique = false
+                             };
+            _colAppName = new DataColumn("AppName", typeof (string))
+                              {
+                                  AllowDBNull = true,
+                                  ReadOnly = true,
+                                  Unique = false
+                              };
+            _colFfda = new DataColumn("FFDA", typeof (bool))
+                           {
+                               AllowDBNull = false,
+                               DefaultValue = false,
+                               ReadOnly = false,
+                               Unique = false
+                           };
+            _colLastAction = new DataColumn("LastAction", typeof (DateTime))
+                                 {
+                                     AllowDBNull = false,
+                                     ReadOnly = false,
+                                     Unique = false,
+                                     DateTimeMode = DataSetDateTime.Utc,
+                                 };
+            _colLastHeartbeat = new DataColumn("LstHeartbeat", typeof (DateTime))
+                                    {
+                                        AllowDBNull = true,
+                                        ReadOnly = false,
+                                        Unique = false,
+                                        DateTimeMode = DataSetDateTime.Utc,
+                                    };
+            _colChannelId = new DataColumn("ChannelId", typeof (string))
+                                {
+                                    AllowDBNull = true,
+                                    ReadOnly = false,
+                                    Unique = false
+                                };
+            _colFfdaChannelId = new DataColumn("FfdaChannelId", typeof (string))
+                                    {
+                                        AllowDBNull = true,
+                                        ReadOnly = false,
+                                        Unique = false
+                                    };
 
             _entityTable.Columns.Add(_colHost);
             _entityTable.Columns.Add(_colProc);
@@ -129,10 +140,10 @@ namespace It.Unina.Dis.Logbus.Entities
             _entityTable.Columns.Add(_colChannelId);
             _entityTable.Columns.Add(_colFfdaChannelId);
 
-            _primaryKey = new UniqueConstraint(new DataColumn[] { _colHost, _colProc, _colLogger }, true)
-            {
-                ConstraintName = "Primary"
-            };
+            _primaryKey = new UniqueConstraint(new[] {_colHost, _colProc, _colLogger}, true)
+                              {
+                                  ConstraintName = "Primary"
+                              };
             _entityTable.Constraints.Add(_primaryKey);
         }
 
@@ -159,6 +170,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
 
         private volatile bool _disposed;
+
         #endregion
 
         #region IPlugin Membri di
@@ -187,11 +199,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <summary>
         /// Implements ILogSupport.Log
         /// </summary>
-        public Loggers.ILog Log
-        {
-            private get;
-            set;
-        }
+        public ILog Log { private get; set; }
 
         /// <summary>
         /// Implements IPlugin.Name
@@ -210,10 +218,10 @@ namespace It.Unina.Dis.Logbus.Entities
 
             WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition
                                              {
-                                                 SkeletonType = typeof(EntityManagementSkeleton),
+                                                 SkeletonType = typeof (EntityManagementSkeleton),
                                                  UrlFileName = "EntityManagement"
                                              };
-            return new WsdlSkeletonDefinition[] { ret };
+            return new[] {ret};
         }
 
         /// <summary>
@@ -260,7 +268,9 @@ namespace It.Unina.Dis.Logbus.Entities
                     SyslogAttributes attrs = message.GetAdvancedAttributes();
                     DateTime? lastHb = null;
 
-                    string host = message.Host ?? "", process = message.ProcessID ?? message.ApplicationName ?? "", logger = attrs.LogName ?? "";
+                    string host = message.Host ?? "",
+                           process = message.ProcessID ?? message.ApplicationName ?? "",
+                           logger = attrs.LogName ?? "";
 
                     bool ffda = message.MessageId == "FFDA";
                     if (message.MessageId == "HEARTBEAT" && message.Severity == SyslogSeverity.Debug)
@@ -282,10 +292,10 @@ namespace It.Unina.Dis.Logbus.Entities
                                 );
 
                             Log.Debug("Acquired new entity: ({0}|{1}|{2}), {3}FFDA-enabled",
-                                message.Host ?? "NULL",
-                                message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                attrs.LogName ?? "NULL",
-                                ffda ? "" : "not ");
+                                      message.Host ?? "NULL",
+                                      message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                      attrs.LogName ?? "NULL",
+                                      ffda ? "" : "not ");
 
                             //Now creating channel for new entity
                             IFilter entityFilter = new EntityFilter(host, process, logger);
@@ -303,52 +313,54 @@ namespace It.Unina.Dis.Logbus.Entities
                                     //Edit row accordingly
                                     newRow[_colChannelId] = randomChannelId;
                                     break;
-
                                 }
                                 catch (LogbusException) //Duplicate channel ID
-                                { continue; }
-                            }
-                            //Not necessarily a poor choice. With 15 chars we have billions of opportunities.
-                            //In a real system, we can't have more than thousands of entities. This algorithm
-                            //might go into stall only if randomizer is not "random" enough
+                                {
+                                    continue;
+                                }
+                            } //Not necessarily a poor choice. With 15 chars we have billions of opportunities.
+                                //In a real system, we can't have more than thousands of entities. This algorithm
+                                //might go into stall only if randomizer is not "random" enough
                             while (true);
 
                             if (ffda) //Create FFDA channel too
                             {
                                 entityFilter = new EntityFilter(host, process, logger, true);
                                 description = string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
-                                                                   message.Host ?? "NULL",
-                                                                   message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                                                   attrs.LogName ?? "NULL");
+                                                            message.Host ?? "NULL",
+                                                            message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                                            attrs.LogName ?? "NULL");
                                 do
                                 {
                                     string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
                                     try
                                     {
-                                        _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
+                                        _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated",
+                                                              entityFilter,
                                                               description, 0);
                                         //Edit row accordingly
                                         newRow[_colFfdaChannelId] = randomChannelId;
                                         break;
-
                                     }
                                     catch (LogbusException) //Duplicate channel ID
-                                    { continue; }
-                                }
-                                //Like above
+                                    {
+                                        continue;
+                                    }
+                                } //Like above
                                 while (true);
                             }
                         }
                         catch (ConstraintException)
                         {
                             //We suppose we are trying to insert a duplicate primary key, then now we switch to update
-                            object[] keys = new object[]{
-                                host,
-                                process,
-                                logger,
-                            };
+                            object[] keys = new object[]
+                                                {
+                                                    host,
+                                                    process,
+                                                    logger,
+                                                };
                             DataRow existingRow = _entityTable.Rows.Find(keys);
-                            bool oldFfda = (bool)existingRow[_colFfda];
+                            bool oldFfda = (bool) existingRow[_colFfda];
 
                             existingRow.BeginEdit();
                             existingRow[_colFfda] = ffda | oldFfda;
@@ -369,28 +381,29 @@ namespace It.Unina.Dis.Logbus.Entities
 
                                 //Create FFDA channel
                                 IFilter entityFilter = new EntityFilter(host, process, logger, true);
-                                string description = string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
-                                                                   message.Host ?? "NULL",
-                                                                   message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                                                   attrs.LogName ?? "NULL");
+                                string description =
+                                    string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
+                                                  message.Host ?? "NULL",
+                                                  message.ProcessID ?? message.ApplicationName ?? "NULL",
+                                                  attrs.LogName ?? "NULL");
                                 do
                                 {
                                     string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
                                     try
                                     {
-                                        _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated", entityFilter,
+                                        _logbus.CreateChannel(randomChannelId, "EntityManager auto-generated",
+                                                              entityFilter,
                                                               description, 0);
                                         //Edit row accordingly
                                         existingRow[_colFfdaChannelId] = randomChannelId;
                                         break;
-
                                     }
                                     catch (LogbusException) //Duplicate channel ID
-                                    { continue; }
-                                }
-                                //Like above
+                                    {
+                                        continue;
+                                    }
+                                } //Like above
                                 while (true);
-
                             }
                         }
                     }
@@ -401,8 +414,12 @@ namespace It.Unina.Dis.Logbus.Entities
                     }
                 }
             }
-            catch (ThreadInterruptedException) { }
-            catch (ThreadAbortException) { }
+            catch (ThreadInterruptedException)
+            {
+            }
+            catch (ThreadAbortException)
+            {
+            }
         }
 
         #region IEntityManagement Membri di
@@ -441,10 +458,14 @@ namespace It.Unina.Dis.Logbus.Entities
                 if (query.ffdaSpecified)
                     filters.Add(string.Format("{0} = {1}", _colFfda.ColumnName, query.ffda));
                 int maxinactivity;
-                if (!string.IsNullOrEmpty(query.maxinactivity) && int.TryParse(query.maxinactivity, NumberStyles.Integer, CultureInfo.InvariantCulture, out maxinactivity))
+                if (!string.IsNullOrEmpty(query.maxinactivity) &&
+                    int.TryParse(query.maxinactivity, NumberStyles.Integer, CultureInfo.InvariantCulture,
+                                 out maxinactivity))
                 {
                     DateTime lastActivity = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(maxinactivity));
-                    filters.Add(string.Format("({0} >= {2} OR {1} >= {2}}", _colLastAction.ColumnName, _colLastHeartbeat.ColumnName, lastActivity.ToString(CultureInfo.InvariantCulture)));
+                    filters.Add(string.Format("({0} >= {2} OR {1} >= {2}}", _colLastAction.ColumnName,
+                                              _colLastHeartbeat.ColumnName,
+                                              lastActivity.ToString(CultureInfo.InvariantCulture)));
                 }
 
                 string filter = string.Join(" AND ", filters.ToArray());
@@ -457,19 +478,20 @@ namespace It.Unina.Dis.Logbus.Entities
             {
                 ret[i] = new LoggingEntity
                              {
-                                 host = (string)rows[i][_colHost],
-                                 process = (string)rows[i][_colProc],
-                                 logger = (string)rows[i][_colLogger],
-                                 appName = (string)rows[i][_colAppName],
-                                 ffda = (bool)rows[i][_colFfda],
-                                 lastAction = (DateTime)rows[i][_colLastAction],
+                                 host = (string) rows[i][_colHost],
+                                 process = (string) rows[i][_colProc],
+                                 logger = (string) rows[i][_colLogger],
+                                 appName = (string) rows[i][_colAppName],
+                                 ffda = (bool) rows[i][_colFfda],
+                                 lastAction = (DateTime) rows[i][_colLastAction],
                                  lastHeartbeatSpecified = !(rows[i][_colLastHeartbeat] is DBNull),
                                  lastHeartbeat =
                                      (rows[i][_colLastHeartbeat] is DBNull)
                                          ? default(DateTime)
-                                         : (DateTime)rows[i][_colLastHeartbeat],
-                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
-                                 ffdaChannelId = (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
+                                         : (DateTime) rows[i][_colLastHeartbeat],
+                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string) rows[i][_colChannelId],
+                                 ffdaChannelId =
+                                     (rows[i][_colFfdaChannelId] is DBNull) ? null : (string) rows[i][_colFfdaChannelId]
                              };
             }
 
@@ -479,12 +501,10 @@ namespace It.Unina.Dis.Logbus.Entities
         #endregion
 
         #region Proxy factory
+
         private static string UserAgent
         {
-            get
-            {
-                return string.Format("LogbusEntityClient/{0}", typeof(EntityPlugin).Assembly.GetName().Version);
-            }
+            get { return string.Format("LogbusEntityClient/{0}", typeof (EntityPlugin).Assembly.GetName().Version); }
         }
 
         /// <summary>
@@ -494,7 +514,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <returns></returns>
         public static IEntityManagement GetProxy(string endpointUrl)
         {
-            return new EntityManagement { Url = endpointUrl, UserAgent = UserAgent };
+            return new EntityManagement {Url = endpointUrl, UserAgent = UserAgent};
         }
 
         /// <summary>
@@ -522,9 +542,11 @@ namespace It.Unina.Dis.Logbus.Entities
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Logbus-ng client is not configured. Cannot guess default endpoint URL", ex);
+                throw new InvalidOperationException(
+                    "Logbus-ng client is not configured. Cannot guess default endpoint URL", ex);
             }
         }
+
         #endregion
     }
 }

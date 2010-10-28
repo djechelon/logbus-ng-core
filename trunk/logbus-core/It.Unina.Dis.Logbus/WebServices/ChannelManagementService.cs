@@ -29,10 +29,10 @@ namespace It.Unina.Dis.Logbus.WebServices
     [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelManagement", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
+
     public class ChannelManagementService
         : WebService, IChannelManagement
     {
-
         /// <summary>
         /// Key with which store the IChannelManagement proxied object into ASP.NET Application object
         /// </summary>
@@ -43,9 +43,8 @@ namespace It.Unina.Dis.Logbus.WebServices
         /// <remarks/>
         public ChannelManagementService()
         {
-
             if (Application[APPLICATION_KEY] != null && Application[APPLICATION_KEY] is IChannelManagement)
-                TargetChannelManager = (IChannelManagement)Application[APPLICATION_KEY];
+                TargetChannelManager = (IChannelManagement) Application[APPLICATION_KEY];
             else
             {
                 throw new LogbusException("Logbus instance not set by Global.asax");
@@ -63,11 +62,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         /// <summary>
         /// Target to be proxies
         /// </summary>
-        public IChannelManagement TargetChannelManager
-        {
-            get;
-            set;
-        }
+        public IChannelManagement TargetChannelManager { get; set; }
 
         #region IChannelManagement Membri di
 
@@ -77,6 +72,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
+
         public virtual string[] ListChannels()
         {
             return TargetChannelManager.ListChannels();

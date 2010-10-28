@@ -19,6 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.OutChannels;
 
 namespace It.Unina.Dis.Logbus.Wrappers
@@ -29,7 +31,6 @@ namespace It.Unina.Dis.Logbus.Wrappers
     public class LogBusTie
         : MarshalByRefObject, ILogBus
     {
-
         private readonly ILogBus _target;
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public System.Collections.Generic.IList<IOutboundChannel> OutboundChannels
+        public IList<IOutboundChannel> OutboundChannels
         {
             get { return _target.OutboundChannels; }
         }
@@ -74,7 +75,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public System.Collections.Generic.IList<IInboundChannel> InboundChannels
+        public IList<IInboundChannel> InboundChannels
         {
             get { return _target.InboundChannels; }
         }
@@ -84,35 +85,24 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// </summary>
         public ITransportFactoryHelper TransportFactoryHelper
         {
-            get
-            {
-                return _target.TransportFactoryHelper;
-            }
-            set
-            {
-                _target.TransportFactoryHelper = value;
-            }
+            get { return _target.TransportFactoryHelper; }
+            set { _target.TransportFactoryHelper = value; }
         }
 
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public It.Unina.Dis.Logbus.Filters.IFilter MainFilter
+        public IFilter MainFilter
         {
-            get
-            {
-                return _target.MainFilter;
-            }
-            set
-            {
-                _target.MainFilter = value;
-            }
+            get { return _target.MainFilter; }
+            set { _target.MainFilter = value; }
         }
 
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public void CreateChannel(string channelId, string channelName, It.Unina.Dis.Logbus.Filters.IFilter channelFilter, string channelDescription, long coalescenceWindow)
+        public void CreateChannel(string channelId, string channelName, IFilter channelFilter, string channelDescription,
+                                  long coalescenceWindow)
         {
             _target.CreateChannel(channelId, channelName, channelFilter, channelDescription, coalescenceWindow);
         }
@@ -138,7 +128,9 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public string SubscribeClient(string channelId, string transportId, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> transportInstructions, out System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> clientInstructions)
+        public string SubscribeClient(string channelId, string transportId,
+                                      IEnumerable<KeyValuePair<string, string>> transportInstructions,
+                                      out IEnumerable<KeyValuePair<string, string>> clientInstructions)
         {
             return _target.SubscribeClient(channelId, transportId, transportInstructions, out clientInstructions);
         }
@@ -169,21 +161,18 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// </summary>
         public IEnumerable<IPlugin> Plugins
         {
-            get
-            {
-                return _target.Plugins;
-            }
+            get { return _target.Plugins; }
         }
 
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelCreationEventArgs> OutChannelCreated;
+        public event EventHandler<OutChannelCreationEventArgs> OutChannelCreated;
 
         /// <summary>
         /// Required by ILogBus
         /// </summary>
-        public event EventHandler<It.Unina.Dis.Logbus.OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
+        public event EventHandler<OutChannelDeletionEventArgs> OutChannelDeleted;
 
         /// <summary>
         /// Required by ILogBus
@@ -216,6 +205,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         {
             return _target.GetOutboundChannel(channelId);
         }
+
         #endregion
 
         #region ILogSource Membri di
@@ -240,7 +230,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         #endregion
 
         #region IRunnable Membri di
-        
+
         /// <summary>
         /// Required by IRunnable
         /// </summary>
@@ -252,12 +242,12 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <summary>
         /// Required by IRunnable
         /// </summary>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
         /// <summary>
         /// Required by IRunnable
         /// </summary>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         /// <summary>
         /// Required by IRunnable
@@ -303,6 +293,5 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         #endregion
-
     }
 }

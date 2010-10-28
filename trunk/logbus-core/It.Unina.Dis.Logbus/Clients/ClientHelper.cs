@@ -17,10 +17,10 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.RemoteLogbus;
-using It.Unina.Dis.Logbus.Filters;
-using It.Unina.Dis.Logbus.Configuration;
 using System;
+using It.Unina.Dis.Logbus.Configuration;
+using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.RemoteLogbus;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -35,7 +35,9 @@ namespace It.Unina.Dis.Logbus.Clients
             {
                 Configuration = ConfigurationHelper.ClientConfiguration;
             }
-            catch (LogbusConfigurationException) { }
+            catch (LogbusConfigurationException)
+            {
+            }
         }
 
 
@@ -43,18 +45,11 @@ namespace It.Unina.Dis.Logbus.Clients
         /// Gets or sets the global client configuration
         /// </summary>
         /// <remarks>By default, it's loaded from App.config</remarks>
-        public static LogbusClientConfiguration Configuration
-        {
-            get;
-            set;
-        }
+        public static LogbusClientConfiguration Configuration { get; set; }
 
         private static string UserAgent
         {
-            get
-            {
-                return string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version);
-            }
+            get { return string.Format("LogbusClient/{0}", typeof (ClientHelper).Assembly.GetName().Version); }
         }
 
         /// <summary>
@@ -63,12 +58,14 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <returns></returns>
         public static IChannelManagement CreateChannelManager()
         {
-            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.managementUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+            if (Configuration == null || Configuration.endpoint == null ||
+                string.IsNullOrEmpty(Configuration.endpoint.managementUrl))
+                throw new InvalidOperationException("Logbus is not configured for default client");
             return new ChannelManagement
-            {
-                Url = Configuration.endpoint.managementUrl,
-                UserAgent = UserAgent
-            };
+                       {
+                           Url = Configuration.endpoint.managementUrl,
+                           UserAgent = UserAgent
+                       };
         }
 
         /// <summary>
@@ -79,10 +76,10 @@ namespace It.Unina.Dis.Logbus.Clients
         public static IChannelManagement CreateChannelManager(string endpointUrl)
         {
             return new ChannelManagement
-            {
-                Url = endpointUrl,
-                UserAgent = UserAgent
-            };
+                       {
+                           Url = endpointUrl,
+                           UserAgent = UserAgent
+                       };
         }
 
         /// <summary>
@@ -91,12 +88,14 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <returns></returns>
         public static IChannelSubscription CreateChannelSubscriber()
         {
-            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+            if (Configuration == null || Configuration.endpoint == null ||
+                string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl))
+                throw new InvalidOperationException("Logbus is not configured for default client");
             return new ChannelSubscription
-            {
-                Url = Configuration.endpoint.subscriptionUrl,
-                UserAgent = UserAgent
-            };
+                       {
+                           Url = Configuration.endpoint.subscriptionUrl,
+                           UserAgent = UserAgent
+                       };
         }
 
         /// <summary>
@@ -107,13 +106,14 @@ namespace It.Unina.Dis.Logbus.Clients
         public static IChannelSubscription CreateChannelSubscriber(string endpointUrl)
         {
             return new ChannelSubscription
-            {
-                Url = endpointUrl,
-                UserAgent = UserAgent
-            };
+                       {
+                           Url = endpointUrl,
+                           UserAgent = UserAgent
+                       };
         }
 
         #region UDP
+
         /// <summary>
         /// Creates a UDP log listener with the given filter
         /// </summary>
@@ -121,7 +121,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="subscription">Subscription endpoint</param>
         /// <param name="filter">Log filter to apply</param>
         /// <returns></returns>
-        public static ILogClient CreateUnreliableClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
+        public static ILogClient CreateUnreliableClient(FilterBase filter, IChannelManagement manager,
+                                                        IChannelSubscription subscription)
         {
             return new SyslogUdpClient(filter, manager, subscription);
         }
@@ -155,18 +156,24 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <returns></returns>
         public static ILogClient CreateUnreliableClient(FilterBase filter)
         {
-            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) || string.IsNullOrEmpty(Configuration.endpoint.managementUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+            if (Configuration == null || Configuration.endpoint == null ||
+                string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) ||
+                string.IsNullOrEmpty(Configuration.endpoint.managementUrl))
+                throw new InvalidOperationException("Logbus is not configured for default client");
 
-            string mgmEndpoint = Configuration.endpoint.managementUrl, subEndpoint = Configuration.endpoint.subscriptionUrl;
+            string mgmEndpoint = Configuration.endpoint.managementUrl,
+                   subEndpoint = Configuration.endpoint.subscriptionUrl;
 
-            IChannelManagement mgmObject = new ChannelManagement { Url = mgmEndpoint, UserAgent = UserAgent };
-            IChannelSubscription subObject = new ChannelSubscription { Url = subEndpoint, UserAgent = UserAgent };
+            IChannelManagement mgmObject = new ChannelManagement {Url = mgmEndpoint, UserAgent = UserAgent};
+            IChannelSubscription subObject = new ChannelSubscription {Url = subEndpoint, UserAgent = UserAgent};
 
             return new SyslogUdpClient(filter, mgmObject, subObject);
         }
+
         #endregion
 
         #region TLS
+
         /// <summary>
         /// Creates a UDP log listener with the given filter
         /// </summary>
@@ -174,7 +181,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="subscription">Subscription endpoint</param>
         /// <param name="filter">Log filter to apply</param>
         /// <returns></returns>
-        public static ILogClient CreateReliableClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
+        public static ILogClient CreateReliableClient(FilterBase filter, IChannelManagement manager,
+                                                      IChannelSubscription subscription)
         {
             return new SyslogTlsClient(filter, manager, subscription);
         }
@@ -208,15 +216,20 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <returns></returns>
         public static ILogClient CreateReliableClient(FilterBase filter)
         {
-            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) || string.IsNullOrEmpty(Configuration.endpoint.managementUrl)) throw new InvalidOperationException("Logbus is not configured for default client");
+            if (Configuration == null || Configuration.endpoint == null ||
+                string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) ||
+                string.IsNullOrEmpty(Configuration.endpoint.managementUrl))
+                throw new InvalidOperationException("Logbus is not configured for default client");
 
-            string mgmEndpoint = Configuration.endpoint.managementUrl, subEndpoint = Configuration.endpoint.subscriptionUrl;
+            string mgmEndpoint = Configuration.endpoint.managementUrl,
+                   subEndpoint = Configuration.endpoint.subscriptionUrl;
 
-            IChannelManagement mgmObject = new ChannelManagement { Url = mgmEndpoint, UserAgent = UserAgent };
-            IChannelSubscription subObject = new ChannelSubscription { Url = subEndpoint, UserAgent = UserAgent };
+            IChannelManagement mgmObject = new ChannelManagement {Url = mgmEndpoint, UserAgent = UserAgent};
+            IChannelSubscription subObject = new ChannelSubscription {Url = subEndpoint, UserAgent = UserAgent};
 
             return new SyslogTlsClient(filter, mgmObject, subObject);
         }
+
         #endregion
 
         #region Obsolete methods
@@ -228,8 +241,11 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="subscription">Subscription endpoint</param>
         /// <param name="filter">Log filter to apply</param>
         /// <returns></returns>
-        [Obsolete("You should use CreateUnreliableClient(FilterBase, IChannelManagement, IChannelSubscription) or CreateReliableClient(FilterBase, IChannelManagement, IChannelSubscription) instead")]
-        public static ILogClient CreateDefaultClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
+        [Obsolete(
+            "You should use CreateUnreliableClient(FilterBase, IChannelManagement, IChannelSubscription) or CreateReliableClient(FilterBase, IChannelManagement, IChannelSubscription) instead"
+            )]
+        public static ILogClient CreateDefaultClient(FilterBase filter, IChannelManagement manager,
+                                                     IChannelSubscription subscription)
         {
             return CreateUnreliableClient(filter, manager, subscription);
         }
@@ -240,7 +256,9 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="channelId">ID of already-created channel</param>
         /// <param name="subscription">Subscription endpoint</param>
         /// <returns></returns>
-        [Obsolete("You should use CreateUnreliableClient(string, IChannelSubscription) or CreateReliableClient(string, IChannelSubscription) instead")]
+        [Obsolete(
+            "You should use CreateUnreliableClient(string, IChannelSubscription) or CreateReliableClient(string, IChannelSubscription) instead"
+            )]
         public static ILogClient CreateDefaultClient(string channelId, IChannelSubscription subscription)
         {
             return CreateUnreliableClient(channelId, subscription);

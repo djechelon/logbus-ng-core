@@ -20,16 +20,15 @@
 #if X64
 using COUNTER_TYPE = System.Int64;
 #else
-using COUNTER_TYPE = System.Int32;
-#endif
-
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Threading;
 using System.Globalization;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using It.Unina.Dis.Logbus.Utils;
+using COUNTER_TYPE = System.Int32;
+#endif
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
@@ -40,7 +39,6 @@ namespace It.Unina.Dis.Logbus.InChannels
     internal sealed class SyslogUdpReceiver :
         ReceiverBase
     {
-
         /// <summary>
         /// Initializes a new instance of SyslogUdpReceiver
         /// </summary>
@@ -65,34 +63,22 @@ namespace It.Unina.Dis.Logbus.InChannels
         private UdpClient _client;
         private IFifoQueue<byte[]>[] _byteQueues;
         private COUNTER_TYPE _currentQueue;
-        private bool _listen = false;
+        private bool _listen;
 
         /// <summary>
         /// Port to listen on
         /// </summary>
-        public int Port
-        {
-            get;
-            set;
-        }
+        public int Port { get; set; }
 
         /// <summary>
         /// Interface to listen on
         /// </summary>
-        public string IpAddress
-        {
-            get;
-            set;
-        }
+        public string IpAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the receive buffer size of UDP
         /// </summary>
-        public int ReceiveBufferSize
-        {
-            get;
-            set;
-        }
+        public int ReceiveBufferSize { get; set; }
 
         /// <summary>
         /// Implements IRunnable.Start
@@ -104,8 +90,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = DEFAULT_PORT;
             }
 
-            IPEndPoint localEp = IpAddress == null ?
-                new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            IPEndPoint localEp = IpAddress == null
+                                     ? new IPEndPoint(IPAddress.Any, Port)
+                                     : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
             try
             {
@@ -120,7 +107,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                 if (ReceiveBufferSize >= 0) clientSock.ReceiveBufferSize = ReceiveBufferSize;
 
                 clientSock.Bind(localEp);
-                _client = new UdpClient { Client = clientSock };
+                _client = new UdpClient {Client = clientSock};
             }
             catch (SocketException ex)
             {
@@ -165,7 +152,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                     _listenerThreads[i].Join();
                 _listenerThreads = null;
             }
-            catch { } //Really nothing?
+            catch
+            {
+            } //Really nothing?
 
             try
             {
@@ -175,8 +164,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                     _parserThreads[i].Join();
                 _parserThreads = null;
             }
-            catch { }
-
+            catch
+            {
+            }
         }
 
         #region IConfigurable Membri di
@@ -251,7 +241,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void ParserLoop(object queue)
         {
-            int queueId = (int)queue;
+            int queueId = (int) queue;
             try
             {
                 while (true)
@@ -271,7 +261,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                 }
             }
             catch (ThreadInterruptedException)
-            { }
+            {
+            }
             finally
             {
                 byte[][] finalMessages = _byteQueues[queueId].FlushAndDispose();
@@ -300,7 +291,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                 {
                     byte[] payload = _client.Receive(ref remoteEndpoint);
 
-                    _byteQueues[(((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].Enqueue(payload);
+                    _byteQueues[
+                        (((Interlocked.Increment(ref _currentQueue))%WORKER_THREADS) + WORKER_THREADS)%WORKER_THREADS].
+                        Enqueue(payload);
                 }
                 catch (SocketException)
                 {
@@ -309,7 +302,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                     //return;
                     //else nothing yet
                 }
-                catch (Exception) { } //Really do nothing? Shouldn't we stop the service?
+                catch (Exception)
+                {
+                } //Really do nothing? Shouldn't we stop the service?
             }
         }
     }

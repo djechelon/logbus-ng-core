@@ -17,13 +17,14 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Runtime.CompilerServices;
 using System;
-using It.Unina.Dis.Logbus.Utils;
-using It.Unina.Dis.Logbus.Loggers;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.OutChannels
 {
@@ -33,8 +34,9 @@ namespace It.Unina.Dis.Logbus.OutChannels
     internal sealed class SimpleOutChannel
         : IOutboundChannel, IAsyncRunnable, ILogSupport
     {
+        private readonly Dictionary<string, IOutboundTransport> _transports =
+            new Dictionary<string, IOutboundTransport>();
 
-        private readonly Dictionary<string, IOutboundTransport> _transports = new Dictionary<string, IOutboundTransport>();
         private Timer _coalescenceTimer;
         private Thread _workerThread;
         private readonly IFifoQueue<SyslogMessage> _messageQueue = new FastFifoQueue<SyslogMessage>(16384);
@@ -48,7 +50,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// inspect transports' list of clients, involving some locks)
         /// </summary>
         private volatile bool _block = true;
-
 
         #region Constructor/Destructor
 
@@ -79,34 +80,19 @@ namespace It.Unina.Dis.Logbus.OutChannels
             Disposed = true;
         }
 
-        private bool Disposed
-        {
-            get;
-            set;
-        }
+        private bool Disposed { get; set; }
+
         #endregion
 
         #region IOutboundChannel Membri di
 
         public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
-        public string ID
-        {
-            get;
-            set;
-        }
+        public string ID { get; set; }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
-        public string Description
-        {
-            get;
-            set;
-        }
+        public string Description { get; set; }
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
@@ -120,7 +106,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
             get
             {
                 int ret = 0;
-                foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports) ret += kvp.Value.SubscribedClients;
+                foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports)
+                    ret += kvp.Value.SubscribedClients;
                 return ret;
             }
         }
@@ -141,7 +128,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (e.Cancel) return;
                 }
 
-                _workerThread = new Thread(RunnerLoop) { IsBackground = true };
+                _workerThread = new Thread(RunnerLoop) {IsBackground = true};
                 _workerThread.Start();
 
                 _running = true;
@@ -192,35 +179,25 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
         }
 
-        public Filters.IFilter Filter
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
+        public IFilter Filter { [MethodImpl(MethodImplOptions.Synchronized)]
+        get; [MethodImpl(MethodImplOptions.Synchronized)]
+        set; }
 
-        public ulong CoalescenceWindowMillis
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
+        public ulong CoalescenceWindowMillis { [MethodImpl(MethodImplOptions.Synchronized)]
+        get; [MethodImpl(MethodImplOptions.Synchronized)]
+        set; }
 
-        public ITransportFactoryHelper TransportFactoryHelper
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            private get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
+        public ITransportFactoryHelper TransportFactoryHelper { [MethodImpl(MethodImplOptions.Synchronized)]
+        private get; [MethodImpl(MethodImplOptions.Synchronized)]
+        set; }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public string SubscribeClient(string transportId, IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions)
+        public string SubscribeClient(string transportId, IEnumerable<KeyValuePair<string, string>> inputInstructions,
+                                      out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(transportId)) throw new ArgumentNullException("transportId", "Transport ID cannot be null");
+            if (string.IsNullOrEmpty(transportId))
+                throw new ArgumentNullException("transportId", "Transport ID cannot be null");
 
             try
             {
@@ -247,7 +224,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 {
                     _block = false;
                     string clientId = string.Format("{0}:{1}", transportId,
-                                         toSubscribe.SubscribeClient(inputInstructions, out outputInstructions));
+                                                    toSubscribe.SubscribeClient(inputInstructions,
+                                                                                out outputInstructions));
                     Log.Info("New client subscribed on channel {0} with ID {1}", ID, clientId);
                     return clientId;
                 }
@@ -276,7 +254,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void RefreshClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("clientId", "Client ID must not be null");
+            if (string.IsNullOrEmpty(clientId))
+                throw new ArgumentNullException("clientId", "Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {
@@ -337,7 +316,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void UnsubscribeClient(string clientId)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (string.IsNullOrEmpty(clientId)) throw new ArgumentNullException("clientId", "Client ID must not be null");
+            if (string.IsNullOrEmpty(clientId))
+                throw new ArgumentNullException("clientId", "Client ID must not be null");
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {
@@ -398,10 +378,9 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
             finally
             {
-                if (((IOutboundChannel)this).SubscribedClients == 0) _block = true;
+                if (((IOutboundChannel) this).SubscribedClients == 0) _block = true;
             }
         }
-
 
         #endregion
 
@@ -429,14 +408,16 @@ namespace It.Unina.Dis.Logbus.OutChannels
                                 kvp.Value.SubmitMessage(msg);
                             if (CoalescenceWindowMillis > 0)
                             {
-                                _coalescenceTimer = new Timer(ResetCoalescence, null, (int)CoalescenceWindowMillis, Timeout.Infinite);
+                                _coalescenceTimer = new Timer(ResetCoalescence, null, (int) CoalescenceWindowMillis,
+                                                              Timeout.Infinite);
                                 _withinCoalescenceWindow = true;
                             }
                         }
                 }
             }
             catch (ThreadInterruptedException)
-            { }
+            {
+            }
             finally
             {
                 if (_coalescenceTimer != null) _coalescenceTimer.Dispose();
@@ -463,13 +444,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
             _withinCoalescenceWindow = false;
         }
 
-        public ILog Log
-        {
-            private get;
-            set;
-        }
+        public ILog Log { private get; set; }
 
         #region IRunnable Membri di
+
         /// <remarks/>
         public bool Running
         {
@@ -528,4 +506,3 @@ namespace It.Unina.Dis.Logbus.OutChannels
         #endregion
     }
 }
-

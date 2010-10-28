@@ -36,8 +36,10 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// <param name="instructions">Instructions provided by client to the transport</param>
         /// <param name="clientId">Client ID assigned by Logbus-ng</param>
         /// <param name="outInstructions">Instructions provided by transport to client</param>
-        public ClientSubscribedEventArgs(IOutboundChannel channel, string transport, IEnumerable<KeyValuePair<string, string>> instructions, string clientId, IDictionary<string ,string > outInstructions)
-            :base(channel,transport,instructions)
+        public ClientSubscribedEventArgs(IOutboundChannel channel, string transport,
+                                         IEnumerable<KeyValuePair<string, string>> instructions, string clientId,
+                                         IDictionary<string, string> outInstructions)
+            : base(channel, transport, instructions)
         {
             ClientId = clientId;
             ClientInstructions = outInstructions;

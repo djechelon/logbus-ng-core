@@ -1,4 +1,4 @@
-/*
+﻿/*
  *                  Logbus-ng project
  *    ©2010 Logbus Reasearch Team - Some rights reserved
  *
@@ -19,10 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net;
+using System.Text;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -33,7 +34,6 @@ namespace It.Unina.Dis.Logbus
     [Serializable]
     public class SyslogMessage
     {
-
         /// <summary>
         ///	Facility that generated the message 
         /// </summary>
@@ -102,7 +102,8 @@ namespace It.Unina.Dis.Logbus
         /// Initializes a new instance of SyslogMessage
         /// </summary>
         public SyslogMessage()
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of SyslogMessage with common fields
@@ -112,8 +113,11 @@ namespace It.Unina.Dis.Logbus
         /// <param name="facility">Facility of the message</param>
         /// <param name="level">Severity of message</param>
         /// <param name="text">Text message</param>
-        [Obsolete("You should use SyslogMessage(string host, SyslogFacility facility, SyslogSeverity level, string text)", false)]
-        public SyslogMessage(DateTime? timestamp, string host, SyslogFacility facility, SyslogSeverity level, string text)
+        [Obsolete(
+            "You should use SyslogMessage(string host, SyslogFacility facility, SyslogSeverity level, string text)",
+            false)]
+        public SyslogMessage(DateTime? timestamp, string host, SyslogFacility facility, SyslogSeverity level,
+                             string text)
             : this()
         {
             Timestamp = timestamp;
@@ -184,7 +188,7 @@ namespace It.Unina.Dis.Logbus
 
             if (Data != null)
             {
-                const string KEY = "CallerData@" + Loggers.SimpleLogImpl.ENTERPRISE_ID;
+                const string KEY = "CallerData@" + SimpleLogImpl.ENTERPRISE_ID;
                 if (Data.ContainsKey(KEY))
                 {
                     IDictionary<string, string> callerData = Data[KEY];
@@ -198,8 +202,11 @@ namespace It.Unina.Dis.Logbus
                 {
                     IDictionary<string, string> timequality = Data["timeQuality"];
                     if (timequality.ContainsKey("tzKnown") && timequality["tzKnown"] == "1") ret.TimeZoneKnown = true;
-                    if (timequality.ContainsKey("isSynced") && timequality["isSynced"] == "1") ret.TimeSynchronized = true;
-                    if (ret.TimeSynchronized && timequality.ContainsKey("syncAccuracy")) long.TryParse(timequality["syncAccuracy"], NumberStyles.Integer, CultureInfo.InvariantCulture, out ret.TimeSyncAccuracy);
+                    if (timequality.ContainsKey("isSynced") && timequality["isSynced"] == "1")
+                        ret.TimeSynchronized = true;
+                    if (ret.TimeSynchronized && timequality.ContainsKey("syncAccuracy"))
+                        long.TryParse(timequality["syncAccuracy"], NumberStyles.Integer, CultureInfo.InvariantCulture,
+                                      out ret.TimeSyncAccuracy);
                 }
 
                 if (Data.ContainsKey("origin"))
@@ -219,7 +226,7 @@ namespace It.Unina.Dis.Logbus
                                      out ret.SequenceId);
                     if (meta.ContainsKey("sysUpTime"))
                         long.TryParse(meta["sysUpTime"], NumberStyles.Integer, CultureInfo.InvariantCulture,
-                                     out ret.SystemUptime);
+                                      out ret.SystemUptime);
                 }
             }
 
@@ -230,10 +237,7 @@ namespace It.Unina.Dis.Logbus
 
         private int PriVal
         {
-            get
-            {
-                return (int)Facility * 8 + (int)Severity;
-            }
+            get { return (int) Facility*8 + (int) Severity; }
         }
 
         /// <summary>
@@ -263,7 +267,9 @@ namespace It.Unina.Dis.Logbus
 
             //Encode datetime
             //If unknown use local time
-            ret.Append((Timestamp.HasValue) ? Timestamp.Value.ToString("MMM  dd HH:mm:ss", CultureInfo.InvariantCulture) : DateTime.Now.ToString("MMM  dd HH:mm:ss", CultureInfo.InvariantCulture));
+            ret.Append((Timestamp.HasValue)
+                           ? Timestamp.Value.ToString("MMM  dd HH:mm:ss", CultureInfo.InvariantCulture)
+                           : DateTime.Now.ToString("MMM  dd HH:mm:ss", CultureInfo.InvariantCulture));
             ret.Append(SPACE);
 
             //Encode hostname
@@ -298,7 +304,9 @@ namespace It.Unina.Dis.Logbus
 
             //Timestamp
             const string TIMESTAMP_FORMAT = @"yyyy-MM-dd\THH:mm:ss";
-            ret.Append((Timestamp == null) ? NILVALUE : Timestamp.Value.ToString(TIMESTAMP_FORMAT, CultureInfo.InvariantCulture));
+            ret.Append((Timestamp == null)
+                           ? NILVALUE
+                           : Timestamp.Value.ToString(TIMESTAMP_FORMAT, CultureInfo.InvariantCulture));
             if (TimeOffset == null) ret.Append('Z');
             else
             {
@@ -380,7 +388,7 @@ namespace It.Unina.Dis.Logbus
             List<string> elements = new List<string>();
             foreach (KeyValuePair<string, string> kvp in data)
             {
-                elements.Add(string.Format(@"{0}=""{1}""", kvp.Key, Escape(kvp.Value, new char[] { '"', '\\', ']' })));
+                elements.Add(string.Format(@"{0}=""{1}""", kvp.Key, Escape(kvp.Value, new[] {'"', '\\', ']'})));
             }
 
             if (elements.Count > 0)
@@ -420,11 +428,11 @@ namespace It.Unina.Dis.Logbus
         public static explicit operator SyslogMessage(EventLogEntry eventLogEntry)
         {
             SyslogMessage message = new SyslogMessage
-            {
-                Timestamp = eventLogEntry.TimeGenerated,
-                Host = eventLogEntry.MachineName,
-                Text = eventLogEntry.Message
-            };
+                                        {
+                                            Timestamp = eventLogEntry.TimeGenerated,
+                                            Host = eventLogEntry.MachineName,
+                                            Text = eventLogEntry.Message
+                                        };
 
 
             //No "official" matching between Windows and Syslog severities exist.
@@ -474,6 +482,7 @@ namespace It.Unina.Dis.Logbus
         #endregion
 
         #region Parsing
+
         /// <summary>
         /// Parses Syslog messages according to RFC3164
         /// </summary>
@@ -490,8 +499,8 @@ namespace It.Unina.Dis.Logbus
                 //Calculate prival = Facility*8 + Severity...
                 String prival = newPayload.Split('>')[0];
                 Int32 severity = 0;
-                ret.Facility = (SyslogFacility)Math.DivRem(Int32.Parse(prival), 8, out severity);
-                ret.Severity = (SyslogSeverity)severity;
+                ret.Facility = (SyslogFacility) Math.DivRem(Int32.Parse(prival), 8, out severity);
+                ret.Severity = (SyslogSeverity) severity;
                 pointer += prival.Length + 1;
 
                 //Calculate Timestamp...
@@ -580,8 +589,8 @@ namespace It.Unina.Dis.Logbus
                 //Calculate prival = Facility*8 + Severity...
                 String prival = newPayload.Split('>')[0];
                 Int32 severity = 0;
-                ret.Facility = (SyslogFacility)Math.DivRem(Int32.Parse(prival), 8, out severity);
-                ret.Severity = (SyslogSeverity)severity;
+                ret.Facility = (SyslogFacility) Math.DivRem(Int32.Parse(prival), 8, out severity);
+                ret.Severity = (SyslogSeverity) severity;
                 pointer += prival.Length + 1;
 
                 //Calculate Version...
@@ -613,8 +622,8 @@ namespace It.Unina.Dis.Logbus
                     if (elem[1].Contains("-"))
                     {
                         elem2 = elem[1].Split('-');
-                        fusoH = Int32.Parse(elem2[1].Split(':')[0]) * -1;
-                        fusoM = Int32.Parse(elem2[1].Split(':')[1]) * -1;
+                        fusoH = Int32.Parse(elem2[1].Split(':')[0])*-1;
+                        fusoM = Int32.Parse(elem2[1].Split(':')[1])*-1;
                     }
                     else if (elem[1].Contains("+"))
                     {
@@ -719,7 +728,7 @@ namespace It.Unina.Dis.Logbus
                     if (newPayload.EndsWith("\r\n")) newPayload = newPayload.Substring(0, newPayload.Length - 2);
                     else if (newPayload.EndsWith("\n")) newPayload = newPayload.Substring(0, newPayload.Length - 1);
 
-                    byte[] BOM = { 0xef, 0xbb, 0xbf }, utf8String = Encoding.UTF8.GetBytes(newPayload);
+                    byte[] BOM = {0xef, 0xbb, 0xbf}, utf8String = Encoding.UTF8.GetBytes(newPayload);
 
                     if (BOM[0] == utf8String[0] && BOM[1] == utf8String[1] && BOM[2] == utf8String[2])
                         ret.Text = Encoding.UTF8.GetString(utf8String, 3, utf8String.Length - 3); //Cut BOM
@@ -756,7 +765,7 @@ namespace It.Unina.Dis.Logbus
             if (payload[0] != '<')
                 //RFC5424 messages ALL start with LT, so this is either a No-PRI RFC3164 message or completely invalid message
                 return Parse3164(payload);
-            //Message begins with LT, so there must be GT
+                //Message begins with LT, so there must be GT
             else if (char.IsDigit(payload[payload.IndexOf('>') + 1]))
                 //After GT there is a number. It should be the Version number of RFC5424
                 return Parse5424(payload);
@@ -781,7 +790,7 @@ namespace It.Unina.Dis.Logbus
         {
             if (payload == null) throw new ArgumentNullException("payload");
 
-            return Parse(System.Text.Encoding.UTF8.GetString(payload));
+            return Parse(Encoding.UTF8.GetString(payload));
         }
 
         private static Int32 GetMonthByName(String month)

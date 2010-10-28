@@ -17,17 +17,23 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LogbusCollectorDefinition))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForwarderDefinition))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    public abstract partial class LogCollectorDefinitionBase : TypeAndParamBase
+    [XmlInclude(typeof (LogbusCollectorDefinition))]
+    [XmlInclude(typeof (ForwarderDefinition))]
+    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    public abstract class LogCollectorDefinitionBase : TypeAndParamBase
     {
     }
 }

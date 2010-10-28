@@ -18,6 +18,7 @@
 */
 
 using System.Collections.Generic;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <summary>
@@ -27,15 +28,11 @@ namespace It.Unina.Dis.Logbus.Filters
     public interface ICustomFilter
         : IFilter
     {
-
         /// <summary>
         /// Sets configuration parameters for the filter.
         /// Their syntax and semantics completely depend on the design contract
         /// </summary>
         /// <remarks>In practice, it will be an array</remarks>
-        IEnumerable<FilterParameter> Configuration
-        {
-            set;
-        }
+        IEnumerable<FilterParameter> Configuration { set; }
     }
 }

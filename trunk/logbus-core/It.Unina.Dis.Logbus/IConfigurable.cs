@@ -18,6 +18,7 @@
 */
 
 using System.Collections.Generic;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>

@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus.FFDA
 {
     /// <summary>
@@ -26,14 +27,16 @@ namespace It.Unina.Dis.Logbus.FFDA
     public class FFDAParser
         : ILogCollector
     {
-
         private readonly ILogSource _theSource;
 
         #region Constructor
+
         /// <summary>
         /// Initializes a new instance of FFDAParser
         /// </summary>
-        public FFDAParser() { }
+        public FFDAParser()
+        {
+        }
 
         /// <summary>
         /// Initializes FFDASource with an existing log source
@@ -41,7 +44,8 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="source">Active log source to monitor</param>
         public FFDAParser(ILogSource source)
         {
-            if (source == null) throw new ArgumentNullException("source", "Source must be an existing and active log source");
+            if (source == null)
+                throw new ArgumentNullException("source", "Source must be an existing and active log source");
 
             _theSource = source;
             _theSource.MessageReceived += the_source_MessageReceived;
@@ -64,7 +68,15 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// FFDA-specific events
         /// </summary>
-        public event EventHandler<FFDAEventArgs> GotSST, GotSEN, GotEIS, GotEIE, GotRIS, GotRIE, GotSUP, GotSDW, GotCMP;
+        public event EventHandler<FFDAEventArgs> GotSST ,
+            GotSEN ,
+            GotEIS ,
+            GotEIE ,
+            GotRIS ,
+            GotRIE ,
+            GotSUP ,
+            GotSDW ,
+            GotCMP;
 
         #endregion
 
@@ -98,44 +110,54 @@ namespace It.Unina.Dis.Logbus.FFDA
                 {
                     case FFDAEvent.SUP:
                         {
-                            if (GotSUP != null) GotSUP(this, e); break;
+                            if (GotSUP != null) GotSUP(this, e);
+                            break;
                         }
                     case FFDAEvent.SDW:
                         {
-                            if (GotSDW != null) GotSDW(this, e); break;
+                            if (GotSDW != null) GotSDW(this, e);
+                            break;
                         }
                     case FFDAEvent.SST:
                         {
-                            if (GotSST != null) GotSST(this, e); break;
+                            if (GotSST != null) GotSST(this, e);
+                            break;
                         }
                     case FFDAEvent.SEN:
                         {
-                            if (GotSEN != null) GotSEN(this, e); break;
+                            if (GotSEN != null) GotSEN(this, e);
+                            break;
                         }
                     case FFDAEvent.EIS:
                         {
-                            if (GotEIS != null) GotEIS(this, e); break;
+                            if (GotEIS != null) GotEIS(this, e);
+                            break;
                         }
                     case FFDAEvent.EIE:
                         {
-                            if (GotEIE != null) GotEIE(this, e); break;
+                            if (GotEIE != null) GotEIE(this, e);
+                            break;
                         }
                     case FFDAEvent.RIS:
                         {
-                            if (GotRIS != null) GotRIS(this, e); break;
+                            if (GotRIS != null) GotRIS(this, e);
+                            break;
                         }
                     case FFDAEvent.RIE:
                         {
-                            if (GotRIE != null) GotRIE(this, e); break;
+                            if (GotRIE != null) GotRIE(this, e);
+                            break;
                         }
                     case FFDAEvent.CMP:
                         {
-                            if (GotCMP != null) GotCMP(this, e); break;
+                            if (GotCMP != null) GotCMP(this, e);
+                            break;
                         }
                 }
             }
-            catch (InvalidOperationException) { }
-
+            catch (InvalidOperationException)
+            {
+            }
         }
 
         #region ILogCollector Membri di

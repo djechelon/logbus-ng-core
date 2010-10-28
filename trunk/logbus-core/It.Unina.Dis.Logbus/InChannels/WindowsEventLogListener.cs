@@ -1,4 +1,4 @@
-/*
+﻿/*
  *                  Logbus-ng project
  *    ©2010 Logbus Reasearch Team - Some rights reserved
  *
@@ -17,9 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Collections.Generic;
-using System.Diagnostics;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Security;
+
 namespace It.Unina.Dis.Logbus.InChannels
 {
     /// <summary>
@@ -29,21 +32,22 @@ namespace It.Unina.Dis.Logbus.InChannels
     internal sealed class WindowsEventLogListener
         : IInboundChannel, ILogSource
     {
-
         private EventLog _log;
 
         #region Constructor/Destructor
 
         public WindowsEventLogListener()
         {
-            switch (System.Environment.OSVersion.Platform)
+            switch (Environment.OSVersion.Platform)
             {
-                case System.PlatformID.Win32NT:
-                case System.PlatformID.Win32Windows:
-                    { break; }
+                case PlatformID.Win32NT:
+                case PlatformID.Win32Windows:
+                    {
+                        break;
+                    }
                 default:
                     {
-                        throw new System.PlatformNotSupportedException("This is supported only under Windows OS");
+                        throw new PlatformNotSupportedException("This is supported only under Windows OS");
                     }
             }
             Configuration = new Dictionary<string, string>();
@@ -60,8 +64,13 @@ namespace It.Unina.Dis.Logbus.InChannels
         private void Dispose(bool disposing)
         {
             if (Disposed) return;
-            try { Stop(); }
-            catch { }
+            try
+            {
+                Stop();
+            }
+            catch
+            {
+            }
 
             if (disposing)
             {
@@ -70,39 +79,24 @@ namespace It.Unina.Dis.Logbus.InChannels
             Disposed = true;
         }
 
-        private bool Disposed
-        {
-            get;
-            set;
-        }
+        private bool Disposed { get; set; }
+
         #endregion
 
         public bool Running { get; private set; }
 
-        void log_EntryWritten(object sender, EntryWrittenEventArgs e)
+        private void log_EntryWritten(object sender, EntryWrittenEventArgs e)
         {
-            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs((SyslogMessage)e.Entry));
+            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs((SyslogMessage) e.Entry));
         }
 
-        public string Hostname
-        {
-            get;
-            set;
-        }
+        public string Hostname { get; set; }
 
-        public string LogName
-        {
-            get;
-            set;
-        }
+        public string LogName { get; set; }
 
         #region IInboundChannel Membri di
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
         public void Start()
         {
@@ -136,13 +130,14 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 new EventLogPermission(EventLogPermissionAccess.Administer, Hostname).Demand();
             }
-            catch (System.Security.SecurityException ex)
+            catch (SecurityException ex)
             {
-                throw new LogbusException("Unable to start channel. Missing security clearance for the chosen machine", ex);
+                throw new LogbusException("Unable to start channel. Missing security clearance for the chosen machine",
+                                          ex);
             }
 
             _log = new EventLog(LogName, Hostname);
-            _log.EntryWritten += new EntryWrittenEventHandler(log_EntryWritten);
+            _log.EntryWritten += log_EntryWritten;
         }
 
         public void Stop()
@@ -177,10 +172,10 @@ namespace It.Unina.Dis.Logbus.InChannels
         #region IRunnable Membri di
 
         /// <remarks/>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
         /// <remarks/>
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         /// <remarks/>
         public event EventHandler Started;

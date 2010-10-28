@@ -17,9 +17,10 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using System;
+
 namespace It.Unina.Dis.Logbus.Utils
 {
     /// <summary>
@@ -31,7 +32,7 @@ namespace It.Unina.Dis.Logbus.Utils
     {
         private readonly Queue<T> _theQueue;
         private Semaphore _sema;
-        private long _count = 0;
+        private long _count;
 
         private volatile bool _disposed;
 
@@ -52,18 +53,18 @@ namespace It.Unina.Dis.Logbus.Utils
         /// <param name="collection">Collection of elements to insert into the queue</param>
         public BlockingFifoQueue(IEnumerable<T> collection)
         {
-            _theQueue=new Queue<T>(collection);
+            _theQueue = new Queue<T>(collection);
             _sema = new Semaphore(_theQueue.Count, int.MaxValue);
             _count = _theQueue.Count;
         }
-    
+
         /// <summary>
         /// Initializes the blocking FIFO queue with an initial capacity
         /// </summary>
         /// <param name="capacity">Initial capacity to set</param>
         public BlockingFifoQueue(int capacity)
         {
-            _theQueue=new Queue<T>(capacity);
+            _theQueue = new Queue<T>(capacity);
             _sema = new Semaphore(0, capacity);
         }
 
@@ -72,6 +73,7 @@ namespace It.Unina.Dis.Logbus.Utils
         {
             Dispose(false);
         }
+
         #endregion
 
         /// <summary>
@@ -105,7 +107,7 @@ namespace It.Unina.Dis.Logbus.Utils
         /// </summary>
         public int Count
         {
-            get { return (int)Interlocked.Read(ref _count); }
+            get { return (int) Interlocked.Read(ref _count); }
         }
 
         /// <summary>
@@ -121,7 +123,7 @@ namespace It.Unina.Dis.Logbus.Utils
                 T[] ret = _theQueue.ToArray();
                 _theQueue.Clear();
                 Interlocked.Exchange(ref _count, 0);
-                
+
                 //Note: we will need to change the behaviour soon
                 _sema = new Semaphore(0, int.MaxValue);
                 return ret;
