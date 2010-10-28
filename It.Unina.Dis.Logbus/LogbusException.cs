@@ -25,6 +25,7 @@ namespace It.Unina.Dis.Logbus
     /// <summary>
     /// Root class for Logbus exceptions
     /// </summary>
+    [Serializable]
     public class LogbusException
         : Exception
     {

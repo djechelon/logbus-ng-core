@@ -72,7 +72,6 @@ namespace It.Unina.Dis.Logbus.WebServices
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
         [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
 #endif
-
         public virtual string[] ListChannels()
         {
             return TargetChannelManager.ListChannels();

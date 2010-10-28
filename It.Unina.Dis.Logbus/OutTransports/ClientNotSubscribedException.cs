@@ -24,6 +24,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
     /// <summary>
     /// Transport exception specific to the event that a client is not subscribed to the transport
     /// </summary>
+    [Serializable]
     public class ClientNotSubscribedException
         : TransportException
     {
