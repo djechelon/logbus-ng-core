@@ -39,6 +39,7 @@ namespace It.Unina.Dis.Logbus.Configuration
 
         private int defaultheartbeatintervalField;
 
+        /// <remarks/>
         public LogbusLoggerConfiguration()
         {
             this.defaultheartbeatintervalField = 0;

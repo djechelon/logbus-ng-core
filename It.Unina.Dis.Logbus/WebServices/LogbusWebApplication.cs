@@ -23,8 +23,12 @@ using It.Unina.Dis.Logbus.Wrappers;
 
 namespace It.Unina.Dis.Logbus.WebServices
 {
+    /// <summary>
+    /// Web application class for Global.asax
+    /// </summary>
     public class LogbusWebApplication : HttpApplication
     {
+        /// <remarks/>
         protected void Application_Start(object sender, EventArgs e)
         {
             ILogBus logbus;
@@ -64,31 +68,37 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
         }
 
+        /// <remarks/>
         protected void Session_Start(object sender, EventArgs e)
         {
 
         }
 
+        /// <remarks/>
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
 
         }
 
+        /// <remarks/>
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
         {
 
         }
 
+        /// <remarks/>
         protected void Application_Error(object sender, EventArgs e)
         {
 
         }
 
+        /// <remarks/>
         protected void Session_End(object sender, EventArgs e)
         {
 
         }
 
+        /// <remarks/>
         protected void Application_End(object sender, EventArgs e)
         {
             ((IDisposable) Application["LogbusInstance"]).Dispose();

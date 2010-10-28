@@ -17,54 +17,65 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.ComponentModel;
+#region
+
 using System;
+using System.ComponentModel;
+
+#endregion
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
-    /// Interface for facilities that need to be started before use.
-    /// Controls start and stop, and these operations are cancellable
+    ///   Interface for facilities that need to be started before use.
+    ///   Controls start and stop, and these operations are cancellable
     /// </summary>
     public interface IRunnable
     {
         #region Events
+
         /// <summary>
-        /// Facility is starting
+        ///   Facility is starting
         /// </summary>
         event EventHandler<CancelEventArgs> Starting;
 
         /// <summary>
-        /// Facility is stopping
+        ///   Facility is stopping
         /// </summary>
         event EventHandler<CancelEventArgs> Stopping;
 
         /// <summary>
-        /// Facility has started
+        ///   Facility has started
         /// </summary>
         event EventHandler Started;
 
         /// <summary>
-        /// Facility has stopped
+        ///   Facility has stopped
         /// </summary>
         event EventHandler Stopped;
 
         /// <summary>
-        /// An error occurred in the core
+        ///   An error occurred in the core
         /// </summary>
         event UnhandledExceptionEventHandler Error;
+
         #endregion
 
         /// <summary>
-        /// Starts the facility
+        ///   Starts the facility
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">Trying to start an already-started facility</exception>
+        /// <exception cref = "System.InvalidOperationException">Trying to start an already-started facility</exception>
         void Start();
 
         /// <summary>
-        /// Stops the facility
+        ///   Stops the facility
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">Trying to stop a facility that was never started or already stopped</exception>
+        /// <exception cref = "System.InvalidOperationException">Trying to stop a facility that was never started or already stopped</exception>
         void Stop();
 
+        /// <summary>
+        ///   Gets whether the entity is running or not
+        /// </summary>
+        bool Running { get; }
     }
 }

@@ -240,6 +240,14 @@ namespace It.Unina.Dis.Logbus.Wrappers
         #endregion
 
         #region IRunnable Membri di
+        
+        /// <summary>
+        /// Required by IRunnable
+        /// </summary>
+        public bool Running
+        {
+            get { return _target.Running; }
+        }
 
         /// <summary>
         /// Required by IRunnable

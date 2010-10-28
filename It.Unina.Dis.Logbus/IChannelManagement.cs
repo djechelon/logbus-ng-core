@@ -27,7 +27,6 @@ namespace It.Unina.Dis.Logbus
     /// </summary>
 #if MONO
 #else
-    /// <remarks/>
     [System.Web.Services.WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "ChannelManagement", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
