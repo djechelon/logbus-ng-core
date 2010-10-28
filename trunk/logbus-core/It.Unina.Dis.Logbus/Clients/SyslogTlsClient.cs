@@ -140,7 +140,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 EndPoint ep = _server.Server.LocalEndPoint;
                 if (ep is IPEndPoint)
                 {
-                    IPEndPoint ipe = (IPEndPoint) ep;
+                    IPEndPoint ipe = (IPEndPoint)ep;
                     port = ipe.Port;
                 }
                 else
@@ -149,7 +149,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
 
 
-                _runningThread = new Thread(RunnerLoop) {IsBackground = true};
+                _runningThread = new Thread(RunnerLoop) { IsBackground = true };
                 _runningThread.Start();
 
 
@@ -280,7 +280,7 @@ namespace It.Unina.Dis.Logbus.Clients
                                 StringBuilder sb = new StringBuilder();
                                 do
                                 {
-                                    char nextChar = (char) sr.Read();
+                                    char nextChar = (char)sr.Read();
                                     if (char.IsDigit(nextChar)) sb.Append(nextChar);
                                     else if (nextChar == ' ') break;
                                     else throw new FormatException("Invalid TLS encoding of Syslog message");
@@ -301,10 +301,19 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
                 catch (Exception ex)
                 {
+                    OnError(new UnhandledExceptionEventArgs(ex, true));
+
                     Log.Error("Error receiving Syslog messages from Logbus-ng server");
                     Log.Debug("Error details: {0}", ex.Message);
 
-                    new Thread(Stop).Start();
+                    new Thread(delegate()
+                    {
+                        try
+                        {
+                            Stop();
+                        }
+                        catch { }
+                    }).Start();
                     return;
                 }
                 /*catch (FormatException) { Stop(); }
