@@ -34,11 +34,7 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         public ILogBus LogbusInstance
         {
-            get
-            {
-                if (instance == null) instance = LogbusSingletonHelper.Instance;
-                return instance;
-            }
+            get { return instance ?? (instance = LogbusSingletonHelper.Instance); }
             set { instance = value; }
         }
 

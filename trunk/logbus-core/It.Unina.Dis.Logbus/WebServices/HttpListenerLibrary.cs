@@ -356,10 +356,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
             string s1 = GetFilePath();
             string s2 = _context.Request.Url.LocalPath;
-            if (s1.Length == s2.Length)
-                return "";
-            else
-                return s2.Substring(s1.Length);
+            return s1.Length == s2.Length ? "" : s2.Substring(s1.Length);
         }
     }
 }

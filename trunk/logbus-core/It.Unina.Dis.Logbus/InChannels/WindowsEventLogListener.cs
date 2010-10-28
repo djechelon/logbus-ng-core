@@ -30,7 +30,7 @@ namespace It.Unina.Dis.Logbus.InChannels
     /// </summary>
     /// <remarks></remarks>
     internal sealed class WindowsEventLogListener
-        : IInboundChannel, ILogSource
+        : IInboundChannel
     {
         private EventLog _log;
 
@@ -87,7 +87,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void log_EntryWritten(object sender, EntryWrittenEventArgs e)
         {
-            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs((SyslogMessage) e.Entry));
+            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs((SyslogMessage)e.Entry));
         }
 
         public string Hostname { get; set; }
