@@ -17,10 +17,11 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Configuration;
-using System.Xml.Serialization;
 using System;
+using System.Configuration;
 using System.Xml;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
@@ -28,18 +29,16 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// </summary>
     public class LogbusClientConfigurationSectionHandler : IConfigurationSectionHandler
     {
-
-
         #region IConfigurationSectionHandler Membri di
 
         /// <summary>
         /// Read configuration and return a <see cref="It.Unina.Dis.Logbus.Configuration.LogbusClientConfiguration"/> object by design contract
         /// </summary>
-        object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
+        object IConfigurationSectionHandler.Create(object parent, object configContext, XmlNode section)
         {
             try
             {
-                return new XmlSerializer(typeof(LogbusClientConfiguration)).Deserialize(new XmlNodeReader(section));
+                return new XmlSerializer(typeof (LogbusClientConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {

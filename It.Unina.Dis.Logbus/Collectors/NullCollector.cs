@@ -24,11 +24,13 @@ namespace It.Unina.Dis.Logbus.Collectors
     /// Needed for internal purposes
     /// </summary>
     internal class NullCollector
-    : ILogCollector
+        : ILogCollector
     {
         #region ILogCollector Membri di
 
-        void ILogCollector.SubmitMessage(SyslogMessage message) { }
+        void ILogCollector.SubmitMessage(SyslogMessage message)
+        {
+        }
 
         #endregion
     }

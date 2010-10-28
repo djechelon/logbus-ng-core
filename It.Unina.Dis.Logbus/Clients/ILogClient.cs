@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus.Clients
 {
     /// <summary>

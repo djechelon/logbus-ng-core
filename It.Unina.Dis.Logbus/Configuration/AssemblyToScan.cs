@@ -17,48 +17,42 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("scan-assembly", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class AssemblyToScan
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("scan-assembly", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class AssemblyToScan
     {
-
         private string assemblyField;
 
         private string codebaseField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string assembly
         {
-            get
-            {
-                return this.assemblyField;
-            }
-            set
-            {
-                this.assemblyField = value;
-            }
+            get { return assemblyField; }
+            set { assemblyField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string codebase
         {
-            get
-            {
-                return this.codebaseField;
-            }
-            set
-            {
-                this.codebaseField = value;
-            }
+            get { return codebaseField; }
+            set { codebaseField = value; }
         }
     }
 }

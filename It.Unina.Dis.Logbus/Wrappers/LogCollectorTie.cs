@@ -17,15 +17,16 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Wrappers
 {
     /// <summary>
     /// Apparently useless, this class implements delegation over a Log collector
     /// </summary>
     public sealed class LogCollectorTie
-        :ILogCollector
+        : ILogCollector
     {
-
         /// <summary>
         /// Initializes LogCollectorTie with a target object
         /// </summary>
@@ -33,18 +34,14 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <exception cref="System.ArgumentNullException">Argument is null</exception>
         public LogCollectorTie(ILogCollector target)
         {
-            if (target == null) throw new System.ArgumentNullException("target");
+            if (target == null) throw new ArgumentNullException("target");
             Target = target;
         }
 
         /// <summary>
         /// Object to tie
         /// </summary>
-        public ILogCollector Target
-        {
-            get;
-            private set;
-        }
+        public ILogCollector Target { get; private set; }
 
         #region ILogCollector Membri di
 

@@ -19,6 +19,7 @@
 
 using System.Configuration;
 using System.Runtime.CompilerServices;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
@@ -26,7 +27,9 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// </summary>
     public sealed class ConfigurationHelper
     {
-        private ConfigurationHelper() { }
+        private ConfigurationHelper()
+        {
+        }
 
         private static LogbusCoreConfiguration _core;
         private static LogbusClientConfiguration _client;
@@ -47,13 +50,13 @@ namespace It.Unina.Dis.Logbus.Configuration
                     _core = ConfigurationManager.GetSection("logbus-core") as LogbusCoreConfiguration;
                     return _core;
                 }
-                catch { return null; }
+                catch
+                {
+                    return null;
+                }
             }
             [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                _core = value;
-            }
+            set { _core = value; }
         }
 
         /// <summary>
@@ -71,13 +74,13 @@ namespace It.Unina.Dis.Logbus.Configuration
                     _source = ConfigurationManager.GetSection("logbus-logger") as LogbusLoggerConfiguration;
                     return _source;
                 }
-                catch { return null; }
+                catch
+                {
+                    return null;
+                }
             }
             [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                _source = value;
-            }
+            set { _source = value; }
         }
 
         /// <summary>
@@ -95,13 +98,13 @@ namespace It.Unina.Dis.Logbus.Configuration
                     _client = ConfigurationManager.GetSection("logbus-client") as LogbusClientConfiguration;
                     return _client;
                 }
-                catch { return null; }
+                catch
+                {
+                    return null;
+                }
             }
             [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                _client = value;
-            }
+            set { _client = value; }
         }
     }
 }

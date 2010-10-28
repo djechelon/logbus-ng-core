@@ -18,33 +18,34 @@
 */
 
 using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("FacilityEquals", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class FacilityEqualsFilter : FilterBase
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("FacilityEquals", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class FacilityEqualsFilter : FilterBase
     {
-
         private Facility facilityField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public Facility facility
         {
-            get
-            {
-                return this.facilityField;
-            }
+            get { return facilityField; }
             set
             {
-                this.facilityField = value;
-                this.RaisePropertyChanged("facility");
+                facilityField = value;
+                RaisePropertyChanged("facility");
             }
         }
 
@@ -55,8 +56,8 @@ namespace It.Unina.Dis.Logbus.Filters
 
             //Comparison by name. We make it work!
             string msgname, filtername;
-            msgname = System.Enum.GetName(typeof(SyslogFacility), message.Facility);
-            filtername = System.Enum.GetName(typeof(Facility), facility);
+            msgname = Enum.GetName(typeof (SyslogFacility), message.Facility);
+            filtername = Enum.GetName(typeof (Facility), facility);
 
             return msgname.Equals(filtername);
         }

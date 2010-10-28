@@ -18,14 +18,15 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.IO;
 using System.Text;
-using System.Globalization;
-using System.Collections.Generic;
+using It.Unina.Dis.Logbus.InChannels;
 
 namespace It.Unina.Dis.Logbus.Collectors
 {
@@ -35,7 +36,6 @@ namespace It.Unina.Dis.Logbus.Collectors
     internal class SyslogTlsCollector
         : ILogCollector, IConfigurable, IDisposable
     {
-
         #region Constructor/Destructor
 
         public SyslogTlsCollector()
@@ -74,7 +74,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         private string _certificatePath;
         private X509Certificate _clientCertificate;
         private StreamWriter _sw;
-        private volatile bool _disposed = false;
+        private volatile bool _disposed;
 
         #region ILogCollector Membri di
 
@@ -86,7 +86,7 @@ namespace It.Unina.Dis.Logbus.Collectors
             if (_client == null)
             {
                 if (_host == null) throw new InvalidOperationException("Remote address not specified");
-                if (_port < 1 || _port > 65535) _port = InChannels.SyslogTlsReceiver.TLS_PORT;
+                if (_port < 1 || _port > 65535) _port = SyslogTlsReceiver.TLS_PORT;
 
                 _client = new TcpClient();
             }
@@ -95,7 +95,8 @@ namespace It.Unina.Dis.Logbus.Collectors
                 try
                 {
                     _client.Connect(_host, _port);
-                    _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector) { WriteTimeout = 3600000 };
+                    _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector)
+                                        {WriteTimeout = 3600000};
 
                     //remote_stream.AuthenticateAsClient(host, null, SslProtocols.Tls, true);
                     _remoteStream.AuthenticateAsClient(_host);
@@ -111,15 +112,20 @@ namespace It.Unina.Dis.Logbus.Collectors
             _sw.Write(string.Format("{0} {1}", payload.Length.ToString(CultureInfo.InvariantCulture), payload));
         }
 
-        protected virtual bool TlsServerValidator(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        protected virtual bool TlsServerValidator(Object sender, X509Certificate certificate, X509Chain chain,
+                                                  SslPolicyErrors sslPolicyErrors)
         {
             return true;
         }
 
-        protected virtual X509Certificate TlsClientSelector(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        protected virtual X509Certificate TlsClientSelector(Object sender, string targetHost,
+                                                            X509CertificateCollection localCertificates,
+                                                            X509Certificate remoteCertificate,
+                                                            string[] acceptableIssuers)
         {
             return _clientCertificate;
         }
+
         #endregion
 
         #region IDisposable Membri di
@@ -154,7 +160,6 @@ namespace It.Unina.Dis.Logbus.Collectors
                         ex.Data.Add("key", key);
                         throw ex;
                     }
-
             }
         }
 
@@ -207,12 +212,13 @@ namespace It.Unina.Dis.Logbus.Collectors
                         {
                             _clientCertificate = new X509Certificate(_certificatePath);
                         }
-                        catch { }
+                        catch
+                        {
+                        }
                         break;
                     }
                 default:
                     throw new NotSupportedException("Invalid key");
-
             }
         }
 

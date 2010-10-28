@@ -17,8 +17,9 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Runtime.Serialization;
 using System;
+using System.Runtime.Serialization;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
@@ -29,19 +30,25 @@ namespace It.Unina.Dis.Logbus
     {
         /// <remarks/>
         public TransportException()
-            : base() { }
+        {
+        }
 
         /// <remarks/>
         public TransportException(string message)
-            : base(message) { }
+            : base(message)
+        {
+        }
 
         /// <remarks/>
         protected TransportException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
+            : base(info, context)
+        {
+        }
 
         /// <remarks/>
         public TransportException(string message, Exception innerException)
-            : base(message, innerException) { }
-
+            : base(message, innerException)
+        {
+        }
     }
 }

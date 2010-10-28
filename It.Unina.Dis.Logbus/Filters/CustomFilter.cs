@@ -17,18 +17,23 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("Custom", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class CustomFilter : FilterBase
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("Custom", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class CustomFilter : FilterBase
     {
-
         private FilterParameter[] parameterField;
 
         private string nameField;
@@ -36,42 +41,36 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <remarks/>
         public CustomFilter()
         {
-            this.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(CustomFilter_PropertyChanged);
+            PropertyChanged += CustomFilter_PropertyChanged;
         }
 
-        private void CustomFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void CustomFilter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             //Reset filter implementation, so next time the IsMatch is invoked it must be rebuilt
             filter_impl = null;
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("parameter", IsNullable = true)]
+        [XmlElement("parameter", IsNullable = true)]
         public FilterParameter[] parameter
         {
-            get
-            {
-                return this.parameterField;
-            }
+            get { return parameterField; }
             set
             {
-                this.parameterField = value;
-                this.RaisePropertyChanged("parameter");
+                parameterField = value;
+                RaisePropertyChanged("parameter");
             }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
+        [XmlAttribute]
         public string name
         {
-            get
-            {
-                return this.nameField;
-            }
+            get { return nameField; }
             set
             {
-                this.nameField = value;
-                this.RaisePropertyChanged("name");
+                nameField = value;
+                RaisePropertyChanged("name");
             }
         }
 
@@ -86,6 +85,5 @@ namespace It.Unina.Dis.Logbus.Filters
             }
             return filter_impl.IsMatch(message);
         }
-
     }
 }

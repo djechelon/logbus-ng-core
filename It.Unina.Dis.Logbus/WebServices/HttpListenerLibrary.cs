@@ -26,14 +26,16 @@
 */
 
 #region Using directives
+
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Web;
 using System.Web.Hosting;
-using System.Threading;
-using System.Diagnostics;
+
 #endregion
 
 namespace It.Unina.Dis.Logbus.WebServices
@@ -41,7 +43,7 @@ namespace It.Unina.Dis.Logbus.WebServices
     internal class HttpListenerController
     {
         private Thread _pump;
-        private bool _listening = false;
+        private bool _listening;
         private string _virtualDir;
         private string _physicalDir;
         private string[] _prefixes;
@@ -58,8 +60,8 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
             _listening = true;
 
-            _listener = (HttpListenerWrapper)ApplicationHost.CreateApplicationHost(
-                    typeof(HttpListenerWrapper), _virtualDir, _physicalDir);
+            _listener = (HttpListenerWrapper) ApplicationHost.CreateApplicationHost(
+                typeof (HttpListenerWrapper), _virtualDir, _physicalDir);
             _listener.Configure(_prefixes, _virtualDir, _physicalDir);
             _listener.Start();
 
@@ -99,10 +101,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         public AppDomain Domain
         {
-            get
-            {
-                return _listener.Domain;   
-            }
+            get { return _listener.Domain; }
         }
     }
 
@@ -121,14 +120,17 @@ namespace It.Unina.Dis.Logbus.WebServices
             foreach (string prefix in prefixes)
                 _listener.Prefixes.Add(prefix);
         }
+
         public void Start()
         {
             _listener.Start();
         }
+
         public void Stop()
         {
             _listener.Stop();
         }
+
         public void ProcessRequest()
         {
             HttpListenerContext ctx = _listener.GetContext();
@@ -139,10 +141,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         public AppDomain Domain
         {
-            get
-            {
-                return Thread.GetDomain();
-            }
+            get { return Thread.GetDomain(); }
         }
     }
 
@@ -174,28 +173,34 @@ namespace It.Unina.Dis.Logbus.WebServices
             _context.Response.Close();
             //_context.Close();
         }
+
         public override void FlushResponse(bool finalFlush)
         {
             _context.Response.OutputStream.Flush();
         }
+
         public override string GetHttpVerbName()
         {
             return _context.Request.HttpMethod;
         }
+
         public override string GetHttpVersion()
         {
             return string.Format("HTTP/{0}.{1}",
-                _context.Request.ProtocolVersion.Major,
-                _context.Request.ProtocolVersion.Minor);
+                                 _context.Request.ProtocolVersion.Major,
+                                 _context.Request.ProtocolVersion.Minor);
         }
+
         public override string GetLocalAddress()
         {
             return _context.Request.LocalEndPoint.Address.ToString();
         }
+
         public override int GetLocalPort()
         {
             return _context.Request.LocalEndPoint.Port;
         }
+
         public override string GetQueryString()
         {
             string queryString = "";
@@ -205,70 +210,89 @@ namespace It.Unina.Dis.Logbus.WebServices
                 queryString = rawUrl.Substring(index + 1);
             return queryString;
         }
+
         public override string GetRawUrl()
         {
             return _context.Request.RawUrl;
         }
+
         public override string GetRemoteAddress()
         {
             return _context.Request.RemoteEndPoint.Address.ToString();
         }
+
         public override int GetRemotePort()
         {
             return _context.Request.RemoteEndPoint.Port;
         }
+
         public override string GetUriPath()
         {
             return _context.Request.Url.LocalPath;
         }
+
         public override void SendKnownResponseHeader(int index, string value)
         {
             _context.Response.Headers[
                 GetKnownResponseHeaderName(index)] = value;
         }
+
         public override void SendResponseFromMemory(byte[] data, int length)
         {
             _context.Response.OutputStream.Write(data, 0, length);
         }
+
         public override void SendStatus(int statusCode, string statusDescription)
         {
             _context.Response.StatusCode = statusCode;
             _context.Response.StatusDescription = statusDescription;
         }
+
         public override void SendUnknownResponseHeader(string name, string value)
         {
             _context.Response.Headers[name] = value;
         }
+
         public override void SendResponseFromFile(
-            IntPtr handle, long offset, long length) { }
+            IntPtr handle, long offset, long length)
+        {
+        }
+
         public override void SendResponseFromFile(
-            string filename, long offset, long length) { }
+            string filename, long offset, long length)
+        {
+        }
 
         // additional overrides
         public override void CloseConnection()
         {
             //_context.Close();
         }
+
         public override string GetAppPath()
         {
             return _virtualDir;
         }
+
         public override string GetAppPathTranslated()
         {
             return _physicalDir;
         }
+
         public override int ReadEntityBody(byte[] buffer, int size)
         {
             return _context.Request.InputStream.Read(buffer, 0, size);
         }
+
         public override string GetUnknownRequestHeader(string name)
         {
             return _context.Request.Headers[name];
         }
+
         public override string[][] GetUnknownRequestHeaders()
         {
             string[][] unknownRequestHeaders;
-            System.Collections.Specialized.NameValueCollection headers = _context.Request.Headers;
+            NameValueCollection headers = _context.Request.Headers;
             int count = headers.Count;
             List<string[]> headerPairs = new List<string[]>(count);
             for (int i = 0; i < count; i++)
@@ -277,12 +301,13 @@ namespace It.Unina.Dis.Logbus.WebServices
                 if (GetKnownRequestHeaderIndex(headerName) == -1)
                 {
                     string headerValue = headers.Get(i);
-                    headerPairs.Add(new string[] { headerName, headerValue });
+                    headerPairs.Add(new[] {headerName, headerValue});
                 }
             }
             unknownRequestHeaders = headerPairs.ToArray();
             return unknownRequestHeaders;
         }
+
         public override string GetKnownRequestHeader(int index)
         {
             switch (index)
@@ -293,6 +318,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                     return _context.Request.Headers[GetKnownRequestHeaderName(index)];
             }
         }
+
         public override string GetServerVariable(string name)
         {
             // TODO: vet this list
@@ -306,6 +332,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                     return null;
             }
         }
+
         public override string GetFilePath()
         {
             // TODO: this is a hack
@@ -316,6 +343,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                 s = s.Substring(0, s.IndexOf(".asmx") + 5);
             return s;
         }
+
         public override string GetFilePathTranslated()
         {
             string s = GetFilePath();

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     /// <summary>
@@ -33,7 +34,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// <param name="channel">Channel to which the client is subscribing</param>
         /// <param name="transport">Transport chosen by client</param>
         /// <param name="instructions">Instructions provided by client to the transport</param>
-        protected ClientSubscriptionEventArgs(IOutboundChannel channel, string transport, IEnumerable<KeyValuePair<string, string>> instructions)
+        protected ClientSubscriptionEventArgs(IOutboundChannel channel, string transport,
+                                              IEnumerable<KeyValuePair<string, string>> instructions)
         {
             Channel = channel;
             ChosenTransport = transport;
@@ -54,6 +56,5 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// Instructions given to transport
         /// </summary>
         public IEnumerable<KeyValuePair<string, string>> TransportConfiguration { get; protected set; }
-
     }
 }

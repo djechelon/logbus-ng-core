@@ -17,52 +17,46 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggerDefinition))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(InboundChannelDefinition))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LogCollectorDefinitionBase))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LogbusCollectorDefinition))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForwarderDefinition))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    public abstract partial class TypeAndParamBase
+    [XmlInclude(typeof (LoggerDefinition))]
+    [XmlInclude(typeof (InboundChannelDefinition))]
+    [XmlInclude(typeof (LogCollectorDefinitionBase))]
+    [XmlInclude(typeof (LogbusCollectorDefinition))]
+    [XmlInclude(typeof (ForwarderDefinition))]
+    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    public abstract class TypeAndParamBase
     {
-
         private KeyValuePair[] paramField;
 
         private string typeField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("param")]
+        [XmlElement("param")]
         public KeyValuePair[] param
         {
-            get
-            {
-                return this.paramField;
-            }
-            set
-            {
-                this.paramField = value;
-            }
+            get { return paramField; }
+            set { paramField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string type
         {
-            get
-            {
-                return this.typeField;
-            }
-            set
-            {
-                this.typeField = value;
-            }
+            get { return typeField; }
+            set { typeField = value; }
         }
     }
 }

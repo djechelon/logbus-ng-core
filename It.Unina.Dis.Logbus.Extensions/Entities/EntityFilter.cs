@@ -18,9 +18,10 @@
 */
 
 using System;
-using It.Unina.Dis.Logbus.Filters;
-using It.Unina.Dis.Logbus.Design;
 using System.Collections.Generic;
+using It.Unina.Dis.Logbus.Design;
+using It.Unina.Dis.Logbus.Filters;
+
 namespace It.Unina.Dis.Logbus.Entities
 {
     /// <summary>
@@ -32,10 +33,11 @@ namespace It.Unina.Dis.Logbus.Entities
     {
         static EntityFilter()
         {
-            CustomFilterHelper.Instance.RegisterCustomFilter(typeof(EntityFilter));
+            CustomFilterHelper.Instance.RegisterCustomFilter(typeof (EntityFilter));
         }
 
         #region Constructor
+
         /// <summary>
         /// Initializes a new instance of entity filter EntityFilter
         /// </summary>
@@ -52,7 +54,8 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <param name="logger">Logger that matches entity</param>
         public EntityFilter(string host, string process, string logger)
             : this(host, process, logger, false)
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of entity filter EntityFilter
@@ -68,6 +71,7 @@ namespace It.Unina.Dis.Logbus.Entities
             Logger = logger;
             FfdaOnly = ffdaOnly;
         }
+
         #endregion
 
         #region Public properties
@@ -91,8 +95,8 @@ namespace It.Unina.Dis.Logbus.Entities
         /// Whether to accept or not only FFDA messages
         /// </summary>
         public bool FfdaOnly { get; set; }
-        #endregion
 
+        #endregion
 
         #region IFilter Membri di
 
@@ -133,12 +137,12 @@ namespace It.Unina.Dis.Logbus.Entities
 
             List<FilterParameter> @params = new List<FilterParameter>(4);
             if (filter.Host != null)
-                @params.Add(new FilterParameter { name = "host", value = filter.Host });
+                @params.Add(new FilterParameter {name = "host", value = filter.Host});
             if (filter.Process != null)
-                @params.Add(new FilterParameter { name = "process", value = filter.Process });
+                @params.Add(new FilterParameter {name = "process", value = filter.Process});
             if (filter.Logger != null)
-                @params.Add(new FilterParameter { name = "logger", value = filter.Logger });
-            @params.Add(new FilterParameter { name = "ffdaOnly", value = filter.FfdaOnly });
+                @params.Add(new FilterParameter {name = "logger", value = filter.Logger});
+            @params.Add(new FilterParameter {name = "ffdaOnly", value = filter.FfdaOnly});
 
             ret.parameter = @params.ToArray();
 
@@ -174,7 +178,7 @@ namespace It.Unina.Dis.Logbus.Entities
                             }
                         case "ffdaOnly":
                             {
-                                FfdaOnly = (bool)parameter.value;
+                                FfdaOnly = (bool) parameter.value;
                                 break;
                             }
                         default:

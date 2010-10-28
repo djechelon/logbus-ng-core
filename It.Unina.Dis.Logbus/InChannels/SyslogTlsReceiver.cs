@@ -17,19 +17,19 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Threading;
-using System.Net;
-using System.IO;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Net;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Authentication;
-using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using System.Web;
+using System.Text;
+using System.Threading;
 using It.Unina.Dis.Logbus.Configuration;
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
@@ -64,29 +64,17 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Port to listen on
         /// </summary>
-        public int Port
-        {
-            get;
-            set;
-        }
+        public int Port { get; set; }
 
         /// <summary>
         /// Interface to listen on
         /// </summary>
-        public string IpAddress
-        {
-            get;
-            set;
-        }
+        public string IpAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the SSL certificate for the current server
         /// </summary>
-        public X509Certificate2 Certificate
-        {
-            get;
-            set;
-        }
+        public X509Certificate2 Certificate { get; set; }
 
         /// <summary>
         /// Implements ReceiverBase.OnStart
@@ -98,10 +86,12 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = TLS_PORT;
             }
 
-            IPEndPoint localEp = IpAddress == null ? new IPEndPoint(IPAddress.Any, Port) : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            IPEndPoint localEp = IpAddress == null
+                                     ? new IPEndPoint(IPAddress.Any, Port)
+                                     : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
 
             if (Certificate == null)
-                Certificate = Utils.CertificateUtilities.DefaultCertificate;
+                Certificate = CertificateUtilities.DefaultCertificate;
 
             try
             {
@@ -137,7 +127,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                     {
                         client.Close();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
 
             try
@@ -147,10 +139,13 @@ namespace It.Unina.Dis.Logbus.InChannels
                     _listenerThreads[i].Join();
                 _listenerThreads = null;
             }
-            catch (Exception) { } //Really nothing?
+            catch (Exception)
+            {
+            } //Really nothing?
         }
 
         #region Configuration
+
         /// <summary>
         /// Implements IConfigurable.GetConfigurationParameter
         /// </summary>
@@ -194,10 +189,9 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
                 case "certificate":
                     {
-
                         try
                         {
-                            Certificate = Utils.CertificateUtilities.LoadCertificate(value);
+                            Certificate = CertificateUtilities.LoadCertificate(value);
                         }
                         catch (LogbusException ex)
                         {
@@ -225,6 +219,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     SetConfigurationParameter(kvp.Key, kvp.Value);
             }
         }
+
         #endregion
 
         /// <summary>
@@ -240,12 +235,14 @@ namespace It.Unina.Dis.Logbus.InChannels
                                               {
                                                   Name =
                                                       string.Format("TlsListener.ProcessClient[{0}]",
-                                                                    client.Client.RemoteEndPoint.ToString()),
+                                                                    client.Client.RemoteEndPoint),
                                                   IsBackground = true
                                               };
                     clientThread.Start(client);
                 }
-                catch (SocketException) { }
+                catch (SocketException)
+                {
+                }
         }
 
         /// <summary>
@@ -254,7 +251,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <param name="clientObj"></param>
         private void ProcessClient(object clientObj)
         {
-            using (TcpClient client = (TcpClient)clientObj)
+            using (TcpClient client = (TcpClient) clientObj)
             {
                 lock (_clients) _clients.Add(client);
                 // A client has connected. Create the 
@@ -273,7 +270,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                                 StringBuilder sb = new StringBuilder();
                                 do
                                 {
-                                    char nextChar = (char)sr.Read();
+                                    char nextChar = (char) sr.Read();
                                     if (char.IsDigit(nextChar)) sb.Append(nextChar);
                                     else if (nextChar == ' ') break;
                                     else throw new FormatException("Invalid TLS encoding of Syslog message");
@@ -289,16 +286,16 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                                 ForwardMessage(SyslogMessage.Parse(new string(buffer)));
                             }
-
                     }
-                    catch { return; }
+                    catch
+                    {
+                        return;
+                    }
                     finally
                     {
                         lock (_clients) _clients.Remove(client);
                     }
             }
-
         }
-
     }
 }

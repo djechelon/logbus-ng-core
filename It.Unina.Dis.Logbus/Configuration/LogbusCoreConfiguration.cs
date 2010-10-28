@@ -17,19 +17,25 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using It.Unina.Dis.Logbus.Filters;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class LogbusCoreConfiguration : XmlnsSupport
+    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class LogbusCoreConfiguration : XmlnsSupport
     {
-
         private InboundChannelDefinition[] inchannelsField;
 
         private CustomFiltersConfiguration customfiltersField;
@@ -45,104 +51,61 @@ namespace It.Unina.Dis.Logbus.Configuration
         private string outChannelFactoryTypeField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute("in-channels", IsNullable = true)]
-        [System.Xml.Serialization.XmlArrayItemAttribute("in-channel", IsNullable = false)]
+        [XmlArray("in-channels", IsNullable = true)]
+        [XmlArrayItem("in-channel", IsNullable = false)]
         public InboundChannelDefinition[] inchannels
         {
-            get
-            {
-                return this.inchannelsField;
-            }
-            set
-            {
-                this.inchannelsField = value;
-            }
+            get { return inchannelsField; }
+            set { inchannelsField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("custom-filters")]
+        [XmlElement("custom-filters")]
         public CustomFiltersConfiguration customfilters
         {
-            get
-            {
-                return this.customfiltersField;
-            }
-            set
-            {
-                this.customfiltersField = value;
-            }
+            get { return customfiltersField; }
+            set { customfiltersField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("out-transports")]
+        [XmlElement("out-transports")]
         public OutputTransportsConfiguration outtransports
         {
-            get
-            {
-                return this.outtransportsField;
-            }
-            set
-            {
-                this.outtransportsField = value;
-            }
+            get { return outtransportsField; }
+            set { outtransportsField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("core-filter", IsNullable = true)]
+        [XmlElement("core-filter", IsNullable = true)]
         public FilterBase corefilter
         {
-            get
-            {
-                return this.corefilterField;
-            }
-            set
-            {
-                this.corefilterField = value;
-            }
+            get { return corefilterField; }
+            set { corefilterField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute("plugin", IsNullable = false)]
+        [XmlArrayItem("plugin", IsNullable = false)]
         public PluginDefinition[] plugins
         {
-            get
-            {
-                return this.pluginsField;
-            }
-            set
-            {
-                this.pluginsField = value;
-            }
+            get { return pluginsField; }
+            set { pluginsField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute("forward-to")]
-        [System.Xml.Serialization.XmlArrayItemAttribute("forwarder", IsNullable = false)]
+        [XmlArray("forward-to")]
+        [XmlArrayItem("forwarder", IsNullable = false)]
         public ForwarderDefinition[] forwardto
         {
-            get
-            {
-                return this.forwardtoField;
-            }
-            set
-            {
-                this.forwardtoField = value;
-            }
+            get { return forwardtoField; }
+            set { forwardtoField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string outChannelFactoryType
         {
-            get
-            {
-                return this.outChannelFactoryTypeField;
-            }
-            set
-            {
-                this.outChannelFactoryTypeField = value;
-            }
+            get { return outChannelFactoryTypeField; }
+            set { outChannelFactoryTypeField = value; }
         }
     }
-
 }

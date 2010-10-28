@@ -17,13 +17,14 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.Filters;
+
 using System;
-
-
+using It.Unina.Dis.Logbus.Filters;
 using CLIENT_ID_TYPE = System.String;
-using CLIENT_INSTRUCTIONS_TYPE = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
-using TRANSPORT_INSTRUCTIONS_TYPE = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
+using CLIENT_INSTRUCTIONS_TYPE =
+    System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
+using TRANSPORT_INSTRUCTIONS_TYPE =
+    System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -39,7 +40,6 @@ namespace It.Unina.Dis.Logbus
     public interface IOutboundChannel
         : ILogCollector, ILogSource, IRunnable, IDisposable
     {
-
         /// <summary>
         /// Channel's unique ID. Must be unique for each instance of ILogBus
         /// </summary>
@@ -88,7 +88,8 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="System.ArgumentException">Argument is invalid</exception>
         /// <exception cref="TransportException">Exception reported by transport (ie. bad parameters)</exception>
         /// <exception cref="LogbusException"></exception>
-        CLIENT_ID_TYPE SubscribeClient(string transportId, TRANSPORT_INSTRUCTIONS_TYPE inputInstructions, out CLIENT_INSTRUCTIONS_TYPE outputInstructions);
+        CLIENT_ID_TYPE SubscribeClient(string transportId, TRANSPORT_INSTRUCTIONS_TYPE inputInstructions,
+                                       out CLIENT_INSTRUCTIONS_TYPE outputInstructions);
 
         /// <summary>
         /// Refreshes the subscription of an already-subscribed client
@@ -110,6 +111,5 @@ namespace It.Unina.Dis.Logbus
         /// <exception cref="LogbusException"></exception>
         /// <exception cref="TransportException">Exception reported by transport (ie. client not found)</exception>
         void UnsubscribeClient(CLIENT_ID_TYPE clientId);
-
     }
 }

@@ -25,7 +25,7 @@ namespace It.Unina.Dis.Logbus
     /// Encapsulates Logbus-ng service within a system daemon (Windows Service)
     /// </summary>
     public class LogbusDaemon
-        :ServiceBase
+        : ServiceBase
     {
         private ILogBus instance;
 

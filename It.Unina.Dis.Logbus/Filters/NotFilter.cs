@@ -17,31 +17,33 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("Not", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class NotFilter : FilterBase
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("Not", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class NotFilter : FilterBase
     {
-
         private FilterBase filterField;
 
         /// <remarks/>
         public FilterBase filter
         {
-            get
-            {
-                return this.filterField;
-            }
+            get { return filterField; }
             set
             {
-                this.filterField = value;
-                this.RaisePropertyChanged("filter");
+                filterField = value;
+                RaisePropertyChanged("filter");
             }
         }
 

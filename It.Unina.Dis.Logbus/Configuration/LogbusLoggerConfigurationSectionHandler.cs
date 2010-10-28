@@ -17,10 +17,11 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Configuration;
-using System.Xml.Serialization;
 using System;
+using System.Configuration;
 using System.Xml;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <summary>
@@ -34,11 +35,11 @@ namespace It.Unina.Dis.Logbus.Configuration
         /// Read configuration and return a <see cref="It.Unina.Dis.Logbus.Configuration.LogbusLoggerConfiguration"/> object by design contract
         /// </summary>
         /// <returns></returns>
-        object IConfigurationSectionHandler.Create(object parent, object configContext, System.Xml.XmlNode section)
+        object IConfigurationSectionHandler.Create(object parent, object configContext, XmlNode section)
         {
             try
             {
-                return new XmlSerializer(typeof(LogbusLoggerConfiguration)).Deserialize(new XmlNodeReader(section));
+                return new XmlSerializer(typeof (LogbusLoggerConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {

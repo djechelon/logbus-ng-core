@@ -17,32 +17,31 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("in-channels", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = true)]
-    public partial class InboundChannelsConfiguration
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("in-channels", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = true)]
+    public class InboundChannelsConfiguration
     {
-
         private InboundChannelDefinition[] inchannelField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("in-channel")]
+        [XmlElement("in-channel")]
         public InboundChannelDefinition[] inchannel
         {
-            get
-            {
-                return this.inchannelField;
-            }
-            set
-            {
-                this.inchannelField = value;
-            }
+            get { return inchannelField; }
+            set { inchannelField = value; }
         }
     }
 }

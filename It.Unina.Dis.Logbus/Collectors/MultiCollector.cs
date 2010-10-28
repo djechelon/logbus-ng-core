@@ -25,12 +25,7 @@ namespace It.Unina.Dis.Logbus.Collectors
     internal class MultiCollector
         : ILogCollector
     {
-
-        public ILogCollector[] Collectors
-        {
-            get;
-            set;
-        }
+        public ILogCollector[] Collectors { get; set; }
 
         #region ILogCollector Membri di
 

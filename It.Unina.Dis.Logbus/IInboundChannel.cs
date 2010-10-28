@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
@@ -26,7 +27,6 @@ namespace It.Unina.Dis.Logbus
     public interface IInboundChannel
         : ILogSource, IRunnable, IConfigurable, IDisposable
     {
-
         /// <summary>
         /// Descriptive name of Inbound channel
         /// </summary>
@@ -36,6 +36,5 @@ namespace It.Unina.Dis.Logbus
         /// Notifies a parse error occurred
         /// </summary>
         event EventHandler<ParseErrorEventArgs> ParseError;
-
     }
 }

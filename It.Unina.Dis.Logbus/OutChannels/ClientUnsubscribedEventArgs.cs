@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     /// <summary>
@@ -32,7 +33,6 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// <param name="channel">Channel to which the client was subscribed</param>
         /// <param name="clientId">ID of client</param>
         public ClientUnsubscribedEventArgs(IOutboundChannel channel, string clientId)
-            :base()
         {
             Channel = channel;
             ClientId = clientId;
@@ -42,6 +42,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// Channel the client was subscribed to
         /// </summary>
         public IOutboundChannel Channel { get; protected set; }
+
         /// <summary>
         /// Id of client assigned by Logbus-ng
         /// </summary>

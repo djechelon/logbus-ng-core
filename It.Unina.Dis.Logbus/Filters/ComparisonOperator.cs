@@ -17,15 +17,18 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
     public enum ComparisonOperator
     {
-
         /// <remarks/>
         eq,
 

@@ -17,33 +17,36 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.Collections.Generic;
+using It.Unina.Dis.Logbus.Design;
+
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    [Design.TransportFactory("multicast", Name = "Multicast RFC5426 transport", Description = "Syslog over Multicast/UDP")]
-    class SyslogMulticastTransportFactory
+    [TransportFactory("multicast", Name = "Multicast RFC5426 transport", Description = "Syslog over Multicast/UDP")]
+    internal class SyslogMulticastTransportFactory
         : IOutboundTransportFactory
     {
-
         #region IOutboundTransportFactory Membri di
 
         public IOutboundTransport CreateTransport()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public string GetConfigurationParameter(string key)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void SetConfigurationParameter(string key, string value)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Configuration
+        public IEnumerable<KeyValuePair<string, string>> Configuration
         {
-            set { throw new System.NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         #endregion

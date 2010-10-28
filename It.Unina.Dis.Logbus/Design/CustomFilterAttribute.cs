@@ -17,16 +17,17 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Design
 {
     /// <summary>
     /// Marks the current class as a Custom Filter.
     /// The filter must be first registered, then it will be invokable through the usage of its unique tag
     /// </summary>
-    [global::System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public sealed class CustomFilterAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public sealed class CustomFilterAttribute : Attribute
     {
-
         /// <summary>
         /// Initializes CustomFilterAttribute with the required tag
         /// </summary>

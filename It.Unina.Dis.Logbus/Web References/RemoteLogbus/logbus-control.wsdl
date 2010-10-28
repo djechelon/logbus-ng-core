@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:logbus="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsi:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.dis.unina.it/logbus-ng/wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
@@ -73,7 +73,9 @@
   </wsdl:message>
   <wsdl:message name="ChannelDescription">
     <wsdl:part name="description" element="logbus:channel-creation">
-      <wsdl:documentation>ID for the new channel. Must be unique</wsdl:documentation>
+      <wsdl:documentation>
+        ID for the new channel. Must be unique
+      </wsdl:documentation>
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ChannelException">
@@ -135,57 +137,87 @@
     <wsdl:part name="description" element="logbus:filter-description" />
   </wsdl:message>
   <wsdl:portType name="ChannelManagement">
-    <wsdl:documentation>Manages outbound channels for the Logbus service</wsdl:documentation>
+    <wsdl:documentation>
+      Manages outbound channels for the Logbus service
+    </wsdl:documentation>
     <wsdl:operation name="ListChannels">
-      <wsdl:documentation>Lists the IDs of available channels</wsdl:documentation>
+      <wsdl:documentation>
+        Lists the IDs of available channels
+      </wsdl:documentation>
       <wsdl:input message="logbus:ListChannelsRequest" />
       <wsdl:output message="logbus:ChannelList" />
     </wsdl:operation>
     <wsdl:operation name="CreateChannel">
-      <wsdl:documentation>Creates a new channel</wsdl:documentation>
+      <wsdl:documentation>
+        Creates a new channel
+      </wsdl:documentation>
       <wsdl:input message="logbus:ChannelDescription" />
       <wsdl:output message="logbus:CreateChannelResponse" />
       <wsdl:fault name="ChannelException" message="logbus:ChannelException">
-        <wsdl:documentation>Generic error while creating channel</wsdl:documentation>
+        <wsdl:documentation>
+          Generic error while creating channel
+        </wsdl:documentation>
       </wsdl:fault>
       <wsdl:fault name="SecurityException" message="logbus:SecurityException" />
       <wsdl:fault name="DuplicateIdException" message="logbus:DuplicateIdException">
-        <wsdl:documentation>There already exists a channel with given ID</wsdl:documentation>
+        <wsdl:documentation>
+          There already exists a channel with given ID
+        </wsdl:documentation>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetChannelInformation">
-      <wsdl:documentation>Retrieves channel information</wsdl:documentation>
+      <wsdl:documentation>
+        Retrieves channel information
+      </wsdl:documentation>
       <wsdl:input message="logbus:ChannelID" />
       <wsdl:output message="logbus:ChannelInformation">
-        <wsdl:documentation>Full desciption of channel and status</wsdl:documentation>
+        <wsdl:documentation>
+          Full desciption of channel and status
+        </wsdl:documentation>
       </wsdl:output>
       <wsdl:fault name="SecurityException" message="logbus:SecurityException">
-        <wsdl:documentation>Not enough privileges</wsdl:documentation>
+        <wsdl:documentation>
+          Not enough privileges
+        </wsdl:documentation>
       </wsdl:fault>
       <wsdl:fault name="NotFoundException" message="logbus:NotFoundException" />
     </wsdl:operation>
     <wsdl:operation name="DeleteChannel">
-      <wsdl:documentation>Deletes a channel by ID</wsdl:documentation>
+      <wsdl:documentation>
+        Deletes a channel by ID
+      </wsdl:documentation>
       <wsdl:input message="logbus:ChannelID">
-        <wsdl:documentation>ID of channel to delete</wsdl:documentation>
+        <wsdl:documentation>
+          ID of channel to delete
+        </wsdl:documentation>
       </wsdl:input>
       <wsdl:output message="logbus:DeleteChannelResponse" />
       <wsdl:fault name="SecurityException" message="logbus:SecurityException">
-        <wsdl:documentation>Not enough privileges to do it</wsdl:documentation>
+        <wsdl:documentation>
+          Not enough privileges to do it
+        </wsdl:documentation>
       </wsdl:fault>
       <wsdl:fault name="ChannelException" message="logbus:ChannelException">
-        <wsdl:documentation>Generic error while deleting channel</wsdl:documentation>
+        <wsdl:documentation>
+          Generic error while deleting channel
+        </wsdl:documentation>
       </wsdl:fault>
       <wsdl:fault name="ChannelNotEmptyException" message="logbus:ChannelNotEmptyException">
-        <wsdl:documentation>Channel is not empty. Clients must unsubscribe</wsdl:documentation>
+        <wsdl:documentation>
+          Channel is not empty. Clients must unsubscribe
+        </wsdl:documentation>
       </wsdl:fault>
       <wsdl:fault name="NotFoundException" message="logbus:NotFoundException" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="ChannelSubscription">
-    <wsdl:documentation>Client APIs to use for subscribing existing channels and receive log data</wsdl:documentation>
+    <wsdl:documentation>
+      Client APIs to use for subscribing existing channels and receive log data
+    </wsdl:documentation>
     <wsdl:operation name="ListChannels">
-      <wsdl:documentation>Lists the IDs of available channels</wsdl:documentation>
+      <wsdl:documentation>
+        Lists the IDs of available channels
+      </wsdl:documentation>
       <wsdl:input message="logbus:ListChannelsRequest" />
       <wsdl:output message="logbus:ChannelList" />
     </wsdl:operation>
@@ -196,25 +228,35 @@
     <wsdl:operation name="SubscribeChannel">
       <wsdl:input message="logbus:SubscriptionRequest" />
       <wsdl:output message="logbus:SubscriptionResponse">
-        <wsdl:documentation>Subscription "ticket" contains both the client's ID and the instructions that it will use to configure itself. These are transport-dependent</wsdl:documentation>
+        <wsdl:documentation>
+          Subscription "ticket" contains both the client's ID and the instructions that it will use to configure itself. These are transport-dependent
+        </wsdl:documentation>
       </wsdl:output>
       <wsdl:fault name="NotFoundException" message="logbus:NotFoundException">
         <wsdl:documentation>Channel not found</wsdl:documentation>
       </wsdl:fault>
       <wsdl:fault name="TransportException" message="logbus:TransportException">
-        <wsdl:documentation>Error configuring transport</wsdl:documentation>
+        <wsdl:documentation>
+          Error configuring transport
+        </wsdl:documentation>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="UnsubscribeChannel">
-      <wsdl:documentation>Unsubscribes a client from a channel</wsdl:documentation>
+      <wsdl:documentation>
+        Unsubscribes a client from a channel
+      </wsdl:documentation>
       <wsdl:input message="logbus:UnsubscribeRequest" />
       <wsdl:output message="logbus:UnsubscribeResponse" />
       <wsdl:fault name="FaultName" message="logbus:NotFoundException">
-        <wsdl:documentation>Client was not found, or timed out</wsdl:documentation>
+        <wsdl:documentation>
+          Client was not found, or timed out
+        </wsdl:documentation>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="RefreshSubscription">
-      <wsdl:documentation>Refreshes client subscription, if required by transport</wsdl:documentation>
+      <wsdl:documentation>
+        Refreshes client subscription, if required by transport
+      </wsdl:documentation>
       <wsdl:input message="logbus:RefreshRequest" />
       <wsdl:output message="logbus:RefreshResponse" />
       <wsdl:fault name="NotFoundException" message="logbus:NotFoundException" />

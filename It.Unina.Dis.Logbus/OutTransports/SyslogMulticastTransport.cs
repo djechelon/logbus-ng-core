@@ -17,46 +17,50 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.Collections.Generic;
+
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    class SyslogMulticastTransport
+    internal class SyslogMulticastTransport
         : IOutboundTransport
     {
         #region IOutboundTransport Membri di
 
         public void SubmitMessage(SyslogMessage message)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public int SubscribedClients
         {
-            get { throw new System.NotImplementedException(); }
+            get { throw new NotImplementedException(); }
         }
 
-        public string SubscribeClient(System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> inputInstructions, out System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> outputInstructions)
+        public string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions,
+                                      out IEnumerable<KeyValuePair<string, string>> outputInstructions)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool RequiresRefresh
         {
-            get { throw new System.NotImplementedException(); }
+            get { throw new NotImplementedException(); }
         }
 
         public long SubscriptionTtl
         {
-            get { throw new System.NotImplementedException(); }
+            get { throw new NotImplementedException(); }
         }
 
         public void RefreshClient(string clientId)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void UnsubscribeClient(string clientId)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -65,7 +69,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         #endregion

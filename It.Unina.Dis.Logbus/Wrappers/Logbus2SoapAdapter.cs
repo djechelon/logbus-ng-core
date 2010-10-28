@@ -17,16 +17,19 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Web.Hosting;
+using System;
+using System.Collections.Generic;
+using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.RemoteLogbus;
+
 namespace It.Unina.Dis.Logbus.Wrappers
 {
     /// <summary>
     /// Adapts the interface of ILogBus to SOAP callers
     /// </summary>
     public sealed class Logbus2SoapAdapter
-        : System.MarshalByRefObject, IChannelManagement, IChannelSubscription
+        : MarshalByRefObject, IChannelManagement, IChannelSubscription
     {
-
         private readonly ILogBus _target;
 
         /// <summary>
@@ -35,7 +38,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <param name="targetInstance">Logbus service</param>
         public Logbus2SoapAdapter(ILogBus targetInstance)
         {
-            if (targetInstance == null) throw new System.ArgumentNullException("targetInstance");
+            if (targetInstance == null) throw new ArgumentNullException("targetInstance");
             _target = targetInstance;
         }
 
@@ -53,14 +56,15 @@ namespace It.Unina.Dis.Logbus.Wrappers
             return ret;
         }
 
-        void IChannelManagement.CreateChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelCreationInformation description)
+        void IChannelManagement.CreateChannel(ChannelCreationInformation description)
         {
-            _target.CreateChannel(description.id, description.title, description.filter, description.description, description.coalescenceWindow);
+            _target.CreateChannel(description.id, description.title, description.filter, description.description,
+                                  description.coalescenceWindow);
         }
 
-        It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation IChannelManagement.GetChannelInformation(string id)
+        ChannelInformation IChannelManagement.GetChannelInformation(string id)
         {
-            if (string.IsNullOrEmpty(id)) throw new System.ArgumentNullException("id");
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
             IOutboundChannel chan = null;
 
             foreach (IOutboundChannel ch in _target.OutboundChannels)
@@ -72,20 +76,20 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
             if (chan == null) return null; //Really?
 
-            return new It.Unina.Dis.Logbus.RemoteLogbus.ChannelInformation()
-            {
-                clients = chan.SubscribedClients.ToString(),
-                coalescenceWindow = (long)chan.CoalescenceWindowMillis,
-                description = chan.Description,
-                filter = chan.Filter as It.Unina.Dis.Logbus.Filters.FilterBase,
-                id = chan.ID,
-                title = chan.Name
-            };
+            return new ChannelInformation
+                       {
+                           clients = chan.SubscribedClients.ToString(),
+                           coalescenceWindow = (long) chan.CoalescenceWindowMillis,
+                           description = chan.Description,
+                           filter = chan.Filter as FilterBase,
+                           id = chan.ID,
+                           title = chan.Name
+                       };
         }
 
         void IChannelManagement.DeleteChannel(string id)
         {
-            if (string.IsNullOrEmpty(id)) throw new System.ArgumentNullException("id");
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
             IOutboundChannel chan = null;
 
             foreach (IOutboundChannel ch in _target.OutboundChannels)
@@ -95,7 +99,9 @@ namespace It.Unina.Dis.Logbus.Wrappers
                     break;
                 }
 
-            if (chan.SubscribedClients > 0) throw new System.InvalidOperationException("Unable to delete channels to which there are still subscribed clients");
+            if (chan.SubscribedClients > 0)
+                throw new InvalidOperationException(
+                    "Unable to delete channels to which there are still subscribed clients");
             chan.Stop();
             _target.OutboundChannels.Remove(chan);
         }
@@ -114,11 +120,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
             return _target.AvailableTransports;
         }
 
-        It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionRequest request)
+        ChannelSubscriptionResponse IChannelSubscription.SubscribeChannel(ChannelSubscriptionRequest request)
         {
-            System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> out_params;
-            System.Collections.Generic.Dictionary<string, string> in_params = new System.Collections.Generic.Dictionary<string, string>();
-            foreach (It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair kvp in request.param)
+            IEnumerable<KeyValuePair<string, string>> out_params;
+            Dictionary<string, string> in_params = new Dictionary<string, string>();
+            foreach (KeyValuePair kvp in request.param)
                 in_params.Add(kvp.name, kvp.value);
             string clientid;
             try
@@ -130,12 +136,12 @@ namespace It.Unina.Dis.Logbus.Wrappers
                 throw;
             }
 
-            It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse ret = new It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse();
+            ChannelSubscriptionResponse ret = new ChannelSubscriptionResponse();
             ret.clientid = clientid;
 
-            System.Collections.Generic.List<It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair> lst = new System.Collections.Generic.List<It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair>();
-            foreach (System.Collections.Generic.KeyValuePair<string, string> kvp in out_params)
-                lst.Add(new It.Unina.Dis.Logbus.RemoteLogbus.KeyValuePair() { name = kvp.Key, value = kvp.Value });
+            List<KeyValuePair> lst = new List<KeyValuePair>();
+            foreach (KeyValuePair<string, string> kvp in out_params)
+                lst.Add(new KeyValuePair {name = kvp.Key, value = kvp.Value});
             ret.param = lst.ToArray();
 
             return ret;
@@ -167,14 +173,14 @@ namespace It.Unina.Dis.Logbus.Wrappers
 
         string[] IChannelSubscription.GetAvailableFilters()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription IChannelSubscription.DescribeFilter(string filterid)
+        FilterDescription IChannelSubscription.DescribeFilter(string filterid)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
-        #endregion
 
+        #endregion
     }
 }

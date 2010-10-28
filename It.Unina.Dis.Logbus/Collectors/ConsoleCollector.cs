@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
@@ -31,13 +33,15 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            string tstamp = (message.LocalTimestamp.HasValue) ? message.LocalTimestamp.Value.ToString("yyyy-MM-dd-HH:mm:ss") : "-";
-            System.Console.WriteLine("{0} - {1}[{3}]: {2}",
-                tstamp,
-                System.Enum.GetName(typeof(SyslogSeverity), message.Severity),
-                message.Text,
-                message.MessageId ?? ""
-             );
+            string tstamp = (message.LocalTimestamp.HasValue)
+                                ? message.LocalTimestamp.Value.ToString("yyyy-MM-dd-HH:mm:ss")
+                                : "-";
+            Console.WriteLine("{0} - {1}[{3}]: {2}",
+                              tstamp,
+                              Enum.GetName(typeof (SyslogSeverity), message.Severity),
+                              message.Text,
+                              message.MessageId ?? ""
+                );
         }
 
         #endregion

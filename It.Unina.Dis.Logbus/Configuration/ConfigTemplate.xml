@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <!--
 Typical XML configuration file (App.config/Web.config)
@@ -10,6 +10,6 @@ Typical XML configuration file (App.config/Web.config)
     <section name="logbus-core" type="It.Unina.Dis.Logbus.Configuration.LogbusCoreConfigurationSectionHandler, It.Unina.Dis.Logbus, Culture=neutral, PublicKeyToken=9bbc6deeaedcd38f" />
     <section name="logbus-logger" type="It.Unina.Dis.Logbus.Configuration.LogbusLoggerConfigurationSectionHandler, It.Unina.Dis.Logbus, Culture=neutral, PublicKeyToken=9bbc6deeaedcd38f" />
     <section name="logbus-client" type="It.Unina.Dis.Logbus.Configuration.LogbusClientConfigurationSectionHandler, It.Unina.Dis.Logbus, Culture=neutral, PublicKeyToken=9bbc6deeaedcd38f" />
-  </configSections> 
-  
+  </configSections>
+
 </configuration>

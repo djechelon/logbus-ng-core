@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus.OutChannels
 {
     /// <summary>
@@ -26,10 +27,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
     public sealed class OutChannelCreationEventArgs
         : EventArgs
     {
-
         /// <remarks/>
-        public OutChannelCreationEventArgs(IOutboundChannel channel) 
-            :base()
+        public OutChannelCreationEventArgs(IOutboundChannel channel)
         {
             if (channel == null) throw new ArgumentNullException("channel");
             Channel = channel;

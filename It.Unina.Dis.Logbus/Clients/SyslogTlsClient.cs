@@ -18,9 +18,9 @@
 */
 
 using System;
-
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -30,8 +30,7 @@ using System.Text;
 using System.Threading;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.RemoteLogbus;
-using System.IO;
-
+using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.Clients
 {
@@ -51,6 +50,7 @@ namespace It.Unina.Dis.Logbus.Clients
         private string _clientId;
 
         #region Constructor/Destructor
+
         /// <summary>
         /// Initializes a new instance of SyslogTlsClient for running on an exclusive channel
         /// </summary>
@@ -60,7 +60,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <exception cref="LogbusException">Thrown when an error prevents to create a new channel</exception>
         public SyslogTlsClient(FilterBase filter, IChannelManagement manager, IChannelSubscription subscription)
             : base(filter, manager, subscription)
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of SyslogTlsClient for running on a shared channel
@@ -69,7 +70,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="subscription">Reference to Channel Subscriber</param>
         public SyslogTlsClient(string channelId, IChannelSubscription subscription)
             : base(channelId, subscription)
-        { }
+        {
+        }
 
         ~SyslogTlsClient()
         {
@@ -82,12 +84,17 @@ namespace It.Unina.Dis.Logbus.Clients
 
             if (disposing)
             {
-                try { _server.Stop(); }
-                catch (SocketException) { }
+                try
+                {
+                    _server.Stop();
+                }
+                catch (SocketException)
+                {
+                }
                 _server = null;
             }
-
         }
+
         #endregion
 
         #region IRunnable Membri di
@@ -133,7 +140,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 EndPoint ep = _server.Server.LocalEndPoint;
                 if (ep is IPEndPoint)
                 {
-                    IPEndPoint ipe = (IPEndPoint)ep;
+                    IPEndPoint ipe = (IPEndPoint) ep;
                     port = ipe.Port;
                 }
                 else
@@ -142,20 +149,27 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
 
 
-                _runningThread = new Thread(RunnerLoop) { IsBackground = true };
+                _runningThread = new Thread(RunnerLoop) {IsBackground = true};
                 _runningThread.Start();
 
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest
-                {
-                    channelid = ChannelId,
-                    transport = "tls",
-                    param = new KeyValuePair[] 
-                    { 
-                        new KeyValuePair { name = "port", value = port.ToString(CultureInfo.InvariantCulture) }, 
-                        new KeyValuePair { name = "host", value = _localhost } 
-                    }
-                };
+                                                     {
+                                                         channelid = ChannelId,
+                                                         transport = "tls",
+                                                         param = new[]
+                                                                     {
+                                                                         new KeyValuePair
+                                                                             {
+                                                                                 name = "port",
+                                                                                 value =
+                                                                                     port.ToString(
+                                                                                         CultureInfo.InvariantCulture)
+                                                                             },
+                                                                         new KeyValuePair
+                                                                             {name = "host", value = _localhost}
+                                                                     }
+                                                     };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
                 _clientId = res.clientid;
 
@@ -200,14 +214,18 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                     ChannelSubscriber.UnsubscribeChannel(_clientId);
                 }
-                catch (LogbusException) { }
+                catch (LogbusException)
+                {
+                }
                 _clientId = null;
 
                 try
                 {
                     _server.Stop();
                 }
-                catch (SocketException) { } //Really nothing?
+                catch (SocketException)
+                {
+                } //Really nothing?
 
                 _runningThread.Abort();
                 _runningThread.Join();
@@ -249,11 +267,10 @@ namespace It.Unina.Dis.Logbus.Clients
                     Log.Debug("Listening on TLS socket {0}", _server.LocalEndpoint.ToString());
                     TcpClient client = _server.AcceptTcpClient();
                     using (SslStream stream = new SslStream(client.GetStream(), false, RemoteCertificateValidation,
-                                            LocalCertificateSelection))
+                                                            LocalCertificateSelection))
                     {
-
-                        stream.AuthenticateAsServer(Utils.CertificateUtilities.DefaultCertificate, false, SslProtocols.Tls,
-                                                     true);
+                        stream.AuthenticateAsServer(CertificateUtilities.DefaultCertificate, false, SslProtocols.Tls,
+                                                    true);
 
                         stream.ReadTimeout = 3600000; //1 hour
 
@@ -263,7 +280,7 @@ namespace It.Unina.Dis.Logbus.Clients
                                 StringBuilder sb = new StringBuilder();
                                 do
                                 {
-                                    char nextChar = (char)sr.Read();
+                                    char nextChar = (char) sr.Read();
                                     if (char.IsDigit(nextChar)) sb.Append(nextChar);
                                     else if (nextChar == ' ') break;
                                     else throw new FormatException("Invalid TLS encoding of Syslog message");
@@ -294,17 +311,22 @@ namespace It.Unina.Dis.Logbus.Clients
                 catch (SocketException) { Stop(); }
                 catch (IOException) { Stop(); }*/
             }
-            catch (ThreadAbortException) { }
+            catch (ThreadAbortException)
+            {
+            }
         }
 
-        private bool RemoteCertificateValidation(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private bool RemoteCertificateValidation(Object sender, X509Certificate certificate, X509Chain chain,
+                                                 SslPolicyErrors sslPolicyErrors)
         {
             return true; //For now....
         }
 
-        private X509Certificate LocalCertificateSelection(Object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+        private X509Certificate LocalCertificateSelection(Object sender, string targetHost,
+                                                          X509CertificateCollection localCertificates,
+                                                          X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
-            return Utils.CertificateUtilities.DefaultCertificate;
+            return CertificateUtilities.DefaultCertificate;
         }
     }
 }

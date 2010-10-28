@@ -17,21 +17,21 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System;
 using System.Text;
-using System.Globalization;
-using System.Collections.Generic;
-using System.IO;
 
 namespace It.Unina.Dis.Logbus.Collectors
 {
     internal sealed class SyslogUdpCollector
         : ILogCollector, IConfigurable, IDisposable
     {
-
         #region Constrcutor
+
         public SyslogUdpCollector()
         {
         }
@@ -56,6 +56,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         {
             Dispose(false);
         }
+
         #endregion
 
         public IPEndPoint RemoteEndPoint { get; set; }
@@ -64,7 +65,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         private IPAddress _remoteAddr;
         private int _port;
         private IAsyncResult _result;
-        private volatile bool _disposed = false;
+        private volatile bool _disposed;
 
         #region ILogCollector Membri di
 
@@ -85,7 +86,6 @@ namespace It.Unina.Dis.Logbus.Collectors
                         RemoteEndPoint = new IPEndPoint(_remoteAddr, _port);
                     }
                 }
-
             }
 
             if (_client == null)
@@ -105,9 +105,11 @@ namespace It.Unina.Dis.Logbus.Collectors
                 _result = _client.BeginSend(payload, payload.Length, RemoteEndPoint, null, null);
             }
             catch (IOException)
-            { }
+            {
+            }
             catch (SocketException)
-            { }
+            {
+            }
             catch (Exception ex)
             {
                 throw new LogbusException("Unable to send Syslog message", ex);
@@ -138,6 +140,7 @@ namespace It.Unina.Dis.Logbus.Collectors
             _client = null;
             RemoteEndPoint = null;
         }
+
         #endregion
 
         #region IConfigurable Membri di
@@ -161,7 +164,6 @@ namespace It.Unina.Dis.Logbus.Collectors
                         ex.Data.Add("key", key);
                         throw ex;
                     }
-
             }
         }
 
@@ -191,7 +193,9 @@ namespace It.Unina.Dis.Logbus.Collectors
                                 RemoteEndPoint = null;
                                 break;
                             }
-                            catch { }
+                            catch
+                            {
+                            }
                             throw new ArgumentException("Invalid IP address for remote endpoint", "value", ex);
                         }
                         break;
@@ -219,7 +223,6 @@ namespace It.Unina.Dis.Logbus.Collectors
 
                 default:
                     throw new NotSupportedException("Invalid key");
-
             }
         }
 

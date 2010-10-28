@@ -18,6 +18,7 @@
 */
 
 using System;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
@@ -26,7 +27,6 @@ namespace It.Unina.Dis.Logbus
     public interface IAsyncRunnable
         : IRunnable
     {
-
         /// <summary>
         /// Begins an asynchronous start operation
         /// </summary>
@@ -52,6 +52,5 @@ namespace It.Unina.Dis.Logbus
         /// <param name="result">Token returned by BeginStop</param>
         /// <remarks>This method blocks the calling thread until the stop operation has completed</remarks>
         void EndStop(IAsyncResult result);
-
     }
 }

@@ -31,11 +31,7 @@ namespace It.Unina.Dis.Logbus
         /// Object that could not be parsed
         /// </summary>
         /// <remarks>Usually in <see cref="System.String"/> or <see cref="System.Byte"/> array form</remarks>
-        public object Payload
-        {
-            get;
-            set;
-        }
+        public object Payload { get; set; }
 
         /// <remarks/>
         public ParseErrorEventArgs(object payload, object exception, bool isTerminating) :

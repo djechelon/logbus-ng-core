@@ -17,7 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System;
 namespace It.Unina.Dis.Logbus.FFDA
 {
     /// <summary>
@@ -26,7 +25,6 @@ namespace It.Unina.Dis.Logbus.FFDA
     public sealed class FFDAEventArgs
         : SyslogMessageEventArgs
     {
-
         /// <summary>
         /// Type of FFDA event
         /// </summary>
@@ -51,6 +49,5 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// Name of logger that generated FFDA message
         /// </summary>
         public string LoggerName;
-
     }
 }

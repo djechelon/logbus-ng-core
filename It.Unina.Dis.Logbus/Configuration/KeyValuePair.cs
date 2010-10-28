@@ -17,48 +17,42 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("param", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class KeyValuePair
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("param", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class KeyValuePair
     {
-
         private string nameField;
 
         private string valueField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string name
         {
-            get
-            {
-                return this.nameField;
-            }
-            set
-            {
-                this.nameField = value;
-            }
+            get { return nameField; }
+            set { nameField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string value
         {
-            get
-            {
-                return this.valueField;
-            }
-            set
-            {
-                this.valueField = value;
-            }
+            get { return valueField; }
+            set { valueField = value; }
         }
     }
 }

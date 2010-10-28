@@ -145,7 +145,5 @@ namespace It.Unina.Dis.Logbus
         /// Local use 7  (local7)
         /// </summary>
         Local7 = 23
-
     }
-
 }

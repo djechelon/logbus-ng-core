@@ -17,11 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using It.Unina.Dis.Logbus.Design;
 using It.Unina.Dis.Logbus.RemoteLogbus;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <summary>
@@ -31,6 +32,7 @@ namespace It.Unina.Dis.Logbus.Filters
     public sealed class CustomFilterHelper
     {
         #region Singleton control
+
         private static readonly CustomFilterHelper _instance;
 
         static CustomFilterHelper()
@@ -45,6 +47,7 @@ namespace It.Unina.Dis.Logbus.Filters
         {
             get { return _instance; }
         }
+
         #endregion
 
         private CustomFilterHelper()
@@ -68,7 +71,7 @@ namespace It.Unina.Dis.Logbus.Filters
             foreach (Type t in assemblyToScan.GetTypes())
             {
                 string typename = t.AssemblyQualifiedName;
-                object[] customAttrs = t.GetCustomAttributes(typeof(CustomFilterAttribute), false);
+                object[] customAttrs = t.GetCustomAttributes(typeof (CustomFilterAttribute), false);
                 if (customAttrs.Length < 1) continue;
                 CustomFilterAttribute attr = customAttrs[0] as CustomFilterAttribute;
 
@@ -84,7 +87,7 @@ namespace It.Unina.Dis.Logbus.Filters
         public void RegisterCustomFilter(Type t)
         {
             if (t == null) throw new ArgumentNullException("t");
-            object[] customAttrs = t.GetCustomAttributes(typeof(CustomFilterAttribute), false);
+            object[] customAttrs = t.GetCustomAttributes(typeof (CustomFilterAttribute), false);
 
             if (customAttrs.Length < 1)
                 throw new ArgumentException("Given type is not decorated with CustomFilterAttribute");
@@ -93,7 +96,7 @@ namespace It.Unina.Dis.Logbus.Filters
             if (attr != null)
             {
                 string typeName = t.AssemblyQualifiedName;
-                if (!typeof(ICustomFilter).IsAssignableFrom(t))
+                if (!typeof (ICustomFilter).IsAssignableFrom(t))
                 {
                     LogbusException ex = new LogbusException("Given type does not implement ICustomFilter");
                     ex.Data.Add("typeName", t);
@@ -125,7 +128,7 @@ namespace It.Unina.Dis.Logbus.Filters
             {
                 Type filterType = Type.GetType(typeName);
 
-                if (!typeof(ICustomFilter).IsAssignableFrom(filterType))
+                if (!typeof (ICustomFilter).IsAssignableFrom(filterType))
                 {
                     LogbusException ex = new LogbusException("Given type does not implement ICustomFilter");
                     ex.Data.Add("typeName", typeName);
@@ -138,7 +141,10 @@ namespace It.Unina.Dis.Logbus.Filters
                 _registeredTypes.Add(tag, typeName);
                 _registeredDescriptions.Add(tag, description);
             }
-            catch (LogbusException) { throw; }
+            catch (LogbusException)
+            {
+                throw;
+            }
             catch (Exception ex) //Usually TypeLoadException
             {
                 throw new LogbusException("Unable to load type for custom filter", ex);
@@ -173,10 +179,7 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <param name="parameters">Filter-specific parameters</param>
         public IFilter this[string tag, IEnumerable<FilterParameter> parameters]
         {
-            get
-            {
-                return BuildFilter(tag, parameters);
-            }
+            get { return BuildFilter(tag, parameters); }
         }
 
         /// <summary>
@@ -186,10 +189,7 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <returns></returns>
         public string this[string tag]
         {
-            get
-            {
-                return (_registeredTypes.ContainsKey(tag)) ? _registeredTypes[tag] : null;
-            }
+            get { return (_registeredTypes.ContainsKey(tag)) ? _registeredTypes[tag] : null; }
         }
 
         /// <summary>
@@ -207,10 +207,7 @@ namespace It.Unina.Dis.Logbus.Filters
         /// </summary>
         public IDictionary<string, string> AvailableFilters
         {
-            get
-            {
-                return new Dictionary<string, string>(_registeredDescriptions);
-            }
+            get { return new Dictionary<string, string>(_registeredDescriptions); }
         }
 
         /// <summary>
@@ -239,9 +236,9 @@ namespace It.Unina.Dis.Logbus.Filters
             if (!_registeredTypes.ContainsKey(key)) return null;
             return new FilterDescription
                        {
-                id = key,
-                description = _registeredDescriptions[key]
-            };
+                           id = key,
+                           description = _registeredDescriptions[key]
+                       };
         }
     }
 }

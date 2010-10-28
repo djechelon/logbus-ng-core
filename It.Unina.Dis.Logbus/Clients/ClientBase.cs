@@ -40,8 +40,8 @@ namespace It.Unina.Dis.Logbus.Clients
         private readonly bool _exclusiveUsage;
         private readonly FilterBase _filter;
 
-
         #region Constructor
+
         /// <summary>
         /// Initializes a new instance of SyslogUdpClient for running on an exclusive channel
         /// </summary>
@@ -62,7 +62,8 @@ namespace It.Unina.Dis.Logbus.Clients
 
             do
             {
-                ChannelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(), Randomizer.RandomAlphanumericString(5));
+                ChannelId = string.Format("{0}{1}", Thread.CurrentThread.GetHashCode(),
+                                          Randomizer.RandomAlphanumericString(5));
             } while (channelIds.Contains(ChannelId));
 
             Init();
@@ -107,6 +108,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
             Disposed = true;
         }
+
         #endregion
 
         /// <summary>
@@ -125,7 +127,6 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <returns></returns>
         protected IPAddress GetIpAddress()
         {
-
             /*
              * If client is using OUR proxy, ie. no one re-implemented the
              * subscription interface with another mechanism like CORBA or
@@ -152,8 +153,10 @@ namespace It.Unina.Dis.Logbus.Clients
                 try
                 {
                     ChannelSubscription cs = ChannelSubscriber as ChannelSubscription;
-                    string hostname = Regex.Match(cs.Url, "^(?<protocol>https?)://(?<host>[-A-Z0-9.]+)(?<port>:[0-9]{1,5})?(?<file>/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(?<parameters>\\?[-A-Z0-9+&@#/%=~_|!:,.;]*)?",
-                        RegexOptions.IgnoreCase).Groups["host"].Value;
+                    string hostname =
+                        Regex.Match(cs.Url,
+                                    "^(?<protocol>https?)://(?<host>[-A-Z0-9.]+)(?<port>:[0-9]{1,5})?(?<file>/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(?<parameters>\\?[-A-Z0-9+&@#/%=~_|!:,.;]*)?",
+                                    RegexOptions.IgnoreCase).Groups["host"].Value;
                     IPAddress hostIp = Dns.GetHostAddresses(hostname)[0];
 
                     //If we are contacting a local host, tell to use loopback
@@ -162,10 +165,11 @@ namespace It.Unina.Dis.Logbus.Clients
                     //Just force a routing table lookup, we don't need more
                     UdpClient fakeClient = new UdpClient();
                     fakeClient.Connect(hostname, 65534);
-                    return ((IPEndPoint)fakeClient.Client.LocalEndPoint).Address;
-
+                    return ((IPEndPoint) fakeClient.Client.LocalEndPoint).Address;
                 }
-                catch { } //Never mind...
+                catch
+                {
+                } //Never mind...
             }
             //Else try to find the best WAN address to use
 
@@ -198,13 +202,13 @@ namespace It.Unina.Dis.Logbus.Clients
             {
                 //Create channel
                 ChannelCreationInformation info = new ChannelCreationInformation
-                {
-                    coalescenceWindow = 0,
-                    description = "Channel created by LogCollector",
-                    filter = _filter,
-                    title = "AutoChannel",
-                    id = ChannelId
-                };
+                                                      {
+                                                          coalescenceWindow = 0,
+                                                          description = "Channel created by LogCollector",
+                                                          filter = _filter,
+                                                          title = "AutoChannel",
+                                                          id = ChannelId
+                                                      };
 
                 try
                 {
@@ -227,18 +231,17 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <summary>
         /// Gets or set the Channel Management proxy
         /// </summary>
-        public IChannelManagement ChannelManager
-        { get; set; }
+        public IChannelManagement ChannelManager { get; set; }
 
         /// <summary>
         /// Gets or set the Channel Subscription proxy
         /// </summary>
-        public IChannelSubscription ChannelSubscriber
-        { get; set; }
+        public IChannelSubscription ChannelSubscriber { get; set; }
 
         #endregion
 
         #region Firing events
+
         /// <summary>
         /// Fires the Starting event
         /// </summary>
@@ -298,6 +301,7 @@ namespace It.Unina.Dis.Logbus.Clients
             if (Error != null)
                 Error(this, e);
         }
+
         #endregion
 
         #region IRunnable Membri di
@@ -341,6 +345,7 @@ namespace It.Unina.Dis.Logbus.Clients
         /// Implements IRunnable.Stop
         /// </summary>
         public abstract void Stop();
+
         #endregion
 
         #region ILogSource Membri di
@@ -362,7 +367,6 @@ namespace It.Unina.Dis.Logbus.Clients
             Dispose(true);
         }
 
-
         #endregion
 
         #region ILogSupport Membri di
@@ -370,11 +374,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <summary>
         /// Implements ILogSupport.Log
         /// </summary>
-        public Loggers.ILog Log
-        {
-            protected get;
-            set;
-        }
+        public ILog Log { protected get; set; }
+
         #endregion
     }
 }

@@ -17,38 +17,44 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System.CodeDom.Compiler;
+using System.Web.Services;
+using System.Web.Services.Description;
+using System.Web.Services.Protocols;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Entities
 {
-
 #if !MONO
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
-    [System.Web.Services.WebServiceBindingAttribute(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggingEntityIdentifier))]
+    [GeneratedCode("wsdl", "2.0.50727.3038")]
+    [WebServiceBinding(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+    [XmlInclude(typeof (LoggingEntityIdentifier))]
 #endif
     public interface IEntityManagement
     {
-
 #if !MONO
         /// <remarks/>
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetLoggingEntities", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable = false)]
+        [WebMethod]
+        [SoapDocumentMethod("urn:#GetLoggingEntities", Use = SoapBindingUse.Literal,
+            ParameterStyle = SoapParameterStyle.Bare)]
+        [return: XmlArray("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+        [return: XmlArrayItem("entity", IsNullable = false)]
 #endif
         LoggingEntity[] GetLoggingEntities();
 
 #if !MONO
         /// <remarks/>
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#FindLoggingEntities", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable = false)]
-        LoggingEntity[] FindLoggingEntities([System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query);
+        [WebMethod]
+        [SoapDocumentMethod("urn:#FindLoggingEntities", Use = SoapBindingUse.Literal,
+            ParameterStyle = SoapParameterStyle.Bare)]
+        [return: XmlArray("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+        [return: XmlArrayItem("entity", IsNullable = false)]
+        LoggingEntity[] FindLoggingEntities(
+            [XmlElement(Namespace = "http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query);
 #else
-        /// <remarks/>
+    /// <remarks/>
         LoggingEntity[] FindLoggingEntities(TemplateQuery query);
 #endif
-
     }
 }

@@ -19,11 +19,10 @@
 
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
-using System.Security;
-using System.Security.Cryptography;
 
 namespace It.Unina.Dis.Logbus.Utils
 {
@@ -39,14 +38,20 @@ namespace It.Unina.Dis.Logbus.Utils
         {
             get
             {
-                using (Stream stream = typeof(CertificateUtilities).Assembly.GetManifestResourceStream("It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
+                using (
+                    Stream stream =
+                        typeof (CertificateUtilities).Assembly.GetManifestResourceStream(
+                            "It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
                 {
                     if (stream == null)
                         throw new LogbusException("Unable to find default self-signed SSL certificate");
 
                     byte[] payload = new byte[stream.Length];
-                    stream.Read(payload, 0, (int)stream.Length);
-                    try { return new X509Certificate2(payload); }
+                    stream.Read(payload, 0, (int) stream.Length);
+                    try
+                    {
+                        return new X509Certificate2(payload);
+                    }
                     catch (CryptographicException)
                     {
                         //Workaround to Mono bug 646491
@@ -63,8 +68,6 @@ namespace It.Unina.Dis.Logbus.Utils
                         {
                             File.Delete(fname);
                         }
-
-
                     }
                 }
             }
@@ -105,13 +108,12 @@ namespace It.Unina.Dis.Logbus.Utils
             }
         }
 
-
-
         #region PEM support
 
         /*
          * Code taken from http://social.msdn.microsoft.com/Forums/en/csharpgeneral/thread/d7e2ccea-4bea-4f22-890b-7e48c267657f
          * */
+
         private static byte[] GetPem(string type, byte[] data)
         {
             string pem = Encoding.UTF8.GetString(data);

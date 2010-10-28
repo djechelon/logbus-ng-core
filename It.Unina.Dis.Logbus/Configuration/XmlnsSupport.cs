@@ -17,19 +17,22 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks />
-    [System.SerializableAttribute()]
+    [Serializable]
     public abstract class XmlnsSupport
     {
         /// <remarks />
-        [System.Xml.Serialization.XmlNamespaceDeclarations()]
-        public System.Xml.Serialization.XmlSerializerNamespaces xmlns
+        [XmlNamespaceDeclarations]
+        public XmlSerializerNamespaces xmlns
         {
             get
             {
-                System.Xml.Serialization.XmlSerializerNamespaces ret = new System.Xml.Serialization.XmlSerializerNamespaces();
+                XmlSerializerNamespaces ret = new XmlSerializerNamespaces();
                 ret.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
                 ret.Add("xsd", "http://www.w3.org/2001/XMLSchema");
                 ret.Add("filter", "http://www.dis.unina.it/logbus-ng/filters");

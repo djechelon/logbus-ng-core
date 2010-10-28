@@ -26,7 +26,6 @@ namespace It.Unina.Dis.Logbus
     /// </summary>
     public enum SyslogSeverity : byte
     {
-
         /// <summary>
         /// Emergency: system is unusable
         /// </summary>
@@ -66,6 +65,5 @@ namespace It.Unina.Dis.Logbus
         /// Debug: debug-level messages
         /// </summary>
         Debug = 7
-
     }
 }

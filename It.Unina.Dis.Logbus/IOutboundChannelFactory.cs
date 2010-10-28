@@ -18,6 +18,7 @@
 */
 
 using It.Unina.Dis.Logbus.Filters;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
@@ -39,6 +40,5 @@ namespace It.Unina.Dis.Logbus
         /// Sets the Factory helper, needed for channel creation
         /// </summary>
         ITransportFactoryHelper TransportFactoryHelper { set; }
-
     }
 }

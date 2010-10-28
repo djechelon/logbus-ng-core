@@ -19,10 +19,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using System.Web;
 using It.Unina.Dis.Logbus.Configuration;
+using It.Unina.Dis.Logbus.Design;
 using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.Utils;
 
@@ -36,7 +35,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
     /// 
     /// *Logbus-ng client must own a valid SSL SERVER certificate, see documentation for details
     /// </remarks>
-    [Design.TransportFactory("tls", Name = "TLS transport", Description = "Reliable transport implementing RFC 5425")]
+    [TransportFactory("tls", Name = "TLS transport", Description = "Reliable transport implementing RFC 5425")]
     internal sealed class SyslogTlsTransportFactory
         : IOutboundTransportFactory, ILogSupport
     {
@@ -59,7 +58,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public IOutboundTransport CreateTransport()
         {
-            return new SyslogTlsTransport(ServerCertificate, ValidateClientCertificate) { Log = Log };
+            return new SyslogTlsTransport(ServerCertificate, ValidateClientCertificate) {Log = Log};
         }
 
         #endregion
@@ -97,8 +96,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     {
                         try
                         {
-                            ServerCertificate = (string.IsNullOrEmpty(value)) ? 
-                                null : CertificateUtilities.LoadCertificate(value);
+                            ServerCertificate = (string.IsNullOrEmpty(value))
+                                                    ? null
+                                                    : CertificateUtilities.LoadCertificate(value);
                             _certificatePath = value;
                         }
                         catch (LogbusException ex)
@@ -115,7 +115,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         }
                         catch (FormatException ex)
                         {
-                            throw new LogbusConfigurationException("TLS transport \"validateClientCertificate\" parameter must be boolean", ex);
+                            throw new LogbusConfigurationException(
+                                "TLS transport \"validateClientCertificate\" parameter must be boolean", ex);
                         }
                         break;
                     }
@@ -128,10 +129,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public IEnumerable<KeyValuePair<string, string>> Configuration
         {
-            set
-            {
-                foreach (KeyValuePair<string, string> kvp in value) SetConfigurationParameter(kvp.Key, kvp.Value);
-            }
+            set { foreach (KeyValuePair<string, string> kvp in value) SetConfigurationParameter(kvp.Key, kvp.Value); }
         }
 
         #endregion

@@ -17,48 +17,41 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("custom-filters", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class CustomFiltersConfiguration
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("custom-filters", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class CustomFiltersConfiguration
     {
-
         private CustomFilterDefinition[] customfilterField;
 
         private AssemblyToScan[] scanassemblyField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("custom-filter")]
+        [XmlElement("custom-filter")]
         public CustomFilterDefinition[] customfilter
         {
-            get
-            {
-                return this.customfilterField;
-            }
-            set
-            {
-                this.customfilterField = value;
-            }
+            get { return customfilterField; }
+            set { customfilterField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("scan-assembly")]
+        [XmlElement("scan-assembly")]
         public AssemblyToScan[] scanassembly
         {
-            get
-            {
-                return this.scanassemblyField;
-            }
-            set
-            {
-                this.scanassemblyField = value;
-            }
+            get { return scanassemblyField; }
+            set { scanassemblyField = value; }
         }
     }
 }

@@ -20,6 +20,8 @@
 using System;
 using System.Collections.Generic;
 using It.Unina.Dis.Logbus.Filters;
+using It.Unina.Dis.Logbus.OutChannels;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
@@ -28,7 +30,6 @@ namespace It.Unina.Dis.Logbus
     public interface ILogBus
         : ILogSource, ILogCollector, IRunnable, IDisposable
     {
-
         /// <summary>
         /// Lists the available transports by tag
         /// </summary>
@@ -87,12 +88,12 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// A new channel has been created
         /// </summary>
-        event EventHandler<OutChannels.OutChannelCreationEventArgs> OutChannelCreated;
+        event EventHandler<OutChannelCreationEventArgs> OutChannelCreated;
 
         /// <summary>
         /// An existing channel has been deleted
         /// </summary>
-        event EventHandler<OutChannels.OutChannelDeletionEventArgs> OutChannelDeleted;
+        event EventHandler<OutChannelDeletionEventArgs> OutChannelDeleted;
 
         /// <summary>
         /// Creates a new outbound channel
@@ -102,7 +103,8 @@ namespace It.Unina.Dis.Logbus
         /// <param name="channelFilter">Filter to apply</param>
         /// <param name="channelDescription">Human-readable description</param>
         /// <param name="coalescenceWindow">Coalescence window, in milliseconds</param>
-        void CreateChannel(string channelId, string channelName, IFilter channelFilter, string channelDescription, long coalescenceWindow);
+        void CreateChannel(string channelId, string channelName, IFilter channelFilter, string channelDescription,
+                           long coalescenceWindow);
 
         /// <summary>
         /// Removes a channel
@@ -113,12 +115,12 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// A client is subscribing to a channel
         /// </summary>
-        event EventHandler<OutChannels.ClientSubscribingEventArgs> ClientSubscribing;
+        event EventHandler<ClientSubscribingEventArgs> ClientSubscribing;
 
         /// <summary>
         /// A client successfully subscribed a channel
         /// </summary>
-        event EventHandler<OutChannels.ClientSubscribedEventArgs> ClientSubscribed;
+        event EventHandler<ClientSubscribedEventArgs> ClientSubscribed;
 
         /// <summary>
         /// Subscribes a new client to the channel
@@ -128,7 +130,9 @@ namespace It.Unina.Dis.Logbus
         /// <param name="transportInstructions">Transport input instructions by client</param>
         /// <param name="clientInstructions">Client output instructions by transport</param>
         /// <returns></returns>
-        string SubscribeClient(string channelId, string transportId, IEnumerable<KeyValuePair<string, string>> transportInstructions, out IEnumerable<KeyValuePair<string, string>> clientInstructions);
+        string SubscribeClient(string channelId, string transportId,
+                               IEnumerable<KeyValuePair<string, string>> transportInstructions,
+                               out IEnumerable<KeyValuePair<string, string>> clientInstructions);
 
         /// <summary>
         /// Refreshes a client's subscription
@@ -141,7 +145,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// A client unsubscribed from a channel
         /// </summary>
-        event EventHandler<OutChannels.ClientUnsubscribedEventArgs> ClientUnsubscribed;
+        event EventHandler<ClientUnsubscribedEventArgs> ClientUnsubscribed;
 
         /// <summary>
         /// Unsubscribes a client from a channel

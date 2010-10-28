@@ -29,7 +29,6 @@ namespace It.Unina.Dis.Logbus.Collectors
     /// </summary>
     public static class CollectorHelper
     {
-
         private static LogbusLoggerConfiguration Configuration
         {
             get { return LoggerHelper.Configuration; }
@@ -44,7 +43,8 @@ namespace It.Unina.Dis.Logbus.Collectors
         {
             if (Configuration != null)
             {
-                if (string.IsNullOrEmpty(Configuration.defaultcollector)) throw new InvalidOperationException("No default collector specifed in configuration file");
+                if (string.IsNullOrEmpty(Configuration.defaultcollector))
+                    throw new InvalidOperationException("No default collector specifed in configuration file");
 
                 return CreateCollector(Configuration.defaultcollector);
             }
@@ -61,16 +61,16 @@ namespace It.Unina.Dis.Logbus.Collectors
         public static ILogCollector CreateCollectorForLogger(string loggerName)
         {
             if (Configuration != null && Configuration.logger != null && Configuration.logger.Length > 0)
-            
+
                 foreach (LoggerDefinition def in Configuration.logger)
                 {
                     if (def.name == loggerName) return CreateCollector(def.collectorid);
                 }
-            
+
             //Let's see if the collector name is well-known
             try
             {
-                WellKnownLogger knownLogger = (WellKnownLogger)Enum.Parse(typeof(WellKnownLogger), loggerName);
+                WellKnownLogger knownLogger = (WellKnownLogger) Enum.Parse(typeof (WellKnownLogger), loggerName);
                 switch (knownLogger)
                 {
                     case WellKnownLogger.Logbus:
@@ -87,7 +87,9 @@ namespace It.Unina.Dis.Logbus.Collectors
                         }
                 }
             }
-            catch (ArgumentException) { }
+            catch (ArgumentException)
+            {
+            }
 
             throw new LogbusConfigurationException(string.Format("Collector {0} not found", loggerName));
         }
@@ -99,7 +101,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         /// <returns></returns>
         public static ILogCollector CreateCollector(WellKnownLogger knownLogger)
         {
-            return CreateCollector(Enum.GetName(typeof(WellKnownLogger), knownLogger));
+            return CreateCollector(Enum.GetName(typeof (WellKnownLogger), knownLogger));
         }
 
         /// <summary>
@@ -117,7 +119,8 @@ namespace It.Unina.Dis.Logbus.Collectors
             if (string.IsNullOrEmpty(collectorName)) throw new ArgumentNullException("collectorName");
 
             if (Configuration == null || Configuration.collector == null || Configuration.collector.Length < 1)
-                throw new InvalidOperationException("Invalid configuration. Either no configuration is set or no collector is specified");
+                throw new InvalidOperationException(
+                    "Invalid configuration. Either no configuration is set or no collector is specified");
 
             //Try to find the first logger marked default
             foreach (LogbusCollectorDefinition def in Configuration.collector)
@@ -128,7 +131,7 @@ namespace It.Unina.Dis.Logbus.Collectors
             //Let's see if the collector name is well-known
             try
             {
-                WellKnownLogger knownLogger = (WellKnownLogger)Enum.Parse(typeof(WellKnownLogger), collectorName);
+                WellKnownLogger knownLogger = (WellKnownLogger) Enum.Parse(typeof (WellKnownLogger), collectorName);
                 switch (knownLogger)
                 {
                     case WellKnownLogger.Logbus:
@@ -145,7 +148,9 @@ namespace It.Unina.Dis.Logbus.Collectors
                         }
                 }
             }
-            catch (ArgumentException) { }
+            catch (ArgumentException)
+            {
+            }
 
             //Else throw error: collector is not defined in configuration
             throw new LogbusException(string.Format("Collector {0} not found", collectorName));
@@ -168,20 +173,21 @@ namespace It.Unina.Dis.Logbus.Collectors
                 {
                     //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
                     const string namespc = "It.Unina.Dis.Logbus.Collectors";
-                    string assemblyname = typeof(CollectorHelper).Assembly.GetName().ToString();
+                    string assemblyname = typeof (CollectorHelper).Assembly.GetName().ToString();
                     typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                 }
                 Type loggerType = Type.GetType(typename);
-                if (!typeof(ILogCollector).IsAssignableFrom(loggerType))
+                if (!typeof (ILogCollector).IsAssignableFrom(loggerType))
                 {
-                    LogbusConfigurationException ex = new LogbusConfigurationException("Registered collector type does not implement ILogCollector");
+                    LogbusConfigurationException ex =
+                        new LogbusConfigurationException("Registered collector type does not implement ILogCollector");
                     ex.Data.Add("type", loggerType);
                     throw ex;
                 }
                 ILogCollector ret = Activator.CreateInstance(loggerType) as ILogCollector;
                 if (def.param != null && ret is IConfigurable)
                     foreach (KeyValuePair kvp in def.param)
-                        ((IConfigurable)ret).SetConfigurationParameter(kvp.name, kvp.value);
+                        ((IConfigurable) ret).SetConfigurationParameter(kvp.name, kvp.value);
 
                 return ret;
             }
@@ -225,6 +231,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         }
 
         #region Obsolete methods
+
         /// <summary>
         /// Constructs a logger basing on configuration
         /// </summary>
@@ -275,6 +282,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         {
             return CreateCollector(collectorName);
         }
+
         #endregion
     }
 }

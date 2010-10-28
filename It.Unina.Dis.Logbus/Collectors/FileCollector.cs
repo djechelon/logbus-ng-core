@@ -1,4 +1,4 @@
-/*
+﻿/*
  *                  Logbus-ng project
  *    ©2010 Logbus Reasearch Team - Some rights reserved
  *
@@ -18,11 +18,11 @@
 */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Web;
+
 namespace It.Unina.Dis.Logbus.Collectors
 {
     /// <summary>
@@ -36,20 +36,15 @@ namespace It.Unina.Dis.Logbus.Collectors
     public class FileCollector
         : ILogCollector, IConfigurable
     {
-
         /// <summary>
         /// Path of the file into which store logs separated by new lines
         /// </summary>
-        public string FilePath
-        {
-            get;
-            set;
-        }
+        public string FilePath { get; set; }
 
         private string _absoluteFilePath;
 
         #region ILogCollector Membri di
-        
+
         [MethodImpl(MethodImplOptions.Synchronized)]
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
@@ -90,14 +85,15 @@ namespace It.Unina.Dis.Logbus.Collectors
                 throw new ArgumentNullException("value", "Value cannot be null");
             switch (key)
             {
-
                 case "filePath":
                     {
                         if (string.IsNullOrEmpty(value))
                             throw new ArgumentNullException("value");
                         try
                         {
-                            string fpath = HttpContext.Current != null ? HttpContext.Current.Server.MapPath(value) : Path.GetFullPath(value);
+                            string fpath = HttpContext.Current != null
+                                               ? HttpContext.Current.Server.MapPath(value)
+                                               : Path.GetFullPath(value);
 #pragma warning disable 642
                             using (File.AppendText(fpath)) ; //Dummy open to get IOException or SecurityException
 #pragma warning restore 642
@@ -113,7 +109,6 @@ namespace It.Unina.Dis.Logbus.Collectors
                     }
                 default:
                     throw new NotSupportedException("Configuration key not supported");
-
             }
         }
 
@@ -128,7 +123,5 @@ namespace It.Unina.Dis.Logbus.Collectors
         }
 
         #endregion
-
     }
 }
-

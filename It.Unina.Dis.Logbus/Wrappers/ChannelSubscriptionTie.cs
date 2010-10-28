@@ -17,6 +17,9 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using It.Unina.Dis.Logbus.RemoteLogbus;
+
 namespace It.Unina.Dis.Logbus.Wrappers
 {
     /// <summary>
@@ -25,7 +28,6 @@ namespace It.Unina.Dis.Logbus.Wrappers
     public sealed class ChannelSubscriptionTie
         : IChannelSubscription
     {
-
         /// <summary>
         /// Initializes ChannelSubscriptionTie with proxied object
         /// </summary>
@@ -33,7 +35,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         /// <exception cref="System.ArgumentNullException">targetInstance is null</exception>
         public ChannelSubscriptionTie(IChannelSubscription targetInstance)
         {
-            if (targetInstance == null) throw new System.ArgumentNullException("targetInstance");
+            if (targetInstance == null) throw new ArgumentNullException("targetInstance");
             target = targetInstance;
         }
 
@@ -54,7 +56,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         /// <remarks/>
-        public It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionResponse SubscribeChannel(It.Unina.Dis.Logbus.RemoteLogbus.ChannelSubscriptionRequest request)
+        public ChannelSubscriptionResponse SubscribeChannel(ChannelSubscriptionRequest request)
         {
             return target.SubscribeChannel(request);
         }
@@ -78,7 +80,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         /// <remarks/>
-        public It.Unina.Dis.Logbus.RemoteLogbus.FilterDescription DescribeFilter(string filterid)
+        public FilterDescription DescribeFilter(string filterid)
         {
             return target.DescribeFilter(filterid);
         }

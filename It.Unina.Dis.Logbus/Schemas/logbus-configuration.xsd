@@ -1,284 +1,339 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
 <xs:schema xmlns="http://www.dis.unina.it/logbus-ng/configuration/2.0" xmlns:config="http://www.dis.unina.it/logbus-ng/configuration/2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" targetNamespace="http://www.dis.unina.it/logbus-ng/configuration/2.0" elementFormDefault="unqualified" attributeFormDefault="unqualified">
-	<xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd"/>
-	<xs:annotation>
-		<xs:documentation>Begin common section</xs:documentation>
-	</xs:annotation>
-	<xs:complexType name="KeyValuePair">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Basic and language-idependent definition of KVP</xs:documentation>
-		</xs:annotation>
-		<xs:attribute ref="name" use="required"/>
-		<xs:attribute ref="value" use="optional"/>
-	</xs:complexType>
-	<xs:element name="param" type="KeyValuePair">
-		<xs:annotation>
-			<xs:documentation>Holds a KVP</xs:documentation>
-		</xs:annotation>
-	</xs:element>
-	<xs:attribute name="type" type="ClassType">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"</xs:documentation>
-		</xs:annotation>
-	</xs:attribute>
-	<xs:attribute name="name" type="xs:string"/>
-	<xs:attribute name="value" type="xs:string"/>
-	<xs:attribute name="default" type="xs:boolean">
-		<xs:annotation>
-			<xs:documentation>Marks if the entity is to be considered default or not</xs:documentation>
-		</xs:annotation>
-	</xs:attribute>
-	<xs:complexType name="TypeAndParamBase" abstract="true">
-		<xs:sequence>
-			<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-		<xs:attribute ref="type" use="optional"/>
-	</xs:complexType>
-	<xs:simpleType name="ClassType">
-		<xs:restriction base="xs:string">
-			<xs:pattern value="[a-zA-Z0-9]{1}[a-zA-Z0-9_.]+(, [a-zA-Z0-9]{1}[a-zA-Z0-9_.]+)?(, Culture=[a-zA-Z-]*)?(, PublicKeyToken=[0-9a-fA-F]{16})?"/>
-		</xs:restriction>
-	</xs:simpleType>
-	<xs:complexType name="LogCollectorDefinitionBase" abstract="true">
-		<xs:annotation>
-			<xs:documentation>Defines a connector object to Logbus</xs:documentation>
-		</xs:annotation>
-		<xs:complexContent>
-			<xs:restriction base="TypeAndParamBase">
-				<xs:sequence>
-					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-				</xs:sequence>
-				<xs:attribute ref="type" use="required"/>
-			</xs:restriction>
-		</xs:complexContent>
-	</xs:complexType>
-	<xs:annotation>
-		<xs:documentation>Begin core section</xs:documentation>
-	</xs:annotation>
-	<xs:complexType name="LogbusCoreConfiguration" abstract="false">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Main type for Logbus configuration, bound to IConfigurationSectionHandler</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="in-channels" minOccurs="0"/>
-			<xs:element ref="custom-filters" minOccurs="0"/>
-			<xs:element ref="out-transports" minOccurs="0"/>
-			<xs:element ref="core-filter" minOccurs="0"/>
-			<xs:element ref="plugins" minOccurs="0"/>
-			<xs:element ref="forward-to" minOccurs="0"/>
-		</xs:sequence>
-		<xs:attribute ref="outChannelFactoryType"/>
-	</xs:complexType>
-	<xs:element name="core-filter" type="filter:FilterBase" nillable="true"/>
-	<xs:element name="logbus-core" type="LogbusCoreConfiguration">
-		<xs:annotation>
-			<xs:appinfo>
-				<keepNamespaceDeclarations>xmlns</keepNamespaceDeclarations>
-			</xs:appinfo>
-			<xs:documentation xml:lang="en">Main element for Logbus configuration</xs:documentation>
-		</xs:annotation>
-	</xs:element>
-	<xs:complexType name="InboundChannelsConfiguration" abstract="false">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Configures Inbound channels</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="in-channel" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:element name="in-channels" type="InboundChannelsConfiguration" abstract="false" nillable="true"/>
-	<xs:complexType name="InboundChannelDefinition">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Defines an Inbound channels by type and properties</xs:documentation>
-		</xs:annotation>
-		<xs:complexContent>
-			<xs:restriction base="TypeAndParamBase">
-				<xs:sequence>
-					<xs:element ref="param" minOccurs="0" maxOccurs="unbounded"/>
-				</xs:sequence>
-				<xs:attribute ref="type" use="required"/>
-			</xs:restriction>
-		</xs:complexContent>
-	</xs:complexType>
-	<xs:element name="in-channel" type="InboundChannelDefinition"/>
-	<xs:complexType name="CustomFiltersConfiguration">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Configure Custom Filters</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="custom-filter" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="CustomFilterDefinition">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Defines a Custom Filter by type</xs:documentation>
-		</xs:annotation>
-		<xs:attribute ref="name" use="required"/>
-		<xs:attribute ref="description" use="optional"/>
-		<xs:attribute ref="type" use="required"/>
-	</xs:complexType>
-	<xs:element name="custom-filters" type="CustomFiltersConfiguration"/>
-	<xs:element name="custom-filter" type="CustomFilterDefinition"/>
-	<xs:attribute name="description" type="xs:string"/>
-	<xs:complexType name="AssemblyToScan">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Defines an assembly to scan for required types (they must be marked with appropriate attributes)</xs:documentation>
-		</xs:annotation>
-		<xs:attribute ref="assembly" use="required"/>
-		<xs:attribute ref="codebase" use="optional"/>
-	</xs:complexType>
-	<xs:attribute name="assembly" type="xs:string"/>
-	<xs:attribute name="codebase" type="xs:string"/>
-	<xs:element name="scan-assembly" type="AssemblyToScan"/>
-	<xs:complexType name="OutputTransportsConfiguration">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Configures Outbound Transports</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element ref="out-transport" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-		<xs:attribute ref="factory" use="optional"/>
-	</xs:complexType>
-	<xs:attribute name="factory" type="xs:string"/>
-	<xs:element name="out-transports" type="OutputTransportsConfiguration"/>
-	<xs:complexType name="OutputTransportDefinition">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Defines an Outbound Transport</xs:documentation>
-		</xs:annotation>
-		<xs:attribute ref="tag" use="required"/>
-		<xs:attribute ref="factory" use="required">
-			<xs:annotation>
-				<xs:documentation>Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-	<xs:attribute name="tag" type="xs:string"/>
-	<xs:element name="out-transport" type="OutputTransportDefinition"/>
-	<xs:attribute name="outChannelFactoryType" type="xs:string">
-		<xs:annotation>
-			<xs:documentation>.NET Type to use for creating Outbound Channel (must implement IOutboundChannelFactory)</xs:documentation>
-		</xs:annotation>
-	</xs:attribute>
-	<xs:complexType name="PluginConfiguration">
-		<xs:annotation>
-			<xs:documentation>Configure Logbus-ng core plugins</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="plugin" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:element name="plugins" type="PluginConfiguration"/>
-	<xs:complexType name="PluginDefinition">
-		<xs:annotation>
-			<xs:documentation>Defines a single plugin</xs:documentation>
-		</xs:annotation>
-		<xs:attribute ref="type"/>
-	</xs:complexType>
-	<xs:element name="plugin" type="PluginDefinition"/>
-	<xs:complexType name="ForwardingConfiguration">
-		<xs:annotation>
-			<xs:documentation>Configures log forwarding</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="forwarder" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:element name="forward-to" type="ForwardingConfiguration"/>
-	<xs:complexType name="ForwarderDefinition">
-		<xs:complexContent>
-			<xs:extension base="LogCollectorDefinitionBase"/>
-		</xs:complexContent>
-	</xs:complexType>
-	<xs:element name="forwarder" type="ForwarderDefinition"/>
-	<xs:annotation>
-		<xs:documentation>Begin Source section</xs:documentation>
-	</xs:annotation>
-	<xs:complexType name="LogbusLoggerConfiguration">
-		<xs:annotation>
-			<xs:documentation>Configuration section for a Logbus source (element that generates and sends log messages)</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="collector" maxOccurs="unbounded"/>
-			<xs:element ref="logger" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-		<xs:attribute name="default-logger-type" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>Strong-name of default class implementing ILog</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="default-collector" use="required">
-			<xs:annotation>
-				<xs:documentation>Default collector to use when not specified</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="default-heartbeat-interval" type="xs:int" use="optional" default="0">
-			<xs:annotation>
-				<xs:documentation>Default hartbeat interval in seconds. If not specified, heartbeat is disabled</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-	<xs:element name="logbus-logger" type="LogbusLoggerConfiguration"/>
-	<xs:complexType name="LoggerDefinition">
-		<xs:complexContent>
-			<xs:extension base="TypeAndParamBase">
-				<xs:attribute ref="name" use="required">
-					<xs:annotation>
-						<xs:documentation>Unique ID of logger</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-				<xs:attribute name="collector-id" type="xs:string" use="required">
-					<xs:annotation>
-						<xs:documentation>ID of collector to use for this logger</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-				<xs:attribute name="heartbeat-interval" type="xs:int" use="optional" default="0">
-					<xs:annotation>
-						<xs:documentation>Heartbeat interval, in seconds. If not specified, heartbeating is disabled</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-				<xs:attribute name="permanent" type="xs:boolean" default="false"/>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-	<xs:element name="logger" type="LoggerDefinition"/>
-	<xs:complexType name="LogbusCollectorDefinition">
-		<xs:complexContent>
-			<xs:extension base="LogCollectorDefinitionBase">
-				<xs:attribute name="id" type="xs:string" use="required">
-					<xs:annotation>
-						<xs:documentation>Name of collector. Must be unique</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-	<xs:element name="collector" type="LogbusCollectorDefinition"/>
-	<xs:annotation>
-		<xs:documentation>Begin Client section</xs:documentation>
-	</xs:annotation>
-	<xs:complexType name="LogbusClientConfiguration">
-		<xs:annotation>
-			<xs:documentation>Configuration section for a Logbus client (element that receives log messages from subscribed channel[s])</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element ref="endpoint"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:element name="logbus-client" type="LogbusClientConfiguration"/>
-	<xs:complexType name="LogbusEndpointDefinition">
-		<xs:annotation>
-			<xs:documentation>Defines the location of a Logbus endpoint for channel management and subscription</xs:documentation>
-		</xs:annotation>
-		<xs:attribute name="subscriptionUrl" type="UrlType" use="required"/>
-		<xs:attribute name="managementUrl" type="UrlType" use="required"/>
-	</xs:complexType>
-	<xs:element name="endpoint" type="LogbusEndpointDefinition"/>
-	<xs:simpleType name="UrlType">
-		<xs:restriction base="xs:anyURI">
-			<xs:pattern value="http://.*"/>
-		</xs:restriction>
-	</xs:simpleType>
-	<xs:attribute name="url" type="UrlType"/>
+  <xs:import namespace="http://www.dis.unina.it/logbus-ng/filters" schemaLocation="logbus-filter.xsd" />
+  <xs:annotation>
+    <xs:documentation>Begin common section</xs:documentation>
+  </xs:annotation>
+  <xs:complexType name="KeyValuePair">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Basic and language-idependent definition of KVP
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute ref="name" use="required" />
+    <xs:attribute ref="value" use="optional" />
+  </xs:complexType>
+  <xs:element name="param" type="KeyValuePair">
+    <xs:annotation>
+      <xs:documentation>Holds a KVP</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:attribute name="type" type="ClassType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="name" type="xs:string" />
+  <xs:attribute name="value" type="xs:string" />
+  <xs:attribute name="default" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation>
+        Marks if the entity is to be considered default or not
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:complexType name="TypeAndParamBase" abstract="true">
+    <xs:sequence>
+      <xs:element ref="param" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute ref="type" use="optional" />
+  </xs:complexType>
+  <xs:simpleType name="ClassType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-zA-Z0-9]{1}[a-zA-Z0-9_.]+(, [a-zA-Z0-9]{1}[a-zA-Z0-9_.]+)?(, Culture=[a-zA-Z-]*)?(, PublicKeyToken=[0-9a-fA-F]{16})?" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LogCollectorDefinitionBase" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Defines a connector object to Logbus
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="TypeAndParamBase">
+        <xs:sequence>
+          <xs:element ref="param" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute ref="type" use="required" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:annotation>
+    <xs:documentation>Begin core section</xs:documentation>
+  </xs:annotation>
+  <xs:complexType name="LogbusCoreConfiguration" abstract="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Main type for Logbus configuration, bound to IConfigurationSectionHandler
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="in-channels" minOccurs="0" />
+      <xs:element ref="custom-filters" minOccurs="0" />
+      <xs:element ref="out-transports" minOccurs="0" />
+      <xs:element ref="core-filter" minOccurs="0" />
+      <xs:element ref="plugins" minOccurs="0" />
+      <xs:element ref="forward-to" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute ref="outChannelFactoryType" />
+  </xs:complexType>
+  <xs:element name="core-filter" type="filter:FilterBase" nillable="true" />
+  <xs:element name="logbus-core" type="LogbusCoreConfiguration">
+    <xs:annotation>
+      <xs:appinfo>
+        <keepNamespaceDeclarations>xmlns</keepNamespaceDeclarations>
+      </xs:appinfo>
+      <xs:documentation xml:lang="en">
+        Main element for Logbus configuration
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="InboundChannelsConfiguration" abstract="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Configures Inbound channels
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="in-channel" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="in-channels" type="InboundChannelsConfiguration" abstract="false" nillable="true" />
+  <xs:complexType name="InboundChannelDefinition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Defines an Inbound channels by type and properties
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="TypeAndParamBase">
+        <xs:sequence>
+          <xs:element ref="param" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute ref="type" use="required" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="in-channel" type="InboundChannelDefinition" />
+  <xs:complexType name="CustomFiltersConfiguration">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Configure Custom Filters
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="custom-filter" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CustomFilterDefinition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Defines a Custom Filter by type
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute ref="name" use="required" />
+    <xs:attribute ref="description" use="optional" />
+    <xs:attribute ref="type" use="required" />
+  </xs:complexType>
+  <xs:element name="custom-filters" type="CustomFiltersConfiguration" />
+  <xs:element name="custom-filter" type="CustomFilterDefinition" />
+  <xs:attribute name="description" type="xs:string" />
+  <xs:complexType name="AssemblyToScan">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Defines an assembly to scan for required types (they must be marked with appropriate attributes)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute ref="assembly" use="required" />
+    <xs:attribute ref="codebase" use="optional" />
+  </xs:complexType>
+  <xs:attribute name="assembly" type="xs:string" />
+  <xs:attribute name="codebase" type="xs:string" />
+  <xs:element name="scan-assembly" type="AssemblyToScan" />
+  <xs:complexType name="OutputTransportsConfiguration">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Configures Outbound Transports
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="scan-assembly" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="out-transport" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute ref="factory" use="optional" />
+  </xs:complexType>
+  <xs:attribute name="factory" type="xs:string" />
+  <xs:element name="out-transports" type="OutputTransportsConfiguration" />
+  <xs:complexType name="OutputTransportDefinition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Defines an Outbound Transport
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute ref="tag" use="required" />
+    <xs:attribute ref="factory" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Must be a fully-qualified type in the form "Namespace.Type, FullyQualifiedAssemblyName"
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:attribute name="tag" type="xs:string" />
+  <xs:element name="out-transport" type="OutputTransportDefinition" />
+  <xs:attribute name="outChannelFactoryType" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        .NET Type to use for creating Outbound Channel (must implement IOutboundChannelFactory)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:complexType name="PluginConfiguration">
+    <xs:annotation>
+      <xs:documentation>
+        Configure Logbus-ng core plugins
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="plugin" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="plugins" type="PluginConfiguration" />
+  <xs:complexType name="PluginDefinition">
+    <xs:annotation>
+      <xs:documentation>
+        Defines a single plugin
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute ref="type" />
+  </xs:complexType>
+  <xs:element name="plugin" type="PluginDefinition" />
+  <xs:complexType name="ForwardingConfiguration">
+    <xs:annotation>
+      <xs:documentation>
+        Configures log forwarding
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="forwarder" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="forward-to" type="ForwardingConfiguration" />
+  <xs:complexType name="ForwarderDefinition">
+    <xs:complexContent>
+      <xs:extension base="LogCollectorDefinitionBase" />
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="forwarder" type="ForwarderDefinition" />
+  <xs:annotation>
+    <xs:documentation>Begin Source section</xs:documentation>
+  </xs:annotation>
+  <xs:complexType name="LogbusLoggerConfiguration">
+    <xs:annotation>
+      <xs:documentation>
+        Configuration section for a Logbus source (element that generates and sends log messages)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="collector" maxOccurs="unbounded" />
+      <xs:element ref="logger" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="default-logger-type" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Strong-name of default class implementing ILog
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="default-collector" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Default collector to use when not specified
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="default-heartbeat-interval" type="xs:int" use="optional" default="0">
+      <xs:annotation>
+        <xs:documentation>
+          Default hartbeat interval in seconds. If not specified, heartbeat is disabled
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:element name="logbus-logger" type="LogbusLoggerConfiguration" />
+  <xs:complexType name="LoggerDefinition">
+    <xs:complexContent>
+      <xs:extension base="TypeAndParamBase">
+        <xs:attribute ref="name" use="required">
+          <xs:annotation>
+            <xs:documentation>Unique ID of logger</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="collector-id" type="xs:string" use="required">
+          <xs:annotation>
+            <xs:documentation>
+              ID of collector to use for this logger
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="heartbeat-interval" type="xs:int" use="optional" default="0">
+          <xs:annotation>
+            <xs:documentation>
+              Heartbeat interval, in seconds. If not specified, heartbeating is disabled
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="permanent" type="xs:boolean" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="logger" type="LoggerDefinition" />
+  <xs:complexType name="LogbusCollectorDefinition">
+    <xs:complexContent>
+      <xs:extension base="LogCollectorDefinitionBase">
+        <xs:attribute name="id" type="xs:string" use="required">
+          <xs:annotation>
+            <xs:documentation>
+              Name of collector. Must be unique
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="collector" type="LogbusCollectorDefinition" />
+  <xs:annotation>
+    <xs:documentation>Begin Client section</xs:documentation>
+  </xs:annotation>
+  <xs:complexType name="LogbusClientConfiguration">
+    <xs:annotation>
+      <xs:documentation>
+        Configuration section for a Logbus client (element that receives log messages from subscribed channel[s])
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="endpoint" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="logbus-client" type="LogbusClientConfiguration" />
+  <xs:complexType name="LogbusEndpointDefinition">
+    <xs:annotation>
+      <xs:documentation>
+        Defines the location of a Logbus endpoint for channel management and subscription
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="subscriptionUrl" type="UrlType" use="required" />
+    <xs:attribute name="managementUrl" type="UrlType" use="required" />
+  </xs:complexType>
+  <xs:element name="endpoint" type="LogbusEndpointDefinition" />
+  <xs:simpleType name="UrlType">
+    <xs:restriction base="xs:anyURI">
+      <xs:pattern value="http://.*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attribute name="url" type="UrlType" />
 </xs:schema>

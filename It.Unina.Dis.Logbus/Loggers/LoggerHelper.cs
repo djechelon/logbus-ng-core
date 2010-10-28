@@ -17,12 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using It.Unina.Dis.Logbus.Collectors;
 using It.Unina.Dis.Logbus.Configuration;
-using System;
 using It.Unina.Dis.Logbus.InChannels;
-using System.Collections.Generic;
 
 namespace It.Unina.Dis.Logbus.Loggers
 {
@@ -38,7 +38,9 @@ namespace It.Unina.Dis.Logbus.Loggers
             {
                 Configuration = ConfigurationHelper.SourceConfiguration;
             }
-            catch (LogbusConfigurationException) { }
+            catch (LogbusConfigurationException)
+            {
+            }
         }
 
         private static Dictionary<string, ILogger> _loggers;
@@ -46,16 +48,13 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <summary>
         /// Gets or sets global source configuration
         /// </summary>
-        public static LogbusLoggerConfiguration Configuration
-        {
-            get;
-            set;
-        }
+        public static LogbusLoggerConfiguration Configuration { get; set; }
 
         private static LoggerDefinition GetDefinition(string loggerName)
         {
             if (Configuration == null) throw new InvalidOperationException("No configuration specified");
-            if (Configuration.logger == null) throw new InvalidOperationException("No logger specified in configuration");
+            if (Configuration.logger == null)
+                throw new InvalidOperationException("No logger specified in configuration");
 
             foreach (LoggerDefinition def in Configuration.logger)
             {
@@ -73,7 +72,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             try
             {
-                Type loggerType = typeof(SimpleLogImpl);
+                Type loggerType = typeof (SimpleLogImpl);
                 if (Configuration != null)
                 {
                     if (!string.IsNullOrEmpty(Configuration.defaultloggertype))
@@ -84,11 +83,11 @@ namespace It.Unina.Dis.Logbus.Loggers
                         {
                             //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.Loggers namespace
                             const string namespc = "It.Unina.Dis.Logbus.Loggers";
-                            string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
+                            string assemblyname = typeof (LoggerHelper).Assembly.GetName().ToString();
                             typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                         }
                         loggerType = Type.GetType(typename);
-                        if (!typeof(ILogger).IsAssignableFrom(loggerType))
+                        if (!typeof (ILogger).IsAssignableFrom(loggerType))
                         {
                             LogbusConfigurationException ex =
                                 new LogbusConfigurationException(
@@ -119,7 +118,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             bool permanent = false;
             try
             {
-                Type loggerType = typeof(SimpleLogImpl);
+                Type loggerType = typeof (SimpleLogImpl);
                 if (Configuration != null)
                 {
                     string typename = Configuration.defaultloggertype;
@@ -130,8 +129,12 @@ namespace It.Unina.Dis.Logbus.Loggers
                         if (!string.IsNullOrEmpty(def.type)) typename = def.type;
                         permanent = def.permanent;
                     }
-                    catch (LogbusException) { }
-                    catch (InvalidOperationException) { }
+                    catch (LogbusException)
+                    {
+                    }
+                    catch (InvalidOperationException)
+                    {
+                    }
 
                     if (!string.IsNullOrEmpty(typename))
                     {
@@ -139,11 +142,11 @@ namespace It.Unina.Dis.Logbus.Loggers
                         {
                             //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.Loggers namespace
                             const string namespc = "It.Unina.Dis.Logbus.Loggers";
-                            string assemblyname = typeof(LoggerHelper).Assembly.GetName().ToString();
+                            string assemblyname = typeof (LoggerHelper).Assembly.GetName().ToString();
                             typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
                         }
                         loggerType = Type.GetType(typename);
-                        if (!typeof(ILogger).IsAssignableFrom(loggerType))
+                        if (!typeof (ILogger).IsAssignableFrom(loggerType))
                         {
                             LogbusConfigurationException ex =
                                 new LogbusConfigurationException(
@@ -153,13 +156,13 @@ namespace It.Unina.Dis.Logbus.Loggers
                         }
                     }
                 }
-                ILogger ret = (ILogger)Activator.CreateInstance(loggerType);
+                ILogger ret = (ILogger) Activator.CreateInstance(loggerType);
                 ret.LogName = loggerName;
 
                 //Let's see if the collector name is well-known
                 try
                 {
-                    WellKnownLogger knownLogger = (WellKnownLogger)Enum.Parse(typeof(WellKnownLogger), loggerName);
+                    WellKnownLogger knownLogger = (WellKnownLogger) Enum.Parse(typeof (WellKnownLogger), loggerName);
                     ret.HeartbeatInterval = 0;
                     switch (knownLogger)
                     {
@@ -180,7 +183,9 @@ namespace It.Unina.Dis.Logbus.Loggers
                             }
                     }
                 }
-                catch (ArgumentException) { }
+                catch (ArgumentException)
+                {
+                }
 
                 if (permanent) _loggers.Add(loggerName, ret);
                 return ret;
@@ -246,7 +251,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns></returns>
         public static ILog GetLogger(WellKnownLogger knownLogger)
         {
-            return GetLogger(Enum.GetName(typeof(WellKnownLogger), knownLogger));
+            return GetLogger(Enum.GetName(typeof (WellKnownLogger), knownLogger));
         }
 
         /// <summary>
@@ -390,7 +395,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog GetUnreliableLogger(IPAddress logbusIp, SyslogFacility facility)
         {
-            return GetLogger(facility, CollectorHelper.CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
+            return GetLogger(facility,
+                             CollectorHelper.CreateUnreliableCollector(logbusIp, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -401,7 +407,8 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <returns>An ILog, to which clients only submit text part of message, and severity is chosen by the invoked method</returns>
         public static ILog GetUnreliableLogger(string logbusHost, SyslogFacility facility)
         {
-            return GetLogger(facility, CollectorHelper.CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
+            return GetLogger(facility,
+                             CollectorHelper.CreateUnreliableCollector(logbusHost, SyslogUdpReceiver.DEFAULT_PORT));
         }
 
         /// <summary>
@@ -448,7 +455,5 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             return GetLogger(loggerName);
         }
-
-
     }
 }

@@ -17,39 +17,45 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+using It.Unina.Dis.Logbus.Configuration;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CustomFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PropertyFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(FacilityEqualsFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SeverityFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageRegexMatchFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageRegexNotMatchFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(FalseFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TrueFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(NotFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(OrFilter))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AndFilter))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("filter", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public abstract partial class FilterBase : It.Unina.Dis.Logbus.Configuration.XmlnsSupport, System.ComponentModel.INotifyPropertyChanged, IFilter
+    [XmlInclude(typeof (CustomFilter))]
+    [XmlInclude(typeof (PropertyFilter))]
+    [XmlInclude(typeof (FacilityEqualsFilter))]
+    [XmlInclude(typeof (SeverityFilter))]
+    [XmlInclude(typeof (MessageRegexMatchFilter))]
+    [XmlInclude(typeof (MessageRegexNotMatchFilter))]
+    [XmlInclude(typeof (FalseFilter))]
+    [XmlInclude(typeof (TrueFilter))]
+    [XmlInclude(typeof (NotFilter))]
+    [XmlInclude(typeof (OrFilter))]
+    [XmlInclude(typeof (AndFilter))]
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("filter", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public abstract class FilterBase : XmlnsSupport, INotifyPropertyChanged, IFilter
     {
-
         /// <remarks/>
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <remarks/>
         protected void RaisePropertyChanged(string propertyName)
         {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            PropertyChangedEventHandler propertyChanged = PropertyChanged;
             if ((propertyChanged != null))
             {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -69,8 +75,8 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <returns>A new instance of a <see cref="It.Unina.Dis.Logbus.Filters.NotFilter"/> that negates output of previous filter</returns>
         public static FilterBase operator !(FilterBase filter)
         {
-            if (filter == null) throw new System.ArgumentNullException("filter");
-            return new NotFilter() { filter = filter };
+            if (filter == null) throw new ArgumentNullException("filter");
+            return new NotFilter {filter = filter};
         }
 
         /// <summary>
@@ -84,19 +90,19 @@ namespace It.Unina.Dis.Logbus.Filters
         /// does never affect the final result of message processing</remarks>
         public static FilterBase operator |(FilterBase a, FilterBase b)
         {
-            if (a == null) throw new System.ArgumentNullException("a");
-            if (b == null) throw new System.ArgumentNullException("b");
+            if (a == null) throw new ArgumentNullException("a");
+            if (b == null) throw new ArgumentNullException("b");
 
             FilterBase[] a_array = null, b_array = null;
 
-            a_array = (a is OrFilter) ? ((OrFilter)a).filter : new FilterBase[] { a };
-            b_array = (b is OrFilter) ? ((OrFilter)b).filter : new FilterBase[] { b };
+            a_array = (a is OrFilter) ? ((OrFilter) a).filter : new[] {a};
+            b_array = (b is OrFilter) ? ((OrFilter) b).filter : new[] {b};
 
             FilterBase[] final_array = new FilterBase[a_array.Length + b_array.Length];
-            System.Array.Copy(a_array, 0, final_array, 0, a_array.Length);
-            System.Array.Copy(b_array, 0, final_array, a_array.Length, b_array.Length);
+            Array.Copy(a_array, 0, final_array, 0, a_array.Length);
+            Array.Copy(b_array, 0, final_array, a_array.Length, b_array.Length);
 
-            return new OrFilter() { filter = final_array };
+            return new OrFilter {filter = final_array};
         }
 
         /// <summary>
@@ -110,19 +116,19 @@ namespace It.Unina.Dis.Logbus.Filters
         /// does never affect the final result of message processing</remarks>
         public static FilterBase operator &(FilterBase a, FilterBase b)
         {
-            if (a == null) throw new System.ArgumentNullException("a");
-            if (b == null) throw new System.ArgumentNullException("b");
+            if (a == null) throw new ArgumentNullException("a");
+            if (b == null) throw new ArgumentNullException("b");
 
             FilterBase[] a_array = null, b_array = null;
 
-            a_array = (a is AndFilter) ? ((AndFilter)a).filter : new FilterBase[] { a };
-            b_array = (b is AndFilter) ? ((AndFilter)b).filter : new FilterBase[] { b };
+            a_array = (a is AndFilter) ? ((AndFilter) a).filter : new[] {a};
+            b_array = (b is AndFilter) ? ((AndFilter) b).filter : new[] {b};
 
             FilterBase[] final_array = new FilterBase[a_array.Length + b_array.Length];
-            System.Array.Copy(a_array, 0, final_array, 0, a_array.Length);
-            System.Array.Copy(b_array, 0, final_array, a_array.Length, b_array.Length);
+            Array.Copy(a_array, 0, final_array, 0, a_array.Length);
+            Array.Copy(b_array, 0, final_array, a_array.Length, b_array.Length);
 
-            return new AndFilter() { filter = final_array };
+            return new AndFilter {filter = final_array};
         }
     }
 }

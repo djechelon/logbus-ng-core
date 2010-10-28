@@ -18,28 +18,33 @@
 */
 
 using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Filters
 {
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageRegexNotMatchFilter))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
-    [System.Xml.Serialization.XmlRootAttribute("MessageRegexMatch", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
-    public partial class MessageRegexMatchFilter : FilterBase
+    [XmlInclude(typeof (MessageRegexNotMatchFilter))]
+    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
+    [XmlRoot("MessageRegexMatch", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
+    public class MessageRegexMatchFilter : FilterBase
     {
-
         /// <remarks/>
         public MessageRegexMatchFilter()
         {
-            this.PropertyChanged += MessageRegexMatchFilter_PropertyChanged;
+            PropertyChanged += MessageRegexMatchFilter_PropertyChanged;
         }
 
-        
-        private void MessageRegexMatchFilter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+
+        private void MessageRegexMatchFilter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             pattern_regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.Singleline);
         }
@@ -47,17 +52,14 @@ namespace It.Unina.Dis.Logbus.Filters
         private string patternField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string pattern
         {
-            get
-            {
-                return this.patternField;
-            }
+            get { return patternField; }
             set
             {
-                this.patternField = value;
-                this.RaisePropertyChanged("pattern");
+                patternField = value;
+                RaisePropertyChanged("pattern");
             }
         }
 

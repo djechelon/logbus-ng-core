@@ -17,13 +17,12 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.Loggers;
 using System;
-using log4net;
-using It.Unina.Dis.Logbus.RemoteLogbus;
 using System.Collections.Generic;
+using System.Threading;
+using log4net;
 using log4net.Core;
-using System.Globalization;
+
 namespace It.Unina.Dis.Logbus.log4net
 {
     /// <summary>
@@ -40,7 +39,7 @@ namespace It.Unina.Dis.Logbus.log4net
     {
         #region ILogCollector Membri di
 
-        private global::log4net.Core.ILogger logger;
+        private ILogger logger;
 
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
@@ -49,7 +48,7 @@ namespace It.Unina.Dis.Logbus.log4net
             LoggingEventData ld = new LoggingEventData();
             if (message.Timestamp != null) ld.TimeStamp = message.Timestamp.Value;
             ld.Message = message.Text;
-            ld.ThreadName = System.Threading.Thread.CurrentThread.Name;
+            ld.ThreadName = Thread.CurrentThread.Name;
 
             switch (message.Severity)
             {
@@ -101,7 +100,7 @@ namespace It.Unina.Dis.Logbus.log4net
             {
                 logger.Log(le);
             }
-            catch (global::log4net.Core.LogException ex)
+            catch (LogException ex)
             {
                 throw new LogbusException("Unable to log", ex);
             }
@@ -145,13 +144,13 @@ namespace It.Unina.Dis.Logbus.log4net
             }
         }
 
-        System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> IConfigurable.Configuration
+        IEnumerable<KeyValuePair<string, string>> IConfigurable.Configuration
         {
             set
             {
                 foreach (KeyValuePair<string, string> kvp in value)
                 {
-                    ((IConfigurable)this).SetConfigurationParameter(kvp.Key, kvp.Value);
+                    ((IConfigurable) this).SetConfigurationParameter(kvp.Key, kvp.Value);
                 }
             }
         }

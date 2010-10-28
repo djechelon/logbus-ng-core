@@ -35,7 +35,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// <param name="channel">Channel to which the client is subscribing</param>
         /// <param name="transport">Transport chosen by client</param>
         /// <param name="instructions">Instructions provided by client to the transport</param>
-        public ClientSubscribingEventArgs(IOutboundChannel channel, string transport, IEnumerable<KeyValuePair<string, string>> instructions)
+        public ClientSubscribingEventArgs(IOutboundChannel channel, string transport,
+                                          IEnumerable<KeyValuePair<string, string>> instructions)
             : base(channel, transport, instructions)
         {
         }
@@ -43,12 +44,18 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// <summary>
         /// Whether the subscription will be canceled or not
         /// </summary>
-        public bool Cancel { get { return _reasons == null; } }
+        public bool Cancel
+        {
+            get { return _reasons == null; }
+        }
 
         /// <summary>
         /// List of reasons provided by handlers to cancel the subscription
         /// </summary>
-        public string[] ReasonForCanceling { get { return (_reasons == null) ? null : _reasons.ToArray(); } }
+        public string[] ReasonForCanceling
+        {
+            get { return (_reasons == null) ? null : _reasons.ToArray(); }
+        }
 
         /// <summary>
         /// Requests to cancel the subscription of the client by specifying a textual motivation

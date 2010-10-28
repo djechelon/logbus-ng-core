@@ -25,7 +25,6 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// <remarks>The interface reminds the log4net.ILog interface</remarks>
     public interface ILog
     {
-
         /// <summary>
         /// Symbolic name of log
         /// </summary>
@@ -51,7 +50,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Debug(string format, params  object[] args);
+        void Debug(string format, params object[] args);
 
         /// <summary>
         /// Logs an informational message
@@ -68,7 +67,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Info(string format, params  object[] args);
+        void Info(string format, params object[] args);
 
         /// <summary>
         /// Logs a notice message
@@ -85,7 +84,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Notice(string format, params  object[] args);
+        void Notice(string format, params object[] args);
 
         /// <summary>
         /// Logs a warning message
@@ -102,7 +101,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Warning(string format, params  object[] args);
+        void Warning(string format, params object[] args);
 
         /// <summary>
         /// Logs an error message
@@ -119,7 +118,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Error(string format, params  object[] args);
+        void Error(string format, params object[] args);
 
         /// <summary>
         /// Logs a critical message
@@ -136,7 +135,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Critical(string format, params  object[] args);
+        void Critical(string format, params object[] args);
 
         /// <summary>
         /// Logs an alert message
@@ -152,7 +151,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Alert(string format, params  object[] args);
+        void Alert(string format, params object[] args);
 
         /// <summary>
         /// Logs an emergency message
@@ -169,6 +168,6 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// <exception cref="System.ArgumentNullException">format or args are null</exception>
         /// <exception cref="System.FormatException">Format is invalid</exception>
         /// <exception cref="It.Unina.Dis.Logbus.LogbusException">Error occurred during logging</exception>
-        void Emergency(string format, params  object[] args);
+        void Emergency(string format, params object[] args);
     }
 }

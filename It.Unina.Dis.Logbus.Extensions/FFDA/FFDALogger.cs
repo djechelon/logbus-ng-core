@@ -33,6 +33,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         : SimpleLogImpl, IInstrumentedLogger
     {
         #region Constructor/Destructor
+
         /// <summary>
         /// Initializes the FFDA logger with given Syslog facility and concrete logger
         /// </summary>
@@ -63,7 +64,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         public FFDALogger(ILogCollector target)
-            : this(SyslogFacility.Local0, target) { }
+            : this(SyslogFacility.Local0, target)
+        {
+        }
 
         /// <summary>
         /// Initializes the FFDA logger with the concrete underlying logger
@@ -71,14 +74,16 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         /// <param name="loggerName">Name of logger</param>
         public FFDALogger(ILogCollector target, string loggerName)
-            : this(SyslogFacility.Local0, target, loggerName) { }
+            : this(SyslogFacility.Local0, target, loggerName)
+        {
+        }
 
         ~FFDALogger()
         {
             Dispose(false);
         }
 
-        private volatile bool _disposed = false;
+        private volatile bool _disposed;
 
         public void Dispose()
         {
@@ -93,14 +98,16 @@ namespace It.Unina.Dis.Logbus.FFDA
 
             _disposed = true;
         }
+
         #endregion
 
         private string GetFlowId()
         {
             if (Flow != null)
             {
-                if (Flow is string) return (string)Flow;
-                if (Flow is decimal || Flow is int || Flow is float || Flow is double || Flow is long) return Flow.ToString();
+                if (Flow is string) return (string) Flow;
+                if (Flow is decimal || Flow is int || Flow is float || Flow is double || Flow is long)
+                    return Flow.ToString();
                 return Flow.GetHashCode().ToString(CultureInfo.InvariantCulture);
             }
             return Thread.CurrentThread.GetHashCode().ToString(CultureInfo.InvariantCulture);
@@ -123,7 +130,7 @@ namespace It.Unina.Dis.Logbus.FFDA
 
             IDictionary<string, string> origin = msg.Data["origin"];
             origin["software"] = "Logbus-ng-ffda-sharp";
-            origin["swVersion"] = typeof(FFDALogger).Assembly.GetName().Version.ToString(3);
+            origin["swVersion"] = typeof (FFDALogger).Assembly.GetName().Version.ToString(3);
 
             msg.MessageId = "FFDA";
         }

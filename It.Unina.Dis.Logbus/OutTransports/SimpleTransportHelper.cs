@@ -19,6 +19,8 @@
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using It.Unina.Dis.Logbus.Loggers;
+
 namespace It.Unina.Dis.Logbus.OutTransports
 {
     /// <summary>
@@ -27,7 +29,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
     internal class SimpleTransportHelper
         : Dictionary<string, IOutboundTransportFactory>, ITransportFactoryHelper, ILogSupport
     {
-
         #region ITransportFactoryHelper Membri di
 
         public SimpleTransportHelper()
@@ -63,17 +64,16 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         #endregion
 
-
         #region ILogSupport Membri di
 
-        Loggers.ILog ILogSupport.Log
+        ILog ILogSupport.Log
         {
             [MethodImpl(MethodImplOptions.Synchronized)]
             set
             {
                 foreach (IOutboundTransportFactory factory in Values)
                 {
-                    if (factory is ILogSupport) ((ILogSupport)factory).Log = value;
+                    if (factory is ILogSupport) ((ILogSupport) factory).Log = value;
                 }
             }
         }

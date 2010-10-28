@@ -17,18 +17,24 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [System.Xml.Serialization.XmlRootAttribute("out-transports", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public partial class OutputTransportsConfiguration
+    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [Serializable]
+    [DebuggerStepThrough]
+    [DesignerCategory("code")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlRoot("out-transports", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    public class OutputTransportsConfiguration
     {
-
         private AssemblyToScan[] scanassemblyField;
 
         private OutputTransportDefinition[] outtransportField;
@@ -36,45 +42,27 @@ namespace It.Unina.Dis.Logbus.Configuration
         private string factoryField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("scan-assembly")]
+        [XmlElement("scan-assembly")]
         public AssemblyToScan[] scanassembly
         {
-            get
-            {
-                return this.scanassemblyField;
-            }
-            set
-            {
-                this.scanassemblyField = value;
-            }
+            get { return scanassemblyField; }
+            set { scanassemblyField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("out-transport")]
+        [XmlElement("out-transport")]
         public OutputTransportDefinition[] outtransport
         {
-            get
-            {
-                return this.outtransportField;
-            }
-            set
-            {
-                this.outtransportField = value;
-            }
+            get { return outtransportField; }
+            set { outtransportField = value; }
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified)]
+        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
         public string factory
         {
-            get
-            {
-                return this.factoryField;
-            }
-            set
-            {
-                this.factoryField = value;
-            }
+            get { return factoryField; }
+            set { factoryField = value; }
         }
     }
 }

@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
@@ -25,11 +27,9 @@ namespace It.Unina.Dis.Logbus
     /// </summary>
     public interface ILogSource
     {
-
         /// <summary>
         /// A new message is available on the bus for retrieval and processing
         /// </summary>
-        event System.EventHandler<SyslogMessageEventArgs> MessageReceived;
-
+        event EventHandler<SyslogMessageEventArgs> MessageReceived;
     }
 }
