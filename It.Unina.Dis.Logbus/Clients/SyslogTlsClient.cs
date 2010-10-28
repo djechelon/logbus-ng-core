@@ -287,7 +287,8 @@ namespace It.Unina.Dis.Logbus.Clients
                     Log.Error("Error receiving Syslog messages from Logbus-ng server");
                     Log.Debug("Error details: {0}", ex.Message);
 
-                    Stop();
+                    new Thread(Stop).Start();
+                    return;
                 }
                 /*catch (FormatException) { Stop(); }
                 catch (SocketException) { Stop(); }
