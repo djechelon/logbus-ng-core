@@ -25,36 +25,31 @@ using System.Xml.Serialization;
 
 namespace It.Unina.Dis.Logbus.Entities
 {
-#if !MONO
     /// <remarks/>
-    [GeneratedCode("wsdl", "2.0.50727.3038")]
-    [WebServiceBinding(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-    [XmlInclude(typeof (LoggingEntityIdentifier))]
+#if !MONO
+    [GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
+    [WebServiceBindingAttribute(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+    [XmlIncludeAttribute(typeof(LoggingEntityIdentifier))]
 #endif
     public interface IEntityManagement
     {
-#if !MONO
+
         /// <remarks/>
-        [WebMethod]
-        [SoapDocumentMethod("urn:#GetLoggingEntities", Use = SoapBindingUse.Literal,
-            ParameterStyle = SoapParameterStyle.Bare)]
-        [return: XmlArray("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: XmlArrayItem("entity", IsNullable = false)]
+#if !MONO
+        [WebMethodAttribute()]
+        [SoapDocumentMethodAttribute("urn:#GetLoggingEntities", Use = SoapBindingUse.Literal, ParameterStyle = SoapParameterStyle.Bare)]
+        [return: XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+        [return: XmlArrayItemAttribute("entity", IsNullable = false)]
 #endif
         LoggingEntity[] GetLoggingEntities();
 
-#if !MONO
         /// <remarks/>
-        [WebMethod]
-        [SoapDocumentMethod("urn:#FindLoggingEntities", Use = SoapBindingUse.Literal,
-            ParameterStyle = SoapParameterStyle.Bare)]
-        [return: XmlArray("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: XmlArrayItem("entity", IsNullable = false)]
-        LoggingEntity[] FindLoggingEntities(
-            [XmlElement(Namespace = "http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query);
-#else
-    /// <remarks/>
-        LoggingEntity[] FindLoggingEntities(TemplateQuery query);
+#if !MONO
+        [WebMethodAttribute()]
+        [SoapDocumentMethodAttribute("urn:#FindLoggingEntities", Use = SoapBindingUse.Literal, ParameterStyle = SoapParameterStyle.Bare)]
+        [return: XmlArrayAttribute("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+        [return: XmlArrayItemAttribute("entity", IsNullable = false)]
 #endif
+        LoggingEntity[] FindLoggingEntities([XmlElementAttribute(Namespace = "http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query);
     }
 }
