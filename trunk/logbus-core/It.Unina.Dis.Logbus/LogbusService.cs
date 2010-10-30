@@ -31,6 +31,7 @@ using It.Unina.Dis.Logbus.OutTransports;
 using It.Unina.Dis.Logbus.RemoteLogbus;
 using It.Unina.Dis.Logbus.Utils;
 using KeyValuePair = It.Unina.Dis.Logbus.Configuration.KeyValuePair;
+using System.Reflection;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -120,6 +121,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Automatically configures Logbus using the App.Config or Web.config's XML configuration
         /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         /// <exception cref="System.InvalidOperationException">Logbus was already configured</exception>
         /// <exception cref="System.NotSupportedException">Empty configuration</exception>
         /// <exception cref="It.Unina.Dis.Logbus.Configuration.LogbusConfigurationException">Semantic error in configuration</exception>
@@ -149,7 +151,6 @@ namespace It.Unina.Dis.Logbus
                     {
                         //Try to instantiate
                         Type factoryType = Type.GetType(Configuration.outChannelFactoryType, true, false);
-
 
                         if (!factoryType.IsAssignableFrom(typeof(IOutboundChannelFactory)))
                         {
@@ -300,7 +301,7 @@ namespace It.Unina.Dis.Logbus
                     if (Configuration.outtransports.outtransport != null ||
                         Configuration.outtransports.scanassembly != null)
                         //Not yet implemented, not yet possible!
-                        throw new NotImplementedException();
+                        throw new NotImplementedException("Not yet supported");
                 }
 
                 //If not previously added, add default now
@@ -318,7 +319,41 @@ namespace It.Unina.Dis.Logbus
 
                 //Custom filters definition
                 if (Configuration.customfilters != null)
-                    throw new NotImplementedException();
+                {
+                    if (Configuration.customfilters.scanassembly != null)
+                        foreach (AssemblyToScan definition in Configuration.customfilters.scanassembly)
+                        {
+                            if (string.IsNullOrEmpty(definition.assembly))
+                                throw new LogbusConfigurationException(
+                                    "Empty assembly name: cannot scan for custom filters");
+
+                            Assembly toScan;
+                            try
+                            {
+                                toScan = Assembly.Load(definition.assembly);
+                            }
+                            catch (Exception ex)
+                            {
+                                //Try with code base
+                                try
+                                {
+                                    toScan = Assembly.LoadFile(definition.codebase);
+                                }
+                                catch
+                                {
+                                    throw new LogbusConfigurationException("Unable to scan assembly {0} for custom filters", ex);
+                                }
+                            }
+                            CustomFilterHelper.Instance.ScanAssemblyAndRegister(toScan);
+                        }
+                    if (Configuration.customfilters.customfilter != null)
+                    {
+                        foreach (CustomFilterDefinition definition in Configuration.customfilters.customfilter)
+                        {
+                            CustomFilterHelper.Instance.RegisterCustomFilter(definition.name, definition.type, definition.description);
+                        }
+                    }
+                }
 
                 //Forwarding configuration
                 if (Configuration.forwardto != null && Configuration.forwardto.Length > 0)
@@ -1456,6 +1491,7 @@ namespace It.Unina.Dis.Logbus
             //Loop until end
             try
             {
+                uint consecutiveFailsEvent = 0, consecutiveFailsChan = 0; //I don't care about overflowing
                 do
                 {
                     //Get message
@@ -1465,12 +1501,23 @@ namespace It.Unina.Dis.Logbus
                     if (!MainFilter.IsMatch(newMessage)) continue;
 
                     //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                    try
-                    {
-                        if (MessageReceived != null)
+                    if (MessageReceived != null)
+                        try
+                        {
                             MessageReceived(this, new SyslogMessageEventArgs(newMessage));
-                    }
-                    catch { }
+                            consecutiveFailsEvent = 0;
+                        }
+                        catch (Exception ex)
+                        {
+                            consecutiveFailsEvent++;
+                            if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+
+                            if (consecutiveFailsEvent < 5) //Avoiding a potential infinite loop if a permanent error is present in the target
+                            {
+                                Log.Error("Unable to forward a log message to event listeners");
+                                Log.Debug("Error details: {0}", ex.Message);
+                            }
+                        }
 
 
                     //Deliver to channels
@@ -1484,7 +1531,22 @@ namespace It.Unina.Dis.Logbus
                             {
                                 //Idea for the future: use Thread Pool to asynchronously deliver messages
                                 //Could lead to a threading disaster in case of large rates of messages
-                                chan.SubmitMessage(newMessage);
+                                try
+                                {
+                                    chan.SubmitMessage(newMessage);
+                                }
+                                catch (Exception ex)
+                                {
+                                    consecutiveFailsChan++;
+                                    if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+
+                                    if (consecutiveFailsChan < 5) //Avoiding a potential infinite loop if a permanent error is present in the target
+                                    {
+                                        Log.Error("Unable to forward a log message to event listeners");
+                                        Log.Debug("Error details: {0}", ex.Message);
+                                    }
+                                }
+                                consecutiveFailsChan = 0;
                             }
                         }
                         finally
@@ -1506,8 +1568,18 @@ namespace It.Unina.Dis.Logbus
                 IEnumerable<SyslogMessage> leftMessages = localQueue.Flush();
                 foreach (SyslogMessage msg in leftMessages)
                 {
+                    if (!MainFilter.IsMatch(msg)) continue;
+
                     //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                    if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
+                    if (MessageReceived != null)
+                        try
+                        {
+                            MessageReceived(this, new SyslogMessageEventArgs(msg));
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+                        }
 
                     //Deliver to channels
                     //Theorically, it's as faster as channels can do
@@ -1516,7 +1588,14 @@ namespace It.Unina.Dis.Logbus
                         {
                             //Idea for the future: use Thread Pool to asynchronously deliver messages
                             //Could lead to a threading disaster in case of large rates of messages
-                            chan.SubmitMessage(msg);
+                            try
+                            {
+                                chan.SubmitMessage(msg);
+                            }
+                            catch (Exception ex)
+                            {
+                                if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+                            }
                         }
                 }
             }
@@ -1526,17 +1605,32 @@ namespace It.Unina.Dis.Logbus
         {
             try
             {
+                uint consecutiveFails = 0;
                 do
                 {
                     //Get message
                     SyslogMessage newMessage = ForwardingQueue.Dequeue();
 
-                    Forwarder.SubmitMessage(newMessage);
+                    try
+                    {
+                        Forwarder.SubmitMessage(newMessage);
+                        consecutiveFails = 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        consecutiveFails++;
+                        if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+
+                        if (consecutiveFails < 5) //Avoiding a potential infinite loop if a permanent error is present in the logger
+                        {
+                            Log.Error("Unable to forward a log message");
+                            Log.Debug("Error details: {0}", ex.Message);
+                        }
+                    }
+
                 } while (!_hubThreadStop);
             }
-            catch (ThreadInterruptedException)
-            {
-            }
+            catch (ThreadInterruptedException) { }
         }
 
         private ILog Log { get; set; }

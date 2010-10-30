@@ -173,6 +173,25 @@ namespace It.Unina.Dis.Logbus.Filters
         }
 
         /// <summary>
+        /// Constructs a filter for the given tag but with no properties
+        /// </summary>
+        /// <param name="tag">Unique tag of filter</param>
+        /// <returns>A new instance of the requested custom filter</returns>
+        public IFilter BuildFilter(string tag)
+        {
+            if (string.IsNullOrEmpty(tag)) throw new ArgumentNullException("tag");
+
+            if (!_registeredTypes.ContainsKey(tag))
+            {
+                throw new LogbusException(string.Format("No filter registered for tag {0}", tag));
+            }
+
+            Type filterType = Type.GetType(_registeredTypes[tag]);
+            IFilter ret = Activator.CreateInstance(filterType) as IFilter;
+            return ret;
+        }
+
+        /// <summary>
         /// Constructs a filter for the given tag and with the given properties
         /// </summary>
         /// <param name="tag">Unique tag of filter</param>
