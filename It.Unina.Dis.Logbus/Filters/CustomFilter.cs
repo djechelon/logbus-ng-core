@@ -47,7 +47,25 @@ namespace It.Unina.Dis.Logbus.Filters
         private void CustomFilter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             //Reset filter implementation, so next time the IsMatch is invoked it must be rebuilt
-            filter_impl = null;
+            _configured = false;
+
+            if (e.PropertyName == "name")
+            {
+                _filterImpl = null;
+
+                if (!string.IsNullOrEmpty(name))
+                {
+                    _filterImpl = CustomFilterHelper.Instance.BuildFilter(name);
+                    _configured = false;
+                }
+            }
+
+            if (e.PropertyName == "parameter" && _filterImpl != null)
+            {
+                if (_filterImpl is ICustomFilter)
+                    ((ICustomFilter)_filterImpl).Configuration = parameter;
+                _configured = true;
+            }
         }
 
         /// <remarks/>
@@ -74,16 +92,27 @@ namespace It.Unina.Dis.Logbus.Filters
             }
         }
 
-        private IFilter filter_impl;
+        private IFilter _filterImpl;
+        private volatile bool _configured;
 
         /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
-            if (filter_impl == null)
-            {
-                filter_impl = CustomFilterHelper.Instance.BuildFilter(name, parameter);
-            }
-            return filter_impl.IsMatch(message);
+            if (_filterImpl == null)
+                throw new LogbusException("Custom filter is not configured with a filter instance");
+
+            if (!_configured)
+                lock (_filterImpl)
+                {
+                    if (!_configured)
+                    {
+                        if (_filterImpl is ICustomFilter)
+                            ((ICustomFilter)_filterImpl).Configuration = parameter;
+                        _configured = true;
+                    }
+                }
+
+            return _filterImpl.IsMatch(message);
         }
     }
 }
