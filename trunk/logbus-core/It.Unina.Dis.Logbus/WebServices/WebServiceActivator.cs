@@ -17,21 +17,18 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using System;
-using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
+using System;
+using System.Net;
+using System.Globalization;
+using It.Unina.Dis.Logbus.Wrappers;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.Services;
-using It.Unina.Dis.Logbus.Wrappers;
-
 #if MONO
 using Mono.WebServer;
 #endif
-
 namespace It.Unina.Dis.Logbus.WebServices
 {
     /// <summary>
@@ -41,15 +38,14 @@ namespace It.Unina.Dis.Logbus.WebServices
     public sealed class WebServiceActivator
     {
         private const string AsmxTemplate = @"<%@ WebService Language=""C#"" Class=""{0}"" %>",
-                             GlobalTemplate = @"<%@ Application Inherits=""{0}"" Language=""C#"" %>";
+            GlobalTemplate = @"<%@ Application Inherits=""{0}"" Language=""C#"" %>";
 
         #region Constructor
 
         /// <remarks/>
         private WebServiceActivator(ILogBus instance, int port)
         {
-            _target = instance;
-            _httpPort = port;
+            _target = instance; _httpPort = port;
         }
 
         /// <remarks/>
@@ -59,11 +55,8 @@ namespace It.Unina.Dis.Logbus.WebServices
             {
                 StopService();
             }
-            catch
-            {
-            }
+            catch { }
         }
-
         #endregion
 
         private static WebServiceActivator _instance;
@@ -71,7 +64,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         private readonly ILogBus _target;
         private readonly int _httpPort;
 #if MONO
-		private ApplicationServer _appserver;
+        private ApplicationServer _appserver;
 #else
         private HttpListenerController _ctr;
 #endif
@@ -82,44 +75,42 @@ namespace It.Unina.Dis.Logbus.WebServices
             string appPath = InstallRuntime();
 
 #if MONO
-			WebSource ws = new XSPWebSource (IPAddress.Any, _httpPort, true);
-			
-			_appserver = new ApplicationServer (ws, appPath) { SingleApplication = true };
-			_appserver.AddApplication (null, _httpPort, "/", appPath);
-			_appserver.Broker = new XSPRequestBroker();
-			_appserver.AppHost = new XSPApplicationHost();
-			
-			VPathToHost singleApp =_appserver.GetSingleApp();
-		
-			MarshalByRefObject wrapper = (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie (_target);
-			AppDomain targetDomain = _appserver.AppHost.Domain;
-			targetDomain.SetData ("Logbus", wrapper);
-			
-			foreach (IPlugin plugin in _target.Plugins) {
-				MarshalByRefObject pluginRoot = plugin.GetPluginRoot ();
-				if (pluginRoot != null)
-					targetDomain.SetData (plugin.Name, pluginRoot);
-			}
-			
-			_appserver.Start (true);
-#else
+            WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
 
-            string[] prefixes = new[] {string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort)};
+            _appserver = new ApplicationServer(ws, appPath);
+            _appserver.AddApplication(null, _httpPort, "/", appPath);
 
-            _ctr = new HttpListenerController(prefixes, "/", appPath);
+            _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
+            _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
+            _appserver.Start(true);
 
-            _ctr.Start();
-            //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
-            MarshalByRefObject wrapper = (_target is MarshalByRefObject)
-                                             ? (MarshalByRefObject) _target
-                                             : new LogBusTie(_target);
-            _ctr.Domain.SetData("Logbus", wrapper);
+            Console.WriteLine(_appserver.GetSingleApp());
+            Console.WriteLine(_appserver.GetSingleApp().AppHost);
+            Console.WriteLine(_appserver.GetSingleApp().AppHost.Domain);
+
+            AppDomain targetDomain = _appserver.AppHost.Domain;
+            targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
 
             foreach (IPlugin plugin in _target.Plugins)
             {
                 MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
-                if (pluginRoot != null)
-                    _ctr.Domain.SetData(plugin.Name, pluginRoot);
+                if (pluginRoot != null) targetDomain.SetData(plugin.Name, pluginRoot);
+            }
+#else
+
+            string[] prefixes = new string[] { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
+
+            _ctr = new HttpListenerController(prefixes, "/", appPath);
+
+            _ctr.Start();
+
+            //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
+            _ctr.Domain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+
+            foreach (IPlugin plugin in _target.Plugins)
+            {
+                MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
             }
 #endif
         }
@@ -127,7 +118,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         private void StopService()
         {
 #if MONO
-			_appserver.Stop ();
+            _appserver.Stop();
 #else
             _ctr.Stop();
 #endif
@@ -151,21 +142,15 @@ namespace It.Unina.Dis.Logbus.WebServices
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void Start(ILogBus service, int httpPort)
         {
-            if (_instance != null)
-                throw new NotSupportedException("Currently, only one instance is supported");
+            if (_instance != null) throw new NotSupportedException("Currently, only one instance is supported");
 
-            if (!HttpListener.IsSupported)
-                throw new PlatformNotSupportedException("This action is not supported on this platform");
+            if (!HttpListener.IsSupported) throw new PlatformNotSupportedException("This action is not supported on this platform");
             try
             {
                 _instance = new WebServiceActivator(service, httpPort);
                 _instance.StartService();
             }
-            catch (Exception)
-            {
-                _instance = null;
-                throw;
-            }
+            catch (Exception) { _instance = null; throw; }
         }
 
         /// <summary>
@@ -174,16 +159,12 @@ namespace It.Unina.Dis.Logbus.WebServices
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static void Stop()
         {
-            if (_instance == null)
-                throw new InvalidOperationException("Web service listener is not started");
+            if (_instance == null) throw new InvalidOperationException("Web service listener is not started");
             try
             {
                 _instance.StopService();
             }
-            finally
-            {
-                _instance = null;
-            }
+            finally { _instance = null; }
         }
 
         /// <summary>
@@ -197,8 +178,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             {
                 string dirname = Path.GetRandomFileName();
                 string fullpath = Path.Combine(Path.GetTempPath(), dirname);
-                if (File.Exists(fullpath))
-                    File.Delete(fullpath);
+                if (File.Exists(fullpath)) File.Delete(fullpath);
 
                 //Create temporary directory for ASP.NET
                 Directory.CreateDirectory(fullpath);
@@ -209,7 +189,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                 const string subFname = "LogbusSubscription.asmx";
                 {
                     string wsDeclaration = string.Format(AsmxTemplate,
-                                                         typeof (ChannelManagementService).AssemblyQualifiedName);
+                                                         typeof(ChannelManagementService).AssemblyQualifiedName);
 
                     using (
                         StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, mgmFname)),
@@ -219,7 +199,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
                 {
                     string wsDeclaration = string.Format(AsmxTemplate,
-                                                         typeof (ChannelSubscriptionService).AssemblyQualifiedName);
+                                                         typeof(ChannelSubscriptionService).AssemblyQualifiedName);
 
                     using (
                         StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, subFname)),
@@ -229,7 +209,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
                 {
                     string globalDeclaration = string.Format(GlobalTemplate,
-                                                             typeof (LogbusWebApplication).AssemblyQualifiedName);
+                                                             typeof(LogbusWebApplication).AssemblyQualifiedName);
                     using (
                         StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, "Global.asax")),
                                                            Encoding.Default))
@@ -241,8 +221,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                 {
                     //Deploy assembly too
                     string codebase = Assembly.GetExecutingAssembly().Location;
-                    if (!Directory.Exists(bindir))
-                        Directory.CreateDirectory(bindir);
+                    if (!Directory.Exists(bindir)) Directory.CreateDirectory(bindir);
                     File.Copy(codebase, Path.Combine(bindir, Path.GetFileName(codebase)));
                 }
 
@@ -256,7 +235,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                             if (def.SkeletonType == null)
                                 throw new LogbusException(string.Format("Plugin {0} declares empty skeleton type",
                                                                         plugin.Name));
-                            if (def.SkeletonType.IsAssignableFrom(typeof (WebService)))
+                            if (def.SkeletonType.IsAssignableFrom(typeof(System.Web.Services.WebService)))
                                 throw new LogbusException(
                                     string.Format("Plugin {0} does not declare a valid WSDL skeleton type", plugin.Name));
 
@@ -266,14 +245,14 @@ namespace It.Unina.Dis.Logbus.WebServices
 
                             if (!Regex.IsMatch(fname, @"^[a-zA-Z0-9_\.\-%]+$", RegexOptions.CultureInvariant))
                                 throw new LogbusException(string.Format(
-                                    "Plugin {0} declares invalid WSDL endpoint: {1}", plugin.Name, def.UrlFileName));
+                                    "Plugin {0} declares invalid WSDL endpoint: {1}",
+                                    plugin.Name, def.UrlFileName));
 
                             string wsDeclaration = string.Format(AsmxTemplate, def.SkeletonType.AssemblyQualifiedName);
 
                             using (
-                                StreamWriter sw =
-                                    new StreamWriter(File.Create(Path.Combine(_physicalPath, fname + ".asmx")),
-                                                     Encoding.Default))
+                                StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, fname + ".asmx")),
+                                                                   Encoding.Default))
                                 sw.Write(wsDeclaration);
 
                             //Copy skeleton asembly if needed
@@ -283,8 +262,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                             string codebase = def.SkeletonType.Assembly.Location;
                             string binpath = Path.Combine(bindir, Path.GetFileName(codebase));
 
-                            if (!File.Exists(binpath))
-                                File.Copy(codebase, binpath);
+                            if (!File.Exists(binpath)) File.Copy(codebase, binpath);
                         }
                 }
 

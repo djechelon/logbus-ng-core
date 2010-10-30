@@ -165,7 +165,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     //Just force a routing table lookup, we don't need more
                     UdpClient fakeClient = new UdpClient();
                     fakeClient.Connect(hostname, 65534);
-                    return ((IPEndPoint) fakeClient.Client.LocalEndPoint).Address;
+                    return ((IPEndPoint)fakeClient.Client.LocalEndPoint).Address;
                 }
                 catch
                 {
@@ -288,8 +288,13 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <param name="e">Event arguments</param>
         protected virtual void OnMessageReceived(SyslogMessageEventArgs e)
         {
-            if (MessageReceived != null)
-                MessageReceived(this, e);
+            try
+            {
+                if (MessageReceived != null)
+                    MessageReceived(this, e);
+            }
+            catch { }
+
         }
 
         /// <summary>
