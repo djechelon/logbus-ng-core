@@ -84,7 +84,7 @@ namespace It.Unina.Dis.Logbus
             Log = new SimpleLogImpl(SyslogFacility.Internally, this);
 
             //Init fresh queues
-            _currentQueue = COUNTER_TYPE.MinValue;
+            _currentQueue = int.MinValue;
             Queues = new IFifoQueue<SyslogMessage>[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
                 Queues[i] = new FastFifoQueue<SyslogMessage>(2048);
