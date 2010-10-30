@@ -128,7 +128,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (e.Cancel) return;
                 }
 
-                _workerThread = new Thread(RunnerLoop) {IsBackground = true};
+                _workerThread = new Thread(RunnerLoop) { IsBackground = true };
                 _workerThread.Start();
 
                 _running = true;
@@ -179,17 +179,29 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
         }
 
-        public IFilter Filter { [MethodImpl(MethodImplOptions.Synchronized)]
-        get; [MethodImpl(MethodImplOptions.Synchronized)]
-        set; }
+        public IFilter Filter
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get;
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set;
+        }
 
-        public ulong CoalescenceWindowMillis { [MethodImpl(MethodImplOptions.Synchronized)]
-        get; [MethodImpl(MethodImplOptions.Synchronized)]
-        set; }
+        public ulong CoalescenceWindowMillis
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get;
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set;
+        }
 
-        public ITransportFactoryHelper TransportFactoryHelper { [MethodImpl(MethodImplOptions.Synchronized)]
-        private get; [MethodImpl(MethodImplOptions.Synchronized)]
-        set; }
+        public ITransportFactoryHelper TransportFactoryHelper
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            private get;
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set;
+        }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public string SubscribeClient(string transportId, IEnumerable<KeyValuePair<string, string>> inputInstructions,
@@ -378,7 +390,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             }
             finally
             {
-                if (((IOutboundChannel) this).SubscribedClients == 0) _block = true;
+                if (((IOutboundChannel)this).SubscribedClients == 0) _block = true;
             }
         }
 
@@ -403,12 +415,18 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (!_withinCoalescenceWindow)
                         if (Filter.IsMatch(msg))
                         {
-                            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
+                            try
+                            {
+                                if (MessageReceived != null)
+                                    MessageReceived(this, new SyslogMessageEventArgs(msg));
+                            }
+                            catch { }
+
                             foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports)
                                 kvp.Value.SubmitMessage(msg);
                             if (CoalescenceWindowMillis > 0)
                             {
-                                _coalescenceTimer = new Timer(ResetCoalescence, null, (int) CoalescenceWindowMillis,
+                                _coalescenceTimer = new Timer(ResetCoalescence, null, (int)CoalescenceWindowMillis,
                                                               Timeout.Infinite);
                                 _withinCoalescenceWindow = true;
                             }

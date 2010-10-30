@@ -299,7 +299,13 @@ namespace It.Unina.Dis.Logbus.InChannels
         protected void ForwardMessage(SyslogMessage msg)
         {
             msg.AdjustTimestamp();
-            if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs(msg));
+            try
+            {
+                if (MessageReceived != null)
+                    MessageReceived(this, new SyslogMessageEventArgs(msg));
+            }
+            catch { }
+
         }
 
         /// <summary>

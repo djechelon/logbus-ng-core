@@ -17,9 +17,6 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-#if X64
-using COUNTER_TYPE = System.Int64;
-#else
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -27,8 +24,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using It.Unina.Dis.Logbus.Utils;
-using COUNTER_TYPE = System.Int32;
-#endif
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
@@ -62,7 +57,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private UdpClient _client;
         private IFifoQueue<byte[]>[] _byteQueues;
-        private COUNTER_TYPE _currentQueue;
+        private int _currentQueue;
         private bool _listen;
 
         /// <summary>
@@ -117,7 +112,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             _listenerThreads = new Thread[WORKER_THREADS];
             _parserThreads = new Thread[WORKER_THREADS];
             _byteQueues = new IFifoQueue<byte[]>[WORKER_THREADS];
-            _currentQueue = COUNTER_TYPE.MinValue;
+            _currentQueue = int.MinValue;
             for (int i = 0; i < WORKER_THREADS; i++)
             {
                 _byteQueues[i] = new FastFifoQueue<byte[]>(16384);
