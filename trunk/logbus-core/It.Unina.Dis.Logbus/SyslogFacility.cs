@@ -19,11 +19,16 @@
 
 //Credit http://www.codeproject.com/KB/IP/Syslogd.aspx
 
+using System;
+using System.Xml.Serialization;
+
 namespace It.Unina.Dis.Logbus
 {
     /// <summary>
     /// Syslog facility. The standard defines it as the entity that generated the Syslog message
     /// </summary>
+    [Serializable]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/filters")]
     public enum SyslogFacility : byte
     {
         /// <summary>

@@ -37,7 +37,7 @@ namespace It.Unina.Dis.Logbus.Filters
     {
         private ComparisonOperator comparisonField;
 
-        private Severity severityField;
+        private SyslogSeverity severityField;
 
         /// <remarks/>
         [XmlAttribute(Form = XmlSchemaForm.Qualified)]
@@ -53,7 +53,7 @@ namespace It.Unina.Dis.Logbus.Filters
 
         /// <remarks/>
         [XmlAttribute(Form = XmlSchemaForm.Qualified)]
-        public Severity severity
+        public SyslogSeverity severity
         {
             get { return severityField; }
             set

@@ -1,5 +1,12 @@
 ﻿Logbus-ng Change Log
 
+SVN trunk
+*Fixed a bug that made LogbusService crash because a channel was created with
+	a non-existing custom filter
+*Various bug fixes, including TLS client and transport
+*SyslogUdpListener can be configured with a custom UDP buffer size to help
+	prevent packet loss in some scenarios
+
 version 2.0
 *Major changes in Logger configuration:
 	*Loggers are distinguished by Collectors
