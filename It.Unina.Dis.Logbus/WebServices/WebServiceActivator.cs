@@ -82,13 +82,10 @@ namespace It.Unina.Dis.Logbus.WebServices
 
             _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
             _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
-            _appserver.Start(true);
-
-            Console.WriteLine(_appserver.GetSingleApp());
-            Console.WriteLine(_appserver.GetSingleApp().AppHost);
-            Console.WriteLine(_appserver.GetSingleApp().AppHost.Domain);
+            _appserver.GetSingleApp().AppHost.CreateHost(_appserver, ws);
 
             AppDomain targetDomain = _appserver.AppHost.Domain;
+
             targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
 
             foreach (IPlugin plugin in _target.Plugins)
@@ -96,6 +93,13 @@ namespace It.Unina.Dis.Logbus.WebServices
                 MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
                 if (pluginRoot != null) targetDomain.SetData(plugin.Name, pluginRoot);
             }
+
+            _appserver.Start(true);
+
+            Console.WriteLine(_appserver.GetSingleApp());
+            Console.WriteLine(_appserver.GetSingleApp().AppHost);
+            Console.WriteLine(_appserver.GetSingleApp().AppHost.Domain);
+            
 #else
 
             string[] prefixes = new string[] { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
