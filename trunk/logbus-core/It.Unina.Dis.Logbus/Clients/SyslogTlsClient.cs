@@ -111,6 +111,18 @@ namespace It.Unina.Dis.Logbus.Clients
                 if (arg.Cancel)
                     return;
 
+                bool supported = false;
+                foreach (string transport in ChannelSubscriber.GetAvailableTransports())
+                    if (transport=="tls")
+                    {
+                        supported = true;
+                        break;
+                    }
+                if (!supported)
+                    throw new NotSupportedException(
+                        "Remote Logbus-ng node does not support TLS protocol for delivery. You must use a different client");
+
+
                 int port;
                 //Decide on which address to listen
                 IPAddress localIp = GetIpAddress();
@@ -192,7 +204,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 Log.Error("Error starting TLS client");
                 Log.Debug("Error details: {0}", ex.Message);
 
-                throw new LogbusException("Unable to Subscribe Channel", ex);
+                throw new LogbusException("Unable to subscribe channel", ex);
             }
         }
 
@@ -242,7 +254,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 Log.Error("Error stopping TLS client");
                 Log.Debug("Error details: {0}", ex.Message);
                 if (ex is LogbusException) throw;
-                throw new LogbusException("Unable to Unsubscribe Channel", ex);
+                throw new LogbusException("Unable to unsubscribe channel", ex);
             }
         }
 
