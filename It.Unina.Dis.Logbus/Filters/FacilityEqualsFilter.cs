@@ -35,11 +35,11 @@ namespace It.Unina.Dis.Logbus.Filters
     [XmlRoot("FacilityEquals", Namespace = "http://www.dis.unina.it/logbus-ng/filters", IsNullable = false)]
     public class FacilityEqualsFilter : FilterBase
     {
-        private Facility facilityField;
+        private SyslogFacility facilityField;
 
         /// <remarks/>
         [XmlAttribute(Form = XmlSchemaForm.Qualified)]
-        public Facility facility
+        public SyslogFacility facility
         {
             get { return facilityField; }
             set
@@ -57,7 +57,7 @@ namespace It.Unina.Dis.Logbus.Filters
             //Comparison by name. We make it work!
             string msgname, filtername;
             msgname = Enum.GetName(typeof (SyslogFacility), message.Facility);
-            filtername = Enum.GetName(typeof (Facility), facility);
+            filtername = Enum.GetName(typeof (SyslogFacility), facility);
 
             return msgname.Equals(filtername);
         }

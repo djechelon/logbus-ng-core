@@ -34,7 +34,7 @@ namespace DemoWarningClient
             SeverityFilter warning_filter = new SeverityFilter()
             {
                 comparison = ComparisonOperator.geq,
-                severity = Severity.Warning
+                severity = SyslogSeverity.Warning
             };
 
             Console.WriteLine("This program is going to listen for all messages with severity >= Warning.");

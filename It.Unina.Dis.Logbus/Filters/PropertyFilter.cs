@@ -64,7 +64,7 @@ namespace It.Unina.Dis.Logbus.Filters
                         {
                             try
                             {
-                                targetvalue = Enum.Parse(typeof(Severity), value);
+                                targetvalue = Enum.Parse(typeof(SyslogSeverity), value);
                             }
                             catch
                             {
@@ -76,7 +76,7 @@ namespace It.Unina.Dis.Logbus.Filters
                         {
                             try
                             {
-                                targetvalue = Enum.Parse(typeof(Facility), value);
+                                targetvalue = Enum.Parse(typeof(SyslogFacility), value);
                             }
                             catch
                             {
