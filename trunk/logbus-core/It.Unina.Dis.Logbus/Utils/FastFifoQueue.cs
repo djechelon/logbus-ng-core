@@ -166,7 +166,7 @@ namespace
         private T[] FlushInternal()
         {
             List<T> ret = new List<T>(_count);
-            while (_readSema.WaitOne(10))
+            while (_count > 0 && _readSema.WaitOne(1))
             {
                 int index = Interlocked.Increment(ref _tail);
                 index %= _capacity;

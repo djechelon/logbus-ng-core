@@ -1563,41 +1563,45 @@ namespace It.Unina.Dis.Logbus
             finally
             {
                 //Someone is telling me to stop
-
-                //Flush queue and then stop
-                IEnumerable<SyslogMessage> leftMessages = localQueue.Flush();
-                foreach (SyslogMessage msg in leftMessages)
+                try
                 {
-                    if (!MainFilter.IsMatch(msg)) continue;
+                    //Flush queue and then stop
+                    IEnumerable<SyslogMessage> leftMessages = localQueue.Flush();
+                    foreach (SyslogMessage msg in leftMessages)
+                    {
+                        if (!MainFilter.IsMatch(msg)) continue;
 
-                    //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
-                    if (MessageReceived != null)
-                        try
-                        {
-                            MessageReceived(this, new SyslogMessageEventArgs(msg));
-                        }
-                        catch (Exception ex)
-                        {
-                            if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
-                        }
-
-                    //Deliver to channels
-                    //Theorically, it's as faster as channels can do
-                    if (OutboundChannels != null)
-                        foreach (IOutboundChannel chan in OutboundChannels)
-                        {
-                            //Idea for the future: use Thread Pool to asynchronously deliver messages
-                            //Could lead to a threading disaster in case of large rates of messages
+                        //Deliver to event listeners (SYNCHRONOUS: THREAD-BLOCKING!!!!!!!!!!!!!)
+                        if (MessageReceived != null)
                             try
                             {
-                                chan.SubmitMessage(msg);
+                                MessageReceived(this, new SyslogMessageEventArgs(msg));
                             }
                             catch (Exception ex)
                             {
                                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
                             }
-                        }
+
+                        //Deliver to channels
+                        //Theorically, it's as faster as channels can do
+                        if (OutboundChannels != null)
+                            foreach (IOutboundChannel chan in OutboundChannels)
+                            {
+                                //Idea for the future: use Thread Pool to asynchronously deliver messages
+                                //Could lead to a threading disaster in case of large rates of messages
+                                try
+                                {
+                                    chan.SubmitMessage(msg);
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
+                                }
+                            }
+                    }
                 }
+                catch (ThreadInterruptedException) { } //Residual
+                catch { } //There's nothing we can do, anyway
             }
         }
 
