@@ -577,7 +577,7 @@ namespace It.Unina.Dis.Logbus
                         i = 0;
                         foreach (IRunnable chan in OutboundChannels)
                         {
-                            if (chan is IAsyncRunnable) asyncOut[i] = ((IAsyncRunnable)chan).BeginStart();
+                            if (!chan.Running && chan is IAsyncRunnable) asyncOut[i] = ((IAsyncRunnable)chan).BeginStart();
                             i++;
                         }
                     }
@@ -621,8 +621,9 @@ namespace It.Unina.Dis.Logbus
                         i = 0;
                         foreach (IRunnable chan in OutboundChannels)
                         {
-                            if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(asyncOut[i]);
-                            else chan.Start();
+                            if (!chan.Running)
+                                if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(asyncOut[i]);
+                                else chan.Start();
                             i++;
                         }
                     }
@@ -640,7 +641,7 @@ namespace It.Unina.Dis.Logbus
                         foreach (IInboundChannel chan in InboundChannels)
                         {
                             chan.MessageReceived += ChannelMessageReceived;
-                            if (chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStart();
+                            if (!chan.Running && chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStart();
                             i++;
                         }
                     }
@@ -656,8 +657,9 @@ namespace It.Unina.Dis.Logbus
                         i = 0;
                         foreach (IRunnable chan in InboundChannels)
                         {
-                            if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(asyncIn[i]);
-                            else chan.Start();
+                            if (!chan.Running)
+                                if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStart(asyncIn[i]);
+                                else chan.Start();
                             i++;
                         }
                     }
@@ -718,7 +720,7 @@ namespace It.Unina.Dis.Logbus
                     foreach (IInboundChannel chan in InboundChannels)
                     {
                         chan.MessageReceived -= MessageReceived;
-                        if (chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStop();
+                        if (chan.Running && chan is IAsyncRunnable) asyncIn[i] = ((IAsyncRunnable)chan).BeginStop();
                         i++;
                     }
                 }
@@ -738,7 +740,7 @@ namespace It.Unina.Dis.Logbus
                     i = 0;
                     foreach (IRunnable chan in OutboundChannels)
                     {
-                        if (chan is IAsyncRunnable) asyncOut[i] = ((IAsyncRunnable)chan).BeginStop();
+                        if (chan.Running && chan is IAsyncRunnable) asyncOut[i] = ((IAsyncRunnable)chan).BeginStop();
                         i++;
                     }
                 }
@@ -749,15 +751,15 @@ namespace It.Unina.Dis.Logbus
 
 
                 //End async stop Stop inbound channels so we won't get new messages
-
                 _inLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
                 try
                 {
                     i = 0;
                     foreach (IRunnable chan in InboundChannels)
                     {
-                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(asyncIn[i]);
-                        else chan.Stop();
+                        if (chan.Running)
+                            if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(asyncIn[i]);
+                            else chan.Stop();
                         i++;
                     }
                 }
@@ -790,7 +792,7 @@ namespace It.Unina.Dis.Logbus
                     i = 0;
                     foreach (IRunnable chan in OutboundChannels)
                     {
-                        if (chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(asyncOut[i]);
+                        if (chan.Running && chan is IAsyncRunnable) ((IAsyncRunnable)chan).EndStop(asyncOut[i]);
                         i++;
                     }
                 }
