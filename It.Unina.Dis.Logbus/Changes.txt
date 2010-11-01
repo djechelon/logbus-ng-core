@@ -6,6 +6,7 @@ SVN trunk
 *Various bug fixes, including TLS client and transport
 *SyslogUdpListener can be configured with a custom UDP buffer size to help
 	prevent packet loss in some scenarios
+*LogbusDaemon and tools based on WebServiceActivator definitely work on Mono
 
 version 2.0
 *Major changes in Logger configuration:
