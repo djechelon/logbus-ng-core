@@ -79,10 +79,10 @@ namespace It.Unina.Dis.Logbus.WebServices
 
             _appserver = new ApplicationServer(ws, appPath);
             _appserver.AddApplication(null, _httpPort, "/", appPath);
-
+			
             _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
             _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
-            _appserver.GetSingleApp().AppHost.CreateHost(_appserver, ws);
+            ((VPathToHost)_appserver.GetSingleApp()).CreateHost(_appserver, ws);
 
             AppDomain targetDomain = _appserver.AppHost.Domain;
 
@@ -95,10 +95,6 @@ namespace It.Unina.Dis.Logbus.WebServices
             }
 
             _appserver.Start(true);
-
-            Console.WriteLine(_appserver.GetSingleApp());
-            Console.WriteLine(_appserver.GetSingleApp().AppHost);
-            Console.WriteLine(_appserver.GetSingleApp().AppHost.Domain);
             
 #else
 
