@@ -103,9 +103,9 @@ namespace It.Unina.Dis.Logbus.Filters
             if (attr != null)
             {
                 string typeName = t.AssemblyQualifiedName;
-                if (!typeof(ICustomFilter).IsAssignableFrom(t))
+                if (!typeof(IFilter).IsAssignableFrom(t))
                 {
-                    LogbusException ex = new LogbusException("Given type does not implement ICustomFilter");
+                    LogbusException ex = new LogbusException("Given type does not implement IFilter");
                     ex.Data.Add("typeName", t);
                     throw ex;
                 }
@@ -135,9 +135,9 @@ namespace It.Unina.Dis.Logbus.Filters
             {
                 Type filterType = Type.GetType(typeName);
 
-                if (!typeof(ICustomFilter).IsAssignableFrom(filterType))
+                if (!typeof(IFilter).IsAssignableFrom(filterType))
                 {
-                    LogbusException ex = new LogbusException("Given type does not implement ICustomFilter");
+                    LogbusException ex = new LogbusException("Given type does not implement IFilter");
                     ex.Data.Add("typeName", typeName);
                     throw ex;
                 }
@@ -174,8 +174,14 @@ namespace It.Unina.Dis.Logbus.Filters
             }
 
             Type filterType = Type.GetType(_registeredTypes[tag]);
-            ICustomFilter ret = Activator.CreateInstance(filterType) as ICustomFilter;
-            if (parameters != null) ret.Configuration = parameters;
+            IFilter ret = Activator.CreateInstance(filterType) as IFilter;
+            if (parameters != null)
+            {
+                if (ret is ICustomFilter)
+                    ((ICustomFilter)ret).Configuration = parameters;
+                else
+                    throw new LogbusException(string.Format("Filter {0} does not support configuration", tag));
+            }
             return ret;
         }
 
@@ -186,16 +192,7 @@ namespace It.Unina.Dis.Logbus.Filters
         /// <returns>A new instance of the requested custom filter</returns>
         public IFilter BuildFilter(string tag)
         {
-            if (string.IsNullOrEmpty(tag)) throw new ArgumentNullException("tag");
-
-            if (!_registeredTypes.ContainsKey(tag))
-            {
-                throw new LogbusException(string.Format("No filter registered for tag {0}", tag));
-            }
-
-            Type filterType = Type.GetType(_registeredTypes[tag]);
-            IFilter ret = Activator.CreateInstance(filterType) as IFilter;
-            return ret;
+            return BuildFilter(tag, null);
         }
 
         /// <summary>
