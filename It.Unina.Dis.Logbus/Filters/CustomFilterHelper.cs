@@ -30,22 +30,29 @@ namespace It.Unina.Dis.Logbus.Filters
     /// </summary>
     /// <remarks>Singleton</remarks>
     public sealed class CustomFilterHelper
+        : MarshalByRefObject
     {
         #region Singleton control
 
-        private static readonly CustomFilterHelper _instance;
-
-        static CustomFilterHelper()
-        {
-            _instance = new CustomFilterHelper();
-        }
+        private static CustomFilterHelper _instance;
 
         /// <summary>
         /// Returns singleton
         /// </summary>
         public static CustomFilterHelper Instance
         {
-            get { return _instance; }
+            get
+            {
+                if (_instance == null)
+                    lock (typeof(CustomFilterHelper))
+                    {
+                        if (_instance == null)
+                            _instance = AppDomain.CurrentDomain.GetData("CustomFilterHelper") as CustomFilterHelper;
+                        if (_instance == null)
+                            _instance = new CustomFilterHelper();
+                    }
+                return _instance;
+            }
         }
 
         #endregion
@@ -258,10 +265,10 @@ namespace It.Unina.Dis.Logbus.Filters
         {
             if (!_registeredTypes.ContainsKey(key)) return null;
             return new FilterDescription
-                       {
-                           id = key,
-                           description = _registeredDescriptions[key]
-                       };
+            {
+                id = key,
+                description = _registeredDescriptions[key]
+            };
         }
     }
 }
