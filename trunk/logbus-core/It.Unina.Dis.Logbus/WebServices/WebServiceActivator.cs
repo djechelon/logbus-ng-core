@@ -26,6 +26,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using It.Unina.Dis.Logbus.Filters;
 #if MONO
 using Mono.WebServer;
 #endif
@@ -87,6 +88,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             AppDomain targetDomain = _appserver.AppHost.Domain;
 
             targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+            targetDomain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
 
             foreach (IPlugin plugin in _target.Plugins)
             {
@@ -98,7 +100,7 @@ namespace It.Unina.Dis.Logbus.WebServices
             
 #else
 
-            string[] prefixes = new string[] { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
+            string[] prefixes = { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
 
             _ctr = new HttpListenerController(prefixes, "/", appPath);
 
@@ -106,6 +108,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
             //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
             _ctr.Domain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+            _ctr.Domain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
 
             foreach (IPlugin plugin in _target.Plugins)
             {
@@ -217,13 +220,9 @@ namespace It.Unina.Dis.Logbus.WebServices
                 }
 
                 string bindir = Path.Combine(fullpath, "bin");
-                if (!GetType().Assembly.GlobalAssemblyCache)
-                {
-                    //Deploy assembly too
-                    string codebase = Assembly.GetExecutingAssembly().Location;
-                    if (!Directory.Exists(bindir)) Directory.CreateDirectory(bindir);
-                    File.Copy(codebase, Path.Combine(bindir, Path.GetFileName(codebase)));
-                }
+                if (!Directory.Exists(bindir)) Directory.CreateDirectory(bindir);
+                CopyAssemblyTo(GetType().Assembly, bindir);
+
 
                 //Install plugins, if any
                 foreach (IPlugin plugin in _target.Plugins)
@@ -256,13 +255,16 @@ namespace It.Unina.Dis.Logbus.WebServices
                                 sw.Write(wsDeclaration);
 
                             //Copy skeleton asembly if needed
-                            Assembly skeletonAssembly = def.SkeletonType.Assembly;
-                            if (skeletonAssembly.Equals(GetType().Assembly) || skeletonAssembly.GlobalAssemblyCache)
-                                continue;
-                            string codebase = def.SkeletonType.Assembly.Location;
-                            string binpath = Path.Combine(bindir, Path.GetFileName(codebase));
-
-                            if (!File.Exists(binpath)) File.Copy(codebase, binpath);
+                            CopyAssemblyTo(def.SkeletonType.Assembly, bindir);
+                            foreach (AssemblyName dependency in def.SkeletonType.Assembly.GetReferencedAssemblies())
+                            {
+                                try
+                                {
+                                    CopyAssemblyTo(Assembly.Load(dependency), bindir);
+                                }
+                                //Possible broken dependency
+                                catch { }
+                            }
                         }
                 }
 
@@ -277,6 +279,21 @@ namespace It.Unina.Dis.Logbus.WebServices
             {
                 throw new LogbusException("Unable to install ASP.NET runtime", ex);
             }
+        }
+
+        /// <summary>
+        /// Copies given assembly to bin directory, if not in GAC
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <param name="binDirectory"></param>
+        private void CopyAssemblyTo(Assembly assembly, string binDirectory)
+        {
+            if (assembly.GlobalAssemblyCache) return;
+
+            string codebase = assembly.Location;
+            string finalName = Path.Combine(binDirectory, Path.GetFileName(codebase));
+
+            if (!File.Exists(finalName)) File.Copy(codebase, finalName);
         }
 
         /// <summary>
