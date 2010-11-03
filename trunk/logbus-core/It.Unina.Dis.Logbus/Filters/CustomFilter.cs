@@ -55,8 +55,8 @@ namespace It.Unina.Dis.Logbus.Filters
 
                 if (!string.IsNullOrEmpty(name))
                 {
-                    _filterImpl = CustomFilterHelper.Instance.BuildFilter(name);
-                    _configured = false;
+                    if (!CustomFilterHelper.Instance.AvailableFilters.ContainsKey(name))
+                        throw new LogbusException(string.Format("Filter {0} not registered", name));
                 }
             }
 
@@ -93,24 +93,24 @@ namespace It.Unina.Dis.Logbus.Filters
         }
 
         private IFilter _filterImpl;
-        private volatile bool _configured;
+        private bool _configured;
 
         /// <remarks/>
         public override bool IsMatch(SyslogMessage message)
         {
             if (_filterImpl == null)
-                throw new LogbusException("Custom filter is not configured with a filter instance");
+                lock (this)
+                    if (_filterImpl == null)
+                        _filterImpl = CustomFilterHelper.Instance.BuildFilter(name, parameter);
 
-            if (!_configured)
-                lock (_filterImpl)
+            if (!_configured && _filterImpl is ICustomFilter)
+            {
+                lock (this)
                 {
-                    if (!_configured)
-                    {
-                        if (_filterImpl is ICustomFilter)
-                            ((ICustomFilter)_filterImpl).Configuration = parameter;
-                        _configured = true;
-                    }
+                    ((ICustomFilter)_filterImpl).Configuration = parameter;
+                    _configured = true;
                 }
+            }
 
             return _filterImpl.IsMatch(message);
         }
