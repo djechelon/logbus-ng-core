@@ -1,38 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="It.Unina.Dis.Logbus.Configuration.LogbusClientConfiguration" Collapsed="true">
-    <Position X="30" Y="1.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
-      <FileName>Configuration\LogbusClientConfiguration.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="It.Unina.Dis.Logbus.Configuration.LogbusConfigurationException" Collapsed="true">
-    <Position X="9.75" Y="11" Width="1.5" />
+    <Position X="18.25" Y="11.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Configuration\LogbusConfigurationException.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="It.Unina.Dis.Logbus.Configuration.LogbusCoreConfiguration" Collapsed="true">
-    <Position X="3" Y="1.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AEQEEAAAABAAAAAIAAAAAAAIAAAAACAAAAAAAAAggAA=</HashCode>
-      <FileName>Configuration\LogbusCoreConfiguration.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="It.Unina.Dis.Logbus.Configuration.LogbusLoggerConfiguration" Collapsed="true">
-    <Position X="5.25" Y="1.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Configuration\LogbusLoggerConfiguration.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="It.Unina.Dis.Logbus.Configuration.XmlnsSupport" Collapsed="true">
-    <Position X="16.5" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Configuration\XmlnsSupport.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="It.Unina.Dis.Logbus.Filters.AndFilter" Collapsed="true">
@@ -45,7 +17,7 @@
   <Class Name="It.Unina.Dis.Logbus.Filters.CustomFilter" Collapsed="true">
     <Position X="12" Y="3.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAASAAAAAAAAAAAAAIAAAAAACgAEAAAAEAAAAAAAAAA=</HashCode>
+      <HashCode>AAAGAAAAAAAAAAAAAIgAAAAACgAEAAAAEAAAAAAAAAA=</HashCode>
       <FileName>Filters\CustomFilter.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -66,7 +38,7 @@
   <Class Name="It.Unina.Dis.Logbus.Filters.FilterBase" Collapsed="true">
     <Position X="17.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAAACAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAACAAACAAAAAAAAABACAAAAgAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Filters\FilterBase.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -102,7 +74,7 @@
   <Class Name="It.Unina.Dis.Logbus.Filters.PropertyFilter" Collapsed="true">
     <Position X="21" Y="3.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AEACAAAAAAAAAAAAAEIEAAAAAAACEDCAAAACAAAAAAA=</HashCode>
+      <HashCode>gEACAAAAAAAEAAAAAEIEAAAAAAACACCAAAACAAAAAAg=</HashCode>
       <FileName>Filters\PropertyFilter.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -121,84 +93,77 @@
     </TypeIdentifier>
   </Class>
   <Class Name="It.Unina.Dis.Logbus.LogbusException" Collapsed="true">
-    <Position X="10.75" Y="9.5" Width="1.5" />
+    <Position X="19.25" Y="9.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>LogbusException.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="It.Unina.Dis.Logbus.TransportException" Collapsed="true">
-    <Position X="12" Y="11" Width="1.5" />
+  <Class Name="It.Unina.Dis.Logbus.OutTransports.TransportException" Collapsed="true">
+    <Position X="20.5" Y="11.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>OutTransports\TransportException.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="It.Unina.Dis.Logbus.OutTransports.ClientNotSubscribedException" Collapsed="true">
+    <Position X="20.5" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>OutTransports\ClientNotSubscribedException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Interface Name="It.Unina.Dis.Logbus.Clients.ILogClient" Collapsed="true">
-    <Position X="6.5" Y="9.75" Width="1.5" />
+    <Position X="9" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Clients\ILogClient.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="It.Unina.Dis.Logbus.Filters.ICustomFilter" Collapsed="true">
-    <Position X="1.5" Y="12.75" Width="1.5" />
+    <Position X="3.25" Y="3" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAA=</HashCode>
       <FileName>Filters\ICustomFilter.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="It.Unina.Dis.Logbus.Filters.IFilter" Collapsed="true">
-    <Position X="1.5" Y="11.5" Width="1.5" />
+    <Position X="3.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Filters\IFilter.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="It.Unina.Dis.Logbus.IAsyncRunnable" Collapsed="true">
-    <Position X="9.75" Y="7.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAEAAAQAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAIAAAAA=</HashCode>
-      <FileName>IAsyncRunnable.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
-  <Interface Name="It.Unina.Dis.Logbus.IConfigurable" Collapsed="true">
-    <Position X="14" Y="6.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAIgAAAAAAAAAA=</HashCode>
-      <FileName>IConfigurable.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
   <Interface Name="It.Unina.Dis.Logbus.IInboundChannel" Collapsed="true">
-    <Position X="1.75" Y="7.75" Width="1.5" />
+    <Position X="6.75" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>IInboundChannel.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="It.Unina.Dis.Logbus.ILogBus" Collapsed="true">
-    <Position X="6.75" Y="7.75" Width="1.5" />
+  <Interface Name="It.Unina.Dis.Logbus.ILogBus">
+    <Position X="4" Y="9.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAICAAAAAAAAAgAkAAAAAAQAAgAAAAAAQAAAAAg=</HashCode>
+      <HashCode>YAAAAAJCAAACAAAAAgAkAAAAAAUAAogAAgMAQAAAAAg=</HashCode>
       <FileName>ILogBus.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="It.Unina.Dis.Logbus.ILogCollector" Collapsed="true">
-    <Position X="0.5" Y="6.5" Width="1.5" />
+  <Interface Name="It.Unina.Dis.Logbus.ILogCollector">
+    <Position X="2.5" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ILogCollector.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="It.Unina.Dis.Logbus.ILogSource" Collapsed="true">
-    <Position X="5.5" Y="6.5" Width="1.5" />
+  <Interface Name="It.Unina.Dis.Logbus.ILogSource">
+    <Position X="5.5" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ILogSource.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="It.Unina.Dis.Logbus.IOutboundChannel" Collapsed="true">
-    <Position X="3.5" Y="9.75" Width="1.5" />
+    <Position X="3.75" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAAAAggAAAAgAgAIQAABAAAgAAAAAAAAAAAAg=</HashCode>
       <FileName>IOutboundChannel.cs</FileName>
@@ -211,17 +176,17 @@
       <FileName>IOutboundTransport.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="It.Unina.Dis.Logbus.IOutboundTransportFactory" Collapsed="true">
-    <Position X="12.5" Y="7.75" Width="1.5" />
+  <Interface Name="It.Unina.Dis.Logbus.IOutboundTransportFactory">
+    <Position X="0.5" Y="7.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
       <FileName>IOutboundTransportFactory.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="It.Unina.Dis.Logbus.IRunnable" Collapsed="true">
-    <Position X="11" Y="6.5" Width="1.5" />
+    <Position X="11.25" Y="6.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAECIAAQAAAAAAAAAAAAIAAAAAIAAAAAAAAAQ=</HashCode>
+      <HashCode>AAAAAAAAECIAAQAAAAAAAAAAAAIAAAAIIAAAAAAAAAQ=</HashCode>
       <FileName>IRunnable.cs</FileName>
     </TypeIdentifier>
   </Interface>
