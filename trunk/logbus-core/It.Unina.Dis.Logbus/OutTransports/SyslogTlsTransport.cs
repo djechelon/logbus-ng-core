@@ -323,6 +323,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         public void Dispose()
         {
+            if (_disposed) return;
             Dispose(true);
         }
 

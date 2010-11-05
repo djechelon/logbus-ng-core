@@ -1303,11 +1303,13 @@ namespace It.Unina.Dis.Logbus
 
         public void Dispose()
         {
+            if (Disposed) return;
             Dispose(true);
         }
 
         protected void Dispose(bool disposing)
         {
+            GC.SuppressFinalize(this);
             try
             {
                 try

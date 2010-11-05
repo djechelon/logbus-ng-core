@@ -369,6 +369,8 @@ namespace It.Unina.Dis.Logbus.Clients
         /// </summary>
         public virtual void Dispose()
         {
+            if (Disposed) return;
+
             Dispose(true);
         }
 
