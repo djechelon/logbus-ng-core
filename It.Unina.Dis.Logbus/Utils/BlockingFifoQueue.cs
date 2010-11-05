@@ -165,12 +165,12 @@ namespace It.Unina.Dis.Logbus.Utils
             }
 
             _disposed = true;
-            GC.ReRegisterForFinalize(this);
         }
 
         /// <remarks/>
         public void Dispose()
         {
+            if (_disposed) return;
             Dispose(true);
         }
 

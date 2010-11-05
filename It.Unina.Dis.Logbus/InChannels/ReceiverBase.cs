@@ -239,6 +239,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// </summary>
         public void Dispose()
         {
+            if (Disposed) return;
             Dispose(true);
         }
 

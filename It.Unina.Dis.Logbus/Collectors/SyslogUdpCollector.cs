@@ -122,6 +122,7 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public void Dispose()
         {
+            if (_disposed) return;
             Dispose(true);
         }
 

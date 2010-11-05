@@ -70,7 +70,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         private void Dispose(bool disposing)
         {
-            if (Disposed) return;
+            GC.SuppressFinalize(this);
 
             if (_running)
                 Stop();
@@ -458,6 +458,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         void IDisposable.Dispose()
         {
+            if (Disposed) return;
             Dispose(true);
         }
 

@@ -27,6 +27,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using It.Unina.Dis.Logbus.InChannels;
+using System.Runtime.CompilerServices;
 
 namespace It.Unina.Dis.Logbus.Collectors
 {
@@ -55,6 +56,7 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         private void Dispose(bool disposing)
         {
+            GC.SuppressFinalize(this);
             _disposed = true;
 
             if (disposing)
@@ -78,7 +80,11 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         #region ILogCollector Membri di
 
-        public void SubmitMessage(SyslogMessage message)
+        /// <remarks>
+        /// TcpClient.Send is not multithread safe, better not doing concurrently
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
@@ -132,6 +138,7 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public void Dispose()
         {
+            if (_disposed) return;
             Dispose(true);
         }
 

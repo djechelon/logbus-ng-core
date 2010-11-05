@@ -154,6 +154,8 @@ namespace
         /// </summary>
         public void Dispose()
         {
+            if (_disposed) return;
+
             _disposed = true;
 
             _writeSema.Close();
