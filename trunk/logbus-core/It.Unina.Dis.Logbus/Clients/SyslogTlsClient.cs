@@ -113,7 +113,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
                 bool supported = false;
                 foreach (string transport in ChannelSubscriber.GetAvailableTransports())
-                    if (transport=="tls")
+                    if (transport == "tls")
                     {
                         supported = true;
                         break;
@@ -179,7 +179,15 @@ namespace It.Unina.Dis.Logbus.Clients
                                                                                          CultureInfo.InvariantCulture)
                                                                              },
                                                                          new KeyValuePair
-                                                                             {name = "host", value = _localhost}
+                                                                             {
+                                                                                 name = "host",
+                                                                                 value = _localhost
+                                                                             },
+                                                                         new KeyValuePair
+                                                                             {
+                                                                                 name = "ip",
+                                                                                 value = GetIpAddress().ToString()
+                                                                             }
                                                                      }
                                                      };
                 ChannelSubscriptionResponse res = ChannelSubscriber.SubscribeChannel(req);
