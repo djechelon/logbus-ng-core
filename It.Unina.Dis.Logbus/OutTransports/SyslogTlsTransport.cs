@@ -195,8 +195,15 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
             try
             {
-                TcpClient newTcpClient = ipOverride == null ?
-                    new TcpClient(host, port) : new TcpClient(new IPEndPoint(ipOverride, port));
+                TcpClient newTcpClient;
+
+                if (ipOverride == null)
+                    newTcpClient = new TcpClient(host, port);
+                else
+                {
+                    newTcpClient = new TcpClient(ipOverride.AddressFamily);
+                    newTcpClient.Connect(ipOverride, port);
+                }
 
                 SslStream sslStream = new SslStream(newTcpClient.GetStream(), false, RemoteCertificateValidation,
                                                     LocalCertificateSelection);
