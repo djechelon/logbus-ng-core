@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading;
 using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.Utils;
+using System.Net;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
@@ -142,8 +143,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// <remarks>
         /// Input instructions: (both required)
         /// <list>
-        /// <item><c>host</c>: host name to connect to</item>
+        /// <item><c>host</c>: host name to connect to and validate certificate for</item>
         /// <item><c>port</c>: port number to use</item>
+        /// <item><c>ip</c> (optional): overrides host, which is still required for certificate validation</item>
         /// </list>
         /// 
         /// Output instructions: none
@@ -158,6 +160,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
             string host = null, portno = null;
             int port;
+            IPAddress ipOverride = null;
 
             foreach (KeyValuePair<string, string> kvp in inputInstructions)
             {
@@ -173,6 +176,12 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             portno = kvp.Value;
                             break;
                         }
+                    case "ip":
+                        {
+                            if (!IPAddress.TryParse(kvp.Value, out ipOverride))
+                                throw new TransportException("Invalid IP address specified");
+                            break;
+                        }
                 }
             }
 
@@ -186,7 +195,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
             try
             {
-                TcpClient newTcpClient = new TcpClient(host, port);
+                TcpClient newTcpClient = ipOverride == null ?
+                    new TcpClient(host, port) : new TcpClient(new IPEndPoint(ipOverride, port));
+
                 SslStream sslStream = new SslStream(newTcpClient.GetStream(), false, RemoteCertificateValidation,
                                                     LocalCertificateSelection);
 
