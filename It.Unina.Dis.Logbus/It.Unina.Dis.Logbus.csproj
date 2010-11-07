@@ -230,6 +230,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WebServices\HttpListenerLibrary.cs" />
+    <Compile Include="WebServices\LogbusHttpModule.cs" />
     <Compile Include="WebServices\LogbusWebApplication.cs" />
     <Compile Include="WebServices\WebServiceActivator.cs" />
     <Compile Include="Wrappers\ChannelManagementTie.cs" />
@@ -301,7 +302,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
