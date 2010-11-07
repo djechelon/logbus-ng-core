@@ -21,12 +21,14 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Net;
 using System.Globalization;
+using System.Security.Principal;
 using It.Unina.Dis.Logbus.Wrappers;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using It.Unina.Dis.Logbus.Filters;
+using System.Diagnostics;
 #if MONO
 using Mono.WebServer;
 #endif
@@ -38,8 +40,8 @@ namespace It.Unina.Dis.Logbus.WebServices
     /// <remarks>Credits to http://msdn.microsoft.com/en-us/magazine/cc163879.aspx</remarks>
     public sealed class WebServiceActivator
     {
-        private const string AsmxTemplate = @"<%@ WebService Language=""C#"" Class=""{0}"" %>",
-            GlobalTemplate = @"<%@ Application Inherits=""{0}"" Language=""C#"" %>";
+        private const string ASMX_TEMPLATE = @"<%@ WebService Language=""C#"" Class=""{0}"" %>",
+            GLOBAL_TEMPLATE = @"<%@ Application Inherits=""{0}"" Language=""C#"" %>";
 
         #region Constructor
 
@@ -73,8 +75,14 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         private void StartService()
         {
-            string appPath = InstallRuntime();
+            try
+            {
+                if (!AmIRoot())
+                {
+                    throw new LogbusException("In order to start Web Service the process must be run as super user");
+                }
 
+                string appPath = InstallRuntime();
 #if MONO
             WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
 
@@ -100,22 +108,31 @@ namespace It.Unina.Dis.Logbus.WebServices
             
 #else
 
-            string[] prefixes = { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
+                string[] prefixes = { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
 
-            _ctr = new HttpListenerController(prefixes, "/", appPath);
+                _ctr = new HttpListenerController(prefixes, "/", appPath);
 
-            _ctr.Start();
+                _ctr.Start();
 
-            //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
-            _ctr.Domain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
-            _ctr.Domain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
+                //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
+                _ctr.Domain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+                _ctr.Domain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
 
-            foreach (IPlugin plugin in _target.Plugins)
-            {
-                MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
-                if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
-            }
+                foreach (IPlugin plugin in _target.Plugins)
+                {
+                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                    if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
+                }
 #endif
+            }
+            catch (LogbusException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new LogbusException("Unable to start web server", ex);
+            }
         }
 
         private void StopService()
@@ -191,7 +208,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                 const string mgmFname = "LogbusManagement.asmx";
                 const string subFname = "LogbusSubscription.asmx";
                 {
-                    string wsDeclaration = string.Format(AsmxTemplate,
+                    string wsDeclaration = string.Format(ASMX_TEMPLATE,
                                                          typeof(ChannelManagementService).AssemblyQualifiedName);
 
                     using (
@@ -201,7 +218,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                 }
 
                 {
-                    string wsDeclaration = string.Format(AsmxTemplate,
+                    string wsDeclaration = string.Format(ASMX_TEMPLATE,
                                                          typeof(ChannelSubscriptionService).AssemblyQualifiedName);
 
                     using (
@@ -211,7 +228,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                 }
 
                 {
-                    string globalDeclaration = string.Format(GlobalTemplate,
+                    string globalDeclaration = string.Format(GLOBAL_TEMPLATE,
                                                              typeof(LogbusWebApplication).AssemblyQualifiedName);
                     using (
                         StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, "Global.asax")),
@@ -247,7 +264,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                                     "Plugin {0} declares invalid WSDL endpoint: {1}",
                                     plugin.Name, def.UrlFileName));
 
-                            string wsDeclaration = string.Format(AsmxTemplate, def.SkeletonType.AssemblyQualifiedName);
+                            string wsDeclaration = string.Format(ASMX_TEMPLATE, def.SkeletonType.AssemblyQualifiedName);
 
                             using (
                                 StreamWriter sw = new StreamWriter(File.Create(Path.Combine(_physicalPath, fname + ".asmx")),
@@ -303,6 +320,39 @@ namespace It.Unina.Dis.Logbus.WebServices
         private void UninstallRuntime(string path)
         {
             Directory.Delete(path, true);
+        }
+
+        /// <summary>
+        /// Determine if running as super user or not
+        /// </summary>
+        /// <returns></returns>
+        private bool AmIRoot()
+        {
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.WinCE:
+                    return true; //Running Logbus-ng on a cell phone??
+                case PlatformID.Xbox:
+                    return true; //Would you ever run Logbus-ng as a game? :-S
+                case PlatformID.Win32S:
+                    throw new PlatformNotSupportedException();
+                case PlatformID.Win32Windows:
+                case PlatformID.Win32NT:
+                    {
+                        // ReSharper disable AssignNullToNotNullAttribute
+                        WindowsPrincipal princ = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+                        // ReSharper restore AssignNullToNotNullAttribute
+                        return princ.IsInRole(WindowsBuiltInRole.Administrator) ||
+                               princ.Identity.Name.EndsWith("Administrator");
+                    }
+                case PlatformID.MacOSX:
+                case PlatformID.Unix:
+                    {
+                        return Environment.UserName == "root";
+                    }
+                default:
+                    throw new PlatformNotSupportedException();
+            }
         }
     }
 }
