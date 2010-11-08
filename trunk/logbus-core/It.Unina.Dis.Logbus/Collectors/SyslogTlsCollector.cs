@@ -75,7 +75,6 @@ namespace It.Unina.Dis.Logbus.Collectors
         private SslStream _remoteStream;
         private string _certificatePath;
         private X509Certificate _clientCertificate;
-        private StreamWriter _sw;
         private volatile bool _disposed;
 
         #region ILogCollector Membri di
@@ -101,21 +100,20 @@ namespace It.Unina.Dis.Logbus.Collectors
                 try
                 {
                     _client.Connect(_host, _port);
-                    _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector)
-                                        {WriteTimeout = 3600000};
+                    _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector) { WriteTimeout = 3600000 };
 
                     //remote_stream.AuthenticateAsClient(host, null, SslProtocols.Tls, true);
                     _remoteStream.AuthenticateAsClient(_host);
-
-                    _sw = new StreamWriter(_remoteStream, Encoding.UTF8);
                 }
                 catch (Exception ex)
                 {
                     throw new LogbusException("Unable to log to remote TLS host", ex);
                 }
 
-            string payload = message.ToRfc5424String();
-            _sw.Write(string.Format("{0} {1}", payload.Length.ToString(CultureInfo.InvariantCulture), payload));
+            byte[] payload = Encoding.UTF8.GetBytes(message.ToRfc5424String());
+            byte[] lengthAndSpace = Encoding.UTF8.GetBytes(payload.Length.ToString(CultureInfo.InvariantCulture)+" ");
+            _remoteStream.Write(lengthAndSpace,0,lengthAndSpace.Length);
+            _remoteStream.Write(payload,0,payload.Length);
         }
 
         protected virtual bool TlsServerValidator(Object sender, X509Certificate certificate, X509Chain chain,
