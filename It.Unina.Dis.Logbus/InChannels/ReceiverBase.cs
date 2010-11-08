@@ -296,7 +296,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Enqueues a message for forwarding
         /// </summary>
-        /// <param name="msg"></param>
+        /// <param name="msg">Message to forward</param>
         protected void ForwardMessage(SyslogMessage msg)
         {
             msg.AdjustTimestamp();
@@ -312,10 +312,19 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Fires ParseError event
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e">Event arguments</param>
         protected void OnParseError(ParseErrorEventArgs e)
         {
             if (ParseError != null) ParseError(this, e);
+        }
+
+        /// <summary>
+        /// Fires Error event
+        /// </summary>
+        /// <param name="e">Event arguments</param>
+        protected void OnError(UnhandledExceptionEventArgs e)
+        {
+            if (Error != null) Error(this, e);
         }
 
         #region ILogSupport Membri di
@@ -323,7 +332,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Implements ILogSupport.Log
         /// </summary>
-        public ILog Log { private get; set; }
+        public ILog Log { protected get; set; }
 
         #endregion
     }

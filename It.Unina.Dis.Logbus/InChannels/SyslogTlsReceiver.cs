@@ -132,16 +132,11 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
                 }
 
-            try
-            {
-                _listener.Stop();
-                for (int i = 0; i < WORKER_THREADS; i++)
-                    _listenerThreads[i].Join();
-                _listenerThreads = null;
-            }
-            catch (Exception)
-            {
-            } //Really nothing?
+            _listener.Stop();
+            for (int i = 0; i < WORKER_THREADS; i++)
+                _listenerThreads[i].Join();
+            _listenerThreads = null;
+
         }
 
         #region Configuration
@@ -251,7 +246,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <param name="clientObj"></param>
         private void ProcessClient(object clientObj)
         {
-            using (TcpClient client = (TcpClient) clientObj)
+            using (TcpClient client = (TcpClient)clientObj)
             {
                 lock (_clients) _clients.Add(client);
                 // A client has connected. Create the 
@@ -270,7 +265,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                                 StringBuilder sb = new StringBuilder();
                                 do
                                 {
-                                    char nextChar = (char) sr.Read();
+                                    char nextChar = (char)sr.Read();
                                     if (char.IsDigit(nextChar)) sb.Append(nextChar);
                                     else if (nextChar == ' ') break;
                                     else throw new FormatException("Invalid TLS encoding of Syslog message");
@@ -287,9 +282,13 @@ namespace It.Unina.Dis.Logbus.InChannels
                                 ForwardMessage(SyslogMessage.Parse(new string(buffer)));
                             }
                     }
-                    catch
+                    catch (SocketException) { }
+                    catch (Exception ex)
                     {
-                        return;
+                        OnError(new UnhandledExceptionEventArgs(ex, true));
+
+                        Log.Error("Error occurred during TLS conversation in channel {0}", Name);
+                        Log.Debug("Error details: {0}", ex.Message);
                     }
                     finally
                     {
