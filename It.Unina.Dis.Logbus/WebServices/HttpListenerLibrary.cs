@@ -35,6 +35,7 @@ using System.Net;
 using System.Threading;
 using System.Web;
 using System.Web.Hosting;
+using It.Unina.Dis.Logbus.Loggers;
 
 #endregion
 
@@ -42,6 +43,8 @@ namespace It.Unina.Dis.Logbus.WebServices
 {
     internal class HttpListenerController
     {
+        private ILog _log;
+
         private Thread _pump;
         private bool _listening;
         private string _virtualDir;
@@ -51,6 +54,7 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         public HttpListenerController(string[] prefixes, string vdir, string pdir)
         {
+            _log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
             _prefixes = prefixes;
             _virtualDir = vdir;
             _physicalDir = pdir;
@@ -85,17 +89,12 @@ namespace It.Unina.Dis.Logbus.WebServices
                 while (_listening)
                     _listener.ProcessRequest();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _log.Alert("Fatal error processing web request.");
+                _log.Debug("Error details: {0}", ex.Message);
+
                 Stop();
-                throw;
-                /*EventLog myLog = new EventLog();
-                myLog.Source = "HttpListenerController";
-                if (null != ex.InnerException)
-                    myLog.WriteEntry(ex.InnerException.ToString(), EventLogEntryType.Error);
-                else
-                    myLog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
-                 */
             }
         }
 
