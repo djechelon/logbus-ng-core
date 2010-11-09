@@ -24,10 +24,12 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using It.Unina.Dis.Logbus.InChannels;
 using System.Runtime.CompilerServices;
+using It.Unina.Dis.Logbus.Loggers;
 
 namespace It.Unina.Dis.Logbus.Collectors
 {
@@ -41,9 +43,11 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         public SyslogTlsCollector()
         {
+            _log = LoggerHelper.GetLogger(WellKnownLogger.CollectorInternal);
         }
 
         public SyslogTlsCollector(string remoteHost, int remotePort)
+            : this()
         {
             _host = remoteHost;
             _port = remotePort;
@@ -56,7 +60,10 @@ namespace It.Unina.Dis.Logbus.Collectors
 
         private void Dispose(bool disposing)
         {
+            if (_disposed) return;
+
             GC.SuppressFinalize(this);
+
             _disposed = true;
 
             if (disposing)
@@ -76,6 +83,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         private string _certificatePath;
         private X509Certificate _clientCertificate;
         private volatile bool _disposed;
+        private ILog _log;
 
         #region ILogCollector Membri di
 
@@ -85,35 +93,47 @@ namespace It.Unina.Dis.Logbus.Collectors
         [MethodImpl(MethodImplOptions.Synchronized)]
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            if (_disposed)
-                throw new ObjectDisposedException(GetType().FullName);
-
-            if (_client == null)
+            try
             {
-                if (_host == null) throw new InvalidOperationException("Remote address not specified");
-                if (_port < 1 || _port > 65535) _port = SyslogTlsReceiver.TLS_PORT;
+                if (_disposed)
+                    throw new ObjectDisposedException(GetType().FullName);
 
-                _client = new TcpClient();
+                if (_client == null)
+                {
+                    if (_host == null) throw new InvalidOperationException("Remote address not specified");
+                    if (_port < 1 || _port > 65535) _port = SyslogTlsReceiver.TLS_PORT;
+
+                    _client = new TcpClient();
+                }
+
+                if (!_client.Connected)
+                    try
+                    {
+                        _client.Connect(_host, _port);
+                        _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector) { WriteTimeout = 3600000 };
+
+                        //_remoteStream.AuthenticateAsClient(_host, null, SslProtocols.Tls, true);
+                        _remoteStream.AuthenticateAsClient(_host);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new LogbusException("Unable to log to remote TLS host", ex);
+                    }
+
+                byte[] payload = Encoding.UTF8.GetBytes(message.ToRfc5424String());
+                foreach (char c in payload.Length.ToString(CultureInfo.InvariantCulture))
+                {
+                    _remoteStream.WriteByte((byte)c);
+                }
+                _remoteStream.WriteByte((byte)' ');
+
+                _remoteStream.Write(payload, 0, payload.Length);
             }
-
-            if (!_client.Connected)
-                try
-                {
-                    _client.Connect(_host, _port);
-                    _remoteStream = new SslStream(_client.GetStream(), false, TlsServerValidator, TlsClientSelector) { WriteTimeout = 3600000 };
-
-                    //remote_stream.AuthenticateAsClient(host, null, SslProtocols.Tls, true);
-                    _remoteStream.AuthenticateAsClient(_host);
-                }
-                catch (Exception ex)
-                {
-                    throw new LogbusException("Unable to log to remote TLS host", ex);
-                }
-
-            byte[] payload = Encoding.UTF8.GetBytes(message.ToRfc5424String());
-            byte[] lengthAndSpace = Encoding.UTF8.GetBytes(payload.Length.ToString(CultureInfo.InvariantCulture)+" ");
-            _remoteStream.Write(lengthAndSpace,0,lengthAndSpace.Length);
-            _remoteStream.Write(payload,0,payload.Length);
+            catch (Exception ex)
+            {
+                _log.Alert("Unable to log to remote TLS host");
+                _log.Debug("Error details: {0}", (ex is LogbusException && ex.InnerException != null) ? ex.InnerException : ex);
+            }
         }
 
         protected virtual bool TlsServerValidator(Object sender, X509Certificate certificate, X509Chain chain,

@@ -248,9 +248,12 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             using (TcpClient client = (TcpClient)clientObj)
             {
-                lock (_clients) _clients.Add(client);
+                lock (_clients)
+                    _clients.Add(client);
+
                 // A client has connected. Create the 
                 // SslStream using the client's network stream.
+
                 using (SslStream sslStream = new SslStream(client.GetStream(), false))
                     // Authenticate the server but don't require the client to authenticate.
                     try
@@ -259,28 +262,40 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                         sslStream.ReadTimeout = 3600000; //1 hour
 
-                        using (StreamReader sr = new StreamReader(sslStream, Encoding.UTF8, true))
-                            while (true)
+
+                        while (true)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            do
                             {
-                                StringBuilder sb = new StringBuilder();
-                                do
-                                {
-                                    char nextChar = (char)sr.Read();
-                                    if (char.IsDigit(nextChar)) sb.Append(nextChar);
-                                    else if (nextChar == ' ') break;
-                                    else throw new FormatException("Invalid TLS encoding of Syslog message");
-                                } while (true);
+                                char nextChar = (char) sslStream.ReadByte();
+                                if (char.IsDigit(nextChar)) sb.Append(nextChar);
+                                else if (nextChar == ' ') break;
+                                else throw new FormatException("Invalid TLS encoding of Syslog message");
+                            } while (true);
 
-                                int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
+                            int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
 
-                                char[] buffer = new char[charLen];
-                                if (sr.Read(buffer, 0, charLen) != charLen)
-                                {
-                                    throw new FormatException("Invalid TLS encoding of Syslog message");
-                                }
-
-                                ForwardMessage(SyslogMessage.Parse(new string(buffer)));
+                            byte[] buffer = new byte[charLen];
+                            if (sslStream.Read(buffer, 0, charLen) != charLen)
+                            {
+                                throw new FormatException("Invalid TLS encoding of Syslog message");
                             }
+                            SyslogMessage message;
+                            try
+                            {
+                                message = SyslogMessage.Parse(buffer);
+                            }
+                            catch (FormatException ex)
+                            {
+                                //Failed to parse Syslog message
+                                OnParseError(new ParseErrorEventArgs(buffer, ex, false));
+
+                                //Try again
+                                continue;
+                            }
+                            ForwardMessage(message);
+                        }
                     }
                     catch (SocketException) { }
                     catch (Exception ex)

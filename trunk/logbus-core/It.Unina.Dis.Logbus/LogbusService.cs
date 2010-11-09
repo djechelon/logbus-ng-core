@@ -82,7 +82,7 @@ namespace It.Unina.Dis.Logbus
 
             _outChans = new List<IOutboundChannel>();
             _inChans = new List<IInboundChannel>();
-            Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+            Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
 
             //Init fresh queues
             _currentQueue = int.MinValue;
@@ -172,7 +172,7 @@ namespace It.Unina.Dis.Logbus
                     }
                 }
                 if (ChannelFactory is ILogSupport)
-                    ((ILogSupport)ChannelFactory).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+                    ((ILogSupport)ChannelFactory).Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
 
                 //Inbound channels
                 List<IInboundChannel> channels = new List<IInboundChannel>();
@@ -239,7 +239,7 @@ namespace It.Unina.Dis.Logbus
                             }
 
                             if (channel is ILogSupport)
-                                ((ILogSupport)channel).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+                                ((ILogSupport)channel).Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
 
                             channels.Add(channel);
                         }
@@ -310,8 +310,7 @@ namespace It.Unina.Dis.Logbus
                     TransportFactoryHelper = new SimpleTransportHelper();
                 //Add logger
                 if (TransportFactoryHelper is ILogSupport)
-                    ((ILogSupport)TransportFactoryHelper).Log = new SimpleLogImpl(
-                        SyslogFacility.Internally, this);
+                    ((ILogSupport)TransportFactoryHelper).Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
 
                 //Tell that to the channel factory
                 ChannelFactory.TransportFactoryHelper = TransportFactoryHelper;
@@ -365,7 +364,7 @@ namespace It.Unina.Dis.Logbus
                     {
                         ILogCollector collector = CollectorHelper.CreateCollector(def);
                         if (collector is ILogSupport)
-                            ((ILogSupport)collector).Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+                            ((ILogSupport)collector).Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
                         collectors.Add(collector);
                     }
                     Forwarder = new MultiCollector { Collectors = collectors.ToArray() };
@@ -394,7 +393,7 @@ namespace It.Unina.Dis.Logbus
 
                             IPlugin plugin = (IPlugin)Activator.CreateInstance(pluginType);
                             activePlugins.Add(plugin);
-                            plugin.Log = new SimpleLogImpl(SyslogFacility.Internally, this);
+                            plugin.Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
                             plugin.Register(this);
                         }
                         catch (LogbusConfigurationException)

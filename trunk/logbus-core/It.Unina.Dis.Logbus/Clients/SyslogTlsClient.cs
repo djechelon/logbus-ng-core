@@ -291,32 +291,31 @@ namespace It.Unina.Dis.Logbus.Clients
                     {
                         stream.AuthenticateAsServer(CertificateUtilities.DefaultCertificate, false, SslProtocols.Tls,
                                                     true);
-
                         stream.ReadTimeout = 3600000; //1 hour
 
-                        using (StreamReader sr = new StreamReader(stream, Encoding.UTF8, true))
-                            while (true)
+
+                        while (true)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            do
                             {
-                                StringBuilder sb = new StringBuilder();
-                                do
-                                {
-                                    char nextChar = (char)sr.Read();
-                                    if (char.IsDigit(nextChar)) sb.Append(nextChar);
-                                    else if (nextChar == ' ') break;
-                                    else throw new FormatException("Invalid TLS encoding of Syslog message");
-                                } while (true);
+                                char nextChar = (char)stream.ReadByte();
+                                if (char.IsDigit(nextChar)) sb.Append(nextChar);
+                                else if (nextChar == ' ') break;
+                                else throw new FormatException("Invalid TLS encoding of Syslog message");
+                            } while (true);
 
-                                int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
+                            int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
 
-                                char[] buffer = new char[charLen];
-                                if (sr.Read(buffer, 0, charLen) != charLen)
-                                {
-                                    throw new FormatException("Invalid TLS encoding of Syslog message");
-                                }
-
-                                SyslogMessage msg = SyslogMessage.Parse(new string(buffer));
-                                OnMessageReceived(new SyslogMessageEventArgs(msg));
+                            byte[] buffer = new byte[charLen];
+                            if (stream.Read(buffer, 0, charLen) != charLen)
+                            {
+                                throw new FormatException("Invalid TLS encoding of Syslog message");
                             }
+
+                            SyslogMessage msg = SyslogMessage.Parse(buffer);
+                            OnMessageReceived(new SyslogMessageEventArgs(msg));
+                        }
                     }
                 }
                 catch (Exception ex)
