@@ -19,17 +19,17 @@
 
 using System;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
     /// FFDA-information related to Syslog messages
     /// </summary>
-    public class FFDAInformation
+    public class FieldFailureDataInformation
     {
         /// <summary>
         /// Initializes a new instance of FFDAInformation
         /// </summary>
-        public FFDAInformation()
+        public FieldFailureDataInformation()
         {
         }
 
@@ -38,7 +38,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         /// <param name="message">Syslog message to analyze</param>
         /// <exception cref="System.InvalidOperationException">Message is not FFDA</exception>
-        public FFDAInformation(SyslogMessage message)
+        public FieldFailureDataInformation(SyslogMessage message)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace It.Unina.Dis.Logbus.FFDA
                         FlowId = txt.Substring(4);
                     }
 
-                    Event = (FFDAEvent) Enum.Parse(typeof (FFDAEvent), prefix.ToUpper());
+                    Event = (FieldFailureEvent) Enum.Parse(typeof (FieldFailureEvent), prefix.ToUpper());
                 }
             }
             catch (InvalidOperationException)
@@ -96,6 +96,6 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// Event type
         /// </summary>
-        public FFDAEvent Event { get; set; }
+        public FieldFailureEvent Event { get; set; }
     }
 }

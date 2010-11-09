@@ -19,12 +19,12 @@
 
 using It.Unina.Dis.Logbus.Loggers;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
     /// Used to submit alert logs into Logbus when anomalies are detected
     /// </summary>
-    public interface IFFDAMonitorLogger
+    public interface IFieldFailureAlerter
         : ILog
     {
         /// <summary>

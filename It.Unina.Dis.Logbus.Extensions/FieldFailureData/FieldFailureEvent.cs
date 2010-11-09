@@ -17,37 +17,53 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
-    /// <summary>
-    /// Supports the event of receiving an FFDA message
-    /// </summary>
-    public sealed class FFDAEventArgs
-        : SyslogMessageEventArgs
+    public enum FieldFailureEvent : byte
     {
         /// <summary>
-        /// Type of FFDA event
+        /// Service Up
         /// </summary>
-        public FFDAEvent EventType;
+        SUP,
 
         /// <summary>
-        /// ID of execution flow, if specified
+        /// Service Shutdown
         /// </summary>
-        public string FlowId;
+        SDW,
 
         /// <summary>
-        /// Host-name generating FFDA message
+        /// Service Start
         /// </summary>
-        public string Host;
+        SST,
 
         /// <summary>
-        /// Process ID (or application name) generating FFDA message
+        /// Service End
         /// </summary>
-        public string Process;
+        SEN,
 
         /// <summary>
-        /// Name of logger that generated FFDA message
+        /// Entity Interaction Start
         /// </summary>
-        public string LoggerName;
+        EIS,
+
+        /// <summary>
+        /// Entity Interaction End
+        /// </summary>
+        EIE,
+
+        /// <summary>
+        /// Resource Interaction Start
+        /// </summary>
+        RIS,
+
+        /// <summary>
+        /// Resource Interaction End
+        /// </summary>
+        RIE,
+
+        /// <summary>
+        /// Complaint
+        /// </summary>
+        CMP
     }
 }

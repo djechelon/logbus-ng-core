@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E434F2C2-6113-4C91-903D-642A51D9759B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -87,18 +87,18 @@
     <Compile Include="Entities\EntityPlugin.cs" />
     <None Include="Entities\logbus-entitymanager.cs" />
     <Compile Include="Entities\IEntityManagement.cs" />
-    <Compile Include="FFDA\FFDAEvent.cs" />
-    <Compile Include="FFDA\FFDAEventArgs.cs" />
-    <Compile Include="FFDA\FFDAHelper.cs" />
-    <Compile Include="FFDA\FFDAInformation.cs" />
-    <Compile Include="FFDA\FFDALogger.cs" />
-    <Compile Include="FFDA\FFDAMonitorLogger.cs" />
-    <Compile Include="FFDA\FFDAParser.cs" />
-    <Compile Include="FFDA\IFFDALogger.cs" />
-    <Compile Include="FFDA\IFFDAMonitorLogger.cs" />
-    <Compile Include="FFDA\IInstrumentedLogger.cs" />
+    <Compile Include="FieldFailureData\FieldFailureEvent.cs" />
+    <Compile Include="FieldFailureData\FieldFailureEventArgs.cs" />
+    <Compile Include="FieldFailureData\FieldFailureDataHelper.cs" />
+    <Compile Include="FieldFailureData\FieldFailureDataInformation.cs" />
+    <Compile Include="FieldFailureData\FieldFailureDataLogger.cs" />
+    <Compile Include="FieldFailureData\FieldFailureAlerter.cs" />
+    <Compile Include="FieldFailureData\FieldFailureDataParser.cs" />
+    <Compile Include="FieldFailureData\IFieldFailureDataLogger.cs" />
+    <Compile Include="FieldFailureData\IFieldFailureAlerter.cs" />
+    <Compile Include="FieldFailureData\IInstrumentedLogger.cs" />
     <Compile Include="SyslogMessageExtensions.cs" />
-    <Compile Include="log4net\Log4netLogger.cs" />
+    <Compile Include="log4net\Log4netCollector.cs" />
     <Compile Include="log4net\OldSyslogLayout.cs" />
     <Compile Include="log4net\SyslogLayout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -119,7 +119,7 @@
     <None Include="COPYING.txt" />
     <None Include="AUTHORS.txt" />
     <None Include="Changes.txt" />
-    <Content Include="FFDA\Format.txt" />
+    <Content Include="FieldFailureData\Format.txt" />
     <Content Include="Libs\log4net.dll" />
     <None Include="Entities\logbus-entitymanager.wsdl" />
     <None Include="Entities\make-wsdl-skeleton.bat" />
@@ -163,7 +163,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

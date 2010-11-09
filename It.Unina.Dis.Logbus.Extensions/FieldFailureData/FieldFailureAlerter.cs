@@ -20,14 +20,14 @@
 using System;
 using It.Unina.Dis.Logbus.Loggers;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
-    internal sealed class FFDAMonitorLogger
-        : SimpleLogImpl, IFFDAMonitorLogger
+    internal sealed class FieldFailureAlerter
+        : SimpleLogImpl, IFieldFailureAlerter
     {
         #region Constructor
 
-        public FFDAMonitorLogger(ILogCollector target)
+        public FieldFailureAlerter(ILogCollector target)
             : base(target)
         {
         }

@@ -17,7 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
-using It.Unina.Dis.Logbus.FFDA;
+
+using It.Unina.Dis.Logbus.FieldFailureData;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -32,9 +33,9 @@ namespace It.Unina.Dis.Logbus
         /// <param name="msg">Syslog message to parse</param>
         /// <returns>FFDA information about the message</returns>
         /// <exception cref="System.InvalidOperationException">Message is not FFD</exception>
-        public static FFDAInformation GetFfdaInformation(this SyslogMessage msg)
+        public static FieldFailureDataInformation GetFailureData(this SyslogMessage msg)
         {
-            return new FFDAInformation(msg);
+            return new FieldFailureDataInformation(msg);
         }
     }
 }

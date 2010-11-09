@@ -19,12 +19,12 @@
 
 using System;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
     /// This class provides easy parsing of FFD messages from an existing Syslog source, or from injected messages
     /// </summary>
-    public class FFDAParser
+    public class FieldFailureDataParser
         : ILogCollector
     {
         private readonly ILogSource _theSource;
@@ -34,7 +34,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// Initializes a new instance of FFDAParser
         /// </summary>
-        public FFDAParser()
+        public FieldFailureDataParser()
         {
         }
 
@@ -42,13 +42,13 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// Initializes FFDASource with an existing log source
         /// </summary>
         /// <param name="source">Active log source to monitor</param>
-        public FFDAParser(ILogSource source)
+        public FieldFailureDataParser(ILogSource source)
         {
             if (source == null)
                 throw new ArgumentNullException("source", "Source must be an existing and active log source");
 
             _theSource = source;
-            _theSource.MessageReceived += the_source_MessageReceived;
+            _theSource.MessageReceived += MessageReceivedHandler;
         }
 
         #endregion
@@ -58,7 +58,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// This event indicates that the parser successfully parsed an FFDA-related message, whether its content is
         /// </summary>
-        public event EventHandler<FFDAEventArgs> GotFFDA;
+        public event EventHandler<FieldFailureEventArgs> GotFFD;
 
         /// <summary>
         /// Got heartbeat message
@@ -68,7 +68,8 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <summary>
         /// FFDA-specific events
         /// </summary>
-        public event EventHandler<FFDAEventArgs> GotSST ,
+        public event EventHandler<FieldFailureEventArgs> 
+            GotSST ,
             GotSEN ,
             GotEIS ,
             GotEIE ,
@@ -80,7 +81,7 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         #endregion
 
-        private void the_source_MessageReceived(object sender, SyslogMessageEventArgs e)
+        private void MessageReceivedHandler(object sender, SyslogMessageEventArgs e)
         {
             Parse(e.Message);
         }
@@ -96,9 +97,9 @@ namespace It.Unina.Dis.Logbus.FFDA
                     return;
                 }
 
-                FFDAInformation info = new FFDAInformation(msg);
+                FieldFailureDataInformation info = new FieldFailureDataInformation(msg);
 
-                FFDAEventArgs e = new FFDAEventArgs
+                FieldFailureEventArgs e = new FieldFailureEventArgs
                                       {
                                           Host = info.Host,
                                           EventType = info.Event,
@@ -108,51 +109,51 @@ namespace It.Unina.Dis.Logbus.FFDA
                                           Message = msg
                                       };
 
-                if (GotFFDA != null) GotFFDA(this, e);
+                if (GotFFD != null) GotFFD(this, e);
 
                 switch (info.Event)
                 {
-                    case FFDAEvent.SUP:
+                    case FieldFailureEvent.SUP:
                         {
                             if (GotSUP != null) GotSUP(this, e);
                             break;
                         }
-                    case FFDAEvent.SDW:
+                    case FieldFailureEvent.SDW:
                         {
                             if (GotSDW != null) GotSDW(this, e);
                             break;
                         }
-                    case FFDAEvent.SST:
+                    case FieldFailureEvent.SST:
                         {
                             if (GotSST != null) GotSST(this, e);
                             break;
                         }
-                    case FFDAEvent.SEN:
+                    case FieldFailureEvent.SEN:
                         {
                             if (GotSEN != null) GotSEN(this, e);
                             break;
                         }
-                    case FFDAEvent.EIS:
+                    case FieldFailureEvent.EIS:
                         {
                             if (GotEIS != null) GotEIS(this, e);
                             break;
                         }
-                    case FFDAEvent.EIE:
+                    case FieldFailureEvent.EIE:
                         {
                             if (GotEIE != null) GotEIE(this, e);
                             break;
                         }
-                    case FFDAEvent.RIS:
+                    case FieldFailureEvent.RIS:
                         {
                             if (GotRIS != null) GotRIS(this, e);
                             break;
                         }
-                    case FFDAEvent.RIE:
+                    case FieldFailureEvent.RIE:
                         {
                             if (GotRIE != null) GotRIE(this, e);
                             break;
                         }
-                    case FFDAEvent.CMP:
+                    case FieldFailureEvent.CMP:
                         {
                             if (GotCMP != null) GotCMP(this, e);
                             break;

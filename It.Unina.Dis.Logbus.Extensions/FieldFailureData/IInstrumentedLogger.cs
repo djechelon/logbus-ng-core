@@ -19,13 +19,13 @@
 
 using It.Unina.Dis.Logbus.Loggers;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
-    /// Interface that mixes classic logging with advanced FFDA logging
+    /// Interface that mixes classic logging with advanced FFD logging
     /// </summary>
     public interface IInstrumentedLogger
-        : ILog, IFFDALogger
+        : ILog, IFieldFailureDataLogger
     {
     }
 }
