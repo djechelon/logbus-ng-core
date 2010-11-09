@@ -24,12 +24,12 @@ using System.Globalization;
 using System.Threading;
 using It.Unina.Dis.Logbus.Loggers;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
     /// Default implementation of IFFDALogger and IFFDAMonitor
     /// </summary>
-    internal sealed class FFDALogger
+    internal sealed class FieldFailureDataLogger
         : SimpleLogImpl, IInstrumentedLogger
     {
         #region Constructor/Destructor
@@ -39,7 +39,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         /// <param name="facility">Syslog facility that will be used for all the messages</param>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
-        public FFDALogger(SyslogFacility facility, ILogCollector target)
+        public FieldFailureDataLogger(SyslogFacility facility, ILogCollector target)
             : base(facility, target)
         {
             Log("SUP", SyslogSeverity.Info);
@@ -51,7 +51,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="facility">Syslog facility that will be used for all the messages</param>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         /// <param name="loggerName">Name of logger</param>
-        public FFDALogger(SyslogFacility facility, ILogCollector target, string loggerName)
+        public FieldFailureDataLogger(SyslogFacility facility, ILogCollector target, string loggerName)
             : base(facility, target)
         {
             LogName = loggerName;
@@ -63,7 +63,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// Initializes the FFDA logger with the concrete underlying logger
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
-        public FFDALogger(ILogCollector target)
+        public FieldFailureDataLogger(ILogCollector target)
             : this(SyslogFacility.Local0, target)
         {
         }
@@ -73,12 +73,12 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// </summary>
         /// <param name="target">Concrete logger that will collect FFDA messages</param>
         /// <param name="loggerName">Name of logger</param>
-        public FFDALogger(ILogCollector target, string loggerName)
+        public FieldFailureDataLogger(ILogCollector target, string loggerName)
             : this(SyslogFacility.Local0, target, loggerName)
         {
         }
 
-        ~FFDALogger()
+        ~FieldFailureDataLogger()
         {
             Dispose(false);
         }
@@ -92,6 +92,8 @@ namespace It.Unina.Dis.Logbus.FFDA
 
         private void Dispose(bool disposing)
         {
+            if (_disposed) return;
+
             GC.SuppressFinalize(this);
 
             Log("SDW", SyslogSeverity.Info);
@@ -130,7 +132,7 @@ namespace It.Unina.Dis.Logbus.FFDA
 
             IDictionary<string, string> origin = msg.Data["origin"];
             origin["software"] = "Logbus-ng-ffda-sharp";
-            origin["swVersion"] = typeof (FFDALogger).Assembly.GetName().Version.ToString(3);
+            origin["swVersion"] = typeof (FieldFailureDataLogger).Assembly.GetName().Version.ToString(3);
 
             msg.MessageId = "FFDA";
         }

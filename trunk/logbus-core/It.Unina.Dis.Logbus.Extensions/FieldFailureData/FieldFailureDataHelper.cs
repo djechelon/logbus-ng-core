@@ -20,12 +20,12 @@
 using System.Net;
 using It.Unina.Dis.Logbus.Collectors;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
     /// Creates FFDA loggers
     /// </summary>
-    public sealed class FFDAHelper
+    public sealed class FieldFailureDataHelper
     {
         /// <summary>
         /// Creates an FFDA logger by logger name. If logger is maked as static and has been already instanced, the method returns the current
@@ -35,7 +35,7 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <returns></returns>
         /// <exception cref="LogbusException">Logger is not found</exception>
         /// <exception cref="System.InvalidOperationException">Configuration is not set or is invalid</exception>
-        public static IFFDALogger CreateFFDALogger(string loggerName)
+        public static IFieldFailureDataLogger CreateFailureDataLogger(string loggerName)
         {
             ILogCollector collector;
             try
@@ -46,16 +46,16 @@ namespace It.Unina.Dis.Logbus.FFDA
             {
                 collector = CollectorHelper.CreateCollector();
             }
-            return new FFDALogger(collector, loggerName);
+            return new FieldFailureDataLogger(collector, loggerName);
         }
 
         /// <summary>
         /// Creates the FFDA logger for monitors
         /// </summary>
         /// <returns></returns>
-        public static IFFDAMonitorLogger CreateFFDAMonitorLogger()
+        public static IFieldFailureAlerter CreateFailureAlerter()
         {
-            return new FFDAMonitorLogger(CollectorHelper.CreateCollector());
+            return new FieldFailureAlerter(CollectorHelper.CreateCollector());
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace It.Unina.Dis.Logbus.FFDA
             {
                 collector = CollectorHelper.CreateCollector();
             }
-            return new FFDALogger(collector, loggerName);
+            return new FieldFailureDataLogger(collector, loggerName);
         }
 
         /// <summary>
@@ -84,9 +84,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="host">Destination host</param>
         /// <param name="port">Destination port</param>
         /// <returns>An FFD logger that works on unreliable transport</returns>
-        public static IFFDALogger CreateUnreliableFFDALogger(string loggerName, string host, int port)
+        public static IFieldFailureDataLogger CreateUnreliableFailureDataLogger(string loggerName, string host, int port)
         {
-            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
+            return new FieldFailureDataLogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
         }
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="host">Destination host</param>
         /// <param name="port">Destination port</param>
         /// <returns>An FFD logger that works on unreliable transport</returns>
-        public static IFFDALogger CreateUnreliableFFDALogger(string loggerName, IPAddress host, int port)
+        public static IFieldFailureDataLogger CreateUnreliableFailureDataLogger(string loggerName, IPAddress host, int port)
         {
-            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
+            return new FieldFailureDataLogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
         }
 
         /// <summary>
@@ -109,9 +109,9 @@ namespace It.Unina.Dis.Logbus.FFDA
         /// <param name="port">Destination port</param>
         /// <returns>An FFD logger that works on reliable transport</returns>
         /// <remarks>Log messages are not subject to loss, however this may affect performance</remarks>
-        public static IFFDALogger CreateReliableFFDALogger(string loggerName, string host, int port)
+        public static IFieldFailureDataLogger CreateReliableFailureDataLogger(string loggerName, string host, int port)
         {
-            return new FFDALogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
+            return new FieldFailureDataLogger(CollectorHelper.CreateUnreliableCollector(host, port), loggerName);
         }
     }
 }

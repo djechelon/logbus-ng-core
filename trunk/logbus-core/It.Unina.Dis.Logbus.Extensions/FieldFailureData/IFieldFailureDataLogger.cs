@@ -19,7 +19,7 @@
 
 using System;
 
-namespace It.Unina.Dis.Logbus.FFDA
+namespace It.Unina.Dis.Logbus.FieldFailureData
 {
     /// <summary>
     /// Provides FFDA-specific logging services using the underlying Logbus-ng infrastructure
@@ -35,7 +35,7 @@ namespace It.Unina.Dis.Logbus.FFDA
     /// The COA message is a special message that is triggered <b>only</b> by an external entity that detects a failure in a monitored entity
     /// Use the CMP message to report about self-detect failures
     /// </remarks>
-    public interface IFFDALogger
+    public interface IFieldFailureDataLogger
         : IDisposable
     {
         /// <summary>

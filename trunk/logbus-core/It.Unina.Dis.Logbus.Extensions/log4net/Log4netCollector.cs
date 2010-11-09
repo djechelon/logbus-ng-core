@@ -34,7 +34,7 @@ namespace It.Unina.Dis.Logbus.log4net
     /// <item><code>logger</code><description>Name of existing Log4net logger</description></item>
     /// </list>
     /// </remarks>
-    internal class Log4netLogger
+    internal class Log4netCollector
         : ILogCollector, IConfigurable
     {
         #region ILogCollector Membri di
