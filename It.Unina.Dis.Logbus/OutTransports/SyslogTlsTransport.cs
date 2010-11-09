@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -343,9 +344,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 {
                     SyslogMessage msg = _queue.Dequeue();
                     string text = msg.ToRfc5424String();
-                    text = string.Format("{0} {1}", text.Length, text);
 
-                    byte[] payload = Encoding.UTF8.GetBytes(text);
+                    byte[] payload = Encoding.UTF8.GetBytes(msg.ToRfc5424String());
                     int len = payload.Length;
 
                     _listLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
@@ -355,8 +355,14 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         {
                             TlsClient client = kvp.Value;
                             try
-                            {
-                                client.Stream.Write(payload, 0, len);
+                            {   
+                                foreach (char c in payload.Length.ToString(CultureInfo.InvariantCulture))
+                                {
+                                    client.Stream.WriteByte((byte)c);
+                                }
+                                client.Stream.WriteByte((byte)' ');
+
+                                client.Stream.Write(payload, 0, payload.Length);
                             }
                             catch (IOException)
                             {
