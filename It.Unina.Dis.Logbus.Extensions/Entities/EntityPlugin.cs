@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -27,6 +28,7 @@ using It.Unina.Dis.Logbus.Configuration;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.Utils;
+using It.Unina.Dis.Logbus.Entities.Configuration;
 
 namespace It.Unina.Dis.Logbus.Entities
 {
@@ -36,6 +38,8 @@ namespace It.Unina.Dis.Logbus.Entities
     public sealed class EntityPlugin
         : MarshalByRefObject, IPlugin, IEntityManagement
     {
+        private readonly static EntityPluginConfiguration DefaultConfiguration;
+
         /// <summary>
         /// Avoids ambigousness
         /// </summary>
@@ -48,6 +52,9 @@ namespace It.Unina.Dis.Logbus.Entities
         private readonly DataColumn _colHost,
                                     _colProc,
                                     _colLogger,
+                                    _colModule,
+                                    _colClass,
+                                    _colMethod,
                                     _colAppName,
                                     _colFfda,
                                     _colLastAction,
@@ -57,8 +64,23 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private readonly UniqueConstraint _primaryKey;
         private readonly DataTable _entityTable;
+        private EntityPluginConfiguration _config;
 
         #region Constructor/Destructor
+
+        static EntityPlugin()
+        {
+            DefaultConfiguration = new EntityPluginConfiguration
+                                       {
+
+                                           entitykey = new[]
+                                                         {
+                                                                 FieldType.host,
+                                                                 FieldType.process,
+                                                                 FieldType.logger
+                                                         }
+                                       };
+        }
 
         /// <summary>
         /// Initializes a new instance of EntityPlugin
@@ -67,63 +89,81 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             _messageQueue = new BlockingFifoQueue<SyslogMessage>();
 
-            _workerThread = new Thread(WorkerLoop) {IsBackground = true, Name = "EntityPlugin.WorkerLoop"};
+            _workerThread = new Thread(WorkerLoop) { IsBackground = true, Name = "EntityPlugin.WorkerLoop" };
             _workerThread.Start();
 
             _entityTable = new DataTable("Entities");
 
-            _colHost = new DataColumn("Host", typeof (string))
+            _colHost = new DataColumn("Host", typeof(string))
                            {
                                AllowDBNull = true,
                                ReadOnly = true,
                                Unique = false
                            };
-            _colProc = new DataColumn("Process", typeof (string))
+            _colProc = new DataColumn("Process", typeof(string))
                            {
                                AllowDBNull = true,
                                ReadOnly = true,
                                Unique = false
                            };
-            _colLogger = new DataColumn("Logger", typeof (string))
+            _colLogger = new DataColumn("Logger", typeof(string))
                              {
                                  AllowDBNull = true,
                                  ReadOnly = true,
                                  Unique = false
                              };
-            _colAppName = new DataColumn("AppName", typeof (string))
+            _colModule = new DataColumn("Module", typeof(string))
+                             {
+                                 AllowDBNull = true,
+                                 ReadOnly = true,
+                                 Unique = false
+                             };
+            _colClass = new DataColumn("Class", typeof(string))
+                            {
+                                AllowDBNull = true,
+                                ReadOnly = true,
+                                Unique = false
+                            };
+            _colMethod = new DataColumn("Method", typeof(string))
+                             {
+                                 AllowDBNull = true,
+                                 Unique = false,
+                                 ReadOnly = true
+                             };
+            _colAppName = new DataColumn("AppName", typeof(string))
                               {
                                   AllowDBNull = true,
                                   ReadOnly = true,
                                   Unique = false
                               };
-            _colFfda = new DataColumn("FFDA", typeof (bool))
+            _colFfda = new DataColumn("FFDA", typeof(bool))
                            {
                                AllowDBNull = false,
                                DefaultValue = false,
                                ReadOnly = false,
                                Unique = false
                            };
-            _colLastAction = new DataColumn("LastAction", typeof (DateTime))
+            _colLastAction = new DataColumn("LastAction", typeof(DateTime))
                                  {
                                      AllowDBNull = false,
                                      ReadOnly = false,
                                      Unique = false,
                                      DateTimeMode = DataSetDateTime.Utc,
                                  };
-            _colLastHeartbeat = new DataColumn("LstHeartbeat", typeof (DateTime))
+            _colLastHeartbeat = new DataColumn("LstHeartbeat", typeof(DateTime))
                                     {
                                         AllowDBNull = true,
                                         ReadOnly = false,
                                         Unique = false,
                                         DateTimeMode = DataSetDateTime.Utc,
                                     };
-            _colChannelId = new DataColumn("ChannelId", typeof (string))
+            _colChannelId = new DataColumn("ChannelId", typeof(string))
                                 {
                                     AllowDBNull = true,
                                     ReadOnly = false,
                                     Unique = false
                                 };
-            _colFfdaChannelId = new DataColumn("FfdaChannelId", typeof (string))
+            _colFfdaChannelId = new DataColumn("FfdaChannelId", typeof(string))
                                     {
                                         AllowDBNull = true,
                                         ReadOnly = false,
@@ -140,10 +180,69 @@ namespace It.Unina.Dis.Logbus.Entities
             _entityTable.Columns.Add(_colChannelId);
             _entityTable.Columns.Add(_colFfdaChannelId);
 
-            _primaryKey = new UniqueConstraint(new[] {_colHost, _colProc, _colLogger}, true)
-                              {
-                                  ConstraintName = "Primary"
-                              };
+            try
+            {
+                _config = ConfigurationManager.GetSection("logbus-entityplugin") as EntityPluginConfiguration;
+
+            }
+            catch { }
+            finally
+            {
+                if (_config == null || _config.entitykey == null || _config.entitykey.Length == 0) _config = DefaultConfiguration;
+            }
+
+            List<DataColumn> primaryKey = new List<DataColumn>(3);
+            bool hostAdded = false, procAdded = false, loggerAdded = false, moduleAdded = false, classAdded = false, methodAdded = false;
+            foreach (FieldType field in _config.entitykey)
+            {
+                switch (field)
+                {
+                    case FieldType.host:
+                        {
+                            if (hostAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            primaryKey.Add(_colHost);
+                            hostAdded = true;
+                            break;
+                        }
+                    case FieldType.process:
+                        {
+                            if (procAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            primaryKey.Add(_colProc);
+                            procAdded = true;
+                            break;
+                        }
+                    case FieldType.logger:
+                        {
+                            if (loggerAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            primaryKey.Add(_colLogger);
+                            loggerAdded = true;
+                            break;
+                        }
+                    case FieldType.module:
+                        {
+                            if (moduleAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            primaryKey.Add(_colModule);
+                            moduleAdded = true;
+                            break;
+                        }
+                    case FieldType.@class:
+                        {
+                            if (classAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            primaryKey.Add(_colClass);
+                            classAdded = true;
+                            break;
+                        }
+                    case FieldType.method:
+                        {
+                            if (methodAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            primaryKey.Add(_colMethod);
+                            methodAdded = true;
+                            break;
+                        }
+                }
+            }
+
+            _primaryKey = new UniqueConstraint("Primary", primaryKey.ToArray(), true);
             _entityTable.Constraints.Add(_primaryKey);
         }
 
@@ -218,10 +317,10 @@ namespace It.Unina.Dis.Logbus.Entities
 
             WsdlSkeletonDefinition ret = new WsdlSkeletonDefinition
                                              {
-                                                 SkeletonType = typeof (EntityManagementSkeleton),
+                                                 SkeletonType = typeof(EntityManagementSkeleton),
                                                  UrlFileName = "EntityManagement"
                                              };
-            return new[] {ret};
+            return new[] { ret };
         }
 
         /// <summary>
@@ -253,6 +352,48 @@ namespace It.Unina.Dis.Logbus.Entities
             SyslogMessage message = e.Message;
             if (message.Facility == SyslogFacility.Internally) return; //Skip all syslog-internal messages
             _messageQueue.Enqueue(message);
+        }
+
+        private string GetQuery(SyslogMessage message)
+        {
+            List<string> criteria = new List<string>(3);
+            SyslogAttributes attrs = message.GetAdvancedAttributes();
+            foreach (DataColumn column in _primaryKey.Columns)
+            {
+                string colName = null, value = null;
+                if (column == _colHost)
+                {
+                    colName = _colHost.ColumnName;
+                    value = message.Host;
+                }
+                else if (column == _colProc)
+                {
+                    colName = _colProc.ColumnName;
+                    value = message.ProcessID ?? message.ApplicationName;
+                }
+                else if (column == _colLogger)
+                {
+                    colName = _colLogger.ColumnName;
+                    value = attrs.LogName;
+                }
+                else if (column == _colModule)
+                {
+                    colName = _colModule.ColumnName;
+                    value = attrs.ModuleName;
+                }
+                else if (column == _colClass)
+                {
+                    colName = _colClass.ColumnName;
+                    value = attrs.ClassName;
+                }
+                else if (column == _colMethod)
+                {
+                    colName = _colMethod.ColumnName;
+                    value = attrs.MethodName;
+                }
+                criteria.Add(string.Format("{0} = '{1}'", colName, value));
+            }
+            return string.Join(" AND ", criteria.ToArray());
         }
 
         private void WorkerLoop()
@@ -319,8 +460,8 @@ namespace It.Unina.Dis.Logbus.Entities
                                     continue;
                                 }
                             } //Not necessarily a poor choice. With 15 chars we have billions of opportunities.
-                                //In a real system, we can't have more than thousands of entities. This algorithm
-                                //might go into stall only if randomizer is not "random" enough
+                            //In a real system, we can't have more than thousands of entities. This algorithm
+                            //might go into stall only if randomizer is not "random" enough
                             while (true);
 
                             if (ffda) //Create FFDA channel too
@@ -353,14 +494,8 @@ namespace It.Unina.Dis.Logbus.Entities
                         catch (ConstraintException)
                         {
                             //We suppose we are trying to insert a duplicate primary key, then now we switch to update
-                            object[] keys = new object[]
-                                                {
-                                                    host,
-                                                    process,
-                                                    logger,
-                                                };
-                            DataRow existingRow = _entityTable.Rows.Find(keys);
-                            bool oldFfda = (bool) existingRow[_colFfda];
+                            DataRow existingRow = _entityTable.Select(GetQuery(message))[0];
+                            bool oldFfda = (bool)existingRow[_colFfda];
 
                             existingRow.BeginEdit();
                             existingRow[_colFfda] = ffda | oldFfda;
@@ -406,6 +541,14 @@ namespace It.Unina.Dis.Logbus.Entities
                                 while (true);
                             }
                         }
+                    }
+                    catch (ThreadAbortException)
+                    {
+                        throw;
+                    }
+                    catch (ThreadInterruptedException)
+                    {
+                        throw;
                     }
                     catch (Exception ex)
                     {
@@ -478,20 +621,20 @@ namespace It.Unina.Dis.Logbus.Entities
             {
                 ret[i] = new LoggingEntity
                              {
-                                 host = (string) rows[i][_colHost],
-                                 process = (string) rows[i][_colProc],
-                                 logger = (string) rows[i][_colLogger],
-                                 appName = (string) rows[i][_colAppName],
-                                 ffda = (bool) rows[i][_colFfda],
-                                 lastAction = (DateTime) rows[i][_colLastAction],
+                                 host = (string)rows[i][_colHost],
+                                 process = (string)rows[i][_colProc],
+                                 logger = (string)rows[i][_colLogger],
+                                 appName = (string)rows[i][_colAppName],
+                                 ffda = (bool)rows[i][_colFfda],
+                                 lastAction = (DateTime)rows[i][_colLastAction],
                                  lastHeartbeatSpecified = !(rows[i][_colLastHeartbeat] is DBNull),
                                  lastHeartbeat =
                                      (rows[i][_colLastHeartbeat] is DBNull)
                                          ? default(DateTime)
-                                         : (DateTime) rows[i][_colLastHeartbeat],
-                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string) rows[i][_colChannelId],
+                                         : (DateTime)rows[i][_colLastHeartbeat],
+                                 channelId = (rows[i][_colChannelId] is DBNull) ? null : (string)rows[i][_colChannelId],
                                  ffdaChannelId =
-                                     (rows[i][_colFfdaChannelId] is DBNull) ? null : (string) rows[i][_colFfdaChannelId]
+                                     (rows[i][_colFfdaChannelId] is DBNull) ? null : (string)rows[i][_colFfdaChannelId]
                              };
             }
 
@@ -504,7 +647,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private static string UserAgent
         {
-            get { return string.Format("LogbusEntityClient/{0}", typeof (EntityPlugin).Assembly.GetName().Version); }
+            get { return string.Format("LogbusEntityClient/{0}", typeof(EntityPlugin).Assembly.GetName().Version); }
         }
 
         /// <summary>
@@ -514,7 +657,7 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <returns></returns>
         public static IEntityManagement GetProxy(string endpointUrl)
         {
-            return new EntityManagement {Url = endpointUrl, UserAgent = UserAgent};
+            return new EntityManagement { Url = endpointUrl, UserAgent = UserAgent };
         }
 
         /// <summary>
