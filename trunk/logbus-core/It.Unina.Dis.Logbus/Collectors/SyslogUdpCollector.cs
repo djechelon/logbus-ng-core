@@ -76,7 +76,10 @@ namespace It.Unina.Dis.Logbus.Collectors
 
             if (RemoteEndPoint == null)
             {
-                if (_port == 0 || _remoteAddr == null)
+                if (_port == 0)
+                    _port = InChannels.SyslogUdpReceiver.DEFAULT_PORT;
+
+                if (_remoteAddr == null)
                     throw new InvalidOperationException("Logger is not configured");
 
                 lock (this)
