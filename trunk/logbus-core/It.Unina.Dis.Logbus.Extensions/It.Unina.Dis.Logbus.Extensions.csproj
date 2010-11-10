@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E434F2C2-6113-4C91-903D-642A51D9759B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -60,6 +60,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -80,6 +81,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Configuration\EntityKey.cs" />
+    <Compile Include="Entities\Configuration\EntityPluginConfiguration.cs" />
+    <Compile Include="Entities\Configuration\EntityPluginConfigurationSectionHandler.cs" />
+    <Compile Include="Entities\Configuration\FieldType.cs" />
     <Compile Include="Entities\EntityFilter.cs" />
     <Compile Include="Entities\EntityManagementSkeleton.cs">
       <SubType>Component</SubType>
@@ -87,6 +92,9 @@
     <Compile Include="Entities\EntityPlugin.cs" />
     <None Include="Entities\logbus-entitymanager.cs" />
     <Compile Include="Entities\IEntityManagement.cs" />
+    <None Include="Entities\logbus-entityconfig.cs">
+      <DependentUpon>logbus-entityconfig.xsd</DependentUpon>
+    </None>
     <Compile Include="FieldFailureData\FieldFailureEvent.cs" />
     <Compile Include="FieldFailureData\FieldFailureEventArgs.cs" />
     <Compile Include="FieldFailureData\FieldFailureDataHelper.cs" />
@@ -121,6 +129,7 @@
     <None Include="Changes.txt" />
     <Content Include="FieldFailureData\Format.txt" />
     <Content Include="Libs\log4net.dll" />
+    <None Include="Entities\logbus-entityconfig.xsd" />
     <None Include="Entities\logbus-entitymanager.wsdl" />
     <None Include="Entities\make-wsdl-skeleton.bat" />
     <None Include="Release.txt" />

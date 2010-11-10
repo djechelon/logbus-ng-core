@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:entities="http://www.dis.unina.it/logbus-ng/entities" 
+           targetNamespace="http://www.dis.unina.it/logbus-ng/entities" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="EntityPluginConfiguration">
+		<xs:sequence>
+			<xs:element ref="entities:entity-key"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="logbus-entityplugin" type="entities:EntityPluginConfiguration"/>
+	<xs:simpleType name="FieldType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="host"/>
+			<xs:enumeration value="process"/>
+			<xs:enumeration value="logger"/>
+			<xs:enumeration value="module"/>
+			<xs:enumeration value="class"/>
+			<xs:enumeration value="method"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="EntityKey">
+		<xs:sequence>
+			<xs:element ref="entities:field" maxOccurs="6"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="entity-key" type="entities:EntityKey"/>
+	<xs:element name="field" type="entities:FieldType"/>
+</xs:schema>

@@ -405,6 +405,7 @@ namespace It.Unina.Dis.Logbus
                             LogbusConfigurationException e =
                                 new LogbusConfigurationException("Unable to configure plugins", ex);
                             e.Data.Add("pluginType", def.type);
+                            throw e;
                         }
                         _plugins = activePlugins.ToArray();
                     }
