@@ -71,6 +71,23 @@ namespace
             _writeSema = new Semaphore(_capacity, _capacity);
         }
 
+        ~FastFifoQueue()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            GC.SuppressFinalize(this);
+
+            _disposed = true;
+
+            _writeSema.Close();
+            _readSema.Close();
+            if (disposing) _array = null;
+        }
         #endregion
 
         #region IFifoQueue<T> Membri di
@@ -154,13 +171,7 @@ namespace
         /// </summary>
         public void Dispose()
         {
-            if (_disposed) return;
-
-            _disposed = true;
-
-            _writeSema.Close();
-            _readSema.Close();
-            _array = null;
+            Dispose(true);
         }
 
         #endregion
