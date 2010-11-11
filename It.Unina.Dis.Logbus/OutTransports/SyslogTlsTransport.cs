@@ -342,11 +342,26 @@ namespace It.Unina.Dis.Logbus.OutTransports
             {
                 while (true)
                 {
-                    SyslogMessage msg = _queue.Dequeue();
-                    string text = msg.ToRfc5424String();
+                    SyslogMessage[] msgs = _queue.Flush();
+                    if (msgs == null || msgs.Length == 0) msgs = new[] { _queue.Dequeue() };
 
-                    byte[] payload = Encoding.UTF8.GetBytes(msg.ToRfc5424String());
-                    int len = payload.Length;
+                    byte[] data;
+
+                    using (MemoryStream ms = new MemoryStream(8192))
+                    {
+                        foreach (SyslogMessage msg in msgs)
+                        {
+                            byte[] payload = Encoding.UTF8.GetBytes(msg.ToRfc5424String());
+                            foreach (char c in payload.Length.ToString(CultureInfo.InvariantCulture))
+                                ms.WriteByte((byte)c);
+
+                            ms.WriteByte((byte)' ');
+
+                            ms.Write(payload, 0, payload.Length);
+
+                        }
+                        data = ms.ToArray();
+                    }
 
                     _listLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
                     try
@@ -355,32 +370,21 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         {
                             TlsClient client = kvp.Value;
                             try
-                            {   
-                                foreach (char c in payload.Length.ToString(CultureInfo.InvariantCulture))
-                                {
-                                    client.Stream.WriteByte((byte)c);
-                                }
-                                client.Stream.WriteByte((byte)' ');
-
-                                client.Stream.Write(payload, 0, payload.Length);
-                            }
-                            catch (IOException)
                             {
+                                client.Stream.Write(data, 0, data.Length);
                             }
-                            catch (ObjectDisposedException)
-                            {
-                            }
+                            catch (IOException) { }
+                            catch (ObjectDisposedException) { }
                         }
                     }
                     finally
                     {
                         _listLock.ReleaseReaderLock();
                     }
+
                 }
             }
-            catch (ThreadInterruptedException)
-            {
-            }
+            catch (ThreadInterruptedException) { }
         }
 
         private void CleanupClients(object state)
