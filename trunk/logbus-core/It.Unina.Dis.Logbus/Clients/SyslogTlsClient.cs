@@ -20,7 +20,6 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -41,13 +40,15 @@ namespace It.Unina.Dis.Logbus.Clients
         : ClientBase
     {
         public const int START_PORT = 20686, END_PORT = 25686;
+        private const int DEFAULT_JOIN_TIMEOUT = 5000;
 
         private TcpListener _server;
         private string _localhost;
 
         private bool _running;
-        private Thread _runningThread;
+        private Thread _listenerThread, _processingThread;
         private string _clientId;
+        private readonly IFifoQueue<byte[]> _queue = new BlockingFifoQueue<byte[]>();
 
         #region Constructor/Destructor
 
@@ -80,6 +81,8 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private void Dispose(bool disposing)
         {
+            if (Disposed) return;
+
             GC.SuppressFinalize(this);
 
             if (disposing)
@@ -92,6 +95,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                 }
                 _server = null;
+                _queue.Dispose();
             }
         }
 
@@ -105,7 +109,7 @@ namespace It.Unina.Dis.Logbus.Clients
             if (_running) throw new NotSupportedException("Client is already running");
             try
             {
-                Log.Info("TLS client starting...");
+                Log.Info("TLS client starting");
                 CancelEventArgs arg = new CancelEventArgs();
                 OnStarting(arg);
                 if (arg.Cancel)
@@ -161,8 +165,10 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
 
 
-                _runningThread = new Thread(RunnerLoop) { IsBackground = true };
-                _runningThread.Start();
+                _listenerThread = new Thread(ListenerLoop) { IsBackground = true };
+                _listenerThread.Start();
+                _processingThread = new Thread(ProcessLoop) { IsBackground = true };
+                _processingThread.Start();
 
 
                 ChannelSubscriptionRequest req = new ChannelSubscriptionRequest
@@ -196,7 +202,7 @@ namespace It.Unina.Dis.Logbus.Clients
                 _running = true;
 
                 OnStarted(EventArgs.Empty);
-                Log.Info("TLS client started...");
+                Log.Info("TLS client started");
             }
             catch (LogbusException ex)
             {
@@ -223,7 +229,7 @@ namespace It.Unina.Dis.Logbus.Clients
 
             try
             {
-                Log.Info("TLS client stopping...");
+                Log.Info("TLS client stopping");
 
                 CancelEventArgs arg = new CancelEventArgs();
                 OnStopping(arg);
@@ -247,14 +253,20 @@ namespace It.Unina.Dis.Logbus.Clients
                 {
                 } //Really nothing?
 
-                _runningThread.Abort();
-                _runningThread.Join();
-                _runningThread = null;
+                _processingThread.Interrupt();
+                if (!_listenerThread.Join(DEFAULT_JOIN_TIMEOUT))
+                {
+                    _listenerThread.Abort();
+                    _listenerThread.Join();
+                }
+                _listenerThread = null;
+                _processingThread.Join();
+                _processingThread = null;
 
                 _running = false;
 
                 OnStopped(EventArgs.Empty);
-                Log.Info("TLS client stopped...");
+                Log.Info("TLS client stopped");
             }
             catch (Exception ex)
             {
@@ -277,70 +289,121 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #endregion
 
-        private void RunnerLoop()
+        private void ProcessLoop()
         {
             try
             {
-                try
+                while (true)
                 {
-                    //Wait for first connection
-                    Log.Debug("Listening on TLS socket {0}", _server.LocalEndpoint.ToString());
-                    TcpClient client = _server.AcceptTcpClient();
-                    using (SslStream stream = new SslStream(client.GetStream(), false, RemoteCertificateValidation,
-                                                            LocalCertificateSelection))
+                    byte[] data = _queue.Dequeue();
+
+                    try
                     {
-                        stream.AuthenticateAsServer(CertificateUtilities.DefaultCertificate, false, SslProtocols.Tls,
-                                                    true);
-                        stream.ReadTimeout = 3600000; //1 hour
+                        SyslogMessage msg = SyslogMessage.Parse(data);
 
-
-                        while (true)
-                        {
-                            StringBuilder sb = new StringBuilder();
-                            do
-                            {
-                                char nextChar = (char)stream.ReadByte();
-                                if (char.IsDigit(nextChar)) sb.Append(nextChar);
-                                else if (nextChar == ' ') break;
-                                else throw new FormatException("Invalid TLS encoding of Syslog message");
-                            } while (true);
-
-                            int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
-
-                            byte[] buffer = new byte[charLen];
-                            if (stream.Read(buffer, 0, charLen) != charLen)
-                            {
-                                throw new FormatException("Invalid TLS encoding of Syslog message");
-                            }
-
-                            SyslogMessage msg = SyslogMessage.Parse(buffer);
-                            OnMessageReceived(new SyslogMessageEventArgs(msg));
-                        }
+                        OnMessageReceived(new SyslogMessageEventArgs(msg));
+                    }
+                    catch (FormatException ex)
+                    {
+                        OnError(new UnhandledExceptionEventArgs(ex, false));
+                        continue;
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (ThreadInterruptedException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                OnError(new UnhandledExceptionEventArgs(ex, true));
+
+                Log.Error("Error receiving Syslog messages from Logbus-ng server");
+                Log.Debug("Error details: {0}", ex.Message);
+
+                new Thread(delegate()
                 {
-                    OnError(new UnhandledExceptionEventArgs(ex, true));
-
-                    Log.Error("Error receiving Syslog messages from Logbus-ng server");
-                    Log.Debug("Error details: {0}", ex.Message);
-
-                    new Thread(delegate()
+                    try
                     {
-                        try
+                        Stop();
+                    }
+                    catch { }
+                }).Start();
+                return;
+            }
+        }
+
+        private void ListenerLoop()
+        {
+            try
+            {
+                //Wait for first connection
+                Log.Debug("Listening on TLS socket {0}", _server.LocalEndpoint.ToString());
+                TcpClient client = _server.AcceptTcpClient();
+                using (SslStream stream = new SslStream(client.GetStream(), false, RemoteCertificateValidation,
+                                                        LocalCertificateSelection))
+                {
+                    stream.AuthenticateAsServer(CertificateUtilities.DefaultCertificate, false, SslProtocols.Tls,
+                                                true);
+                    stream.ReadTimeout = 3600000; //1 hour
+
+
+                    while (true)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        do
                         {
-                            Stop();
+                            char nextChar = (char)stream.ReadByte();
+                            if (char.IsDigit(nextChar)) sb.Append(nextChar);
+                            else if (nextChar == ' ') break;
+                            else throw new FormatException("Invalid TLS encoding of Syslog message");
+                        } while (true);
+
+                        int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
+
+                        byte[] buffer = new byte[charLen];
+                        if (stream.Read(buffer, 0, charLen) != charLen)
+                        {
+                            throw new FormatException("Invalid TLS encoding of Syslog message");
                         }
-                        catch { }
-                    }).Start();
-                    return;
+
+                        _queue.Enqueue(buffer);
+                    }
                 }
+
+
                 /*catch (FormatException) { Stop(); }
                 catch (SocketException) { Stop(); }
                 catch (IOException) { Stop(); }*/
             }
+            catch (SocketException ex)
+            {
+                if (!Running) return; //OK
+
+                OnError(new UnhandledExceptionEventArgs(ex, true));
+                Log.Error("Error receiving data from Logbus-ng server");
+                Log.Debug("Error details: {0}", ex.Message);
+            }
             catch (ThreadAbortException)
             {
+                return;
+            }
+            catch (Exception ex)
+            {
+                OnError(new UnhandledExceptionEventArgs(ex, true));
+
+                Log.Error("Error receiving Syslog messages from Logbus-ng server");
+                Log.Debug("Error details: {0}", ex.Message);
+
+                new Thread(delegate()
+                {
+                    try
+                    {
+                        Stop();
+                    }
+                    catch { }
+                }).Start();
+                return;
             }
         }
 
