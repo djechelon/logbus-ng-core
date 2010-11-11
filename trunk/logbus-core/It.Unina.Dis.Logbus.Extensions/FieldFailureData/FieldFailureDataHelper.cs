@@ -19,6 +19,7 @@
 
 using System.Net;
 using It.Unina.Dis.Logbus.Collectors;
+using It.Unina.Dis.Logbus.Configuration;
 
 namespace It.Unina.Dis.Logbus.FieldFailureData
 {
@@ -46,7 +47,20 @@ namespace It.Unina.Dis.Logbus.FieldFailureData
             {
                 collector = CollectorHelper.CreateCollector();
             }
-            return new FieldFailureDataLogger(collector, loggerName);
+            
+            int heartbeatInterval = 0;
+            try
+            {
+                foreach (LoggerDefinition definition in ConfigurationHelper.SourceConfiguration.logger)
+                {
+                    if (definition.name != loggerName) continue;
+                    heartbeatInterval = definition.heartbeatinterval;
+                    break;
+                }
+            }
+            catch { }
+
+            return new FieldFailureDataLogger(collector, loggerName) { HeartbeatInterval = heartbeatInterval };
         }
 
         /// <summary>
@@ -74,7 +88,19 @@ namespace It.Unina.Dis.Logbus.FieldFailureData
             {
                 collector = CollectorHelper.CreateCollector();
             }
-            return new FieldFailureDataLogger(collector, loggerName);
+            
+            int heartbeatInterval = 0;
+            try
+            {
+                foreach (LoggerDefinition definition in ConfigurationHelper.SourceConfiguration.logger)
+                {
+                    if (definition.name != loggerName) continue;
+                    heartbeatInterval = definition.heartbeatinterval;
+                    break;
+                }
+            }
+            catch { }
+            return new FieldFailureDataLogger(collector, loggerName) { HeartbeatInterval = heartbeatInterval };
         }
 
         /// <summary>
