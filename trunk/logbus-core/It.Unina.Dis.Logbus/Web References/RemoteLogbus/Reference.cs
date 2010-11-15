@@ -31,7 +31,9 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus
     [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
+#if !MONO
     [WebServiceBinding(Name = "ChannelManagement", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
     public class ChannelManagement : SoapHttpClientProtocol, IChannelManagement
     {
         private SendOrPostCallback ListChannelsOperationCompleted;
@@ -290,7 +292,9 @@ namespace It.Unina.Dis.Logbus.RemoteLogbus
     [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
+#if !MONO
     [WebServiceBinding(Name = "ChannelSubscription", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
+#endif
     public class ChannelSubscription : SoapHttpClientProtocol, IChannelSubscription
     {
         private SendOrPostCallback ListChannelsOperationCompleted;

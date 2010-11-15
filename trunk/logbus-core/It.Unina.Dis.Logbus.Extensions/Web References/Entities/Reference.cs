@@ -30,7 +30,9 @@ namespace It.Unina.Dis.Logbus.Entities
     [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
+#if !MONO
     [WebServiceBinding(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
+#endif
     [XmlInclude(typeof (LoggingEntityIdentifier))]
     public class EntityManagement : SoapHttpClientProtocol, IEntityManagement
     {
