@@ -310,7 +310,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     }
                 }
             }
-            catch (ThreadAbortException)
+            catch (ThreadInterruptedException)
             {
                 return;
             }
