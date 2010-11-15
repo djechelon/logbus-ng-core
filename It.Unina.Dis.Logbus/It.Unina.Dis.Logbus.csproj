@@ -217,6 +217,7 @@
     <Compile Include="Utils\NetworkUtils.cs" />
     <Compile Include="Utils\Randomizer.cs" />
     <Compile Include="Collectors\SyslogUdpCollector.cs" />
+    <Compile Include="Utils\ZeroWaitQueue.cs" />
     <Compile Include="Web References\RemoteLogbus\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -302,7 +303,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
