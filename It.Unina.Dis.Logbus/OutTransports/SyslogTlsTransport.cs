@@ -40,7 +40,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
         private readonly ReaderWriterLock _listLock;
         private readonly Thread _worker;
         private readonly IFifoQueue<SyslogMessage> _queue;
-        private readonly Timer _cleaner;
+        private readonly Timer _tmrCleaner, _tmrStatistics;
+        private long _totalSent;
 
         private const int DEFAULT_JOIN_TIMEOUT = 5000;
         private const int TIMER_CYCLE_TIMEOUT = 60000;
@@ -60,7 +61,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
                           };
             _worker.Start();
 
-            _cleaner = new Timer(CleanupClients, null, TIMER_CYCLE_TIMEOUT, TIMER_CYCLE_TIMEOUT);
+            _tmrCleaner = new Timer(CleanupClients, null, TIMER_CYCLE_TIMEOUT, TIMER_CYCLE_TIMEOUT);
+            _tmrStatistics = new Timer(Statistics, null, TIMER_CYCLE_TIMEOUT, TIMER_CYCLE_TIMEOUT);
         }
 
         ~SyslogTlsTransport()
@@ -77,7 +79,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _disposed = true;
 
             _worker.Interrupt();
-            _cleaner.Dispose();
+            _tmrCleaner.Dispose();
+            _tmrStatistics.Dispose();
 
             if (disposing)
             {
@@ -358,7 +361,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             ms.WriteByte((byte)' ');
 
                             ms.Write(payload, 0, payload.Length);
-
+                            _totalSent++;
                         }
                         data = ms.ToArray();
                     }
@@ -373,7 +376,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             {
                                 client.Stream.Write(data, 0, data.Length);
                             }
-                            catch (IOException) { }
+                            catch (IOException ex)
+                            {
+                                Log.Warning("Unable to send paylod to TLS client {0}", client.Client.Client.RemoteEndPoint.ToString());
+                                Log.Debug("Error details: {0}", ex.Message);
+                            }
                             catch (ObjectDisposedException) { }
                         }
                     }
@@ -385,6 +392,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
                 }
             }
             catch (ThreadInterruptedException) { }
+            catch (Exception ex)
+            {
+                Log.Error("Failed TLS cycle in SyslogTlsTransport");
+                Log.Debug("Error details: {0}", ex.Message);
+            }
         }
 
         private void CleanupClients(object state)
@@ -460,6 +472,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
                                                           X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             return ServerCertificate;
+        }
+
+        private void Statistics(object state)
+        {
+            Log.Debug("So far TLS transport {0} sent {1} messages", GetHashCode(), _totalSent);
         }
 
         /// <summary>
