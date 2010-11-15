@@ -165,9 +165,9 @@ namespace It.Unina.Dis.Logbus.Clients
                 }
 
 
-                _listenerThread = new Thread(ListenerLoop) { IsBackground = true };
+                _listenerThread = new Thread(ListenerLoop);
                 _listenerThread.Start();
-                _processingThread = new Thread(ProcessLoop) { IsBackground = true };
+                _processingThread = new Thread(ProcessLoop);
                 _processingThread.Start();
 
 
@@ -310,7 +310,7 @@ namespace It.Unina.Dis.Logbus.Clients
                     }
                 }
             }
-            catch (ThreadInterruptedException)
+            catch (ThreadAbortException)
             {
                 return;
             }
@@ -362,10 +362,13 @@ namespace It.Unina.Dis.Logbus.Clients
                         int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
 
                         byte[] buffer = new byte[charLen];
-                        if (stream.Read(buffer, 0, charLen) != charLen)
+                        int position = 0;
+                        do
                         {
-                            throw new FormatException("Invalid TLS encoding of Syslog message");
-                        }
+                            int read = stream.Read(buffer, position, charLen);
+                            position += read;
+                            charLen -= read;
+                        } while (charLen > 0);
 
                         _queue.Enqueue(buffer);
                     }
