@@ -29,25 +29,18 @@ namespace It.Unina.Dis.Logbus
     /// <summary>
     /// Manages subscription to Logbus channels
     /// </summary>
-#if MONO
-#else
     [GeneratedCode("wsdl", "2.0.50727.3038")]
     [WebServiceBinding(Name = "ChannelSubscription", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
     [WebService(Namespace = "http://www.dis.unina.it/logbus-ng/wsdl/")]
-#endif
     public interface IChannelSubscription
     {
         /// <summary>
         /// Lists the available channels by their unique IDs
         /// </summary>
         /// <returns>List of channel IDs</returns>
-#if MONO
-#else
         [WebMethod]
-        [SoapDocumentMethod("urn:#ListChannels", Use = SoapBindingUse.Literal, ParameterStyle = SoapParameterStyle.Bare)
-        ]
+        [SoapDocumentMethod("urn:#ListChannels", Use = SoapBindingUse.Literal, ParameterStyle = SoapParameterStyle.Bare)]
         [return: XmlArray("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         string[] ListChannels();
 
         /// <summary>
@@ -56,13 +49,10 @@ namespace It.Unina.Dis.Logbus
         /// <returns>List of IDs of outbound transports</returns>
         /// <remarks>Clients must be aware of transport semantics, as defined in documentation.
         /// Clients must choose only transport they are natively compiled for and that are supported by the server</remarks>
-#if MONO
-#else
         [WebMethod]
         [SoapDocumentMethod("urn:#GetAvailableTransports", Use = SoapBindingUse.Literal,
             ParameterStyle = SoapParameterStyle.Bare)]
         [return: XmlArray("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         string[] GetAvailableTransports();
 
         /// <summary>
@@ -70,13 +60,10 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="channelsubrequest">Subscription Information</param>
         /// <returns>Client ID (for future request) and client instructions</returns>
-#if MONO
-#else
         [WebMethod]
         [SoapDocumentMethod("urn:#SubscribeChannel", Use = SoapBindingUse.Literal,
             ParameterStyle = SoapParameterStyle.Bare)]
         [return: XmlElement("channel-sub-response", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         ChannelSubscriptionResponse SubscribeChannel(
             [XmlElement("channel-sub-request", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelSubscriptionRequest channelsubrequest);
 
@@ -84,12 +71,9 @@ namespace It.Unina.Dis.Logbus
         /// Unsubscribes from a channel
         /// </summary>
         /// <param name="clientid">Client ID as returned by SubscribeChannel</param>
-#if MONO
-#else
         [WebMethod]
         [SoapDocumentMethod("urn:#UnsubscribeChannel", Use = SoapBindingUse.Literal,
             ParameterStyle = SoapParameterStyle.Bare)]
-#endif
         void UnsubscribeChannel(
             [XmlElement("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid);
 
@@ -97,12 +81,9 @@ namespace It.Unina.Dis.Logbus
         /// Refreshes client subscription, if required by transport
         /// </summary>
         /// <param name="clientid">ID of client as returned by SubscribeChannel</param>
-#if MONO
-#else
         [WebMethod]
         [SoapDocumentMethod("urn:#RefreshSubscription", Use = SoapBindingUse.Literal,
             ParameterStyle = SoapParameterStyle.Bare)]
-#endif
         void RefreshSubscription(
             [XmlElement("client-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string clientid);
 
@@ -110,13 +91,10 @@ namespace It.Unina.Dis.Logbus
         /// Lists the available custom filters on the server by their IDs
         /// </summary>
         /// <returns></returns>
-#if MONO
-#else
         [WebMethod]
         [SoapDocumentMethod("urn:#GetAvailableFilters", Use = SoapBindingUse.Literal,
             ParameterStyle = SoapParameterStyle.Bare)]
         [return: XmlArray("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         string[] GetAvailableFilters();
 
         /// <summary>
@@ -124,13 +102,10 @@ namespace It.Unina.Dis.Logbus
         /// </summary>
         /// <param name="filterid">ID of custom filter</param>
         /// <returns></returns>
-#if MONO
-#else
         [WebMethod]
         [SoapDocumentMethod("urn:#DescribeFilter", Use = SoapBindingUse.Literal,
             ParameterStyle = SoapParameterStyle.Bare)]
         [return: XmlElement("filter-description", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         FilterDescription DescribeFilter(
             [XmlElement("filter-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string filterid);
     }
