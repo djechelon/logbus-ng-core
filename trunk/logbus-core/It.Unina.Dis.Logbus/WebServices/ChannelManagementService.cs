@@ -67,49 +67,25 @@ namespace It.Unina.Dis.Logbus.WebServices
         #region IChannelManagement Membri di
 
         /// <remarks/>
-#if MONO
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#ListChannels", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("string-array", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-#endif
         public virtual string[] ListChannels()
         {
             return TargetChannelManager.ListChannels();
         }
 
         /// <remarks/>
-#if MONO
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#CreateChannel", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void CreateChannel([System.Xml.Serialization.XmlElementAttribute("channel-creation", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] ChannelCreationInformation channelcreation)
-#else
         public virtual void CreateChannel(ChannelCreationInformation channelcreation)
-#endif
         {
             TargetChannelManager.CreateChannel(channelcreation);
         }
 
         /// <remarks/>
-#if MONO
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetChannelInformation", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("channel-info", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")]
-        public ChannelInformation GetChannelInformation([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid)
-#else
         public virtual ChannelInformation GetChannelInformation(string channelid)
-#endif
         {
             return TargetChannelManager.GetChannelInformation(channelid);
         }
 
         /// <remarks/>
-#if MONO
-        [System.Web.Services.WebMethodAttribute()]
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#DeleteChannel", Use = System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle = System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteChannel([System.Xml.Serialization.XmlElementAttribute("channel-id", Namespace = "http://www.dis.unina.it/logbus-ng/wsdl")] string channelid)
-#else
         public virtual void DeleteChannel(string channelid)
-#endif
         {
             TargetChannelManager.DeleteChannel(channelid);
         }
