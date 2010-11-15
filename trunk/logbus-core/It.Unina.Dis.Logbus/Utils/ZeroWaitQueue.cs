@@ -20,41 +20,38 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-
-namespace
-    It.Unina.Dis.Logbus.Utils
+namespace It.Unina.Dis.Logbus.Utils
 {
     /// <summary>
-    /// Implements the FIFO queue with static array and two semaphores for best performance in producers/consumers problem
+    /// A faster queue that doesn't delay releasing semaphores, improving throughput.
+    /// Semaphores are granted to be released in order, and they are not released by
+    /// other thread by the first acquiring the semaphore
     /// </summary>
-    /// <remarks>Currently unusable. The queue actually LEAKS when concurrently accessed in write mode.
-    /// No explanation for this absurde behaviour as all operations on pointers are thread safe</remarks>
-    public sealed class
-        FastFifoQueue<T>
+    /// <typeparam name="T"></typeparam>
+    public sealed class ZeroWaitQueue<T>
         : IFifoQueue<T> where T : class
     {
-        private readonly T[] _array;
-        private int _head, _tail, _count;
+        private int _head, _tail, _lastWritten, _lastRead, _count;
         private readonly int _capacity;
         private bool _disposed;
-
         private readonly Semaphore _readSema, _writeSema;
+        private volatile readonly T[] _array;
 
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of FastFifoQueue
+        /// Initializes a new instance of ZeroWaitQueue
         /// </summary>
-        public FastFifoQueue()
+        public ZeroWaitQueue()
             : this(512)
         {
         }
 
         /// <summary>
-        /// Initializes FastFifoQueue with the specified capacity
+        /// Initializes ZeroWaitQueue with the specified capacity
         /// </summary>
         /// <param name="size">Maximum number of elements to store</param>
-        public FastFifoQueue(int size)
+        public ZeroWaitQueue(int size)
         {
             //Check if size is power of 2
             //Credit: http://stackoverflow.com/questions/600293/how-to-check-if-a-number-is-a-power-of-2
@@ -66,22 +63,22 @@ namespace
             _count = 0;
             _head = int.MinValue;
             _tail = int.MinValue;
+            _lastWritten = int.MinValue;
+            _lastRead = int.MinValue;
 
             _readSema = new Semaphore(0, _capacity);
             _writeSema = new Semaphore(_capacity, _capacity);
         }
 
-        ~FastFifoQueue()
+        ~ZeroWaitQueue()
         {
             Dispose();
         }
 
         #endregion
 
-        #region IFifoQueue<T> Membri di
 
-        /* Credit to Dan Tao and Les from stackoverflow.com
-         * http://stackoverflow.com/questions/3898204/can-a-c-blocking-fifo-queue-leak-messages-whats-wrong-in-my-code */
+        #region IFifoQueue<T> Membri di
 
         void IFifoQueue<T>.Enqueue(T item)
         {
@@ -92,13 +89,21 @@ namespace
             int index = Interlocked.Increment(ref _head);
             index %= _capacity;
             if (index < 0) index += _capacity;
-            //_array[index] = item;
-            while (Interlocked.CompareExchange(ref _array[index], item, null) != null)
-                Thread.Sleep(0);
+            _array[index] = item;
 
-            Interlocked.Increment(ref _count);
+            //Did we get the semaphore for first?
+            int lw = _lastWritten % _capacity;
+            if (lw < 0) lw += _capacity;
 
-            _readSema.Release();
+
+            if (index != lw) return; //We are not the first, somebody else will release
+            do
+            {
+                Interlocked.Increment(ref _count);
+                Interlocked.Increment(ref _lastWritten);
+                index++;
+                _readSema.Release();
+            } while (_array[index] != null);
         }
 
         T IFifoQueue<T>.Dequeue()
@@ -109,12 +114,24 @@ namespace
             int index = Interlocked.Increment(ref _tail);
             index %= _capacity;
             if (index < 0) index += _capacity;
-            T ret;
-            while ((ret = Interlocked.Exchange(ref _array[index], null)) == null)
-                Thread.Sleep(0);
+            T ret=_array[index];
+            _array[index] = null;
 
-            Interlocked.Decrement(ref _count);
-            _writeSema.Release();
+            int lr = _lastRead%_capacity;
+            if (lr < 0) lr += _capacity;
+
+            //Did we get the semaphore for first?
+
+            if (index != lr)
+            {
+                do
+                {
+                    Interlocked.Decrement(ref _count);
+                    Interlocked.Increment(ref _lastRead);
+                    index++;
+                    _writeSema.Release();
+                } while (_array[index] == null);
+            }
 
             return ret;
         }
@@ -154,9 +171,6 @@ namespace
 
         #region IDisposable Membri di
 
-        /// <summary>
-        /// Implements IDisposable.Dispose
-        /// </summary>
         public void Dispose()
         {
             if (_disposed) return;
@@ -180,9 +194,8 @@ namespace
                 index %= _capacity;
                 if (index < 0) index += _capacity;
                 Interlocked.Decrement(ref _count);
-                T item;
-                while ((item = Interlocked.Exchange(ref _array[index], null)) == null)
-                    Thread.Sleep(0);
+                Interlocked.Increment(ref _lastRead);
+                T item=_array[index];
                 ret.Add(item);
                 _writeSema.Release();
             }
