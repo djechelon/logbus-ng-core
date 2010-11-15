@@ -35,7 +35,7 @@ namespace It.Unina.Dis.Logbus.Utils
         private readonly int _capacity;
         private bool _disposed;
         private readonly Semaphore _readSema, _writeSema;
-        private volatile readonly T[] _array;
+        private readonly T[] _array;
 
         #region Constructor
 
