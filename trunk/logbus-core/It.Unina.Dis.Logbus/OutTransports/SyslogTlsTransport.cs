@@ -455,8 +455,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
             {
                 _listLock.ReleaseReaderLock();
             }
-
-            Log.Notice("TLS transport {0} cleaned up {1} dead clients", GetHashCode(), toRemove.Count);
+            if (toRemove.Count > 0)
+                Log.Notice("TLS transport {0} cleaned up {1} dead clients", GetHashCode(), toRemove.Count);
         }
 
         private bool RemoteCertificateValidation(Object sender, X509Certificate certificate, X509Chain chain,
