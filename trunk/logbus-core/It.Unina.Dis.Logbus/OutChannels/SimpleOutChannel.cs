@@ -247,6 +247,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                         try
                         {
                             toSubscribe = TransportFactoryHelper.GetFactory(transportId).CreateTransport();
+                            Log.Debug("Created new instance of transport type {0} for channel {1}, ID {2}", transportId, Name, toSubscribe.GetHashCode());
                         }
                         catch (NotSupportedException e)
                         {
