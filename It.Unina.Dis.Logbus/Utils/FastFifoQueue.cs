@@ -179,7 +179,7 @@ namespace
         private T[] FlushInternal()
         {
             List<T> ret = new List<T>(_count);
-            while (_count > 0 && _readSema.WaitOne(1))
+            while (_count > 0 && _readSema.WaitOne(0))
             {
                 int index = Interlocked.Increment(ref _tail);
                 index %= _capacity;
@@ -187,6 +187,7 @@ namespace
                 Interlocked.Decrement(ref _count);
                 ret.Add(_array[index]);
                 _array[index] = null;
+                _writeSema.Release();
             }
             return ret.ToArray();
         }
