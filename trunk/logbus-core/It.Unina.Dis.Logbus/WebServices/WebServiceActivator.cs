@@ -356,7 +356,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                                                     {
                                                         StartInfo = new ProcessStartInfo("whoami")
                                                                         {
-                                                                            UseShellExecute = true,
+                                                                            UseShellExecute = false,
                                                                             RedirectStandardOutput = true
                                                                         }
                                                     })
