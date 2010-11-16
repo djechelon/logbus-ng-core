@@ -79,26 +79,6 @@ namespace It.Unina.Dis.Logbus.Clients
             Dispose(false);
         }
 
-        private void Dispose(bool disposing)
-        {
-            if (Disposed) return;
-
-            GC.SuppressFinalize(this);
-
-            if (disposing)
-            {
-                try
-                {
-                    _server.Stop();
-                }
-                catch (SocketException)
-                {
-                }
-                _server = null;
-                _queue.Dispose();
-            }
-        }
-
         #endregion
 
         #region IRunnable Membri di
@@ -276,15 +256,6 @@ namespace It.Unina.Dis.Logbus.Clients
                 if (ex is LogbusException) throw;
                 throw new LogbusException("Unable to unsubscribe channel", ex);
             }
-        }
-
-        #endregion
-
-        #region IDisposable Membri di
-
-        public override void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion
