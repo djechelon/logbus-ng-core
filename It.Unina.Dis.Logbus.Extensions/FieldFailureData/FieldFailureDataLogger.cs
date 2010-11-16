@@ -119,17 +119,6 @@ namespace It.Unina.Dis.Logbus.FieldFailureData
         {
             base.PreProcessMessage(msg);
 
-            StackTrace stackTrace = new StackTrace();
-            StackFrame[] stackFrames = stackTrace.GetFrames();
-            IDictionary<string, string> callerData = msg.Data["CallerData@" + ENTERPRISE_ID];
-
-            if (stackFrames != null && stackFrames.Length >= 5)
-            {
-                callerData["ClassName"] = stackFrames[4].GetMethod().DeclaringType.FullName;
-                callerData["MethodName"] = stackFrames[4].GetMethod().Name;
-                callerData["ModuleName"] = stackFrames[4].GetMethod().DeclaringType.Assembly.GetName().Name;
-            }
-
             IDictionary<string, string> origin = msg.Data["origin"];
             origin["software"] = "Logbus-ng-ffda-sharp";
             origin["swVersion"] = typeof (FieldFailureDataLogger).Assembly.GetName().Version.ToString(3);
