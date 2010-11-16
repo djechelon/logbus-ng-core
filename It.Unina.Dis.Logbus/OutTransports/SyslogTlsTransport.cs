@@ -366,29 +366,32 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         data = ms.ToArray();
                     }
 
+                    //Critical section. Obtain a snapshot of list and release lock ASAP
+                    TlsClient[] clients;
                     _listLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
                     try
                     {
-                        foreach (KeyValuePair<string, TlsClient> kvp in _clients)
-                        {
-                            TlsClient client = kvp.Value;
-                            try
-                            {
-                                client.Stream.Write(data, 0, data.Length);
-                            }
-                            catch (IOException ex)
-                            {
-                                Log.Warning("Unable to send paylod to TLS client {0}", client.Client.Client.RemoteEndPoint.ToString());
-                                Log.Debug("Error details: {0}", ex.Message);
-                            }
-                            catch (ObjectDisposedException) { }
-                        }
+                        clients=new TlsClient[_clients.Count];
+                        _clients.Values.CopyTo(clients, 0);
                     }
                     finally
                     {
                         _listLock.ReleaseReaderLock();
                     }
 
+                    foreach (TlsClient client in clients)
+                    {
+                        try
+                        {
+                            client.Stream.Write(data, 0, data.Length);
+                        }
+                        catch (IOException ex)
+                        {
+                            Log.Warning("Unable to send paylod to TLS client {0}", client.Client.Client.RemoteEndPoint.ToString());
+                            Log.Debug("Error details: {0}", ex.Message);
+                        }
+                        catch (ObjectDisposedException) { }
+                    }
                 }
             }
             catch (ThreadInterruptedException) { }
