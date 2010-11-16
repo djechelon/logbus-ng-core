@@ -1002,62 +1002,76 @@ namespace It.Unina.Dis.Logbus
                 throw new ArgumentNullException("channelId", "Channel ID cannot be null");
             if (channelId.Contains(":")) throw new ArgumentException("Invalid channel ID");
 
-            //First find the channel
-            IOutboundChannel channel = GetOutboundChannel(channelId);
-
-            if (channel == null)
-            {
-                LogbusException ex = new LogbusException("Channel does not exist");
-                ex.Data.Add("channelId", channelId);
-                throw ex;
-            }
-
-            if (ClientSubscribing != null)
-            {
-                ClientSubscribingEventArgs e = new ClientSubscribingEventArgs(channel, transportId,
-                                                                              transportInstructions);
-                ClientSubscribing(this, e);
-                if (e.Cancel)
-                {
-                    throw new LogbusException(
-                        string.Format("You cannot subscribe to this channel for the following reasons: {0}",
-                                      string.Join(", ", e.ReasonForCanceling)));
-                }
-            }
-
+            Log.Info("New client subscribing to channel {0} via transport \"{1}\"", channelId, transportId);
             try
             {
-                string clientId = string.Format("{0}:{1}", channelId,
-                                                channel.SubscribeClient(transportId, transportInstructions,
-                                                                        out clientInstructions));
-                if (ClientSubscribed != null)
+                //First find the channel
+                IOutboundChannel channel = GetOutboundChannel(channelId);
+
+                if (channel == null)
                 {
-                    IDictionary<string, string> clientInstro = new Dictionary<string, string>();
-                    foreach (KeyValuePair<string, string> pair in clientInstructions)
-                    {
-                        clientInstro.Add(pair);
-                    }
-                    ClientSubscribedEventArgs e = new ClientSubscribedEventArgs(channel, transportId,
-                                                                                transportInstructions, clientId,
-                                                                                clientInstro);
-                    ClientSubscribed(this, e);
-                    clientInstructions = clientInstro;
+                    LogbusException ex = new LogbusException("Channel does not exist");
+                    ex.Data.Add("channelId", channelId);
+                    throw ex;
                 }
 
-                Log.Info("A new client subscribed channel {0} with ID {1}", channel.ID, clientId);
+                if (ClientSubscribing != null)
+                {
+                    ClientSubscribingEventArgs e = new ClientSubscribingEventArgs(channel, transportId,
+                                                                                  transportInstructions);
+                    ClientSubscribing(this, e);
+                    if (e.Cancel)
+                    {
+                        throw new LogbusException(
+                            string.Format("You cannot subscribe to this channel for the following reasons: {0}",
+                                          string.Join(", ", e.ReasonForCanceling)));
+                    }
+                }
 
-                return clientId;
+                try
+                {
+                    string clientId = string.Format("{0}:{1}", channelId,
+                                                    channel.SubscribeClient(transportId, transportInstructions,
+                                                                            out clientInstructions));
+                    if (ClientSubscribed != null)
+                    {
+                        IDictionary<string, string> clientInstro = new Dictionary<string, string>();
+                        foreach (KeyValuePair<string, string> pair in clientInstructions)
+                        {
+                            clientInstro.Add(pair);
+                        }
+                        ClientSubscribedEventArgs e = new ClientSubscribedEventArgs(channel, transportId,
+                                                                                    transportInstructions, clientId,
+                                                                                    clientInstro);
+                        ClientSubscribed(this, e);
+                        clientInstructions = clientInstro;
+                    }
+
+                    Log.Info("A new client subscribed channel {0} with ID {1}", channel.ID, clientId);
+
+                    return clientId;
+                }
+                catch (LogbusException ex)
+                {
+                    ex.Data.Add("channelId", channelId);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    LogbusException ex = new LogbusException("Could not subscribe channel", e);
+                    ex.Data.Add("channelId", channelId);
+                    throw ex;
+                }
             }
-            catch (LogbusException ex)
+            catch (Exception ex)
             {
-                ex.Data.Add("channelId", channelId);
+                Exception realEx = (ex is LogbusException) ? ex.InnerException : ex;
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(realEx, false));
+
+                Log.Error("Unable to subscribe client to channel {0}", channelId);
+                Log.Debug("Error details: {0}", realEx.Message);
+
                 throw;
-            }
-            catch (Exception e)
-            {
-                LogbusException ex = new LogbusException("Could not subscribe channel", e);
-                ex.Data.Add("channelId", channelId);
-                throw ex;
             }
         }
 
@@ -1069,50 +1083,64 @@ namespace It.Unina.Dis.Logbus
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(clientId))
                 throw new ArgumentNullException("clientId", "Client ID must not be null");
-            int indexof = clientId.IndexOf(':');
-            if (indexof < 0)
-            {
-                ArgumentException ex = new ArgumentException("Invalid client ID");
-                ex.Data.Add("clientId-Logbus", clientId);
-                throw ex;
-            }
-
-            string chanName = clientId.Substring(0, indexof), chanClientId = clientId.Substring(indexof + 1);
-            if (string.IsNullOrEmpty(chanName))
-            {
-                ArgumentException ex = new ArgumentException("Invalid client ID");
-                ex.Data.Add("clientId-Logbus", clientId);
-                throw ex;
-            }
-
-            //First find the channel
-            IOutboundChannel channel = GetOutboundChannel(chanName);
-
-            if (channel == null)
-            {
-                LogbusException ex = new LogbusException("Channel does not exist");
-                ex.Data.Add("client-Logbus", clientId);
-                throw ex;
-            }
 
             try
             {
-                channel.RefreshClient(chanClientId);
+                int indexof = clientId.IndexOf(':');
+                if (indexof < 0)
+                {
+                    ArgumentException ex = new ArgumentException("Invalid client ID");
+                    ex.Data.Add("clientId-Logbus", clientId);
+                    throw ex;
+                }
+
+                string chanName = clientId.Substring(0, indexof), chanClientId = clientId.Substring(indexof + 1);
+                if (string.IsNullOrEmpty(chanName))
+                {
+                    ArgumentException ex = new ArgumentException("Invalid client ID");
+                    ex.Data.Add("clientId-Logbus", clientId);
+                    throw ex;
+                }
+
+                //First find the channel
+                IOutboundChannel channel = GetOutboundChannel(chanName);
+
+                if (channel == null)
+                {
+                    LogbusException ex = new LogbusException("Channel does not exist");
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw ex;
+                }
+
+                try
+                {
+                    channel.RefreshClient(chanClientId);
+                }
+                catch (NotSupportedException ex)
+                {
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw;
+                }
+                catch (LogbusException ex)
+                {
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    LogbusException ex = new LogbusException("Unable to refresh client", e);
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw;
+                }
             }
-            catch (NotSupportedException ex)
+            catch (Exception ex)
             {
-                ex.Data.Add("client-Logbus", clientId);
-                throw;
-            }
-            catch (LogbusException ex)
-            {
-                ex.Data.Add("client-Logbus", clientId);
-                throw;
-            }
-            catch (Exception e)
-            {
-                LogbusException ex = new LogbusException("Unable to refresh client", e);
-                ex.Data.Add("client-Logbus", clientId);
+                Exception realEx = (ex is LogbusException) ? ex.InnerException : ex;
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(realEx, false));
+
+                Log.Error("Unable to refresh client {0}", clientId);
+                Log.Debug("Error details: {0}", realEx.Message);
+
                 throw;
             }
         }
@@ -1125,54 +1153,67 @@ namespace It.Unina.Dis.Logbus
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(clientId))
                 throw new ArgumentNullException("clientId", "Client ID must not be null");
-            int indexof = clientId.IndexOf(':');
-            if (indexof < 0)
-            {
-                ArgumentException ex = new ArgumentException("Invalid client ID");
-                ex.Data.Add("clientId-Logbus", clientId);
-                throw ex;
-            }
-
-            string chanName = clientId.Substring(0, indexof), chanClientId = clientId.Substring(indexof + 1);
-            if (string.IsNullOrEmpty(chanName))
-            {
-                ArgumentException ex = new ArgumentException("Invalid client ID");
-                ex.Data.Add("clientId-Logbus", clientId);
-                throw ex;
-            }
-
-            //First find the channel
-            IOutboundChannel channel = GetOutboundChannel(chanName);
-
-
-            if (channel == null)
-            {
-                LogbusException ex = new LogbusException("Channel does not exist");
-                ex.Data.Add("client-Logbus", clientId);
-                throw ex;
-            }
 
             try
             {
-                channel.UnsubscribeClient(chanClientId);
-
-                if (ClientUnsubscribed != null)
+                int indexof = clientId.IndexOf(':');
+                if (indexof < 0)
                 {
-                    ClientUnsubscribedEventArgs e = new ClientUnsubscribedEventArgs(channel, clientId);
-                    ClientUnsubscribed(this, e);
+                    ArgumentException ex = new ArgumentException("Invalid client ID");
+                    ex.Data.Add("clientId-Logbus", clientId);
+                    throw ex;
                 }
 
-                Log.Info("Client {0} unsubscribed from channel {1}", clientId, channel.ID);
+                string chanName = clientId.Substring(0, indexof), chanClientId = clientId.Substring(indexof + 1);
+                if (string.IsNullOrEmpty(chanName))
+                {
+                    ArgumentException ex = new ArgumentException("Invalid client ID");
+                    ex.Data.Add("clientId-Logbus", clientId);
+                    throw ex;
+                }
+
+                //First find the channel
+                IOutboundChannel channel = GetOutboundChannel(chanName);
+
+                if (channel == null)
+                {
+                    LogbusException ex = new LogbusException("Channel does not exist");
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw ex;
+                }
+
+                try
+                {
+                    channel.UnsubscribeClient(chanClientId);
+
+                    if (ClientUnsubscribed != null)
+                    {
+                        ClientUnsubscribedEventArgs e = new ClientUnsubscribedEventArgs(channel, clientId);
+                        ClientUnsubscribed(this, e);
+                    }
+
+                    Log.Info("Client {0} unsubscribed from channel {1}", clientId, channel.ID);
+                }
+                catch (LogbusException ex)
+                {
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    LogbusException ex = new LogbusException("Unable to unsubscribe client", e);
+                    ex.Data.Add("client-Logbus", clientId);
+                    throw;
+                }
             }
-            catch (LogbusException ex)
+            catch (Exception ex)
             {
-                ex.Data.Add("client-Logbus", clientId);
-                throw;
-            }
-            catch (Exception e)
-            {
-                LogbusException ex = new LogbusException("Unable to refresh client", e);
-                ex.Data.Add("client-Logbus", clientId);
+                Exception realEx = (ex is LogbusException) ? ex.InnerException : ex;
+                if (Error != null) Error(this, new UnhandledExceptionEventArgs(realEx, false));
+
+                Log.Error("Unable to unsubscribe client {0}", clientId);
+                Log.Debug("Error details: {0}", realEx.Message);
+
                 throw;
             }
         }
