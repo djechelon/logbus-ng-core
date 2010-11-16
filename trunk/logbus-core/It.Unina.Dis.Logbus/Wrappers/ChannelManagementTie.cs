@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
     /// Proxy for IChannelManagement
     /// </summary>
     public sealed class ChannelManagementTie
-        : IChannelManagement
+        : MarshalByRefObject, IChannelManagement
     {
         /// <summary>
         /// Initializes ChannelManagementTie with proxied object
@@ -68,5 +68,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         #endregion
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

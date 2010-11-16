@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
     /// the other side it forwards them as <see cref="It.Unina.Dis.Logbus.ILogSource"/>
     /// </summary>
     public class LogRelay
-        : ILogCollector, ILogSource
+        : MarshalByRefObject, ILogCollector, ILogSource
     {
         #region ILogCollector Membri di
 
@@ -49,5 +49,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

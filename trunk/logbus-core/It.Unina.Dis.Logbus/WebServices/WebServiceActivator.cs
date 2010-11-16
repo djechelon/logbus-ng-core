@@ -84,28 +84,28 @@ namespace It.Unina.Dis.Logbus.WebServices
 
                 string appPath = InstallRuntime();
 #if MONO
-            WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
+                WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
 
-            _appserver = new ApplicationServer(ws, appPath);
-            _appserver.AddApplication(null, _httpPort, "/", appPath);
-			
-            _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
-            _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
-            ((VPathToHost)_appserver.GetSingleApp()).CreateHost(_appserver, ws);
+                _appserver = new ApplicationServer(ws, appPath);
+                _appserver.AddApplication(null, _httpPort, "/", appPath);
 
-            AppDomain targetDomain = _appserver.AppHost.Domain;
+                _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
+                _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
+                ((VPathToHost)_appserver.GetSingleApp()).CreateHost(_appserver, ws);
 
-            targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
-            targetDomain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
+                AppDomain targetDomain = _appserver.AppHost.Domain;
 
-            foreach (IPlugin plugin in _target.Plugins)
-            {
-                MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
-                if (pluginRoot != null) targetDomain.SetData(plugin.Name, pluginRoot);
-            }
+                targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+                targetDomain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
 
-            _appserver.Start(true);
-            
+                foreach (IPlugin plugin in _target.Plugins)
+                {
+                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                    if (pluginRoot != null) targetDomain.SetData(plugin.Name, pluginRoot);
+                }
+
+                _appserver.Start(true);
+
 #else
 
                 string[] prefixes = { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
