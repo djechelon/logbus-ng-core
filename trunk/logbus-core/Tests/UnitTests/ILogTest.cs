@@ -8,7 +8,7 @@ using It.Unina.Dis.Logbus.Filters;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using It.Unina.Dis.Logbus.Loggers;
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

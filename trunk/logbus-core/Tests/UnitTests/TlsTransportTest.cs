@@ -1,8 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using It.Unina.Dis.Logbus.Filters;
+﻿using It.Unina.Dis.Logbus.Filters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
 using It.Unina.Dis.Logbus.Configuration;
@@ -11,7 +7,7 @@ using It.Unina.Dis.Logbus.WebServices;
 using It.Unina.Dis.Logbus.Loggers;
 using System.Threading;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     /// <summary>
     /// Descrizione del riepilogo per TlsTransportTest

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Security.Principal;
 using It.Unina.Dis.Logbus.Configuration;
 
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

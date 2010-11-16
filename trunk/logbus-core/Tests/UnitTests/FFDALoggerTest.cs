@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using It.Unina.Dis.Logbus.Utils;
 using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.FieldFailureData;
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

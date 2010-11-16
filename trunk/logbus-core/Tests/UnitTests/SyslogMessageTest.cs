@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using It.Unina.Dis.Logbus.Loggers;
 
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

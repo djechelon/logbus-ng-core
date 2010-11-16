@@ -7,7 +7,7 @@ using It.Unina.Dis.Logbus.Utils;
 using System;
 using It.Unina.Dis.Logbus.Collectors;
 
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

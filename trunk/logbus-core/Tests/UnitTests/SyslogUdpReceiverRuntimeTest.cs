@@ -1,6 +1,5 @@
 ﻿using It.Unina.Dis.Logbus.InChannels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System;
 using It.Unina.Dis.Logbus;
 using System.Threading;
@@ -8,10 +7,8 @@ using System.IO;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
-using System.Resources;
-using System.Reflection;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     /// <summary>
     /// This test simulates real-world usage of SyslogUdpListener by submitting Syslog messages via a real UDP channel
