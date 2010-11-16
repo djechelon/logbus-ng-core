@@ -2,7 +2,7 @@
 using System.Threading;
 using It.Unina.Dis.Logbus.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

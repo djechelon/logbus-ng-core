@@ -11,7 +11,7 @@ using System.Web.Services.Protocols;
 using System.Web.Services.Description;
 using System.Threading;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     /// <summary>
     /// Descrizione del riepilogo per PluginDeploymentTest

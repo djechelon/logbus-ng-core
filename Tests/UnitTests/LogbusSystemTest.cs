@@ -13,7 +13,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Globalization;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     /// <summary>
     /// Descrizione del riepilogo per LogbusSystemTest

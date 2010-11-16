@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.OutChannels;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     
     

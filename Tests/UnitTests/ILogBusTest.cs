@@ -11,7 +11,7 @@ using System.Net.Sockets;
 using System;
 using System.Text;
 
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

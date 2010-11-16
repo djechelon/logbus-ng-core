@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using It.Unina.Dis.Logbus;
 
-namespace Unit_Tests.TestClasses
+namespace UnitTests.TestClasses
 {
     /// <summary>
     /// OK for NotImplementedException. This is a test

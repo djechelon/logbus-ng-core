@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using It.Unina.Dis.Logbus;
 using It.Unina.Dis.Logbus.Configuration;
@@ -10,7 +7,7 @@ using It.Unina.Dis.Logbus.Loggers;
 using System.Threading;
 using System.IO;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     /// <summary>
     /// Descrizione del riepilogo per TLSTest
@@ -34,19 +31,19 @@ namespace Unit_Tests
             core_config = new LogbusCoreConfiguration();
             core_config.corefilter = new TrueFilter();
             core_config.inchannels = new InboundChannelDefinition[1];
-            core_config.inchannels[0] = new InboundChannelDefinition()
-            {
+            core_config.inchannels[0] = new InboundChannelDefinition
+                                            {
                 type = "SyslogTlsReceiver"
             };
             core_config.inchannels[0].param = new KeyValuePair[1];
-            core_config.inchannels[0].param[0] = new KeyValuePair() { name = "certificate", value = @"C:\\logbus.p12" };
+            core_config.inchannels[0].param[0] = new KeyValuePair { name = "certificate", value = @"C:\\logbus.p12" };
 
 
             source_config = new LogbusLoggerConfiguration();
 
             source_config.logger = new LoggerDefinition[1];
-            source_config.logger[0] = new LoggerDefinition()
-            {
+            source_config.logger[0] = new LoggerDefinition
+                                          {
                 type = "SyslogTlsCollector",
                 name = "tls",
             };
@@ -118,7 +115,7 @@ namespace Unit_Tests
                 logger = LoggerHelper.CreateDefaultLogger();
 
                 logbus.Start();
-                logbus.MessageReceived += new EventHandler<SyslogMessageEventArgs>(logbus_MessageReceived);
+                logbus.MessageReceived += logbus_MessageReceived;
 
                 logger.Info("TLS test");
 

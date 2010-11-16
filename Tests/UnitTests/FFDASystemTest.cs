@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using It.Unina.Dis.Logbus.FieldFailureData;
 
-namespace Unit_Tests
+namespace UnitTests
 {
     /// <summary>
     /// Descrizione del riepilogo per FFDASystemTest

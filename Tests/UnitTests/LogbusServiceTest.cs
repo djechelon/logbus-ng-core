@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Utils;
 
-namespace Unit_Tests
+namespace UnitTests
 {
 
 

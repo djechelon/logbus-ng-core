@@ -1,10 +1,9 @@
 ﻿using It.Unina.Dis.Logbus.InChannels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System;
 using It.Unina.Dis.Logbus;
 
-namespace Unit_Tests
+namespace UnitTests
 {
 
 
