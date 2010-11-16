@@ -352,7 +352,14 @@ namespace It.Unina.Dis.Logbus.WebServices
                         return Environment.UserName == "root";
                          * */
                         //Workaround to Mono bug 653564
-                        using (Process whoami = new Process { StartInfo = new ProcessStartInfo("whoami") { RedirectStandardOutput = true } })
+                        using (Process whoami = new Process
+                                                    {
+                                                        StartInfo = new ProcessStartInfo("whoami")
+                                                                        {
+                                                                            UseShellExecute = true,
+                                                                            RedirectStandardOutput = true
+                                                                        }
+                                                    })
                         {
                             whoami.Start();
                             whoami.WaitForExit();
