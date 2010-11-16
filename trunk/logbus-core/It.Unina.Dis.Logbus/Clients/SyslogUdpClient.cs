@@ -323,36 +323,6 @@ namespace It.Unina.Dis.Logbus.Clients
 
         #endregion
 
-        #region IDisposable Membri di
-
-        public override void Dispose()
-        {
-            Dispose(true);
-            base.Dispose();
-        }
-
-        private void Dispose(bool disposing)
-        {
-            GC.SuppressFinalize(this);
-            try
-            {
-                Stop();
-            }
-            catch
-            {
-            }
-
-            if (disposing)
-            {
-                _client.Close();
-                _client = null;
-            }
-
-            //Implicit base.Finalize()
-        }
-
-        #endregion
-
         private void RunnerLoop()
         {
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);

@@ -91,9 +91,25 @@ namespace It.Unina.Dis.Logbus.Clients
             Dispose(false);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
+            if (Disposed) return;
+
             GC.SuppressFinalize(this);
+
+            try
+            {
+                Stop();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Log.Warning("Failed to clean stop Logbus client {0}", GetHashCode());
+                    Log.Debug("Error details: {0}", ex.Message);
+                }
+                catch { }
+            }
 
             if (_exclusiveUsage)
                 try
@@ -367,7 +383,7 @@ namespace It.Unina.Dis.Logbus.Clients
         /// <summary>
         /// Implements IDisposable.Dispose
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (Disposed) return;
 
