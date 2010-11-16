@@ -363,7 +363,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                         {
                             whoami.Start();
                             whoami.WaitForExit();
-                            return whoami.StandardOutput.ReadToEnd() == "root";
+                            return whoami.StandardOutput.ReadToEnd().Trim() == "root";
                         }
                     }
                 default:
