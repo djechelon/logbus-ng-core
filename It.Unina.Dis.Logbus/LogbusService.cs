@@ -111,6 +111,15 @@ namespace It.Unina.Dis.Logbus
 
         #endregion
 
+        #region MarshalByRefObject Membri di
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+        #endregion
+
         #region Configuration
 
         /// <summary>

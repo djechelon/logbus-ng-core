@@ -25,7 +25,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
     /// Apparently useless, this class implements delegation over a Log source
     /// </summary>
     public sealed class LogSourceTie
-        : ILogSource
+        : MarshalByRefObject, ILogSource
     {
         /// <summary>
         /// Initializes LogSourceTie with the log source
@@ -54,5 +54,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         public event EventHandler<SyslogMessageEventArgs> MessageReceived;
 
         #endregion
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

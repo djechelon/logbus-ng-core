@@ -25,7 +25,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
     /// Apparently useless, this class implements delegation over a Log collector
     /// </summary>
     public sealed class LogCollectorTie
-        : ILogCollector
+        : MarshalByRefObject,ILogCollector
     {
         /// <summary>
         /// Initializes LogCollectorTie with a target object
@@ -51,5 +51,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         #endregion
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

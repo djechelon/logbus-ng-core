@@ -26,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Wrappers
     /// Proxy for IChannelSubscription
     /// </summary>
     public sealed class ChannelSubscriptionTie
-        : IChannelSubscription
+        : MarshalByRefObject, IChannelSubscription
     {
         /// <summary>
         /// Initializes ChannelSubscriptionTie with proxied object
@@ -86,5 +86,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         #endregion
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

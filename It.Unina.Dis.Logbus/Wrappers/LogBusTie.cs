@@ -293,5 +293,11 @@ namespace It.Unina.Dis.Logbus.Wrappers
         }
 
         #endregion
+
+        /// <remarks/>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

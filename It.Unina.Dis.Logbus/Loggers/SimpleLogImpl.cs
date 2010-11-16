@@ -115,7 +115,7 @@ namespace It.Unina.Dis.Logbus.Loggers
                 if (value == 0)
                     _heartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 else
-                    _heartbeatTimer.Change(value*1000, value*1000);
+                    _heartbeatTimer.Change(value * 1000, value * 1000);
             }
         }
 
@@ -183,7 +183,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             origin.Add("ip", NetworkUtils.GetMyIPAddress().ToString());
             origin.Add("enterpriseId", ENTERPRISE_ID);
             origin.Add("software", "Logbus-ng-sharp");
-            origin.Add("swVersion", typeof (SimpleLogImpl).Assembly.GetName().Version.ToString(3));
+            origin.Add("swVersion", typeof(SimpleLogImpl).Assembly.GetName().Version.ToString(3));
 
             //Meta-info
             Dictionary<string, string> meta = new Dictionary<string, string>();
@@ -199,7 +199,7 @@ namespace It.Unina.Dis.Logbus.Loggers
             using (PerformanceCounter uptime = new PerformanceCounter("System", "System Up Time"))
             {
                 uptime.NextValue(); //Call this an extra time before reading its value
-                upTime = (long) Math.Round(TimeSpan.FromSeconds(uptime.NextValue()).TotalMilliseconds/10);
+                upTime = (long)Math.Round(TimeSpan.FromSeconds(uptime.NextValue()).TotalMilliseconds / 10);
             }
             meta.Add("sysUpTime", upTime.ToString(CultureInfo.InvariantCulture));
 #endif
@@ -214,7 +214,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         {
             //Reset heartbeating
             if (_hbInterval > 0)
-                _heartbeatTimer.Change(HeartbeatInterval*1000, HeartbeatInterval*1000);
+                _heartbeatTimer.Change(HeartbeatInterval * 1000, HeartbeatInterval * 1000);
 
             String host = Environment.MachineName;
             String procid = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
