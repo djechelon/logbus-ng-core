@@ -348,7 +348,16 @@ namespace It.Unina.Dis.Logbus.WebServices
                 case PlatformID.MacOSX:
                 case PlatformID.Unix:
                     {
+                        /*
                         return Environment.UserName == "root";
+                         * */
+                        //Workaround to Mono bug 653564
+                        using (Process whoami = new Process { StartInfo = new ProcessStartInfo("whoami") })
+                        {
+                            whoami.Start();
+                            whoami.WaitForExit();
+                            return whoami.StandardOutput.ReadToEnd() == "root";
+                        }
                     }
                 default:
                     throw new PlatformNotSupportedException();
