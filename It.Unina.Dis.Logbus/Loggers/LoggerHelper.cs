@@ -439,7 +439,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">Configuration is not set or invalid</exception>
-        [Obsolete("You should use CreateLogger instead")]
+        [Obsolete("You should use GetLogger instead")]
         public static ILog CreateDefaultLogger()
         {
             return GetLogger();
@@ -450,7 +450,7 @@ namespace It.Unina.Dis.Logbus.Loggers
         /// </summary>
         /// <param name="loggerName"></param>
         /// <returns></returns>
-        [Obsolete("You should us CreateLogger instead")]
+        [Obsolete("You should us GetLogger instead")]
         public static ILog CreateLoggerByName(string loggerName)
         {
             return GetLogger(loggerName);

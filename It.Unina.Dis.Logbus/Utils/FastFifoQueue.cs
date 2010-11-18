@@ -71,6 +71,7 @@ namespace
             _writeSema = new Semaphore(_capacity, _capacity);
         }
 
+        /// <remarks/>
         ~FastFifoQueue()
         {
             Dispose();

@@ -91,6 +91,7 @@ namespace It.Unina.Dis.Logbus.Clients
             Dispose(false);
         }
 
+        /// <remarks/>
         protected virtual void Dispose(bool disposing)
         {
             if (Disposed) return;

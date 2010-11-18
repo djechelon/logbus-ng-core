@@ -70,6 +70,7 @@ namespace It.Unina.Dis.Logbus.Utils
             _writeSema = new Semaphore(_capacity, _capacity);
         }
 
+        /// <remarks/>
         ~ZeroWaitQueue()
         {
             Dispose();
@@ -171,6 +172,7 @@ namespace It.Unina.Dis.Logbus.Utils
 
         #region IDisposable Membri di
 
+        /// <remarks/>
         public void Dispose()
         {
             if (_disposed) return;
