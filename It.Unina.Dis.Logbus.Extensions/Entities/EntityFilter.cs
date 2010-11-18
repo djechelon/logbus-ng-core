@@ -31,11 +31,6 @@ namespace It.Unina.Dis.Logbus.Entities
     public sealed class EntityFilter
         : ICustomFilter
     {
-        static EntityFilter()
-        {
-            if (!CustomFilterHelper.Instance.AvailableFilters.ContainsKey("logbus-entity"))
-                CustomFilterHelper.Instance.RegisterCustomFilter(typeof(EntityFilter));
-        }
 
         #region Constructor
 
