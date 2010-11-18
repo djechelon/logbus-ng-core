@@ -270,5 +270,10 @@ namespace It.Unina.Dis.Logbus.Filters
                 description = _registeredDescriptions[key]
             };
         }
+
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

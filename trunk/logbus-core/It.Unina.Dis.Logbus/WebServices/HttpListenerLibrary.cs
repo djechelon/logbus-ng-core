@@ -142,6 +142,11 @@ namespace It.Unina.Dis.Logbus.WebServices
         {
             get { return Thread.GetDomain(); }
         }
+
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 
     internal class HttpListenerWorkerRequest : HttpWorkerRequest
