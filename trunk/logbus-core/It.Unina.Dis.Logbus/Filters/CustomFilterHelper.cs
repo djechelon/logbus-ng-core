@@ -271,6 +271,7 @@ namespace It.Unina.Dis.Logbus.Filters
             };
         }
 
+        /// <remarks/>
         public override object InitializeLifetimeService()
         {
             return null;
