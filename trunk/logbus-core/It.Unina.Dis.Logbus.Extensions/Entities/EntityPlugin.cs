@@ -565,6 +565,11 @@ namespace It.Unina.Dis.Logbus.Entities
             }
         }
 
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+
         #region IEntityManagement Membri di
 
         /// <summary>
