@@ -61,10 +61,10 @@ namespace It.Unina.Dis.Logbus.Utils
             _capacity = size;
             _array = new T[size];
             _count = 0;
-            _head = int.MinValue;
-            _tail = int.MinValue;
-            _lastWritten = int.MinValue;
-            _lastRead = int.MinValue;
+            _head = -1;
+            _tail = -1;
+            _lastWritten = -1;
+            _lastRead = -1;
 
             _readSema = new Semaphore(0, _capacity);
             _writeSema = new Semaphore(_capacity, _capacity);
@@ -90,21 +90,20 @@ namespace It.Unina.Dis.Logbus.Utils
             int index = Interlocked.Increment(ref _head);
             index %= _capacity;
             if (index < 0) index += _capacity;
-            _array[index] = item;
+            Interlocked.Exchange(ref _array[index], item);
 
             //Did we get the semaphore for first?
-            int lw = _lastWritten % _capacity;
+            int lw = Interlocked.Add(ref _lastWritten, 0) + 1 % _capacity;
             if (lw < 0) lw += _capacity;
 
-
-            if (index != lw) return; //We are not the first, somebody else will release
-            do
-            {
-                Interlocked.Increment(ref _count);
-                Interlocked.Increment(ref _lastWritten);
-                index++;
-                _readSema.Release();
-            } while (_array[index] != null);
+            if (_lastWritten == _tail) //If we are not the first, somebody else will release
+                do
+                {
+                    Interlocked.Increment(ref _count);
+                    Interlocked.Increment(ref _lastWritten);
+                    lw = (lw + 1) % _capacity;
+                    _readSema.Release();
+                } while (Interlocked.CompareExchange(ref _array[lw], null, null) != null);
         }
 
         T IFifoQueue<T>.Dequeue()
@@ -115,24 +114,20 @@ namespace It.Unina.Dis.Logbus.Utils
             int index = Interlocked.Increment(ref _tail);
             index %= _capacity;
             if (index < 0) index += _capacity;
-            T ret=_array[index];
-            _array[index] = null;
-
-            int lr = _lastRead%_capacity;
-            if (lr < 0) lr += _capacity;
+            T ret = Interlocked.Exchange(ref _array[index], null);
 
             //Did we get the semaphore for first?
+            int lr = Interlocked.Add(ref _lastRead, 0) + 1 % _capacity;
+            if (lr < 0) lr += _capacity;
 
-            if (index != lr)
-            {
+            if (_lastRead == _head)
                 do
                 {
                     Interlocked.Decrement(ref _count);
                     Interlocked.Increment(ref _lastRead);
-                    index++;
+                    lr = (lr + 1) % _capacity;
                     _writeSema.Release();
-                } while (_array[index] == null);
-            }
+                } while (Interlocked.CompareExchange(ref _array[lr], null, null) == null);
 
             return ret;
         }
@@ -197,7 +192,7 @@ namespace It.Unina.Dis.Logbus.Utils
                 if (index < 0) index += _capacity;
                 Interlocked.Decrement(ref _count);
                 Interlocked.Increment(ref _lastRead);
-                T item=_array[index];
+                T item = _array[index];
                 ret.Add(item);
                 _writeSema.Release();
             }

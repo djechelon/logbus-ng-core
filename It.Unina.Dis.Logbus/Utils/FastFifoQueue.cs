@@ -64,8 +64,8 @@ namespace
             _capacity = size;
             _array = new T[size];
             _count = 0;
-            _head = int.MinValue;
-            _tail = int.MinValue;
+            _head = 0;
+            _tail = 0;
 
             _readSema = new Semaphore(0, _capacity);
             _writeSema = new Semaphore(_capacity, _capacity);

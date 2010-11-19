@@ -55,7 +55,8 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FastFifoQueueTest.cs" />
+    <Compile Include="QueueTests\BlockingFifoQueueTest.cs" />
+    <Compile Include="QueueTests\FastFifoQueueTest.cs" />
     <Compile Include="FFDALoggerTest.cs" />
     <Compile Include="FFDASystemTest.cs" />
     <Compile Include="FFDATest.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="TLSTest.cs" />
     <Compile Include="TlsTransportTest.cs" />
     <Compile Include="WebServiceActivatorTest.cs" />
+    <Compile Include="QueueTests\ZeroWaitQueueTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />
