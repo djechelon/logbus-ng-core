@@ -332,5 +332,29 @@ namespace It.Unina.Dis.Logbus.Loggers
         }
 
         #endregion
+
+        #region ICloneable Membri di
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Clones the current logger
+        /// </summary>
+        /// <returns></returns>
+        public SimpleLogImpl Clone()
+        {
+            return new SimpleLogImpl
+            {
+                HeartbeatInterval = HeartbeatInterval,
+                LogName = LogName,
+                Collector = Collector,
+                Facility = Facility
+            };
+        }
     }
 }
