@@ -2,16 +2,18 @@
 using System.Threading;
 using It.Unina.Dis.Logbus.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+
 namespace UnitTests
 {
-
-
+    
+    
     /// <summary>
-    ///Classe di test per FastFifoQueueTest.
-    ///Creata per contenere tutti gli unit test FastFifoQueueTest
+    ///Classe di test per BlockingFifoQueueTest.
+    ///Creata per contenere tutti gli unit test BlockingFifoQueueTest
     ///</summary>
     [TestClass()]
-    public class FastFifoQueueTest
+    public class BlockingFifoQueueTest
     {
 
 
@@ -103,6 +105,7 @@ namespace UnitTests
                 {
                     q.Enqueue(new object());
                     writes++;
+                    Thread.Sleep(0);
                 }
             }
             catch (ThreadAbortException)
@@ -120,6 +123,7 @@ namespace UnitTests
                     object item = q.Dequeue();
                     if (item == null) Interlocked.Increment(ref _errors);
                     else reads++;
+                    Thread.Sleep(0);
                 }
             }
             catch (ThreadAbortException)
