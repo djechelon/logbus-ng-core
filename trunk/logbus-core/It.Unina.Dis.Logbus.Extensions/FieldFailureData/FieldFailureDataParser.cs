@@ -96,7 +96,10 @@ namespace It.Unina.Dis.Logbus.FieldFailureData
                         GotHeartbeat(this, new SyslogMessageEventArgs(msg));
                     return;
                 }
-
+				
+				if(msg.MessageId != "FFDA")
+					return;
+				
                 FieldFailureDataInformation info = new FieldFailureDataInformation(msg);
 
                 FieldFailureEventArgs e = new FieldFailureEventArgs
