@@ -55,7 +55,7 @@ namespace It.Unina.Dis.Logbus.FieldFailureData
 
 
                     string prefix = txt.Substring(0, 3);
-                    if (txt[3] == '-' && txt.Length > 4)
+                    if (txt.Contains("-") && txt.Length > 4)
                     {
                         FlowId = txt.Substring(4);
                     }
