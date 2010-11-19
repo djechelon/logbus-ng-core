@@ -17,6 +17,8 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
 */
 
+using System;
+
 namespace It.Unina.Dis.Logbus.Loggers
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace It.Unina.Dis.Logbus.Loggers
     /// User code will never have visibility over this interface, but only over ILog
     /// </summary>
     public interface ILogger
-        : ILog
+        : ILog, ICloneable
     {
         /// <summary>
         /// Gets or sets the facility for the logger

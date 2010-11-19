@@ -54,7 +54,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _listLock = new ReaderWriterLock();
             ServerCertificate = serverCert;
             ValidateClientCertificate = validateClientCert;
-            _queue = new FastFifoQueue<SyslogMessage>(2048);
+            _queue = new BlockingFifoQueue<SyslogMessage>(512);
             _worker = new Thread(DispatchLoop)
                           {
                               IsBackground = true
@@ -72,9 +72,9 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         private void Dispose(bool disposing)
         {
-            GC.SuppressFinalize(this);
-
             if (_disposed) return;
+
+            GC.SuppressFinalize(this);
 
             _disposed = true;
 
