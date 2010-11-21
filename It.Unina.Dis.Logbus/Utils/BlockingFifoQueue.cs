@@ -31,8 +31,8 @@ namespace It.Unina.Dis.Logbus.Utils
         : IFifoQueue<T>
     {
         private readonly Queue<T> _theQueue;
-        private Semaphore _sema;
-        private long _count;
+        private readonly Semaphore _sema;
+        private int _count;
 
         private volatile bool _disposed;
 
@@ -107,7 +107,7 @@ namespace It.Unina.Dis.Logbus.Utils
         /// </summary>
         public int Count
         {
-            get { return (int) Interlocked.Read(ref _count); }
+            get { return _count; }
         }
 
         /// <summary>
@@ -121,11 +121,14 @@ namespace It.Unina.Dis.Logbus.Utils
             lock (_theQueue)
             {
                 T[] ret = _theQueue.ToArray();
-                _theQueue.Clear();
-                Interlocked.Exchange(ref _count, 0);
+                if (ret.Length !=0)
+                {
+                    _theQueue.Clear();
+                    Interlocked.Exchange(ref _count, 0);
 
-                //Note: we will need to change the behaviour soon
-                _sema = new Semaphore(0, int.MaxValue);
+                    //Note: we will need to change the behaviour soon
+                    _sema.Release(ret.Length);
+                }
                 return ret;
             }
         }
@@ -157,6 +160,8 @@ namespace It.Unina.Dis.Logbus.Utils
 
         private void Dispose(bool disposing)
         {
+            if (_disposed) return;
+
             GC.SuppressFinalize(this);
 
             _sema.Close();
