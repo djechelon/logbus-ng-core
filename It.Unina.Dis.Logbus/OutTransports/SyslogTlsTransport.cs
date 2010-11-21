@@ -54,7 +54,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _listLock = new ReaderWriterLock();
             ServerCertificate = serverCert;
             ValidateClientCertificate = validateClientCert;
-            _queue = new BlockingFifoQueue<SyslogMessage>(512);
+            _queue = new FastFifoQueue<SyslogMessage>(2048);
             _worker = new Thread(DispatchLoop)
                           {
                               IsBackground = true
