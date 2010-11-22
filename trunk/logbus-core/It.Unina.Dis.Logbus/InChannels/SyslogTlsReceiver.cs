@@ -268,19 +268,24 @@ namespace It.Unina.Dis.Logbus.InChannels
                             StringBuilder sb = new StringBuilder();
                             do
                             {
-                                char nextChar = (char) sslStream.ReadByte();
+                                char nextChar = (char)sslStream.ReadByte();
                                 if (char.IsDigit(nextChar)) sb.Append(nextChar);
                                 else if (nextChar == ' ') break;
                                 else throw new FormatException("Invalid TLS encoding of Syslog message");
                             } while (true);
 
                             int charLen = int.Parse(sb.ToString(), CultureInfo.InvariantCulture);
+                            if (charLen == 0) throw new FormatException("Syslog messages cannot have length of zero");
 
+                            int offset = 0, left = charLen;
                             byte[] buffer = new byte[charLen];
-                            if (sslStream.Read(buffer, 0, charLen) != charLen)
+                            do
                             {
-                                throw new FormatException("Invalid TLS encoding of Syslog message");
-                            }
+                                int read = sslStream.Read(buffer, offset, left);
+                                offset += read;
+                                left -= read;
+                            } while (left > 0);
+
                             SyslogMessage message;
                             try
                             {

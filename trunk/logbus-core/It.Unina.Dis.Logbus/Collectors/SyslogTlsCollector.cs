@@ -274,8 +274,7 @@ namespace It.Unina.Dis.Logbus.Collectors
                                               SendTimeout = 3600000
                                           };
                         }
-
-                        if (!_client.Connected)
+                        else if (!_client.Connected)
                             try
                             {
                                 _log.Debug("Connecting TlsCollector to host {0}:{1}", _host, _port);
@@ -323,15 +322,11 @@ namespace It.Unina.Dis.Logbus.Collectors
                             data = ms.ToArray();
                         }
 
-                        int offset = 0;
-                        do
-                        {
-                            int len = Math.Min(data.Length - offset, 16384);
-                            if (len <= 0) break;
-                            _remoteStream.Write(data, offset, len);
-                            offset += len;
-                        } while (true);
+                        // ReSharper disable PossibleNullReferenceException
+                        _remoteStream.Write(data, 0, data.Length);
                         _remoteStream.Flush();
+                        // ReSharper restore PossibleNullReferenceException
+
                     }
                     catch (ObjectDisposedException)
                     {
