@@ -69,6 +69,8 @@ namespace It.Unina.Dis.Logbus.Collectors
         {
             _host = remoteHost;
             _port = remotePort;
+            _configured = true;
+            _deliveryThread.Start();
         }
 
         ~SyslogTlsCollector()
@@ -103,6 +105,8 @@ namespace It.Unina.Dis.Logbus.Collectors
             if (_disposed)
                 throw new ObjectDisposedException(GetType().FullName);
 
+            _queue.Enqueue(message);
+
             if (!_configured)
                 if (string.IsNullOrEmpty(_host))
                     throw new InvalidOperationException("Unable to use SyslogTlsCollector without host name");
@@ -113,8 +117,6 @@ namespace It.Unina.Dis.Logbus.Collectors
                             _deliveryThread.Start();
                             _configured = true;
                         }
-
-            _queue.Enqueue(message);
         }
 
         protected virtual bool TlsServerValidator(Object sender, X509Certificate certificate, X509Chain chain,
@@ -222,13 +224,21 @@ namespace It.Unina.Dis.Logbus.Collectors
                         {
                             _clientCertificate = new X509Certificate(_certificatePath);
                         }
-                        catch { }
+                        catch
+                        {
+                        }
                         break;
                     }
                 default:
                     throw new NotSupportedException("Invalid key");
             }
-        }
+
+            if (!string.IsNullOrEmpty(_host) && _port != 0)
+            {
+                _configured = true;
+                _deliveryThread.Start();
+            }
+    }
 
         public IEnumerable<KeyValuePair<string, string>> Configuration
         {
