@@ -266,6 +266,7 @@ namespace It.Unina.Dis.Logbus.Collectors
                         if (!_client.Connected)
                             try
                             {
+                                _log.Debug("Connecting TlsCollector to host {0}", RemoteEndPoint.ToString());
                                 // ReSharper disable AssignNullToNotNullAttribute
                                 _client.Connect(_host, _port);
                                 // ReSharper restore AssignNullToNotNullAttribute
@@ -276,9 +277,12 @@ namespace It.Unina.Dis.Logbus.Collectors
                                 // ReSharper disable AssignNullToNotNullAttribute
                                 _remoteStream.AuthenticateAsClient(_host);
                                 // ReSharper restore AssignNullToNotNullAttribute
+                                _log.Debug("TlsCollector connected to host {0}", RemoteEndPoint.ToString());
                             }
                             catch (Exception ex)
                             {
+                                _log.Error("Error connecting TlsCollector to host {0}", RemoteEndPoint.ToString());
+                                _log.Debug("Error details: {0}", ex.Message);
                                 throw new LogbusException("Unable to log to remote TLS host", ex);
                             }
 
