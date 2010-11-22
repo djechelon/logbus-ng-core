@@ -39,7 +39,7 @@ namespace RandomMessagePump
 
             try
             {
-                ILog the_log = LoggerHelper.CreateDefaultLogger();
+                ILog the_log = LoggerHelper.GetLogger();
 
                 while (true)
                 {

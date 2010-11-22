@@ -301,7 +301,15 @@ namespace It.Unina.Dis.Logbus.Collectors
                             data = ms.ToArray();
                         }
 
-                        _remoteStream.Write(data, 0, data.Length);
+                        int offset = 0;
+                        do
+                        {
+                            int len = Math.Min(data.Length - offset, 16384);
+                            if (len <= 0) break;
+                            _remoteStream.Write(data, offset, len);
+                            offset += len;
+                        } while (true);
+                        _remoteStream.Flush();
                     }
                     catch (ThreadInterruptedException)
                     {
