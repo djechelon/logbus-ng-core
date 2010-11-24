@@ -33,6 +33,8 @@ namespace It.Unina.Dis.Logbus.InChannels
     public abstract class ReceiverBase
         : IInboundChannel, IAsyncRunnable, ILogSupport
     {
+        private readonly Timer _statistics;
+
         #region Constructor/Destructor
 
         /// <summary>
@@ -42,6 +44,8 @@ namespace It.Unina.Dis.Logbus.InChannels
         {
             _startDelegate = new ThreadStart(Start);
             _stopDelegate = new ThreadStart(Stop);
+
+            _statistics = new Timer(LogStatistics, null, new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
         }
 
         /// <summary>
@@ -54,6 +58,8 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void Dispose(bool disposing)
         {
+            if (Disposed) return;
+
             GC.SuppressFinalize(this);
 
             try
@@ -63,6 +69,8 @@ namespace It.Unina.Dis.Logbus.InChannels
             catch (Exception)
             {
             }
+
+            _statistics.Dispose();
 
             if (disposing)
             {
@@ -83,11 +91,6 @@ namespace It.Unina.Dis.Logbus.InChannels
         public bool Running { get; private set; }
 
         #region IInboundChannel Membri di
-
-        /// <summary>
-        /// Implements IInboundChannel.Name
-        /// </summary>
-        public virtual string Name { get; set; }
 
         /// <summary>
         /// Implements IInboundChannel.ParseError
@@ -139,7 +142,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         public void Start()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            Log.Info("Inbound channel {0} starting", Name);
+            Log.Info("Inbound channel {0} starting", ToString());
             try
             {
                 if (Running) throw new InvalidOperationException("Listener is already running");
@@ -150,7 +153,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     Starting(this, e);
                     if (e.Cancel)
                     {
-                        Log.Notice("Sarting of channel {0} cancelled", Name);
+                        Log.Notice("Sarting of channel {0} cancelled", ToString());
                         return;
                     }
                 }
@@ -160,12 +163,12 @@ namespace It.Unina.Dis.Logbus.InChannels
                 OnStart();
 
                 if (Started != null) Started(this, EventArgs.Empty);
-                Log.Info("Inbound channel {0} started", Name);
+                Log.Info("Inbound channel {0} started", ToString());
             }
             catch (Exception ex)
             {
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
-                Log.Error("Unable to start inbound channel {0}", Name);
+                Log.Error("Unable to start inbound channel {0}", ToString());
                 Log.Debug("Eror details: {0}", ex.Message);
                 throw;
             }
@@ -178,7 +181,7 @@ namespace It.Unina.Dis.Logbus.InChannels
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            Log.Info("Inbound channel {0} stopping", Name);
+            Log.Info("Inbound channel {0} stopping", ToString());
             try
             {
                 if (!Running) throw new InvalidOperationException("Listener is not running");
@@ -190,7 +193,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                     if (e.Cancel)
                     {
-                        Log.Notice("Stopping of channel {0} cancelled", Name);
+                        Log.Notice("Stopping of channel {0} cancelled", ToString());
                         return;
                     }
                 }
@@ -200,12 +203,12 @@ namespace It.Unina.Dis.Logbus.InChannels
                 OnStop();
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
-                Log.Info("Inbound channel {0} stopped", Name);
+                Log.Info("Inbound channel {0} stopped", ToString());
             }
             catch (Exception ex)
             {
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
-                Log.Error("Unable to stop inbound channel {0}", Name);
+                Log.Error("Unable to stop inbound channel {0}", ToString());
                 Log.Debug("Error details: {0}", ex.Message);
                 throw;
             }
@@ -335,5 +338,15 @@ namespace It.Unina.Dis.Logbus.InChannels
         public ILog Log { protected get; set; }
 
         #endregion
+
+        private void LogStatistics(object state)
+        {
+            LogStatistics();
+        }
+
+        /// <summary>
+        /// Logs statistics about the facility
+        /// </summary>
+        protected virtual void LogStatistics() { }
     }
 }

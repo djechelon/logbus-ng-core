@@ -41,6 +41,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private readonly IFifoQueue<SyslogMessage> _messageQueue;
         private readonly ReaderWriterLock _transportLock;
         private const int DEFAULT_JOIN_TIMEOUT = 5000;
+        private readonly Timer _statistics;
+        private int _processedMessages, _deliveredMessages;
 
         private volatile bool _withinCoalescenceWindow, _running;
 
@@ -61,6 +63,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
             _transportLock = new ReaderWriterLock();
             _transports = new Dictionary<string, IOutboundTransport>();
             _messageQueue = new FastFifoQueue<SyslogMessage>(16384);
+
+            _statistics = new Timer(LogStatistics, null, new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
         }
 
         ~SimpleOutChannel()
@@ -70,11 +74,19 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         private void Dispose(bool disposing)
         {
+            if (Disposed) return;
+
             GC.SuppressFinalize(this);
 
-            if (_running)
+            try
+            {
                 Stop();
+            }
+            catch
+            {
+            }
 
+            _statistics.Dispose();
 
             if (disposing)
             {
@@ -472,6 +484,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 while (_running)
                 {
                     SyslogMessage msg = _messageQueue.Dequeue();
+                    Interlocked.Increment(ref _processedMessages);
                     if (_withinCoalescenceWindow || SubscribedClients == 0 || !Filter.IsMatch(msg)) continue;
 
                     try
@@ -507,6 +520,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     {
                         _transportLock.ReleaseReaderLock();
                     }
+                    Interlocked.Increment(ref _deliveredMessages);
 
                     if (CoalescenceWindowMillis > 0)
                     {
@@ -628,5 +642,15 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private readonly ThreadStart _startDelegate, _stopDelegate;
 
         #endregion
+
+        private void LogStatistics(object state)
+        {
+            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages",
+                ID,
+                Interlocked.Exchange(ref _processedMessages, 0),
+                Interlocked.Exchange(ref _deliveredMessages, 0),
+                _messageQueue.Count
+                );
+        }
     }
 }
