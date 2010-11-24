@@ -27,10 +27,6 @@ namespace It.Unina.Dis.Logbus
     public interface IInboundChannel
         : ILogSource, IRunnable, IConfigurable, IDisposable
     {
-        /// <summary>
-        /// Descriptive name of Inbound channel
-        /// </summary>
-        string Name { get; set; }
 
         /// <summary>
         /// Notifies a parse error occurred

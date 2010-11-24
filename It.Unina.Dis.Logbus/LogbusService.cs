@@ -32,6 +32,7 @@ using It.Unina.Dis.Logbus.RemoteLogbus;
 using It.Unina.Dis.Logbus.Utils;
 using KeyValuePair = It.Unina.Dis.Logbus.Configuration.KeyValuePair;
 using System.Reflection;
+using System.Globalization;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -47,7 +48,8 @@ namespace It.Unina.Dis.Logbus
         private Thread _forwardingThread;
         private const int WORKER_THREADS = 4;
         private bool _configured, _forwardingEnabled;
-        private int _currentQueue;
+        private readonly Timer _statistics;
+        private int _currentQueue, _processedMessages;
 
         private List<IInboundChannel> _inChans;
         private readonly List<IOutboundChannel> _outChans;
@@ -89,6 +91,8 @@ namespace It.Unina.Dis.Logbus
             Queues = new IFifoQueue<SyslogMessage>[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
                 Queues[i] = new FastFifoQueue<SyslogMessage>(2048);
+
+            _statistics = new Timer(LogStatistics, null, new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
         }
 
         /// <summary>
@@ -1359,17 +1363,20 @@ namespace It.Unina.Dis.Logbus
 
         protected void Dispose(bool disposing)
         {
+            if (Disposed) return;
+
             GC.SuppressFinalize(this);
+
             try
             {
-                try
-                {
-                    Stop(); //There could be problems with this
-                }
-                catch
-                {
-                }
+                Stop(); //There could be problems with this
+            }
+            catch
+            {
+            }
 
+            try
+            {
                 if (_plugins != null)
                     foreach (IPlugin plugin in _plugins)
                         if (plugin != null)
@@ -1381,6 +1388,7 @@ namespace It.Unina.Dis.Logbus
                             catch
                             {
                             }
+                _statistics.Dispose();
             }
             catch
             {
@@ -1608,6 +1616,9 @@ namespace It.Unina.Dis.Logbus
                             _outLock.ReleaseReaderLock();
                         }
                     }
+                    
+                    Interlocked.Increment(ref _processedMessages);
+                    
                     if (_forwardingEnabled && ForwardingQueue != null) ForwardingQueue.Enqueue(newMessage);
                 } while (!_hubThreadStop);
             }
@@ -1692,6 +1703,21 @@ namespace It.Unina.Dis.Logbus
         }
 
         private ILog Log { get; set; }
+
+        private void LogStatistics(object state)
+        {
+            string[] queuesStatus = new string[WORKER_THREADS], states = new string[WORKER_THREADS];
+            for (int i = 0; i < WORKER_THREADS; i++)
+            {
+                queuesStatus[i] = Queues[i].Count.ToString(CultureInfo.GetCultureInfo("en"));
+                states[i] = Enum.GetName(typeof(ThreadState), _hubThreads[i].ThreadState);
+            }
+            Log.Debug("During the last minute LogbusService processed {0} messages. There are ({1}) items in queues. Threads status ({2}).",
+                Interlocked.Exchange(ref _processedMessages, 0).ToString(),
+                string.Format("({0})", string.Join(",", queuesStatus)),
+                string.Format("({0})", string.Join(",", queuesStatus))
+                );
+        }
 
         #endregion
     }

@@ -60,6 +60,30 @@ namespace It.Unina.Dis.Logbus.InChannels
         private string _certificatePath;
         private Thread[] _listenerThreads;
         private readonly List<TcpClient> _clients = new List<TcpClient>();
+        private int _receivedMessages, _parseErrors;
+
+        #region Constructor
+        public SyslogTlsReceiver()
+        {
+            MessageReceived += delegate
+                                   {
+                                       Interlocked.Increment(ref _receivedMessages);
+                                   };
+
+            ParseError += delegate
+                              {
+                                  Interlocked.Increment(ref _parseErrors);
+                              };
+        }
+
+        public SyslogTlsReceiver(int port)
+            : this()
+        {
+            if (port < 0 || port > 65535)
+                throw new ArgumentOutOfRangeException("port", port, "Port must be in the range of 0-65535");
+            Port = port;
+        }
+        #endregion
 
         /// <summary>
         /// Port to listen on
@@ -108,7 +132,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 _listenerThreads[i] = new Thread(ListenerLoop)
                                           {
-                                              Name = string.Format("SyslogTlsReceiver[{1}].ListenerLoop[{0}]", i, Name),
+                                              Name = string.Format("SyslogTlsReceiver[{1}].ListenerLoop[{0}]", i, ToString()),
                                               IsBackground = true
                                           };
                 _listenerThreads[i].Start();
@@ -307,7 +331,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     {
                         OnError(new UnhandledExceptionEventArgs(ex, true));
 
-                        Log.Error("Error occurred during TLS conversation in channel {0}", Name);
+                        Log.Error("Error occurred during TLS conversation in channel {0}", ToString());
                         Log.Debug("Error details: {0}", ex.Message);
                     }
                     finally
@@ -315,6 +339,20 @@ namespace It.Unina.Dis.Logbus.InChannels
                         lock (_clients) _clients.Remove(client);
                     }
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("SyslogTlsReceiver:{0}:{1}", IpAddress ?? "*", Port.ToString(CultureInfo.InvariantCulture));
+        }
+
+        protected override void LogStatistics()
+        {
+            Log.Debug("Status of {0}. Clients connected: {1}. Received during last minute: {2}. Parse errors: {3}",
+                ToString(),
+                _clients.Count,
+                Interlocked.Exchange(ref _receivedMessages, 0),
+                Interlocked.Exchange(ref _parseErrors, 0));
         }
     }
 }

@@ -34,14 +34,33 @@ namespace It.Unina.Dis.Logbus.InChannels
     internal sealed class SyslogUdpReceiver :
         ReceiverBase
     {
-        /// <summary>
-        /// Initializes a new instance of SyslogUdpReceiver
-        /// </summary>
+         
+        private int _receivedMessages, _parseErrors;
+
+        #region Constructor
         public SyslogUdpReceiver()
         {
             ReceiveBufferSize = -1;
+
+            MessageReceived += delegate
+                                   {
+                                       Interlocked.Increment(ref _receivedMessages);
+                                   };
+
+            ParseError += delegate
+                              {
+                                  Interlocked.Increment(ref _parseErrors);
+                              };
         }
 
+        public SyslogUdpReceiver(int port)
+            : this()
+        {
+            if (port < 0 || port > 65535)
+                throw new ArgumentOutOfRangeException("port", port, "Port must be in the range of 0-65535");
+            Port = port;
+        }
+        #endregion
 
         /// <summary>
         /// Default port to listen
@@ -102,7 +121,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                 if (ReceiveBufferSize >= 0) clientSock.ReceiveBufferSize = ReceiveBufferSize;
 
                 clientSock.Bind(localEp);
-                _client = new UdpClient {Client = clientSock};
+                _client = new UdpClient { Client = clientSock };
             }
             catch (SocketException ex)
             {
@@ -119,7 +138,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                 _listenerThreads[i] = new Thread(ListenerLoop)
                                           {
-                                              Name = string.Format("SyslogUdpReceiver[{1}].ListenerLoop[{0}]", i, Name),
+                                              Name = string.Format("SyslogUdpReceiver[{1}].ListenerLoop[{0}]", i, ToString()),
                                               IsBackground = true,
                                               Priority = ThreadPriority.AboveNormal
                                           };
@@ -127,7 +146,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
                 _parserThreads[i] = new Thread(ParserLoop)
                                         {
-                                            Name = string.Format("SyslogUdpReceiver[{1}].ParserLoop[{0}]", i, Name),
+                                            Name = string.Format("SyslogUdpReceiver[{1}].ParserLoop[{0}]", i, ToString()),
                                             IsBackground = true
                                         };
                 _parserThreads[i].Start(i);
@@ -236,7 +255,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private void ParserLoop(object queue)
         {
-            int queueId = (int) queue;
+            int queueId = (int)queue;
             try
             {
                 while (true)
@@ -261,6 +280,11 @@ namespace It.Unina.Dis.Logbus.InChannels
             finally
             {
                 byte[][] finalMessages = _byteQueues[queueId].FlushAndDispose();
+                if (finalMessages.GetLength(0)>0)
+                {
+                    Log.Notice("Inbound channel {0} still needs to process {0} pending messages. Delaying stop.",
+                               ToString(), finalMessages.GetLength(0));
+                }
                 foreach (byte[] payload in finalMessages)
                 {
                     try
@@ -287,7 +311,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                     byte[] payload = _client.Receive(ref remoteEndpoint);
 
                     _byteQueues[
-                        (((Interlocked.Increment(ref _currentQueue))%WORKER_THREADS) + WORKER_THREADS)%WORKER_THREADS].
+                        (((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].
                         Enqueue(payload);
                 }
                 catch (SocketException)
@@ -301,6 +325,31 @@ namespace It.Unina.Dis.Logbus.InChannels
                 {
                 } //Really do nothing? Shouldn't we stop the service?
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("SyslogUdpReceiver:{0}:{1}", IpAddress ?? "*", Port.ToString(CultureInfo.InvariantCulture));
+        }
+
+        protected override void LogStatistics()
+        {
+            string[] queuesStatus = new string[WORKER_THREADS], ptStates = new string[WORKER_THREADS], ltStates = new string[WORKER_THREADS];
+            for (int i = 0; i < WORKER_THREADS; i++)
+            {
+                queuesStatus[i] = _byteQueues[i].Count.ToString(CultureInfo.GetCultureInfo("en"));
+                ptStates[i] = Enum.GetName(typeof(ThreadState), _parserThreads[i].ThreadState);
+                ltStates[i] = Enum.GetName(typeof(ThreadState), _listenerThreads[i].ThreadState);
+            }
+            Log.Debug("Status of {0}. Received during last minute: {1}. Parse errors: {2}. Buffer queues holding ({3}). Listener threads status: ({4}). Parser threads status: ({5}).",
+                ToString(),
+                Interlocked.Exchange(ref _receivedMessages, 0),
+                Interlocked.Exchange(ref _parseErrors, 0),
+                string.Join(",",queuesStatus),
+                string.Join(",",ltStates),
+                string.Join(",",ptStates)
+                );
+            
         }
     }
 }
