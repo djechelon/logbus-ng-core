@@ -388,7 +388,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(clientId))
                 throw new ArgumentNullException("clientId", "Client ID must not be null");
-            
+
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {
@@ -646,11 +646,12 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         private void LogStatistics(object state)
         {
-            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages",
+            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages. Thread state {4}",
                 ID,
                 Interlocked.Exchange(ref _processedMessages, 0),
                 Interlocked.Exchange(ref _deliveredMessages, 0),
-                _messageQueue.Count
+                _messageQueue.Count,
+                Enum.GetName(typeof(ThreadState), _workerThread.ThreadState)
                 );
         }
     }
