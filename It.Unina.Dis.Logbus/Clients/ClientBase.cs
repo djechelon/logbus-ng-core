@@ -100,7 +100,8 @@ namespace It.Unina.Dis.Logbus.Clients
 
             try
             {
-                Stop();
+                if (Running)
+                    Stop();
             }
             catch (Exception ex)
             {

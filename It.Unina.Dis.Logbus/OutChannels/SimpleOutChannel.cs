@@ -388,6 +388,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
             if (string.IsNullOrEmpty(clientId))
                 throw new ArgumentNullException("clientId", "Client ID must not be null");
+            
             int indexof = clientId.IndexOf(':');
             if (indexof < 0)
             {
@@ -411,7 +412,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
             {
                 if (!_transports.ContainsKey(transportId))
                 {
-                    ArgumentException ex = new ArgumentException("Invalid client ID");
+                    ArgumentException ex = new ArgumentException("Invalid client ID. Transport is not recognized or not active on this channel.");
                     ex.Data.Add("clientId-channel", clientId);
                     throw ex;
                 }
