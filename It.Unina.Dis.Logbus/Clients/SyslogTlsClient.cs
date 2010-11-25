@@ -327,7 +327,7 @@ namespace It.Unina.Dis.Logbus.Clients
                                                         true);
                             stream.ReadTimeout = 3600000; //1 hour
 
-                            while (Running)
+                            while (true)
                             {
                                 StringBuilder sb = new StringBuilder();
                                 do
