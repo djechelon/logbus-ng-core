@@ -57,6 +57,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _queue = new FastFifoQueue<SyslogMessage>(2048);
             _worker = new Thread(DispatchLoop)
                           {
+                              Name = "SyslogTlsTransport.DispatchLoop",
                               IsBackground = true
                           };
             _worker.Start();
