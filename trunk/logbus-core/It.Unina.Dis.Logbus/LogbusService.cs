@@ -1616,9 +1616,9 @@ namespace It.Unina.Dis.Logbus
                             _outLock.ReleaseReaderLock();
                         }
                     }
-                    
+
                     Interlocked.Increment(ref _processedMessages);
-                    
+
                     if (_forwardingEnabled && ForwardingQueue != null) ForwardingQueue.Enqueue(newMessage);
                 } while (!_hubThreadStop);
             }
@@ -1715,7 +1715,7 @@ namespace It.Unina.Dis.Logbus
             Log.Debug("During the last minute LogbusService processed {0} messages. There are ({1}) items in queues. Threads status ({2}).",
                 Interlocked.Exchange(ref _processedMessages, 0).ToString(),
                 string.Format("({0})", string.Join(",", queuesStatus)),
-                string.Format("({0})", string.Join(",", queuesStatus))
+                string.Format("({0})", string.Join(",", states))
                 );
         }
 
