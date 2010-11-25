@@ -165,7 +165,11 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (e.Cancel) return;
                 }
 
-                _workerThread = new Thread(RunnerLoop) { IsBackground = true };
+                _workerThread = new Thread(RunnerLoop)
+                                    {
+                                        Name = "SimpleOutChannel.RunnerLoop",
+                                        IsBackground = true
+                                    };
                 _workerThread.Start();
 
                 _running = true;

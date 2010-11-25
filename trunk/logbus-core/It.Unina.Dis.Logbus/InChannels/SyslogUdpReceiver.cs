@@ -337,7 +337,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             string[] queuesStatus = new string[WORKER_THREADS], ptStates = new string[WORKER_THREADS], ltStates = new string[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
             {
-                queuesStatus[i] = _byteQueues[i].Count.ToString(CultureInfo.GetCultureInfo("en"));
+                queuesStatus[i] = _byteQueues[i].Count.ToString(CultureInfo.CurrentUICulture);
                 ptStates[i] = Enum.GetName(typeof(ThreadState), _parserThreads[i].ThreadState);
                 ltStates[i] = Enum.GetName(typeof(ThreadState), _listenerThreads[i].ThreadState);
             }
