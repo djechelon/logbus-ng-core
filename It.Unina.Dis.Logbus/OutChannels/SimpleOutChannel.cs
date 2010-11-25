@@ -44,7 +44,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         private readonly Timer _statistics;
         private int _processedMessages, _deliveredMessages;
 
-        private volatile bool _withinCoalescenceWindow, _running;
+        private volatile bool _withinCoalescenceWindow;
 
         /// <summary>
         /// Flag that blocks messages until the first subscription.
@@ -122,7 +122,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (_block || _withinCoalescenceWindow || !_running) return; //Discard message
+            if (_block || _withinCoalescenceWindow || !Running) return; //Discard message
             _messageQueue.Enqueue(message);
         }
 
@@ -153,7 +153,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void Start()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (_running) throw new InvalidOperationException("Channel is already started");
+            if (Running) throw new InvalidOperationException("Channel is already started");
 
             try
             {
@@ -165,14 +165,13 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     if (e.Cancel) return;
                 }
 
+                Running = true;
                 _workerThread = new Thread(RunnerLoop)
                                     {
                                         Name = "SimpleOutChannel.RunnerLoop",
                                         IsBackground = true
                                     };
                 _workerThread.Start();
-
-                _running = true;
 
                 if (Started != null) Started(this, EventArgs.Empty);
                 Log.Info("Channel {0} started", ID);
@@ -192,7 +191,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!_running) throw new InvalidOperationException("Channel is not running");
+            if (!Running) throw new InvalidOperationException("Channel is not running");
 
             try
             {
@@ -205,7 +204,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 }
 
                 //Tell the thread to stop, the good way
-                _running = false;
+                Running = false;
 
                 _workerThread.Interrupt();
                 _workerThread.Join(5000); //Giving it all the time it needs
@@ -486,7 +485,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
         {
             try
             {
-                while (_running)
+                while (Running)
                 {
                     SyslogMessage msg = _messageQueue.Dequeue();
                     Interlocked.Increment(ref _processedMessages);
@@ -594,7 +593,8 @@ namespace It.Unina.Dis.Logbus.OutChannels
         /// <remarks/>
         public bool Running
         {
-            get { return _running; }
+            get;
+            private set;
         }
 
         /// <remarks/>
