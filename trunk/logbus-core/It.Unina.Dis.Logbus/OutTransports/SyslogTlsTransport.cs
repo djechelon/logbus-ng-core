@@ -41,7 +41,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         private readonly Thread _worker;
         private readonly IFifoQueue<SyslogMessage> _queue;
         private readonly Timer _tmrCleaner, _tmrStatistics;
-        private long _totalSent;
+        private long _messagesSent;
 
         private const int DEFAULT_JOIN_TIMEOUT = 5000;
         private const int TIMER_CYCLE_TIMEOUT = 60000;
@@ -62,7 +62,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             _worker.Start();
 
             _tmrCleaner = new Timer(CleanupClients, null, TIMER_CYCLE_TIMEOUT, TIMER_CYCLE_TIMEOUT);
-            _tmrStatistics = new Timer(Statistics, null, TIMER_CYCLE_TIMEOUT, TIMER_CYCLE_TIMEOUT);
+            _tmrStatistics = new Timer(LogStatistics, null, TIMER_CYCLE_TIMEOUT, TIMER_CYCLE_TIMEOUT);
         }
 
         ~SyslogTlsTransport()
@@ -361,7 +361,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             ms.WriteByte((byte)' ');
 
                             ms.Write(payload, 0, payload.Length);
-                            _totalSent++;
+                            _messagesSent++;
                         }
                         data = ms.ToArray();
                     }
@@ -477,9 +477,10 @@ namespace It.Unina.Dis.Logbus.OutTransports
             return ServerCertificate;
         }
 
-        private void Statistics(object state)
+        private void LogStatistics(object state)
         {
-            Log.Debug("So far TLS transport {0} sent {1} messages", GetHashCode(), _totalSent);
+            Log.Debug("During the last minute TLS transport {0} sent {1} messages", GetHashCode(), _messagesSent);
+            _messagesSent = 0;
         }
 
         /// <summary>
