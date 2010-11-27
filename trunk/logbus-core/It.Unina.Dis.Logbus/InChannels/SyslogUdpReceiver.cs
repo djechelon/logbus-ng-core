@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -31,10 +30,10 @@ namespace It.Unina.Dis.Logbus.InChannels
     /// Collects Syslog messages over UDP unicast channels
     /// </summary>
     /// <remarks>Implements RFC5426</remarks>
-    internal sealed class SyslogUdpReceiver :
+    internal class SyslogUdpReceiver :
         ReceiverBase
     {
-         
+
         private int _receivedMessages, _parseErrors;
 
         #region Constructor
@@ -74,7 +73,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         private Thread[] _listenerThreads, _parserThreads;
 
-        private UdpClient _client;
+
         private IFifoQueue<byte[]>[] _byteQueues;
         private int _currentQueue;
         private bool _listen;
@@ -95,6 +94,11 @@ namespace It.Unina.Dis.Logbus.InChannels
         public int ReceiveBufferSize { get; set; }
 
         /// <summary>
+        /// Gets or sets the UdpClient to use
+        /// </summary>
+        protected UdpClient Client { get; set; }
+
+        /// <summary>
         /// Implements IRunnable.Start
         /// </summary>
         protected override void OnStart()
@@ -104,29 +108,8 @@ namespace It.Unina.Dis.Logbus.InChannels
                 Port = DEFAULT_PORT;
             }
 
-            IPEndPoint localEp = IpAddress == null
-                                     ? new IPEndPoint(IPAddress.Any, Port)
-                                     : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            Client = InitClient();
 
-            try
-            {
-                Socket clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                                        {
-#if !MONO
-                                            //Related to Mono bug 643475
-                                            ExclusiveAddressUse = true,
-#endif
-                                        };
-
-                if (ReceiveBufferSize >= 0) clientSock.ReceiveBufferSize = ReceiveBufferSize;
-
-                clientSock.Bind(localEp);
-                _client = new UdpClient { Client = clientSock };
-            }
-            catch (SocketException ex)
-            {
-                throw new LogbusException("Cannot start UDP listener", ex);
-            }
             _listen = true;
             _listenerThreads = new Thread[WORKER_THREADS];
             _parserThreads = new Thread[WORKER_THREADS];
@@ -151,6 +134,7 @@ namespace It.Unina.Dis.Logbus.InChannels
                                         };
                 _parserThreads[i].Start(i);
             }
+
         }
 
         /// <summary>
@@ -161,7 +145,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             _listen = false;
             try
             {
-                _client.Close(); //Trigger SocketException if thread is blocked into listening
+                Client.Close(); //Trigger SocketException if thread is blocked into listening
                 for (int i = 0; i < WORKER_THREADS; i++)
                     _listenerThreads[i].Join();
                 _listenerThreads = null;
@@ -181,6 +165,24 @@ namespace It.Unina.Dis.Logbus.InChannels
             catch
             {
             }
+        }
+
+        protected virtual UdpClient InitClient()
+        {
+
+            IPEndPoint localEp = IpAddress == null
+                                 ? new IPEndPoint(IPAddress.Any, Port)
+                                 : new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+
+            Socket clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+            {
+                ExclusiveAddressUse = true,
+            };
+
+            if (ReceiveBufferSize >= 0) clientSock.ReceiveBufferSize = ReceiveBufferSize;
+
+            clientSock.Bind(localEp);
+            return new UdpClient { Client = clientSock };
         }
 
         #region IConfigurable Membri di
@@ -238,19 +240,6 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
-        /// <summary>
-        /// Implements IConfigurable.Configuration
-        /// </summary>
-        public override IEnumerable<KeyValuePair<string, string>> Configuration
-        {
-            set
-            {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                foreach (KeyValuePair<string, string> kvp in value)
-                    SetConfigurationParameter(kvp.Key, kvp.Value);
-            }
-        }
-
         #endregion
 
         private void ParserLoop(object queue)
@@ -280,7 +269,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             finally
             {
                 byte[][] finalMessages = _byteQueues[queueId].FlushAndDispose();
-                if (finalMessages.GetLength(0)>0)
+                if (finalMessages.GetLength(0) > 0)
                 {
                     Log.Notice("Inbound channel {0} still needs to process {0} pending messages. Delaying stop.",
                                ToString(), finalMessages.GetLength(0));
@@ -308,7 +297,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             {
                 try
                 {
-                    byte[] payload = _client.Receive(ref remoteEndpoint);
+                    byte[] payload = Client.Receive(ref remoteEndpoint);
 
                     _byteQueues[
                         (((Interlocked.Increment(ref _currentQueue)) % WORKER_THREADS) + WORKER_THREADS) % WORKER_THREADS].
@@ -345,11 +334,11 @@ namespace It.Unina.Dis.Logbus.InChannels
                 ToString(),
                 Interlocked.Exchange(ref _receivedMessages, 0),
                 Interlocked.Exchange(ref _parseErrors, 0),
-                string.Join(",",queuesStatus),
-                string.Join(",",ltStates),
-                string.Join(",",ptStates)
+                string.Join(",", queuesStatus),
+                string.Join(",", ltStates),
+                string.Join(",", ptStates)
                 );
-            
+
         }
     }
 }

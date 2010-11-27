@@ -10,6 +10,7 @@ SVN trunk
 *LogbusDaemon and tools based on WebServiceActivator definitely work on Mono
 *Downgraded to .NET 2.0 for best backward-compatibility (it still works on
 	.NET 3.5 or 4.0)
+*Implemented and tested SyslogMulticastReceiver
 
 version 2.0
 *Major changes in Logger configuration:
