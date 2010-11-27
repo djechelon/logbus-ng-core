@@ -69,6 +69,7 @@
     <Compile Include="PluginDeploymentTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SyslogMessageTest.cs" />
+    <Compile Include="SyslogMulticastReceiverTest.cs" />
     <Compile Include="SyslogTlsCollectorTest.cs" />
     <Compile Include="SyslogUdpReceiverRuntimeTest.cs" />
     <Compile Include="SyslogUdpReceiverTest.cs" />

@@ -226,19 +226,6 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
         }
 
-        /// <summary>
-        /// Implements IConfigurable.Configuration
-        /// </summary>
-        public override IEnumerable<KeyValuePair<string, string>> Configuration
-        {
-            set
-            {
-                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-                foreach (KeyValuePair<string, string> kvp in value)
-                    SetConfigurationParameter(kvp.Key, kvp.Value);
-            }
-        }
-
         #endregion
 
         /// <summary>

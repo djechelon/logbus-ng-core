@@ -64,7 +64,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
             try
             {
-                Stop();
+                if (Running) Stop();
             }
             catch (Exception)
             {
@@ -142,11 +142,11 @@ namespace It.Unina.Dis.Logbus.InChannels
         public void Start()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (Running) throw new InvalidOperationException("Inbound channel is already running");
+
             Log.Info("Inbound channel {0} starting", ToString());
             try
             {
-                if (Running) throw new InvalidOperationException("Listener is already running");
-
                 if (Starting != null)
                 {
                     CancelEventArgs e = new CancelEventArgs();
@@ -167,6 +167,7 @@ namespace It.Unina.Dis.Logbus.InChannels
             }
             catch (Exception ex)
             {
+                Running = false;
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, true));
                 Log.Error("Unable to start inbound channel {0}", ToString());
                 Log.Debug("Eror details: {0}", ex.Message);
@@ -181,11 +182,11 @@ namespace It.Unina.Dis.Logbus.InChannels
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (!Running) throw new InvalidOperationException("Inbound channel is not running");
+
             Log.Info("Inbound channel {0} stopping", ToString());
             try
             {
-                if (!Running) throw new InvalidOperationException("Listener is not running");
-
                 if (Stopping != null)
                 {
                     CancelEventArgs e = new CancelEventArgs();
@@ -231,7 +232,16 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <summary>
         /// Implements IConfigurable.Configuration
         /// </summary>
-        public abstract IEnumerable<KeyValuePair<string, string>> Configuration { set; }
+        public virtual IEnumerable<KeyValuePair<string, string>> Configuration
+        {
+            set
+            {
+                foreach (KeyValuePair<string, string> kvp in value)
+                {
+                    SetConfigurationParameter(kvp.Key, kvp.Value);
+                }
+            }
+        }
 
         #endregion
 

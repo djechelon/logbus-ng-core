@@ -18,8 +18,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
 
 namespace It.Unina.Dis.Logbus.InChannels
 {
@@ -27,87 +28,98 @@ namespace It.Unina.Dis.Logbus.InChannels
     /// Receives Syslog messages from a Multicast UDP socket
     /// </summary>
     internal class SyslogMulticastReceiver
-        : IInboundChannel
+        : SyslogUdpReceiver
     {
+
+        private IPAddress _group;
+
+        #region Constructor
         /// <remarks/>
         public SyslogMulticastReceiver()
+        { }
+
+        public SyslogMulticastReceiver(IPAddress group, int port)
+            : base(port)
         {
-            throw new NotImplementedException();
+            MulticastGroup = group;
         }
-
-        #region IInboundChannel Membri di
-
-        public string Name
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public event EventHandler<ParseErrorEventArgs> ParseError;
-
         #endregion
 
-        #region ILogSource Membri di
-
-        public event EventHandler<SyslogMessageEventArgs> MessageReceived;
-
-        #endregion
-
-        #region IRunnable Membri di
-
-        public event EventHandler<CancelEventArgs> Starting;
-
-        public event EventHandler<CancelEventArgs> Stopping;
-
-        public event EventHandler Started;
-
-        public event EventHandler Stopped;
-
-        public event UnhandledExceptionEventHandler Error;
-
-        public void Start()
+        public IPAddress MulticastGroup
         {
-            throw new NotImplementedException();
+            get { return _group; }
+            set
+            {
+                if (value != null && (value.GetAddressBytes()[0] < 224 || value.GetAddressBytes()[0] > 239))
+                    throw new ArgumentOutOfRangeException("value", value.ToString(), "Invalid Multicast address");
+
+                _group = value;
+            }
         }
 
-        public void Stop()
+
+        public override string GetConfigurationParameter(string key)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
+
+            switch (key)
+            {
+                case "group":
+                    {
+                        return (MulticastGroup != null) ? MulticastGroup.ToString() : null;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter not supported");
+                    }
+            }
         }
 
-        public bool Running
+        /// <remarks>Available configuration parameters:
+        /// <list type="string">
+        /// <item><b>group</b>: Multicast group to join</item>
+        /// <item><b>port</b>: UDP port to listen to. Default 514</item>
+        /// </list>
+        /// </remarks>
+        public override void SetConfigurationParameter(string key, string value)
         {
-            get { throw new NotImplementedException(); }
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException("key");
+
+            switch (key)
+            {
+                case "ip":
+                case "host":
+                    {
+                        throw new NotSupportedException("Configuration parameter not supported");
+                    }
+                case "group":
+                    {
+                        IPAddress addr;
+                        if (!IPAddress.TryParse(value, out addr)) throw new ArgumentException("Invalid IP address");
+                        MulticastGroup = addr;
+                        break;
+                    }
+                default:
+                    {
+                        base.SetConfigurationParameter(key, value);
+                        break;
+                    }
+            }
         }
 
-        #endregion
-
-        #region IConfigurable Membri di
-
-        public string GetConfigurationParameter(string key)
+        protected override UdpClient InitClient()
         {
-            throw new NotImplementedException();
+            UdpClient ret = base.InitClient();
+            ret.JoinMulticastGroup(MulticastGroup);
+            return ret;
         }
 
-        public void SetConfigurationParameter(string key, string value)
+        public override string ToString()
         {
-            throw new NotImplementedException();
+            return string.Format("SyslogMulticastReceiver:{0}:{1}", MulticastGroup, Port.ToString(CultureInfo.InvariantCulture));
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Configuration
-        {
-            set { throw new NotImplementedException(); }
-        }
-
-        #endregion
-
-        #region IDisposable Membri di
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
     }
 }

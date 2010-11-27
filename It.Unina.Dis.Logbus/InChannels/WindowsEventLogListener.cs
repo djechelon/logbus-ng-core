@@ -38,6 +38,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         public WindowsEventLogListener()
         {
+            Hostname = ".";
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
@@ -51,9 +52,6 @@ namespace It.Unina.Dis.Logbus.InChannels
                     }
             }
             Configuration = new Dictionary<string, string>();
-
-            //Trick to suppress compilation warnings. Don't edit (from the constructor, no listener is attached yet)
-            if (ParseError != null) ParseError(null, null);
         }
 
         ~WindowsEventLogListener()
@@ -64,13 +62,15 @@ namespace It.Unina.Dis.Logbus.InChannels
         private void Dispose(bool disposing)
         {
             if (Disposed) return;
+
+            GC.SuppressFinalize(this);
+
             try
             {
-                Stop();
+                if (!Running)
+                    Stop();
             }
-            catch
-            {
-            }
+            catch { }
 
             if (disposing)
             {
@@ -83,9 +83,7 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #endregion
 
-        public bool Running { get; private set; }
-
-        private void log_EntryWritten(object sender, EntryWrittenEventArgs e)
+        private void LogEntryWritten(object sender, EntryWrittenEventArgs e)
         {
             if (MessageReceived != null) MessageReceived(this, new SyslogMessageEventArgs((SyslogMessage)e.Entry));
         }
@@ -96,61 +94,9 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         #region IInboundChannel Membri di
 
-        public string Name { get; set; }
-
-        public void Start()
-        {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (Running) throw new InvalidOperationException("Windows Event Log Listener is already started");
-
-            if (Hostname == null)
-            {
-                try
-                {
-                    Hostname = GetConfigurationParameter("host");
-                }
-                catch (KeyNotFoundException)
-                {
-                    Hostname = ".";
-                }
-            }
-            if (LogName == null)
-            {
-                try
-                {
-                    LogName = GetConfigurationParameter("logName");
-                }
-                catch (KeyNotFoundException)
-                {
-                    throw new LogbusException("Missing configuration parameter: logName");
-                }
-            }
-
-            try
-            {
-                new EventLogPermission(EventLogPermissionAccess.Administer, Hostname).Demand();
-            }
-            catch (SecurityException ex)
-            {
-                throw new LogbusException("Unable to start channel. Missing security clearance for the chosen machine",
-                                          ex);
-            }
-
-            _log = new EventLog(LogName, Hostname);
-            _log.EntryWritten += log_EntryWritten;
-        }
-
-        public void Stop()
-        {
-            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Running) throw new InvalidOperationException("Windows Event Log Listener is not running");
-
-            _log.EntryWritten -= log_EntryWritten;
-            _log.Close();
-            _log = null;
-        }
-
+#pragma warning disable 67
         public event EventHandler<ParseErrorEventArgs> ParseError;
+#pragma warning restore 67
 
         #endregion
 
@@ -186,18 +132,130 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// <remarks/>
         public event UnhandledExceptionEventHandler Error;
 
+        public void Start()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            try
+            {
+                if (Running) throw new InvalidOperationException("Windows Event Log Listener is already started");
+
+
+                if (LogName == null)
+                    throw new LogbusException("Missing configuration parameter: logName");
+
+                if (Starting != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Starting(this, e);
+                    if (e.Cancel) return;
+                }
+
+                try
+                {
+                    new EventLogPermission(EventLogPermissionAccess.Administer, Hostname).Demand();
+                }
+                catch (SecurityException ex)
+                {
+                    throw new LogbusException(
+                        "Unable to start Windows Event Log listener. Missing security clearance for the chosen machine",
+                        ex);
+                }
+
+                try
+                {
+                    _log = new EventLog(LogName, Hostname);
+                    _log.EntryWritten += LogEntryWritten;
+                    Running = true;
+
+                    if (Started != null) Started(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    throw new LogbusException("Unable to start Windows Event Log Listener. Unable to get log", ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(this, new UnhandledExceptionEventArgs(ex, true));
+                throw;
+            }
+        }
+
+        public void Stop()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            try
+            {
+                if (!Running) throw new InvalidOperationException("Windows Event Log Listener is not running");
+
+                if (Stopping != null)
+                {
+                    CancelEventArgs e = new CancelEventArgs();
+                    Stopping(this, e);
+                    if (e.Cancel) return;
+                }
+
+                _log.EntryWritten -= LogEntryWritten;
+                _log.Close();
+                _log = null;
+                Running = false;
+
+                if (Stopped != null) Stopped(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(this, new UnhandledExceptionEventArgs(ex, true));
+                throw;
+            }
+        }
+
+        public bool Running { get; private set; }
         #endregion
 
         #region IConfigurable Membri di
 
         public string GetConfigurationParameter(string key)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            switch (key)
+            {
+                case "host":
+                    {
+                        return Hostname;
+                    }
+                case "logName":
+                    {
+                        return LogName;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter is not supported");
+                    }
+            }
         }
 
         public void SetConfigurationParameter(string key, string value)
         {
-            throw new NotImplementedException();
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            switch (key)
+            {
+                case "host":
+                    {
+                        Hostname = value ?? ".";
+                        break;
+                    }
+                case "logName":
+                    {
+                        LogName = value;
+                        break;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException("Configuration parameter is not supported");
+                    }
+            }
         }
 
         /// <summary>
@@ -210,7 +268,14 @@ namespace It.Unina.Dis.Logbus.InChannels
         /// </summary>
         public IEnumerable<KeyValuePair<string, string>> Configuration
         {
-            set { throw new NotImplementedException(); }
+            set
+            {
+                if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+                foreach (KeyValuePair<string, string> kvp in value)
+                {
+                    SetConfigurationParameter(kvp.Key, kvp.Value);
+                }
+            }
         }
 
         #endregion
