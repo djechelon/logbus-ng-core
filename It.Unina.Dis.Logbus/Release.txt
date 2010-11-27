@@ -6,6 +6,7 @@ SVN trunk
 	into GAC, dependencies included
 *TLS transport relies, for platform reasons, to TLS 1.0 version, while RFC 5425 requires TLS
 	1.2 to be used
+*TLS transport is unable to validate client certificates
 
 version 2.0
 *Recommended version of Mono (if applicable): 2.6.7, but the software has been tested with

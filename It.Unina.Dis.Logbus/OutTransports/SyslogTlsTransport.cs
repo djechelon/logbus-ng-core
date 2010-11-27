@@ -206,7 +206,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     newTcpClient = new TcpClient(host, port);
                 else
                 {
-                    newTcpClient = new TcpClient(ipOverride.AddressFamily);
+                    newTcpClient = new TcpClient(ipOverride.AddressFamily) { NoDelay = true, SendBufferSize = 65536 };
                     newTcpClient.Connect(ipOverride, port);
                 }
 
@@ -344,6 +344,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             try
             {
+                WaitHandle[] waitHandles = null;
                 while (true)
                 {
                     SyslogMessage[] msgs = _queue.Flush();
@@ -367,6 +368,12 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         data = ms.ToArray();
                     }
 
+                    //Waiting for pending writes
+                    if (waitHandles != null)
+                    {
+                        WaitHandle.WaitAll(waitHandles);
+                    }
+
                     //Critical section. Obtain a snapshot of list and release lock ASAP
                     TlsClient[] clients;
                     _listLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
@@ -380,11 +387,27 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         _listLock.ReleaseReaderLock();
                     }
 
-                    foreach (TlsClient client in clients)
+                    //Re-creating writing wait handlers
+                    waitHandles = new WaitHandle[clients.Length];
+
+                    for (int i = 0; i < clients.Length; i++)
                     {
+                        TlsClient client = clients[i];
+                        waitHandles[i] = new AutoResetEvent(false);
                         try
                         {
-                            client.Stream.Write(data, 0, data.Length);
+                            /* Asynchronously writing data to buffer.
+                             * Once writing is completed, the callback signals the AutoResetEvent
+                             * and once all clients signal the AutoResetEvent, new data will be written.
+                             * Meanwhile, TlsClient encodes new data to send
+                             */
+                            client.Stream.BeginWrite(data, 0, data.Length,
+                                delegate(IAsyncResult result)
+                                {
+                                    ((AutoResetEvent)result.AsyncState).
+                                           Set();
+                                },
+                                waitHandles[i]);
                         }
                         catch (IOException ex)
                         {
@@ -407,12 +430,13 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             List<string> toRemove = new List<string>();
 
-            //Scan for dead clients
-            //According to MSDN, a client will be detected to be dead
-            //only after a failed I/O.
-            //If no messages run on channel, lots of dead clients won't be
-            //discovered. This is why we force flushing the stream: if client
-            //is dead, IOException is triggered and Connected is set to false
+            /* Scan for dead clients
+             * According to MSDN, a client will be detected to be dead
+             * only after a failed I/O.
+             * If no messages run on channel, lots of dead clients won't be
+             * discovered. This is why we force flushing the stream: if client
+             * is dead, IOException is triggered and Connected is set to false
+             */
             _listLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
             try
             {
