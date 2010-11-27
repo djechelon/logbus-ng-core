@@ -15,7 +15,7 @@
  *
  *  Software is distributed under Microsoft Reciprocal License
  *  Documentation under Creative Commons 3.0 BY-SA License
-*/
+ */
 
 using System;
 

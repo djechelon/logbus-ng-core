@@ -15,7 +15,7 @@
  *
  *  Software is distributed under Microsoft Reciprocal License
  *  Documentation under Creative Commons 3.0 BY-SA License
-*/
+ */
 
 using System;
 using System.Threading;
@@ -27,7 +27,7 @@ namespace RandomMessagePump
     {
         static void Main(string[] args)
         {
-            Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
+            Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine("This program is going to submit random log messages to Logbus-ng.");
             Console.WriteLine("You should have already started Logbus daemon, otherwise you will lose messages.");
             Console.WriteLine("Press ENTER when you are ready to begin...");
@@ -39,7 +39,7 @@ namespace RandomMessagePump
 
             try
             {
-                ILog the_log = LoggerHelper.GetLogger();
+                ILog theLog = LoggerHelper.GetLogger();
 
                 while (true)
                 {
@@ -50,42 +50,42 @@ namespace RandomMessagePump
                     {
                         case 0:
                             {
-                                the_log.Debug("A debug message");
+                                theLog.Debug("A debug message");
                                 break;
                             }
                         case 1:
                             {
-                                the_log.Notice("A notice message");
+                                theLog.Notice("A notice message");
                                 break;
                             }
                         case 2:
                             {
-                                the_log.Info("An informational message");
+                                theLog.Info("An informational message");
                                 break;
                             }
                         case 3:
                             {
-                                the_log.Warning("A warning message");
+                                theLog.Warning("A warning message");
                                 break;
                             }
                         case 4:
                             {
-                                the_log.Error("An error message");
+                                theLog.Error("An error message");
                                 break;
                             }
                         case 5:
                             {
-                                the_log.Alert("An alert message");
+                                theLog.Alert("An alert message");
                                 break;
                             }
                         case 6:
                             {
-                                the_log.Critical("A critical message");
+                                theLog.Critical("A critical message");
                                 break;
                             }
                         case 7:
                             {
-                                the_log.Emergency("An emergency message");
+                                theLog.Emergency("An emergency message");
                                 break;
                             }
                         default:

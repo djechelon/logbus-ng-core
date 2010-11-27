@@ -15,7 +15,7 @@
  *
  *  Software is distributed under Microsoft Reciprocal License
  *  Documentation under Creative Commons 3.0 BY-SA License
-*/
+ */
 
 /*
  *  This file comes from code example at http://msdn.microsoft.com/en-us/magazine/cc163879.aspx 
@@ -23,7 +23,7 @@
  * 
  *  Article and code copyright Microsoft Corporation. Imported in Logbus-ng according to EULA
  *  Original code edited
-*/
+ */
 
 #region Using directives
 
