@@ -36,7 +36,7 @@ using System.Runtime.InteropServices;
 // utilizzando l'asterisco (*) come descritto di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("2.3.41.0")]
+[assembly: AssemblyVersion("2.3.42.0")]
 [assembly: AssemblyFileVersion("2.3")]
 [assembly: InternalsVisibleTo("UnitTests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100594067d9fdc058dad4c54462bf04b8b09d9e56e43d8bb16d5b87350c398826b1ab88eb2b1e3ca197db88a6ef8c194c91a5ce5304cc2a137f9c80cfdfd98767877d057464dae22ff694884b5ef27c1681690643d4a9d3300ec70df9f16c4fced2f0083e1b6a35303a850bddc30cef2bf7a7a744ef6f2d64b2be609f3fa80540ae")]
 [assembly: InternalsVisibleTo("It.Unina.Dis.Logbus.Extensions, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ab743844dabbd57ed540096909b5186397493c3085bac82a1f3afcd49f24fc31ccd857f00d78b5ec062a543775be270c597354b1289120b0db95114933fbec5babb947620228827f583a67f041837f81511356c9a85cf4fd64366ceb0ffb2f63ac509ad6d203614cc648d519394ff4184efb31183c56c2b8552ad941471eb2a6")]

@@ -344,7 +344,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
         {
             try
             {
-                WaitHandle[] waitHandles = null;
                 while (true)
                 {
                     SyslogMessage[] msgs = _queue.Flush();
@@ -369,10 +368,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     }
 
                     //Waiting for pending writes
-                    if (waitHandles != null)
-                    {
-                        WaitHandle.WaitAll(waitHandles);
-                    }
 
                     //Critical section. Obtain a snapshot of list and release lock ASAP
                     TlsClient[] clients;
@@ -387,13 +382,26 @@ namespace It.Unina.Dis.Logbus.OutTransports
                         _listLock.ReleaseReaderLock();
                     }
 
-                    //Re-creating writing wait handlers
-                    waitHandles = new WaitHandle[clients.Length];
-
-                    for (int i = 0; i < clients.Length; i++)
+                    foreach (TlsClient client in clients)
                     {
-                        TlsClient client = clients[i];
-                        waitHandles[i] = new AutoResetEvent(false);
+                        if (client.AsyncResult != null)
+                        {
+                            try
+                            {
+                                client.Stream.EndWrite(client.AsyncResult);
+                                client.AsyncResult = null;
+                            }
+                            catch (ObjectDisposedException) { }
+                            catch (IOException ex)
+                            {
+                                Log.Warning("Unable to send paylod to TLS client {0}", client.Client.Client.RemoteEndPoint.ToString());
+                                Log.Debug("Error details: {0}", ex.Message);
+                            }
+                        }
+                    }
+
+                    foreach (TlsClient client in clients)
+                    {
                         try
                         {
                             /* Asynchronously writing data to buffer.
@@ -401,13 +409,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
                              * and once all clients signal the AutoResetEvent, new data will be written.
                              * Meanwhile, TlsClient encodes new data to send
                              */
-                            client.Stream.BeginWrite(data, 0, data.Length,
-                                delegate(IAsyncResult result)
-                                {
-                                    ((AutoResetEvent)result.AsyncState).
-                                           Set();
-                                },
-                                waitHandles[i]);
+                            client.AsyncResult = client.Stream.BeginWrite(data, 0, data.Length, null, null);
                         }
                         catch (IOException ex)
                         {
@@ -423,6 +425,7 @@ namespace It.Unina.Dis.Logbus.OutTransports
             {
                 Log.Error("Failed TLS cycle in SyslogTlsTransport");
                 Log.Debug("Error details: {0}", ex.Message);
+                Dispose();
             }
         }
 
@@ -524,6 +527,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
             public readonly TcpClient Client;
 
             public readonly SslStream Stream;
+
+            public IAsyncResult AsyncResult;
 
             #region IDisposable Membri di
 
