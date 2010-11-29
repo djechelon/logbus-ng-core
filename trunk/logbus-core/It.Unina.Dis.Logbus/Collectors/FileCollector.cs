@@ -48,7 +48,7 @@ namespace It.Unina.Dis.Logbus.Collectors
         [MethodImpl(MethodImplOptions.Synchronized)]
         void ILogCollector.SubmitMessage(SyslogMessage message)
         {
-            using (StreamWriter sw = File.AppendText(_absoluteFilePath))
+            using (StreamWriter sw = new StreamWriter(File.Open(_absoluteFilePath, FileMode.Append, FileAccess.Write, FileShare.Write)))
             {
                 sw.WriteLine(message.ToRfc5424String());
             }
