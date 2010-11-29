@@ -24,6 +24,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Loggers;
+using It.Unina.Dis.Logbus.OutTransports;
 using It.Unina.Dis.Logbus.Utils;
 
 namespace It.Unina.Dis.Logbus.OutChannels
@@ -135,7 +136,11 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 try
                 {
                     foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports)
-                        ret += kvp.Value.SubscribedClients;
+                        try
+                        {
+                            ret += kvp.Value.SubscribedClients;
+                        }
+                        catch (ObjectDisposedException) { }
                 }
                 finally
                 {
@@ -294,6 +299,20 @@ namespace It.Unina.Dis.Logbus.OutChannels
                     Log.Info("New client subscribed on channel {0} with ID {1}", ID, clientId);
                     return clientId;
                 }
+                catch (ObjectDisposedException)
+                {
+                    _transportLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                    try
+                    {
+                        _transports.Remove(transportId);
+                    }
+                    finally
+                    {
+                        _transportLock.ReleaseWriterLock();
+                    }
+
+                    return SubscribeClient(transportId, inputInstructions, out outputInstructions);
+                }
                 catch (LogbusException ex)
                 {
                     ex.Data.Add("transportId", transportId);
@@ -361,6 +380,19 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 try
                 {
                     trans.RefreshClient(transportClientId);
+                }
+                catch (ObjectDisposedException)
+                {
+                    _transportLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                    try
+                    {
+                        _transports.Remove(transportId);
+                    }
+                    finally
+                    {
+                        _transportLock.ReleaseWriterLock();
+                    }
+                    throw new TransportException("Transport crashed");
                 }
                 catch (NotSupportedException ex)
                 {
@@ -448,6 +480,19 @@ namespace It.Unina.Dis.Logbus.OutChannels
                         trans.Dispose();
                     }
                 }
+                catch (ObjectDisposedException)
+                {
+                    _transportLock.AcquireWriterLock(DEFAULT_JOIN_TIMEOUT);
+                    try
+                    {
+                        _transports.Remove(transportId);
+                    }
+                    finally
+                    {
+                        _transportLock.ReleaseWriterLock();
+                    }
+                    throw new TransportException("Transport crashed");
+                }
                 catch (LogbusException ex)
                 {
                     ex.Data.Add("client-channel", clientId);
@@ -512,6 +557,18 @@ namespace It.Unina.Dis.Logbus.OutChannels
                             {
                                 kvp.Value.SubmitMessage(msg);
                             }
+                            catch (ObjectDisposedException)
+                            {
+                                LockCookie ck = _transportLock.UpgradeToWriterLock(DEFAULT_JOIN_TIMEOUT);
+                                try
+                                {
+                                    _transports.Remove(kvp.Key);
+                                }
+                                finally
+                                {
+                                    _transportLock.DowngradeFromWriterLock(ref ck);
+                                }
+                            }
                             catch (Exception ex)
                             {
                                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(ex, false));
@@ -571,6 +628,7 @@ namespace It.Unina.Dis.Logbus.OutChannels
                                 foreach (KeyValuePair<string, IOutboundTransport> kvp in _transports)
                                     kvp.Value.SubmitMessage(msg);
                             }
+                            catch { }
                             finally
                             {
                                 _transportLock.ReleaseReaderLock();
@@ -650,12 +708,25 @@ namespace It.Unina.Dis.Logbus.OutChannels
 
         private void LogStatistics(object state)
         {
-            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages. Thread state {4}",
+            string[] transports;
+            _transportLock.AcquireReaderLock(DEFAULT_JOIN_TIMEOUT);
+            try
+            {
+                transports = new string[_transports.Count];
+                _transports.Keys.CopyTo(transports, 0);
+            }
+            finally
+            {
+                _transportLock.ReleaseReaderLock();
+            }
+
+            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages. Thread state {4}. Active transports: {5}",
                 ID,
                 Interlocked.Exchange(ref _processedMessages, 0),
                 Interlocked.Exchange(ref _deliveredMessages, 0),
                 _messageQueue.Count,
-                Enum.GetName(typeof(ThreadState), _workerThread.ThreadState)
+                Enum.GetName(typeof(ThreadState), _workerThread.ThreadState),
+                string.Join(",", transports)
                 );
         }
     }
