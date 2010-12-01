@@ -1,13 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <wsdl:definitions xmlns:em="http://www.dis.unina.it/logbus-ng/em" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://www.dis.unina.it/logbus-ng/em" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.dis.unina.it/logbus-ng/em">
       <xs:complexType name="LoggingEntityIdentifier">
         <xs:sequence>
-          <xs:element form="unqualified" name="host" nillable="true" type="xs:string" />
-          <xs:element form="unqualified" name="process" nillable="true" type="xs:string" />
-          <xs:element form="unqualified" name="logger" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" form="unqualified" name="host" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" form="unqualified" name="process" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" form="unqualified" name="logger" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="module" type="xs:string" />
+          <xs:element minOccurs="0" name="class" type="xs:string" />
+          <xs:element minOccurs="0" name="method" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
       <xs:element name="entity" type="em:LoggingEntity" />
@@ -43,6 +45,15 @@
           </xs:extension>
         </xs:complexContent>
       </xs:complexType>
+      <xs:complexType name="EntityDefinition">
+        <xs:attribute name="host" type="xs:boolean" use="required" />
+        <xs:attribute name="process" type="xs:string" use="required" />
+        <xs:attribute name="logger" type="xs:boolean" use="required" />
+        <xs:attribute name="module" type="xs:boolean" use="required" />
+        <xs:attribute name="class" type="xs:boolean" use="required" />
+        <xs:attribute name="method" type="xs:boolean" use="required" />
+      </xs:complexType>
+      <xs:element name="entity-definition" type="em:EntityDefinition" />
     </xs:schema>
   </wsdl:types>
   <wsdl:message name="GetLoggingEntitiesRequest" />
@@ -63,6 +74,11 @@
   <wsdl:message name="GetActiveFlowsResponse">
     <wsdl:part name="flows" type="xs:string" />
   </wsdl:message>
+  <wsdl:message name="GetEntityDefinitionRequest" />
+  <wsdl:message name="GetEntityDefinitionResponse">
+    <wsdl:part name="entity-def" element="em:entity-definition" />
+  </wsdl:message>
+  <wsdl:message name="WrongDefinitionException" />
   <wsdl:portType name="EntityManagement">
     <wsdl:documentation>
       Retrieves information about logging entities
@@ -74,6 +90,11 @@
     <wsdl:operation name="FindLoggingEntities">
       <wsdl:input message="em:FindLoggingEntitiesRequest" />
       <wsdl:output message="em:FindLoggingEntitiesResponse" />
+      <wsdl:fault name="WrongDefinitionException" message="em:WrongDefinitionException" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEntityDefinition">
+      <wsdl:input message="em:GetEntityDefinitionRequest" />
+      <wsdl:output message="em:GetEntityDefinitionResponse" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="EntityManagement" type="em:EntityManagement">
@@ -89,6 +110,16 @@
     </wsdl:operation>
     <wsdl:operation name="FindLoggingEntities">
       <soap:operation soapAction="urn:#FindLoggingEntities" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="WrongDefinitionException" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEntityDefinition">
+      <soap:operation soapAction="urn:#NewOperation" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

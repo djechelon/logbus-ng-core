@@ -63,6 +63,15 @@ namespace It.Unina.Dis.Logbus.Entities
             return _proxy.FindLoggingEntities(query);
         }
 
+        /// <summary>
+        /// Implements IEntityManagement.GetEntityDefinition
+        /// </summary>
+        /// <returns></returns>
+        public EntityDefinition GetEntityDefinition()
+        {
+            return _proxy.GetEntityDefinition();
+        }
+
         #endregion
     }
 }

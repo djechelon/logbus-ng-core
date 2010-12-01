@@ -586,6 +586,8 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
         {
+            throw new NotImplementedException("Must be rewritten according to new specifications");
+
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
             DataRow[] rows;
@@ -646,6 +648,14 @@ namespace It.Unina.Dis.Logbus.Entities
             return ret;
         }
 
+        /// <summary>
+        /// Implements IEntityManagement.GetEntityDefinition
+        /// </summary>
+        public EntityDefinition GetEntityDefinition()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region Proxy factory
@@ -696,5 +706,6 @@ namespace It.Unina.Dis.Logbus.Entities
         }
 
         #endregion
+
     }
 }

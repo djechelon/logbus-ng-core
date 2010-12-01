@@ -39,6 +39,12 @@ namespace It.Unina.Dis.Logbus.Entities {
         [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace="http://www.dis.unina.it/logbus-ng/em")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable=false)]
         LoggingEntity[] FindLoggingEntities([System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query);
+        
+        /// <remarks/>
+        [System.Web.Services.WebMethodAttribute()]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#NewOperation", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("entity-definition", Namespace="http://www.dis.unina.it/logbus-ng/em")]
+        EntityDefinition GetEntityDefinition();
     }
     
     /// <remarks/>
@@ -56,6 +62,8 @@ namespace It.Unina.Dis.Logbus.Entities {
         private System.DateTime lastActionField;
         
         private System.DateTime lastHeartbeatField;
+        
+        private bool lastHeartbeatFieldSpecified;
         
         private string channelIdField;
         
@@ -110,6 +118,17 @@ namespace It.Unina.Dis.Logbus.Entities {
         }
         
         /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool lastHeartbeatSpecified {
+            get {
+                return this.lastHeartbeatFieldSpecified;
+            }
+            set {
+                this.lastHeartbeatFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string channelId {
             get {
@@ -148,6 +167,12 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private string loggerField;
         
+        private string moduleField;
+        
+        private string classField;
+        
+        private string methodField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
         public string host {
@@ -178,6 +203,126 @@ namespace It.Unina.Dis.Logbus.Entities {
             }
             set {
                 this.loggerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string module {
+            get {
+                return this.moduleField;
+            }
+            set {
+                this.moduleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string @class {
+            get {
+                return this.classField;
+            }
+            set {
+                this.classField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string method {
+            get {
+                return this.methodField;
+            }
+            set {
+                this.methodField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "2.0.50727.3038")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
+    public partial class EntityDefinition {
+        
+        private bool hostField;
+        
+        private string processField;
+        
+        private bool loggerField;
+        
+        private bool moduleField;
+        
+        private bool classField;
+        
+        private bool methodField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool host {
+            get {
+                return this.hostField;
+            }
+            set {
+                this.hostField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string process {
+            get {
+                return this.processField;
+            }
+            set {
+                this.processField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool logger {
+            get {
+                return this.loggerField;
+            }
+            set {
+                this.loggerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool module {
+            get {
+                return this.moduleField;
+            }
+            set {
+                this.moduleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool @class {
+            get {
+                return this.classField;
+            }
+            set {
+                this.classField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool method {
+            get {
+                return this.methodField;
+            }
+            set {
+                this.methodField = value;
             }
         }
     }
