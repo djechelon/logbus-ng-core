@@ -11,423 +11,599 @@
 // 
 // Il codice sorgente è stato generato automaticamente da Microsoft.VSDesigner, versione 2.0.50727.4952.
 // 
-using System;
-using System.CodeDom.Compiler;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
-using System.Web.Services;
-using System.Web.Services.Description;
-using System.Web.Services.Protocols;
-using System.Xml.Schema;
-using System.Xml.Serialization;
-
 #pragma warning disable 1591
 
-namespace It.Unina.Dis.Logbus.Entities
-{
+namespace It.Unina.Dis.Logbus.Entities {
+    using System.Diagnostics;
+    using System.Web.Services;
+    using System.ComponentModel;
+    using System.Web.Services.Protocols;
+    using System;
+    using System.Xml.Serialization;
+    
+    
     /// <remarks/>
-    [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
-    [DebuggerStepThrough]
-    [DesignerCategory("code")]
-#if !MONO
-    [WebServiceBinding(Name = "EntityManagement", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-#endif
-    [XmlInclude(typeof (LoggingEntityIdentifier))]
-    public class EntityManagement : SoapHttpClientProtocol, IEntityManagement
-    {
-        private SendOrPostCallback GetLoggingEntitiesOperationCompleted;
-
-        private SendOrPostCallback FindLoggingEntitiesOperationCompleted;
-
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="EntityManagement", Namespace="http://www.dis.unina.it/logbus-ng/em")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggingEntityIdentifier))]
+    public partial class EntityManagement : System.Web.Services.Protocols.SoapHttpClientProtocol, IEntityManagement {
+        
+        private System.Threading.SendOrPostCallback GetLoggingEntitiesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback FindLoggingEntitiesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetEntityDefinitionOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
-
+        
         /// <remarks/>
-        public EntityManagement()
-        {
-            if (IsLocalFileSystemWebService(Url))
-            {
-                UseDefaultCredentials = true;
-                useDefaultCredentialsSetExplicitly = false;
+        public EntityManagement() {
+            if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
+                this.UseDefaultCredentials = true;
+                this.useDefaultCredentialsSetExplicitly = false;
             }
-            else
-            {
-                useDefaultCredentialsSetExplicitly = true;
+            else {
+                this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-
-        public new string Url
-        {
-            get { return base.Url; }
-            set
-            {
-                if (((IsLocalFileSystemWebService(base.Url)
-                      && (useDefaultCredentialsSetExplicitly == false))
-                     && (IsLocalFileSystemWebService(value) == false)))
-                {
+        
+        public new string Url {
+            get {
+                return base.Url;
+            }
+            set {
+                if ((((this.IsLocalFileSystemWebService(base.Url) == true) 
+                            && (this.useDefaultCredentialsSetExplicitly == false)) 
+                            && (this.IsLocalFileSystemWebService(value) == false))) {
                     base.UseDefaultCredentials = false;
                 }
                 base.Url = value;
             }
         }
-
-        public new bool UseDefaultCredentials
-        {
-            get { return base.UseDefaultCredentials; }
-            set
-            {
+        
+        public new bool UseDefaultCredentials {
+            get {
+                return base.UseDefaultCredentials;
+            }
+            set {
                 base.UseDefaultCredentials = value;
-                useDefaultCredentialsSetExplicitly = true;
+                this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-
+        
         /// <remarks/>
         public event GetLoggingEntitiesCompletedEventHandler GetLoggingEntitiesCompleted;
-
+        
         /// <remarks/>
         public event FindLoggingEntitiesCompletedEventHandler FindLoggingEntitiesCompleted;
-
+        
         /// <remarks/>
-        [SoapDocumentMethod("urn:#GetLoggingEntities", Use = SoapBindingUse.Literal,
-            ParameterStyle = SoapParameterStyle.Bare)]
-        [return: XmlArray("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: XmlArrayItem("entity", IsNullable = false)]
-        public LoggingEntity[] GetLoggingEntities()
-        {
-            object[] results = Invoke("GetLoggingEntities", new object[0]);
-            return ((LoggingEntity[]) (results[0]));
+        public event GetEntityDefinitionCompletedEventHandler GetEntityDefinitionCompleted;
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#GetLoggingEntities", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace="http://www.dis.unina.it/logbus-ng/em")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable=false)]
+        public LoggingEntity[] GetLoggingEntities() {
+            object[] results = this.Invoke("GetLoggingEntities", new object[0]);
+            return ((LoggingEntity[])(results[0]));
         }
-
+        
         /// <remarks/>
-        public void GetLoggingEntitiesAsync()
-        {
-            GetLoggingEntitiesAsync(null);
+        public void GetLoggingEntitiesAsync() {
+            this.GetLoggingEntitiesAsync(null);
         }
-
+        
         /// <remarks/>
-        public void GetLoggingEntitiesAsync(object userState)
-        {
-            if ((GetLoggingEntitiesOperationCompleted == null))
-            {
-                GetLoggingEntitiesOperationCompleted = new SendOrPostCallback(OnGetLoggingEntitiesOperationCompleted);
+        public void GetLoggingEntitiesAsync(object userState) {
+            if ((this.GetLoggingEntitiesOperationCompleted == null)) {
+                this.GetLoggingEntitiesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetLoggingEntitiesOperationCompleted);
             }
-            InvokeAsync("GetLoggingEntities", new object[0], GetLoggingEntitiesOperationCompleted, userState);
+            this.InvokeAsync("GetLoggingEntities", new object[0], this.GetLoggingEntitiesOperationCompleted, userState);
         }
-
-        private void OnGetLoggingEntitiesOperationCompleted(object arg)
-        {
-            if ((GetLoggingEntitiesCompleted != null))
-            {
-                InvokeCompletedEventArgs invokeArgs = ((InvokeCompletedEventArgs) (arg));
-                GetLoggingEntitiesCompleted(this,
-                                            new GetLoggingEntitiesCompletedEventArgs(invokeArgs.Results,
-                                                                                     invokeArgs.Error,
-                                                                                     invokeArgs.Cancelled,
-                                                                                     invokeArgs.UserState));
+        
+        private void OnGetLoggingEntitiesOperationCompleted(object arg) {
+            if ((this.GetLoggingEntitiesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetLoggingEntitiesCompleted(this, new GetLoggingEntitiesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-
+        
         /// <remarks/>
-        [SoapDocumentMethod("urn:#FindLoggingEntities", Use = SoapBindingUse.Literal,
-            ParameterStyle = SoapParameterStyle.Bare)]
-        [return: XmlArray("entities", Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-        [return: XmlArrayItem("entity", IsNullable = false)]
-        public LoggingEntity[] FindLoggingEntities(
-            [XmlElement(Namespace = "http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query)
-        {
-            object[] results = Invoke("FindLoggingEntities", new object[]
-                                                                 {
-                                                                     query
-                                                                 });
-            return ((LoggingEntity[]) (results[0]));
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#FindLoggingEntities", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlArrayAttribute("entities", Namespace="http://www.dis.unina.it/logbus-ng/em")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("entity", IsNullable=false)]
+        public LoggingEntity[] FindLoggingEntities([System.Xml.Serialization.XmlElementAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")] TemplateQuery query) {
+            object[] results = this.Invoke("FindLoggingEntities", new object[] {
+                        query});
+            return ((LoggingEntity[])(results[0]));
         }
-
+        
         /// <remarks/>
-        public void FindLoggingEntitiesAsync(TemplateQuery query)
-        {
-            FindLoggingEntitiesAsync(query, null);
+        public void FindLoggingEntitiesAsync(TemplateQuery query) {
+            this.FindLoggingEntitiesAsync(query, null);
         }
-
+        
         /// <remarks/>
-        public void FindLoggingEntitiesAsync(TemplateQuery query, object userState)
-        {
-            if ((FindLoggingEntitiesOperationCompleted == null))
-            {
-                FindLoggingEntitiesOperationCompleted = new SendOrPostCallback(OnFindLoggingEntitiesOperationCompleted);
+        public void FindLoggingEntitiesAsync(TemplateQuery query, object userState) {
+            if ((this.FindLoggingEntitiesOperationCompleted == null)) {
+                this.FindLoggingEntitiesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFindLoggingEntitiesOperationCompleted);
             }
-            InvokeAsync("FindLoggingEntities", new object[]
-                                                   {
-                                                       query
-                                                   }, FindLoggingEntitiesOperationCompleted, userState);
+            this.InvokeAsync("FindLoggingEntities", new object[] {
+                        query}, this.FindLoggingEntitiesOperationCompleted, userState);
         }
-
-        private void OnFindLoggingEntitiesOperationCompleted(object arg)
-        {
-            if ((FindLoggingEntitiesCompleted != null))
-            {
-                InvokeCompletedEventArgs invokeArgs = ((InvokeCompletedEventArgs) (arg));
-                FindLoggingEntitiesCompleted(this,
-                                             new FindLoggingEntitiesCompletedEventArgs(invokeArgs.Results,
-                                                                                       invokeArgs.Error,
-                                                                                       invokeArgs.Cancelled,
-                                                                                       invokeArgs.UserState));
+        
+        private void OnFindLoggingEntitiesOperationCompleted(object arg) {
+            if ((this.FindLoggingEntitiesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.FindLoggingEntitiesCompleted(this, new FindLoggingEntitiesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
-
+        
         /// <remarks/>
-        public new void CancelAsync(object userState)
-        {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:#NewOperation", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
+        [return: System.Xml.Serialization.XmlElementAttribute("entity-definition", Namespace="http://www.dis.unina.it/logbus-ng/em")]
+        public EntityDefinition GetEntityDefinition() {
+            object[] results = this.Invoke("GetEntityDefinition", new object[0]);
+            return ((EntityDefinition)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetEntityDefinitionAsync() {
+            this.GetEntityDefinitionAsync(null);
+        }
+        
+        /// <remarks/>
+        public void GetEntityDefinitionAsync(object userState) {
+            if ((this.GetEntityDefinitionOperationCompleted == null)) {
+                this.GetEntityDefinitionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEntityDefinitionOperationCompleted);
+            }
+            this.InvokeAsync("GetEntityDefinition", new object[0], this.GetEntityDefinitionOperationCompleted, userState);
+        }
+        
+        private void OnGetEntityDefinitionOperationCompleted(object arg) {
+            if ((this.GetEntityDefinitionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetEntityDefinitionCompleted(this, new GetEntityDefinitionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
-
-        private bool IsLocalFileSystemWebService(string url)
-        {
-            if (((url == null)
-                 || (url == string.Empty)))
-            {
+        
+        private bool IsLocalFileSystemWebService(string url) {
+            if (((url == null) 
+                        || (url == string.Empty))) {
                 return false;
             }
-            Uri wsUri = new Uri(url);
-            if (((wsUri.Port >= 1024)
-                 && (string.Compare(wsUri.Host, "localHost", StringComparison.OrdinalIgnoreCase) == 0)))
-            {
+            System.Uri wsUri = new System.Uri(url);
+            if (((wsUri.Port >= 1024) 
+                        && (string.Compare(wsUri.Host, "localHost", System.StringComparison.OrdinalIgnoreCase) == 0))) {
                 return true;
             }
             return false;
         }
     }
-
+    
     /// <remarks/>
-    [GeneratedCode("System.Xml", "2.0.50727.4927")]
-    [Serializable]
-    [DebuggerStepThrough]
-    [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-    public class LoggingEntity : LoggingEntityIdentifier
-    {
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
+    public partial class LoggingEntity : LoggingEntityIdentifier {
+        
         private string appNameField;
-
+        
         private bool ffdaField;
-
-        private DateTime lastActionField;
-
-        private DateTime lastHeartbeatField;
-
+        
+        private System.DateTime lastActionField;
+        
+        private System.DateTime lastHeartbeatField;
+        
         private bool lastHeartbeatFieldSpecified;
-
+        
         private string channelIdField;
-
+        
         private string ffdaChannelIdField;
-
-        public LoggingEntity()
-        {
-            ffdaField = false;
+        
+        public LoggingEntity() {
+            this.ffdaField = false;
         }
-
+        
         /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified, IsNullable = true)]
-        public string appName
-        {
-            get { return appNameField; }
-            set { appNameField = value; }
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string appName {
+            get {
+                return this.appNameField;
+            }
+            set {
+                this.appNameField = value;
+            }
         }
-
+        
         /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public bool ffda
-        {
-            get { return ffdaField; }
-            set { ffdaField = value; }
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public bool ffda {
+            get {
+                return this.ffdaField;
+            }
+            set {
+                this.ffdaField = value;
+            }
         }
-
+        
         /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public DateTime lastAction
-        {
-            get { return lastActionField; }
-            set { lastActionField = value; }
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public System.DateTime lastAction {
+            get {
+                return this.lastActionField;
+            }
+            set {
+                this.lastActionField = value;
+            }
         }
-
+        
         /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public DateTime lastHeartbeat
-        {
-            get { return lastHeartbeatField; }
-            set { lastHeartbeatField = value; }
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public System.DateTime lastHeartbeat {
+            get {
+                return this.lastHeartbeatField;
+            }
+            set {
+                this.lastHeartbeatField = value;
+            }
         }
-
+        
         /// <remarks/>
-        [XmlIgnore]
-        public bool lastHeartbeatSpecified
-        {
-            get { return lastHeartbeatFieldSpecified; }
-            set { lastHeartbeatFieldSpecified = value; }
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool lastHeartbeatSpecified {
+            get {
+                return this.lastHeartbeatFieldSpecified;
+            }
+            set {
+                this.lastHeartbeatFieldSpecified = value;
+            }
         }
-
+        
         /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public string channelId
-        {
-            get { return channelIdField; }
-            set { channelIdField = value; }
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string channelId {
+            get {
+                return this.channelIdField;
+            }
+            set {
+                this.channelIdField = value;
+            }
         }
-
+        
         /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public string ffdaChannelId
-        {
-            get { return ffdaChannelIdField; }
-            set { ffdaChannelIdField = value; }
-        }
-    }
-
-    /// <remarks/>
-    [XmlInclude(typeof (LoggingEntity))]
-    [XmlInclude(typeof (TemplateQuery))]
-    [GeneratedCode("System.Xml", "2.0.50727.4927")]
-    [Serializable]
-    [DebuggerStepThrough]
-    [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-    public class LoggingEntityIdentifier
-    {
-        private string hostField;
-
-        private string processField;
-
-        private string loggerField;
-
-        /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified, IsNullable = true)]
-        public string host
-        {
-            get { return hostField; }
-            set { hostField = value; }
-        }
-
-        /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified, IsNullable = true)]
-        public string process
-        {
-            get { return processField; }
-            set { processField = value; }
-        }
-
-        /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified, IsNullable = true)]
-        public string logger
-        {
-            get { return loggerField; }
-            set { loggerField = value; }
-        }
-    }
-
-    /// <remarks/>
-    [GeneratedCode("System.Xml", "2.0.50727.4927")]
-    [Serializable]
-    [DebuggerStepThrough]
-    [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/em")]
-    public class TemplateQuery : LoggingEntityIdentifier
-    {
-        private bool ffdaField;
-
-        private bool ffdaFieldSpecified;
-
-        private string maxinactivityField;
-
-        private string appNameField;
-
-        /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public bool ffda
-        {
-            get { return ffdaField; }
-            set { ffdaField = value; }
-        }
-
-        /// <remarks/>
-        [XmlIgnore]
-        public bool ffdaSpecified
-        {
-            get { return ffdaFieldSpecified; }
-            set { ffdaFieldSpecified = value; }
-        }
-
-        /// <remarks/>
-        [XmlElement("max-inactivity", Form = XmlSchemaForm.Unqualified, DataType = "integer", IsNullable = true)]
-        public string maxinactivity
-        {
-            get { return maxinactivityField; }
-            set { maxinactivityField = value; }
-        }
-
-        /// <remarks/>
-        [XmlElement(Form = XmlSchemaForm.Unqualified)]
-        public string appName
-        {
-            get { return appNameField; }
-            set { appNameField = value; }
-        }
-    }
-
-    /// <remarks/>
-    [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
-    public delegate void GetLoggingEntitiesCompletedEventHandler(object sender, GetLoggingEntitiesCompletedEventArgs e);
-
-    /// <remarks/>
-    [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
-    [DebuggerStepThrough]
-    [DesignerCategory("code")]
-    public class GetLoggingEntitiesCompletedEventArgs : AsyncCompletedEventArgs
-    {
-        private object[] results;
-
-        internal GetLoggingEntitiesCompletedEventArgs(object[] results, Exception exception, bool cancelled,
-                                                      object userState) :
-                                                          base(exception, cancelled, userState)
-        {
-            this.results = results;
-        }
-
-        /// <remarks/>
-        public LoggingEntity[] Result
-        {
-            get
-            {
-                RaiseExceptionIfNecessary();
-                return ((LoggingEntity[]) (results[0]));
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string ffdaChannelId {
+            get {
+                return this.ffdaChannelIdField;
+            }
+            set {
+                this.ffdaChannelIdField = value;
             }
         }
     }
-
+    
     /// <remarks/>
-    [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
-    public delegate void FindLoggingEntitiesCompletedEventHandler(object sender, FindLoggingEntitiesCompletedEventArgs e
-        );
-
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LoggingEntity))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TemplateQuery))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
+    public partial class LoggingEntityIdentifier {
+        
+        private string hostField;
+        
+        private string processField;
+        
+        private string loggerField;
+        
+        private string moduleField;
+        
+        private string classField;
+        
+        private string methodField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string host {
+            get {
+                return this.hostField;
+            }
+            set {
+                this.hostField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string process {
+            get {
+                return this.processField;
+            }
+            set {
+                this.processField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public string logger {
+            get {
+                return this.loggerField;
+            }
+            set {
+                this.loggerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string module {
+            get {
+                return this.moduleField;
+            }
+            set {
+                this.moduleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string @class {
+            get {
+                return this.classField;
+            }
+            set {
+                this.classField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string method {
+            get {
+                return this.methodField;
+            }
+            set {
+                this.methodField = value;
+            }
+        }
+    }
+    
     /// <remarks/>
-    [GeneratedCode("System.Web.Services", "2.0.50727.4927")]
-    [DebuggerStepThrough]
-    [DesignerCategory("code")]
-    public class FindLoggingEntitiesCompletedEventArgs : AsyncCompletedEventArgs
-    {
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
+    public partial class EntityDefinition {
+        
+        private bool hostField;
+        
+        private string processField;
+        
+        private bool loggerField;
+        
+        private bool moduleField;
+        
+        private bool classField;
+        
+        private bool methodField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool host {
+            get {
+                return this.hostField;
+            }
+            set {
+                this.hostField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string process {
+            get {
+                return this.processField;
+            }
+            set {
+                this.processField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool logger {
+            get {
+                return this.loggerField;
+            }
+            set {
+                this.loggerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool module {
+            get {
+                return this.moduleField;
+            }
+            set {
+                this.moduleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool @class {
+            get {
+                return this.classField;
+            }
+            set {
+                this.classField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool method {
+            get {
+                return this.methodField;
+            }
+            set {
+                this.methodField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.4927")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.dis.unina.it/logbus-ng/em")]
+    public partial class TemplateQuery : LoggingEntityIdentifier {
+        
+        private bool ffdaField;
+        
+        private bool ffdaFieldSpecified;
+        
+        private string maxinactivityField;
+        
+        private string appNameField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public bool ffda {
+            get {
+                return this.ffdaField;
+            }
+            set {
+                this.ffdaField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ffdaSpecified {
+            get {
+                return this.ffdaFieldSpecified;
+            }
+            set {
+                this.ffdaFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("max-inactivity", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, DataType="integer", IsNullable=true)]
+        public string maxinactivity {
+            get {
+                return this.maxinactivityField;
+            }
+            set {
+                this.maxinactivityField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string appName {
+            get {
+                return this.appNameField;
+            }
+            set {
+                this.appNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    public delegate void GetLoggingEntitiesCompletedEventHandler(object sender, GetLoggingEntitiesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetLoggingEntitiesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
         private object[] results;
-
-        internal FindLoggingEntitiesCompletedEventArgs(object[] results, Exception exception, bool cancelled,
-                                                       object userState) :
-                                                           base(exception, cancelled, userState)
-        {
+        
+        internal GetLoggingEntitiesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
             this.results = results;
         }
-
+        
         /// <remarks/>
-        public LoggingEntity[] Result
-        {
-            get
-            {
-                RaiseExceptionIfNecessary();
-                return ((LoggingEntity[]) (results[0]));
+        public LoggingEntity[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((LoggingEntity[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    public delegate void FindLoggingEntitiesCompletedEventHandler(object sender, FindLoggingEntitiesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class FindLoggingEntitiesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal FindLoggingEntitiesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public LoggingEntity[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((LoggingEntity[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    public delegate void GetEntityDefinitionCompletedEventHandler(object sender, GetEntityDefinitionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.4927")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetEntityDefinitionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetEntityDefinitionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public EntityDefinition Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((EntityDefinition)(this.results[0]));
             }
         }
     }
