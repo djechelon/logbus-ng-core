@@ -71,8 +71,9 @@ namespace It.Unina.Dis.Logbus.log4net
                                                 Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture),
                                             ApplicationName = Process.GetCurrentProcess().ProcessName
                                         };
-
+#pragma warning disable 618
             writer.WriteLine(message.ToRfc3164String());
+#pragma warning restore 618
         }
 
         string ILayout.Header
