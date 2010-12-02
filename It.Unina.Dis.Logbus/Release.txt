@@ -1,6 +1,7 @@
 ﻿Logbus-ng Release Notes
 
-SVN trunk
+version 2.3.42
+*Recommended Mono version: 2.8.1. Older versions, including 2.8.0, have known issues
 *When activating the Logbus web application from LogbusWebApplication, assemblies referenced
 	by plugins' respective assemblies might not get copied. Recommending to install everything
 	into GAC, dependencies included

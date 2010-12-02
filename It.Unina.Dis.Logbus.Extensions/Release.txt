@@ -1,3 +1,5 @@
 ﻿Logbus-ng Extensions Release Notes
 
-[TODO]
+version 1.3.0
+*Missing documentation for EntityPlugin and log4net integration.
+	Fortunately, code is widely commented
