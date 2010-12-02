@@ -1,6 +1,6 @@
 ﻿Logbus-ng Change Log
 
-SVN trunk
+version 2.3.42
 *Fixed a bug that sometimes prevented the channel to work properly
 *Fixed a bug that made LogbusService crash because a channel was created with
 	a non-existing custom filter
