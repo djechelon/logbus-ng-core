@@ -181,12 +181,6 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <returns>An XML proxy to the filter</returns>
         public static implicit operator FilterBase(EntityFilter filter)
         {
-            CustomFilter ret = new CustomFilter
-                                   {
-                                       name = "logbus-entity"
-                                   };
-
-
             List<FilterParameter> @params = new List<FilterParameter>(4);
             if (filter.Host != null)
                 @params.Add(new FilterParameter { name = "host", value = filter.Host });
@@ -203,9 +197,11 @@ namespace It.Unina.Dis.Logbus.Entities
 
             @params.Add(new FilterParameter { name = "ffdaOnly", value = filter.FfdaOnly });
 
-            ret.parameter = @params.ToArray();
-
-            return ret;
+            return new CustomFilter
+            {
+                name = "logbus-entity",
+                parameter = @params.ToArray()
+            };
         }
 
         #region ICustomFilter Membri di
