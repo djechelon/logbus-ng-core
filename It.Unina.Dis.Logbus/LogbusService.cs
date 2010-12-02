@@ -1706,16 +1706,14 @@ namespace It.Unina.Dis.Logbus
 
         private void LogStatistics(object state)
         {
-            string[] queuesStatus = new string[WORKER_THREADS], states = new string[WORKER_THREADS];
+            string[] queuesStatus = new string[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
             {
                 queuesStatus[i] = Queues[i].Count.ToString(CultureInfo.CurrentUICulture);
-                states[i] = Enum.GetName(typeof(ThreadState), _hubThreads[i].ThreadState);
             }
-            Log.Debug("During the last minute LogbusService processed {0} messages. There are {1} items in queues. Threads status {2}.",
+            Log.Debug("During the last minute LogbusService processed {0} messages. There are {1} items in queues.",
                 Interlocked.Exchange(ref _processedMessages, 0).ToString(),
-                string.Format("({0})", string.Join(",", queuesStatus)),
-                string.Format("({0})", string.Join(",", states))
+                string.Format("({0})", string.Join(",", queuesStatus))
                 );
         }
 

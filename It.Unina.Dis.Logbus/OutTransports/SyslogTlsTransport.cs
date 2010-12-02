@@ -507,8 +507,8 @@ namespace It.Unina.Dis.Logbus.OutTransports
 
         private void LogStatistics(object state)
         {
-            Log.Debug("During the last minute TLS transport {0} sent {1} messages. {2} messages in queue. Thread state {3}",
-                GetHashCode(), _messagesSent, _queue.Count, Enum.GetName(typeof(ThreadState), _worker.ThreadState));
+            Log.Debug("During the last minute TLS transport {0} sent {1} messages. {2} messages in queue.",
+                GetHashCode(), _messagesSent, _queue.Count);
             _messagesSent = 0;
         }
 

@@ -720,13 +720,12 @@ namespace It.Unina.Dis.Logbus.OutChannels
                 _transportLock.ReleaseReaderLock();
             }
 
-            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages. Thread state {4}. Active transports: {5}",
+            Log.Debug("Statistics for channel {0} for the last minute. Processed {1} messages. Delivered {2} messages. In queue {3} messages. Active transports: {4}",
                 ID,
                 Interlocked.Exchange(ref _processedMessages, 0),
                 Interlocked.Exchange(ref _deliveredMessages, 0),
                 _messageQueue.Count,
-                Enum.GetName(typeof(ThreadState), _workerThread.ThreadState),
-                string.Join(",", transports)
+                (transports.Length > 0) ? string.Join(",", transports) : "none"
                 );
         }
     }

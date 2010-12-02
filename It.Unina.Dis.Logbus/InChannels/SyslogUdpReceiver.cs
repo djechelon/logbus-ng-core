@@ -323,20 +323,16 @@ namespace It.Unina.Dis.Logbus.InChannels
 
         protected override void LogStatistics()
         {
-            string[] queuesStatus = new string[WORKER_THREADS], ptStates = new string[WORKER_THREADS], ltStates = new string[WORKER_THREADS];
+            string[] queuesStatus = new string[WORKER_THREADS];
             for (int i = 0; i < WORKER_THREADS; i++)
-            {
                 queuesStatus[i] = _byteQueues[i].Count.ToString(CultureInfo.CurrentUICulture);
-                ptStates[i] = Enum.GetName(typeof(ThreadState), _parserThreads[i].ThreadState);
-                ltStates[i] = Enum.GetName(typeof(ThreadState), _listenerThreads[i].ThreadState);
-            }
-            Log.Debug("Status of {0}. Received during last minute: {1}. Parse errors: {2}. Buffer queues holding ({3}). Listener threads status: ({4}). Parser threads status: ({5}).",
+                
+            
+            Log.Debug("Status of {0}. Received during last minute: {1}. Parse errors: {2}. Buffer queues holding ({3}).",
                 ToString(),
                 Interlocked.Exchange(ref _receivedMessages, 0),
                 Interlocked.Exchange(ref _parseErrors, 0),
-                string.Join(",", queuesStatus),
-                string.Join(",", ltStates),
-                string.Join(",", ptStates)
+                string.Join(",", queuesStatus)
                 );
 
         }
