@@ -59,6 +59,38 @@ namespace It.Unina.Dis.Logbus.Entities
         /// <param name="host">Host that matches entity</param>
         /// <param name="process">Process ID/AppName that matches entity</param>
         /// <param name="logger">Logger that matches entity</param>
+        /// <param name="module">Module that matches the entity</param>
+        /// <param name="class">Class that matches the entity</param>
+        /// <param name="method">Method that matches the entity</param>
+        /// <param name="ffdaOnly">Whether to allow only FFDA messages or not</param>
+        public EntityFilter(string host, string process, string logger, string module, string @class, string method, bool ffdaOnly)
+            : this(host, process, logger, ffdaOnly)
+        {
+            Module = module;
+            Class = @class;
+            Method = method;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of entity filter EntityFilter
+        /// </summary>
+        /// <param name="host">Host that matches entity</param>
+        /// <param name="process">Process ID/AppName that matches entity</param>
+        /// <param name="logger">Logger that matches entity</param>
+        /// <param name="module">Module that matches the entity</param>
+        /// <param name="class">Class that matches the entity</param>
+        /// <param name="method">Method that matches the entity</param>
+        public EntityFilter(string host, string process, string logger, string module, string @class, string method)
+            : this(host, process, logger, module, @class, @method, false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of entity filter EntityFilter
+        /// </summary>
+        /// <param name="host">Host that matches entity</param>
+        /// <param name="process">Process ID/AppName that matches entity</param>
+        /// <param name="logger">Logger that matches entity</param>
         /// <param name="ffdaOnly">Whether to allow only FFDA messages or not</param>
         public EntityFilter(string host, string process, string logger, bool ffdaOnly)
         {
@@ -88,6 +120,21 @@ namespace It.Unina.Dis.Logbus.Entities
         public string Logger { get; set; }
 
         /// <summary>
+        /// Module that generated the message
+        /// </summary>
+        public string Module { get; set; }
+
+        /// <summary>
+        /// Class that generated the message
+        /// </summary>
+        public string Class { get; set; }
+
+        /// <summary>
+        /// Method that generated the message
+        /// </summary>
+        public string Method { get; set; }
+
+        /// <summary>
         /// Whether to accept or not only FFDA messages
         /// </summary>
         public bool FfdaOnly { get; set; }
@@ -108,6 +155,15 @@ namespace It.Unina.Dis.Logbus.Entities
 
             if (Logger != null)
                 if (Logger != (attrs.LogName ?? string.Empty)) return false;
+
+            if (Module != null)
+                if (Module != (attrs.ModuleName ?? string.Empty)) return false;
+
+            if (Class != null)
+                if (Class != (attrs.ClassName ?? string.Empty)) return false;
+
+            if (Method != null)
+                if (Method != (attrs.MethodName ?? string.Empty)) return false;
 
             if (FfdaOnly)
                 return ((message.MessageId == "FFDA" && message.Severity == SyslogSeverity.Info)
@@ -138,6 +194,13 @@ namespace It.Unina.Dis.Logbus.Entities
                 @params.Add(new FilterParameter { name = "process", value = filter.Process });
             if (filter.Logger != null)
                 @params.Add(new FilterParameter { name = "logger", value = filter.Logger });
+            if (filter.Module != null)
+                @params.Add(new FilterParameter { name = "module", value = filter.Module });
+            if (filter.Class != null)
+                @params.Add(new FilterParameter { name = "class", value = filter.Class });
+            if (filter.Method != null)
+                @params.Add(new FilterParameter { name = "method", value = filter.Method });
+
             @params.Add(new FilterParameter { name = "ffdaOnly", value = filter.FfdaOnly });
 
             ret.parameter = @params.ToArray();
@@ -170,6 +233,21 @@ namespace It.Unina.Dis.Logbus.Entities
                         case "logger":
                             {
                                 Logger = (parameter.value as string) ?? string.Empty;
+                                break;
+                            }
+                        case "module":
+                            {
+                                Module = (parameter.value as string) ?? string.Empty;
+                                break;
+                            }
+                        case "class":
+                            {
+                                Class = (parameter.value as string) ?? string.Empty;
+                                break;
+                            }
+                        case "method":
+                            {
+                                Method = (parameter.value as string) ?? string.Empty;
                                 break;
                             }
                         case "ffdaOnly":

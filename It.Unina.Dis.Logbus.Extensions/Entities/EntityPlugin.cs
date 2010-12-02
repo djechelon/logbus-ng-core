@@ -24,11 +24,13 @@ using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web.Services.Protocols;
 using It.Unina.Dis.Logbus.Configuration;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.Utils;
 using It.Unina.Dis.Logbus.Entities.Configuration;
+using System.Text;
 
 namespace It.Unina.Dis.Logbus.Entities
 {
@@ -44,6 +46,8 @@ namespace It.Unina.Dis.Logbus.Entities
         /// Avoids ambigousness
         /// </summary>
         public const string PLUGIN_ID = "Logbus.EntityManager";
+
+        private const int QUEUE_SIZE = 32768;
 
         private ILogBus _logbus;
         private readonly IFifoQueue<SyslogMessage> _messageQueue;
@@ -62,9 +66,12 @@ namespace It.Unina.Dis.Logbus.Entities
                                     _colChannelId,
                                     _colFfdaChannelId;
 
+        private readonly bool _isHostKey, _isProcessKey, _isLoggerKey, _isModuleKey, _isClassKey, _isMethodKey;
+
         private readonly UniqueConstraint _primaryKey;
         private readonly DataTable _entityTable;
         private EntityPluginConfiguration _config;
+        private Timer _tmrStatistics;
 
         #region Constructor/Destructor
 
@@ -87,7 +94,8 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public EntityPlugin()
         {
-            _messageQueue = new BlockingFifoQueue<SyslogMessage>();
+            _messageQueue = new FastFifoQueue<SyslogMessage>(QUEUE_SIZE);
+            _tmrStatistics = new Timer(LogStatistics, null, new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
 
             _workerThread = new Thread(WorkerLoop) { IsBackground = true, Name = "EntityPlugin.WorkerLoop" };
             _workerThread.Start();
@@ -192,51 +200,50 @@ namespace It.Unina.Dis.Logbus.Entities
             }
 
             List<DataColumn> primaryKey = new List<DataColumn>(3);
-            bool hostAdded = false, procAdded = false, loggerAdded = false, moduleAdded = false, classAdded = false, methodAdded = false;
             foreach (FieldType field in _config.entitykey)
             {
                 switch (field)
                 {
                     case FieldType.host:
                         {
-                            if (hostAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            if (_isHostKey) throw new InvalidOperationException("Primary key configuration broken");
                             primaryKey.Add(_colHost);
-                            hostAdded = true;
+                            _isHostKey = true;
                             break;
                         }
                     case FieldType.process:
                         {
-                            if (procAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            if (_isProcessKey) throw new InvalidOperationException("Primary key configuration broken");
                             primaryKey.Add(_colProc);
-                            procAdded = true;
+                            _isProcessKey = true;
                             break;
                         }
                     case FieldType.logger:
                         {
-                            if (loggerAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            if (_isLoggerKey) throw new InvalidOperationException("Primary key configuration broken");
                             primaryKey.Add(_colLogger);
-                            loggerAdded = true;
+                            _isLoggerKey = true;
                             break;
                         }
                     case FieldType.module:
                         {
-                            if (moduleAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            if (_isModuleKey) throw new InvalidOperationException("Primary key configuration broken");
                             primaryKey.Add(_colModule);
-                            moduleAdded = true;
+                            _isModuleKey = true;
                             break;
                         }
                     case FieldType.@class:
                         {
-                            if (classAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            if (_isClassKey) throw new InvalidOperationException("Primary key configuration broken");
                             primaryKey.Add(_colClass);
-                            classAdded = true;
+                            _isClassKey = true;
                             break;
                         }
                     case FieldType.method:
                         {
-                            if (methodAdded) throw new InvalidOperationException("Primary key configuration broken");
+                            if (_isMethodKey) throw new InvalidOperationException("Primary key configuration broken");
                             primaryKey.Add(_colMethod);
-                            methodAdded = true;
+                            _isMethodKey = true;
                             break;
                         }
                 }
@@ -254,6 +261,9 @@ namespace It.Unina.Dis.Logbus.Entities
         private void Dispose(bool disposing)
         {
             if (_disposed) return;
+
+            GC.SuppressFinalize(this);
+            _tmrStatistics.Dispose();
 
             _workerThread.Abort();
             _workerThread.Join();
@@ -418,6 +428,7 @@ namespace It.Unina.Dis.Logbus.Entities
                         lastHb = message.Timestamp;
                     try
                     {
+                        string entityName = null; //Suppress error about missing initialization
                         try
                         {
                             DataRow newRow = _entityTable.Rows.Add(
@@ -432,18 +443,16 @@ namespace It.Unina.Dis.Logbus.Entities
                                 DBNull.Value
                                 );
 
-                            Log.Debug("Acquired new entity: ({0}|{1}|{2}), {3}FFDA-enabled",
-                                      message.Host ?? "NULL",
-                                      message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                      attrs.LogName ?? "NULL",
+                            entityName = GetEntityName(newRow);
+
+                            Log.Debug("Acquired new entity: {0}, {1}FFDA-enabled",
+                                      entityName,
                                       ffda ? "" : "not ");
 
                             //Now creating channel for new entity
                             IFilter entityFilter = new EntityFilter(host, process, logger);
-                            string description = string.Format("Channel monitoring logs from entity ({0}|{1}|{2})",
-                                                               message.Host ?? "NULL",
-                                                               message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                                               attrs.LogName ?? "NULL");
+                            string description = string.Format("Channel monitoring logs from entity {0}",
+                                                               entityName);
                             do
                             {
                                 string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
@@ -467,10 +476,8 @@ namespace It.Unina.Dis.Logbus.Entities
                             if (ffda) //Create FFDA channel too
                             {
                                 entityFilter = new EntityFilter(host, process, logger, true);
-                                description = string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
-                                                            message.Host ?? "NULL",
-                                                            message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                                            attrs.LogName ?? "NULL");
+                                description = string.Format("Channel monitoring FFDA logs from entity {0}",
+                                                            entityName);
                                 do
                                 {
                                     string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
@@ -509,18 +516,14 @@ namespace It.Unina.Dis.Logbus.Entities
 
                             if (ffda && !oldFfda)
                             {
-                                Log.Debug("Entity ({0}|{1}|{2}) is now FFDA-enabled",
-                                          message.Host ?? "NULL",
-                                          message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                          attrs.LogName ?? "NULL");
+                                Log.Debug("Entity {0} is now FFDA-enabled",
+                                          entityName);
 
                                 //Create FFDA channel
                                 IFilter entityFilter = new EntityFilter(host, process, logger, true);
                                 string description =
-                                    string.Format("Channel monitoring FFDA logs from entity ({0}|{1}|{2})",
-                                                  message.Host ?? "NULL",
-                                                  message.ProcessID ?? message.ApplicationName ?? "NULL",
-                                                  attrs.LogName ?? "NULL");
+                                    string.Format("Channel monitoring FFDA logs from entity {0}",
+                                                  entityName);
                                 do
                                 {
                                     string randomChannelId = "em_" + Randomizer.RandomAlphanumericString(15);
@@ -546,10 +549,6 @@ namespace It.Unina.Dis.Logbus.Entities
                     {
                         throw;
                     }
-                    catch (ThreadInterruptedException)
-                    {
-                        throw;
-                    }
                     catch (Exception ex)
                     {
                         Log.Error("Unable to add an entity row into the data table");
@@ -557,17 +556,80 @@ namespace It.Unina.Dis.Logbus.Entities
                     }
                 }
             }
-            catch (ThreadInterruptedException)
-            {
-            }
-            catch (ThreadAbortException)
-            {
-            }
+            catch (ThreadAbortException) { }
         }
 
+        /// <remarks/>
         public override object InitializeLifetimeService()
         {
             return null;
+        }
+
+        private void LogStatistics(object state)
+        {
+            Log.Debug("Entity Manager status. Pending {0} messages", _messageQueue.Count);
+            ThreadPriority oldPrio = _workerThread.Priority,
+                newPrio = (_messageQueue.Count > QUEUE_SIZE / 2)
+                                          ? ThreadPriority.AboveNormal
+                                          : ThreadPriority.Normal;
+
+            if (oldPrio != newPrio)
+            {
+                Log.Debug("Entity Manager switching priority to {0} to deliver messages faster", Enum.GetName(typeof(ThreadPriority), newPrio));
+                _workerThread.Priority = newPrio;
+            }
+        }
+
+        private string GetEntityName(DataRow row)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append('(');
+
+            bool gotFirst = false;
+
+            if (_isHostKey)
+            {
+                sb.Append(row[_colHost]);
+                gotFirst = true;
+            }
+
+            if (_isProcessKey)
+            {
+                if (gotFirst) sb.Append('|');
+                sb.Append(row[_colProc]);
+                gotFirst = true;
+            }
+
+            if (_isLoggerKey)
+            {
+                if (gotFirst) sb.Append('|');
+                sb.Append(row[_colLogger]);
+                gotFirst = true;
+            }
+
+            if (_isModuleKey)
+            {
+                if (gotFirst) sb.Append('|');
+                sb.Append(row[_colModule]);
+                gotFirst = true;
+            }
+
+            if (_isClassKey)
+            {
+                if (gotFirst) sb.Append('|');
+                sb.Append(row[_colClass]);
+                gotFirst = true;
+            }
+
+            if (_isMethodKey)
+            {
+                if (gotFirst) sb.Append('|');
+                sb.Append(row[_colMethod]);
+            }
+
+            sb.Append(')');
+
+            return sb.ToString();
         }
 
         #region IEntityManagement Membri di
@@ -586,8 +648,6 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public LoggingEntity[] FindLoggingEntities(TemplateQuery query)
         {
-            throw new NotImplementedException("Must be rewritten according to new specifications");
-
             if (_disposed) throw new ObjectDisposedException(GetType().FullName);
 
             DataRow[] rows;
@@ -596,6 +656,19 @@ namespace It.Unina.Dis.Logbus.Entities
                 rows = _entityTable.Select();
             else
             {
+                if (!_isHostKey && !string.IsNullOrEmpty(query.host))
+                    throw new ArgumentException("Host is not part of entity definition");
+                if (!_isProcessKey && !string.IsNullOrEmpty(query.process))
+                    throw new ArgumentException("Process is not part of entity definition");
+                if (!_isLoggerKey && !string.IsNullOrEmpty(query.logger))
+                    throw new ArgumentException("Logger is not part of entity definition");
+                if (!_isModuleKey && !string.IsNullOrEmpty(query.module))
+                    throw new ArgumentException("Module is not part of entity definition");
+                if (!_isClassKey && !string.IsNullOrEmpty(query.@class))
+                    throw new ArgumentException("Class is not part of entity definition");
+                if (!_isMethodKey && !string.IsNullOrEmpty(query.method))
+                    throw new ArgumentException("Method is not part of entity definition");
+
                 List<string> filters = new List<string>(6);
                 if (!string.IsNullOrEmpty(query.appName))
                     filters.Add(string.Format("{0} = \"{1}\"", _colAppName.ColumnName, query.appName));
@@ -628,9 +701,12 @@ namespace It.Unina.Dis.Logbus.Entities
             {
                 ret[i] = new LoggingEntity
                              {
-                                 host = (string)rows[i][_colHost],
-                                 process = (string)rows[i][_colProc],
-                                 logger = (string)rows[i][_colLogger],
+                                 host = (_isHostKey) ? (string)rows[i][_colHost] : null,
+                                 process = (_isProcessKey) ? (string)rows[i][_colProc] : null,
+                                 logger = (_isLoggerKey) ? (string)rows[i][_colLogger] : null,
+                                 module = (_isModuleKey) ? (string)rows[i][_colModule] : null,
+                                 @class = (_isClassKey) ? (string)rows[i][_colClass] : null,
+                                 method = (_isMethodKey) ? (string)rows[i][_colMethod] : null,
                                  appName = (string)rows[i][_colAppName],
                                  ffda = (bool)rows[i][_colFfda],
                                  lastAction = (DateTime)rows[i][_colLastAction],
@@ -653,7 +729,15 @@ namespace It.Unina.Dis.Logbus.Entities
         /// </summary>
         public EntityDefinition GetEntityDefinition()
         {
-            throw new NotImplementedException();
+            return new EntityDefinition
+                       {
+                           host = _isHostKey,
+                           process = _isProcessKey,
+                           logger = _isLoggerKey,
+                           module = _isModuleKey,
+                           @class = _isClassKey,
+                           method = _isMethodKey
+                       };
         }
 
         #endregion
