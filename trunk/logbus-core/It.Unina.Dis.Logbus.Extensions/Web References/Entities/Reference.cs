@@ -392,7 +392,7 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         private bool hostField;
         
-        private string processField;
+        private bool processField;
         
         private bool loggerField;
         
@@ -415,7 +415,7 @@ namespace It.Unina.Dis.Logbus.Entities {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string process {
+        public bool process {
             get {
                 return this.processField;
             }
