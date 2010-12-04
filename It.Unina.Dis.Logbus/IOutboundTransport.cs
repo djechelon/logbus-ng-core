@@ -18,11 +18,7 @@
  */
 
 using System;
-using CLIENT_ID_TYPE = System.String;
-using CLIENT_INSTRUCTIONS_TYPE =
-    System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
-using TRANSPORT_INSTRUCTIONS_TYPE =
-    System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>;
+using System.Collections.Generic;
 
 namespace It.Unina.Dis.Logbus
 {
@@ -43,8 +39,8 @@ namespace It.Unina.Dis.Logbus
         /// <param name="inputInstructions">Input instructions for the channel</param>
         /// <param name="outputInstructions">Output instructions for the client</param>
         /// <returns>Client ID to use in refresh and unsubscribe call</returns>
-        CLIENT_ID_TYPE SubscribeClient(TRANSPORT_INSTRUCTIONS_TYPE inputInstructions,
-                                       out CLIENT_INSTRUCTIONS_TYPE outputInstructions);
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.TransportException">Unable to subscribe client</exception>
+        string SubscribeClient(IEnumerable<KeyValuePair<string, string>> inputInstructions, out IEnumerable<KeyValuePair<string, string>> outputInstructions);
 
         /// <summary>
         /// Gets if the current transport requires client refresh
@@ -63,13 +59,16 @@ namespace It.Unina.Dis.Logbus
         /// <param name="clientId">ID of the client to refresh</param>
         /// <exception cref="System.ArgumentNullException">Argument is null</exception>
         /// <exception cref="System.NotSupportedException">The transport does not require refreshing</exception>
-        /// <exception cref="System.InvalidOperationException">Client is not subscribed (or already expired)</exception>
-        void RefreshClient(CLIENT_ID_TYPE clientId);
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.TransportException">Unable to unsubscribe client</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.ClientNotSubscribedException">Client is not subscribed</exception>
+        void RefreshClient(string clientId);
 
         /// <summary>
         /// Unsubscribes a client from the transport
         /// </summary>
-        /// <param name="clientId"></param>
-        void UnsubscribeClient(CLIENT_ID_TYPE clientId);
+        /// <param name="clientId">ID of client to unsubscribe</param>
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.TransportException">Unable to unsubscribe client</exception>
+        /// <exception cref="It.Unina.Dis.Logbus.OutTransports.ClientNotSubscribedException">Client is not subscribed</exception>
+        void UnsubscribeClient(string clientId);
     }
 }
