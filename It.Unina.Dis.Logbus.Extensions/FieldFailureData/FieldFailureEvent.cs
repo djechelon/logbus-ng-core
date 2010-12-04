@@ -19,6 +19,9 @@
 
 namespace It.Unina.Dis.Logbus.FieldFailureData
 {
+    /// <summary>
+    /// One of the possible Field Failure Data Events
+    /// </summary>
     public enum FieldFailureEvent : byte
     {
         /// <summary>

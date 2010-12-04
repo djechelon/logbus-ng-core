@@ -26,6 +26,9 @@ using log4net.Layout;
 
 namespace It.Unina.Dis.Logbus.log4net
 {
+    /// <summary>
+    /// Implements the RFC 3164-compliant Syslog layout for messages
+    /// </summary>
     public sealed class OldSyslogLayout
         : ILayout
     {
