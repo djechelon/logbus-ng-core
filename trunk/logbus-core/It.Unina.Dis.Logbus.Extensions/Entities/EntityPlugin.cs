@@ -253,6 +253,7 @@ namespace It.Unina.Dis.Logbus.Entities
             _entityTable.Constraints.Add(_primaryKey);
         }
 
+        /// <remarks/>
         ~EntityPlugin()
         {
             Dispose(false);

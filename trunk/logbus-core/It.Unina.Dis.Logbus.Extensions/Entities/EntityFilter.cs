@@ -143,7 +143,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         #region IFilter Membri di
 
-        public bool IsMatch(SyslogMessage message)
+        bool IFilter.IsMatch(SyslogMessage message)
         {
             SyslogAttributes attrs = message.GetAdvancedAttributes();
 
@@ -206,7 +206,7 @@ namespace It.Unina.Dis.Logbus.Entities
 
         #region ICustomFilter Membri di
 
-        public IEnumerable<FilterParameter> Configuration
+        IEnumerable<FilterParameter> ICustomFilter.Configuration
         {
             set
             {
