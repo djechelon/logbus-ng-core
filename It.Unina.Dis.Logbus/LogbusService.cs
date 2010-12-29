@@ -1139,7 +1139,7 @@ namespace It.Unina.Dis.Logbus
             }
             catch (Exception ex)
             {
-                Exception realEx = (ex is LogbusException) ? ex.InnerException : ex;
+                Exception realEx = (ex is LogbusException) ? ex.InnerException ?? ex : ex;
                 if (Error != null) Error(this, new UnhandledExceptionEventArgs(realEx, false));
 
                 Log.Error("Unable to refresh client {0}", clientId);
