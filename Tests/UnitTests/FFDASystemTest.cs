@@ -85,7 +85,7 @@ namespace UnitTests
             const int SEND_PORT = 5427;
 
             //Init Logbus
-            LogbusCoreConfiguration core_config = new LogbusCoreConfiguration();
+            LogbusServerConfiguration core_config = new LogbusServerConfiguration();
             core_config.corefilter = ffda_filter;
             InboundChannelDefinition in_ch = new InboundChannelDefinition();
             in_ch.type = "SyslogUdpReceiver";
@@ -120,7 +120,7 @@ namespace UnitTests
                 logger.LogSEN();
 
                 //Send junk
-                ILog junk_log = LoggerHelper.CreateDefaultLogger();
+                ILog junk_log = LoggerHelper.GetLogger();
                 junk_log.Debug("Hello");
                 junk_log.Error("Junk error");
 

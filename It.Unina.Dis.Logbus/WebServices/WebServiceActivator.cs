@@ -17,11 +17,13 @@
  *  Documentation under Creative Commons 3.0 BY-SA License
  */
 
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System;
 using System.Net;
 using System.Globalization;
 using System.Security.Principal;
+using System.Threading;
 using It.Unina.Dis.Logbus.Wrappers;
 using System.IO;
 using System.Reflection;
@@ -38,7 +40,7 @@ namespace It.Unina.Dis.Logbus.WebServices
     /// Activates and deactivates the Web Service listener for Logbus-ng
     /// </summary>
     /// <remarks>Credits to http://msdn.microsoft.com/en-us/magazine/cc163879.aspx</remarks>
-    public sealed class WebServiceActivator
+    internal sealed class WebServiceActivator : IAsyncRunnable, IDisposable
     {
         private const string ASMX_TEMPLATE = @"<%@ WebService Language=""C#"" Class=""{0}"" %>",
             GLOBAL_TEMPLATE = @"<%@ Application Inherits=""{0}"" Language=""C#"" %>";
@@ -46,146 +48,39 @@ namespace It.Unina.Dis.Logbus.WebServices
         #region Constructor
 
         /// <remarks/>
-        private WebServiceActivator(ILogBus instance, int port)
+        public WebServiceActivator(ILogBus instance, int port)
         {
-            _target = instance; _httpPort = port;
+            _target = instance; HttpPort = port;
+        }
+
+        public WebServiceActivator(ILogBus instance)
+        {
+            _target = instance;
         }
 
         /// <remarks/>
         ~WebServiceActivator()
         {
-            try
-            {
-                StopService();
-            }
-            catch { }
+            Dispose();
         }
         #endregion
 
-        private static WebServiceActivator _instance;
+        public bool Disposed { get; set; }
 
         private readonly ILogBus _target;
-        private readonly int _httpPort;
+
+        /// <summary>
+        /// Gets or sets HTTP port the server listens on
+        /// </summary>
+        public int HttpPort { get; set; }
+
+
 #if MONO
         private ApplicationServer _appserver;
 #else
         private HttpListenerController _ctr;
 #endif
         private string _physicalPath;
-
-        private void StartService()
-        {
-            try
-            {
-                if (!AmIRoot())
-                {
-                    throw new LogbusException("In order to start Web Service the process must be run as super user");
-                }
-
-                string appPath = InstallRuntime();
-#if MONO
-                WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
-
-                _appserver = new ApplicationServer(ws, appPath);
-                _appserver.AddApplication(null, _httpPort, "/", appPath);
-
-                _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
-                _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
-                ((VPathToHost)_appserver.GetSingleApp()).CreateHost(_appserver, ws);
-
-                AppDomain targetDomain = _appserver.AppHost.Domain;
-
-                targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
-                targetDomain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
-
-                foreach (IPlugin plugin in _target.Plugins)
-                {
-                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
-                    if (pluginRoot != null) targetDomain.SetData(plugin.Name, pluginRoot);
-                }
-
-                _appserver.Start(true);
-
-#else
-
-                string[] prefixes = { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", _httpPort) };
-
-                _ctr = new HttpListenerController(prefixes, "/", appPath);
-
-                _ctr.Start();
-
-                //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
-                _ctr.Domain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
-                _ctr.Domain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
-
-                foreach (IPlugin plugin in _target.Plugins)
-                {
-                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
-                    if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
-                }
-#endif
-            }
-            catch (LogbusException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new LogbusException("Unable to start web server", ex);
-            }
-        }
-
-        private void StopService()
-        {
-#if MONO
-            _appserver.Stop();
-#else
-            _ctr.Stop();
-#endif
-            UninstallRuntime(_physicalPath);
-        }
-
-        /// <summary>
-        /// Starts an HTTP/WebService listener on the given port, controlling the default Logbus service instance
-        /// </summary>
-        /// <param name="httpPort">port to listen on</param>
-        public static void Start(int httpPort)
-        {
-            Start(LogbusSingletonHelper.Instance, httpPort);
-        }
-
-        /// <summary>
-        /// Starts an HTTP/WebService listener on the given port that controls the given Logbus service
-        /// </summary>
-        /// <param name="service">Logbus service to control</param>
-        /// <param name="httpPort">HTTP port to listen on</param>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public static void Start(ILogBus service, int httpPort)
-        {
-            if (_instance != null) throw new NotSupportedException("Currently, only one instance is supported");
-
-            if (!HttpListener.IsSupported) throw new PlatformNotSupportedException("This action is not supported on this platform");
-            try
-            {
-                _instance = new WebServiceActivator(service, httpPort);
-                _instance.StartService();
-            }
-            catch (Exception) { _instance = null; throw; }
-        }
-
-        /// <summary>
-        /// Stops the HTTP/WebService listener that is currently enabled for controlling Logbus
-        /// </summary>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public static void Stop()
-        {
-            if (_instance == null) throw new InvalidOperationException("Web service listener is not started");
-            try
-            {
-                _instance.StopService();
-            }
-            finally { _instance = null; }
-        }
 
         /// <summary>
         /// Installs the ASP.NET runtime needed for WS responder
@@ -370,5 +265,170 @@ namespace It.Unina.Dis.Logbus.WebServices
                     throw new PlatformNotSupportedException();
             }
         }
+
+        #region IDisposable Membri di
+
+        public void Dispose()
+        {
+            if (Disposed) return;
+            GC.SuppressFinalize(this);
+
+            try
+            {
+                Stop();
+            }
+            catch (InvalidOperationException) { }
+
+            Disposed = true;
+        }
+        #endregion
+
+        #region IRunnable Membri di
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+
+        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+
+        public event EventHandler Started;
+
+        public event EventHandler Stopped;
+
+        public event UnhandledExceptionEventHandler Error;
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Start()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (Running) throw new NotSupportedException("Web service already running");
+            if (Starting != null)
+            {
+                CancelEventArgs e = new CancelEventArgs(false);
+                Starting(this, e);
+                if (e.Cancel) return;
+            }
+            try
+            {
+                if (!AmIRoot())
+                {
+                    throw new LogbusException("In order to start Web Service the process must be run as super user");
+                }
+
+                string appPath = InstallRuntime();
+#if MONO
+                WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
+
+                _appserver = new ApplicationServer(ws, appPath);
+                _appserver.AddApplication(null, _httpPort, "/", appPath);
+
+                _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
+                _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
+                ((VPathToHost)_appserver.GetSingleApp()).CreateHost(_appserver, ws);
+
+                AppDomain targetDomain = _appserver.AppHost.Domain;
+
+                targetDomain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+                targetDomain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
+
+                foreach (IPlugin plugin in _target.Plugins)
+                {
+                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                    if (pluginRoot != null) targetDomain.SetData(plugin.Name, pluginRoot);
+                }
+
+                _appserver.Start(true);
+
+#else
+
+                string[] prefixes = { string.Format(CultureInfo.InvariantCulture, "http://+:{0}/", HttpPort) };
+
+                _ctr = new HttpListenerController(prefixes, "/", appPath);
+
+                _ctr.Start();
+
+                //If object is not marshalled by reference, use a wrapper, otherwise don't complicate object graph
+                _ctr.Domain.SetData("Logbus", (_target is MarshalByRefObject) ? (MarshalByRefObject)_target : new LogBusTie(_target));
+                _ctr.Domain.SetData("CustomFilterHelper", CustomFilterHelper.Instance);
+
+                foreach (IPlugin plugin in _target.Plugins)
+                {
+                    MarshalByRefObject pluginRoot = plugin.GetPluginRoot();
+                    if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
+                }
+#endif
+                if (Started != null) Started(this, EventArgs.Empty);
+            }
+            catch (LogbusException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new LogbusException("Unable to start web server", ex);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Stop()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+            if (!Running) throw new NotSupportedException("Web service not running");
+            if (Stopping != null)
+            {
+                CancelEventArgs e = new CancelEventArgs(false);
+                Stopping(this, e);
+                if (e.Cancel) return;
+            }
+#if MONO
+            _appserver.Stop();
+#else
+            _ctr.Stop();
+#endif
+            UninstallRuntime(_physicalPath);
+            Running = false;
+
+            if (Stopped != null) Stopped(this, EventArgs.Empty);
+        }
+
+        public bool Running
+        {
+            get;
+            private set;
+        }
+
+        #endregion
+
+        #region IAsyncRunnable Membri di
+
+        public IAsyncResult BeginStart()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            return _startDelegate.BeginInvoke(null, null);
+        }
+
+        public void EndStart(IAsyncResult result)
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            _startDelegate.EndInvoke(result);
+        }
+
+        public IAsyncResult BeginStop()
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            return _stopDelegate.BeginInvoke(null, null);
+        }
+
+        public void EndStop(IAsyncResult result)
+        {
+            if (Disposed) throw new ObjectDisposedException(GetType().FullName);
+
+            _stopDelegate.EndInvoke(result);
+        }
+
+        private readonly ThreadStart _startDelegate, _stopDelegate;
+
+        #endregion
     }
 }

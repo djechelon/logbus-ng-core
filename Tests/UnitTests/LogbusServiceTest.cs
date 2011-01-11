@@ -101,7 +101,7 @@ namespace UnitTests
         public void GetAvailableTransportsTest()
         {
             LogbusService target = new LogbusService();
-            target.Configure(new LogbusCoreConfiguration());
+            target.Configure(new LogbusServerConfiguration());
             string[] expected = new string[] { "udp" };
             string[] actual;
             actual = target.GetAvailableTransports();
@@ -117,7 +117,7 @@ namespace UnitTests
         [TestMethod()]
         public void ConfigureTest()
         {
-            LogbusCoreConfiguration config = new LogbusCoreConfiguration();
+            LogbusServerConfiguration config = new LogbusServerConfiguration();
 
             config.corefilter = new FacilityEqualsFilter() { facility = SyslogFacility.Kernel };
             config.inchannels = new InboundChannelDefinition[]

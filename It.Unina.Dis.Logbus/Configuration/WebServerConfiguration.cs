@@ -21,7 +21,6 @@ using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace It.Unina.Dis.Logbus.Configuration
@@ -32,36 +31,35 @@ namespace It.Unina.Dis.Logbus.Configuration
     [DebuggerStepThrough]
     [DesignerCategory("code")]
     [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
-    [XmlRoot("custom-filter", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
-    public class CustomFilterDefinition
+    [XmlRoot("webserver", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
+    public class WebServerConfiguration
     {
-        private string descriptionField;
-        private string nameField;
+        private bool activeField;
 
-        private string typeField;
+        private short portField;
 
-        /// <remarks/>
-        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
-        public string name
+        public WebServerConfiguration()
         {
-            get { return nameField; }
-            set { nameField = value; }
+            activeField = false;
+            portField = ((8065));
         }
 
         /// <remarks/>
-        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
-        public string description
+        [XmlAttribute]
+        [DefaultValue(false)]
+        public bool active
         {
-            get { return descriptionField; }
-            set { descriptionField = value; }
+            get { return activeField; }
+            set { activeField = value; }
         }
 
         /// <remarks/>
-        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
-        public string type
+        [XmlAttribute]
+        [DefaultValue(typeof (short), "8065")]
+        public short port
         {
-            get { return typeField; }
-            set { typeField = value; }
+            get { return portField; }
+            set { portField = value; }
         }
     }
 }

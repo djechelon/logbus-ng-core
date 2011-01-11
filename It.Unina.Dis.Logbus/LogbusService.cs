@@ -30,6 +30,7 @@ using It.Unina.Dis.Logbus.OutChannels;
 using It.Unina.Dis.Logbus.OutTransports;
 using It.Unina.Dis.Logbus.RemoteLogbus;
 using It.Unina.Dis.Logbus.Utils;
+using It.Unina.Dis.Logbus.WebServices;
 using KeyValuePair = It.Unina.Dis.Logbus.Configuration.KeyValuePair;
 using System.Reflection;
 using System.Globalization;
@@ -54,6 +55,8 @@ namespace It.Unina.Dis.Logbus
         private List<IInboundChannel> _inChans;
         private readonly List<IOutboundChannel> _outChans;
         private IPlugin[] _plugins;
+        private bool _activateWebServer = false;
+        private readonly WebServiceActivator _webservice;
 
         /// <summary>
         /// Returns if Logbus is running or not
@@ -93,13 +96,14 @@ namespace It.Unina.Dis.Logbus
                 Queues[i] = new FastFifoQueue<SyslogMessage>(2048);
 
             _statistics = new Timer(LogStatistics, null, new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
+            _webservice = new WebServiceActivator(this);
         }
 
         /// <summary>
         /// Initializes the LogbusService with a given configuration
         /// </summary>
         /// <param name="configuration"></param>
-        internal LogbusService(LogbusCoreConfiguration configuration)
+        internal LogbusService(LogbusServerConfiguration configuration)
             : this()
         {
             Configuration = configuration;
@@ -129,7 +133,7 @@ namespace It.Unina.Dis.Logbus
         /// <summary>
         /// Gets or sets configuration for Logbus
         /// </summary>
-        public LogbusCoreConfiguration Configuration { get; set; }
+        public LogbusServerConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Automatically configures Logbus using the App.Config or Web.config's XML configuration
@@ -143,12 +147,19 @@ namespace It.Unina.Dis.Logbus
             if (_configured)
                 throw new InvalidOperationException(
                     "Logbus is already configured. If you want to re-configure the service, you need a new instance of the service");
-            if (Configuration == null) Configuration = ConfigurationHelper.CoreConfiguration;
+            if (Configuration == null) Configuration = ConfigurationHelper.ServerConfiguration;
             if (Configuration == null)
                 throw new NotSupportedException("Cannot configure Logbus as configuration is empty");
 
             //Core filter: if not specified then it's always true
             MainFilter = Configuration.corefilter ?? new TrueFilter();
+
+            //Whether or not to use Web Server
+            if (Configuration.webserver != null)
+            {
+                _activateWebServer = Configuration.webserver.active;
+                this._webservice.HttpPort = Configuration.webserver.port;
+            }
 
             try
             {
@@ -310,11 +321,111 @@ namespace It.Unina.Dis.Logbus
                     }
 
 
-                    //Add more custom transports
-                    if (Configuration.outtransports.outtransport != null ||
-                        Configuration.outtransports.scanassembly != null)
-                        //Not yet implemented, not yet possible!
-                        throw new NotImplementedException("Not yet supported");
+                    //Add more custom transports by definition
+                    if (Configuration.outtransports.outtransport != null)
+                    {
+                        try
+                        {
+                            foreach (OutputTransportDefinition def in Configuration.outtransports.outtransport)
+                            {
+                                string typename = def.factory;
+                                if (typename.IndexOf('.') < 0)
+                                {
+                                    //This is probably a plain class name, overriding to It.Unina.Dis.Logbus.InChannels namespace
+                                    const string namespc = "It.Unina.Dis.Logbus.OutTransports";
+                                    string assemblyname = GetType().Assembly.GetName().ToString();
+                                    typename = string.Format("{0}.{1}, {2}", namespc, typename, assemblyname);
+                                }
+                                Type factoryType = Type.GetType(typename);
+                                object[] attrs =
+                                    factoryType.GetCustomAttributes(typeof(Design.TransportFactoryAttribute), true);
+                                if (attrs.Length == 0)
+                                    throw new LogbusConfigurationException(string.Format("Invalid Outbound Transport factory {0}. Missing TransportFactoryAttribute", typename));
+                                if (!typeof(IOutboundTransportFactory).IsAssignableFrom(factoryType))
+                                    throw new LogbusConfigurationException(
+                                        string.Format("The type {0} is not a valid Outbound Transport Factory", typename));
+
+                                IOutboundTransportFactory factory = (IOutboundTransportFactory)Activator.CreateInstance(factoryType);
+                                if (factory is ILogSupport)
+                                    ((ILogSupport)factory).Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
+                                if (def.param != null)
+                                    foreach (KeyValuePair kvp in def.param)
+                                    {
+                                        factory.SetConfigurationParameter(kvp.name, kvp.value);
+                                    }
+                                string tagName = ((Design.TransportFactoryAttribute)attrs[0]).Tag;
+                                TransportFactoryHelper.AddFactory(tagName, factory);
+                            }
+                        }
+                        catch (LogbusConfigurationException)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new LogbusConfigurationException("Error during configuration of Outbound Transports", ex);
+                        }
+                    }
+
+                    //Add more custom transports by scanning
+                    if (Configuration.outtransports.scanassembly != null)
+                    {
+                        try
+                        {
+                            foreach (AssemblyToScan toScanDefinition in Configuration.outtransports.scanassembly)
+                            {
+                                if (string.IsNullOrEmpty(toScanDefinition.assembly))
+                                    throw new LogbusConfigurationException(
+                                        "Empty assembly name to scan for Outbound Transports");
+                                Assembly assemblyToScan;
+                                try
+                                {
+                                    assemblyToScan = Assembly.Load(toScanDefinition.assembly);
+                                }
+                                catch
+                                {
+                                    if (string.IsNullOrEmpty(toScanDefinition.codebase))
+                                        throw new LogbusConfigurationException(
+                                            string.Format(
+                                                "Unable to load assembly {0} automatically for transport scanning. Please specify a code base in configuration",
+                                                toScanDefinition.assembly));
+                                    try
+                                    {
+                                        assemblyToScan = Assembly.LoadFile(toScanDefinition.codebase);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        throw new LogbusConfigurationException(
+                                            "Unable to load assembly to scan for outbound transports", ex);
+                                    }
+
+                                    foreach (Type factoryType in assemblyToScan.GetTypes())
+                                    {
+                                        if (!typeof(IOutboundTransportFactory).IsAssignableFrom(factoryType))
+                                            continue;
+                                        object[] attrs = factoryType.GetCustomAttributes(typeof(Design.TransportFactoryAttribute), true);
+                                        if (attrs.Length == 0)
+                                            continue;
+
+
+                                        IOutboundTransportFactory factory = (IOutboundTransportFactory)Activator.CreateInstance(factoryType);
+                                        if (factory is ILogSupport)
+                                            ((ILogSupport)factory).Log = LoggerHelper.GetLogger(WellKnownLogger.Logbus);
+                                        string tagName = ((Design.TransportFactoryAttribute)attrs[0]).Tag;
+                                        TransportFactoryHelper.AddFactory(tagName, factory);
+                                    }
+                                }
+                            }
+                        }
+                        catch (LogbusConfigurationException)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new LogbusConfigurationException("Error during configuration of Outbound Transports", ex);
+                        }
+                    }
                 }
 
                 //If not previously added, add default now
@@ -445,7 +556,7 @@ namespace It.Unina.Dis.Logbus
         /// Configures Logbus service with the given configuration object
         /// </summary>
         /// <param name="config">Configuration values</param>
-        public void Configure(LogbusCoreConfiguration config)
+        public void Configure(LogbusServerConfiguration config)
         {
             Configuration = config;
             Configure();
@@ -579,6 +690,8 @@ namespace It.Unina.Dis.Logbus
 
                 try
                 {
+                    IAsyncResult webServerStart = null;
+                    if (_activateWebServer) webServerStart = _webservice.BeginStart();
                     IAsyncResult[] asyncIn = new IAsyncResult[InboundChannels.Count],
                                    asyncOut = new IAsyncResult[OutboundChannels.Count];
                     int i;
@@ -680,6 +793,8 @@ namespace It.Unina.Dis.Logbus
                     {
                         _inLock.ReleaseReaderLock();
                     }
+
+                    if (_activateWebServer) _webservice.EndStart(webServerStart);
                 }
                 catch (Exception ex)
                 {
@@ -719,6 +834,9 @@ namespace It.Unina.Dis.Logbus
                     Stopping(this, e);
                     if (e.Cancel) return;
                 }
+
+                IAsyncResult webServerStop = null;
+                if (_activateWebServer) webServerStop = _webservice.BeginStop();
 
                 IAsyncResult[] asyncIn = new IAsyncResult[InboundChannels.Count],
                                asyncOut = new IAsyncResult[OutboundChannels.Count];
@@ -815,6 +933,8 @@ namespace It.Unina.Dis.Logbus
                 }
 
                 _running = false;
+
+                if (_activateWebServer)_webservice.EndStop(webServerStop);
 
                 if (Stopped != null) Stopped(this, EventArgs.Empty);
                 Log.Info("LogbusService stopped");
@@ -1374,6 +1494,9 @@ namespace It.Unina.Dis.Logbus
             catch
             {
             }
+
+            if (disposing)
+                _webservice.Dispose();
 
             try
             {

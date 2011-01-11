@@ -23,7 +23,7 @@ using It.Unina.Dis.Logbus.Design;
 
 namespace It.Unina.Dis.Logbus.OutTransports
 {
-    [TransportFactory("multicast", Name = "Multicast RFC5426 transport", Description = "Syslog over Multicast/UDP")]
+    //[TransportFactory("multicast", Name = "Multicast RFC5426 transport", Description = "Syslog over Multicast/UDP")]
     internal class SyslogMulticastTransportFactory
         : IOutboundTransportFactory
     {

@@ -26,12 +26,12 @@ using System.Xml.Serialization;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [GeneratedCode("xsd", "2.0.50727.3038")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [XmlRoot("plugins", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
+    [XmlRoot("plugins", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
     public class PluginConfiguration
     {
         private PluginDefinition[] pluginField;

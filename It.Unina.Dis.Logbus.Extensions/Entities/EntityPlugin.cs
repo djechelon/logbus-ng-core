@@ -22,10 +22,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Web.Services.Protocols;
-using It.Unina.Dis.Logbus.Configuration;
+using It.Unina.Dis.Logbus.Clients;
 using It.Unina.Dis.Logbus.Filters;
 using It.Unina.Dis.Logbus.Loggers;
 using It.Unina.Dis.Logbus.Utils;
@@ -70,8 +68,8 @@ namespace It.Unina.Dis.Logbus.Entities
 
         private readonly UniqueConstraint _primaryKey;
         private readonly DataTable _entityTable;
-        private EntityPluginConfiguration _config;
-        private Timer _tmrStatistics;
+        private readonly EntityPluginConfiguration _config;
+        private readonly Timer _tmrStatistics;
 
         #region Constructor/Destructor
 
@@ -770,14 +768,8 @@ namespace It.Unina.Dis.Logbus.Entities
         {
             try
             {
-                string endpointUrl = ConfigurationHelper.ClientConfiguration.endpoint.subscriptionUrl;
-                if (string.IsNullOrEmpty(endpointUrl))
-                    throw new InvalidOperationException(
-                        "Logbus-ng client is not configured. Cannot guess default endpoint URL");
-
                 return
-                    GetProxy(Regex.Replace(endpointUrl,
-                                           "LogbusSubscription(?!.*LogbusSubscription)", "EntityManagement"));
+                    GetProxy(ClientHelper.FormatScriptPath("EntityManagement"));
             }
             catch (InvalidOperationException)
             {

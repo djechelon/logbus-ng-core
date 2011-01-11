@@ -194,10 +194,10 @@ namespace UnitTests
         {
             try
             {
-                core_configuration = new LogbusCoreConfiguration[2];
+                core_configuration = new LogbusServerConfiguration[2];
 
                 {
-                    core_configuration[0] = new LogbusCoreConfiguration();
+                    core_configuration[0] = new LogbusServerConfiguration();
 
                     //Only messages from Audit
                     core_configuration[0].corefilter = new FacilityEqualsFilter() { facility = SyslogFacility.Audit };
@@ -219,7 +219,7 @@ namespace UnitTests
                 }
 
                 {
-                    core_configuration[1] = new LogbusCoreConfiguration();
+                    core_configuration[1] = new LogbusServerConfiguration();
                     core_configuration[1].inchannels = new InboundChannelDefinition[1];
 
                     KeyValuePair[] prm = new KeyValuePair[1];
@@ -251,7 +251,7 @@ namespace UnitTests
             catch (Exception ex) { Assert.Fail("Test failed: {0}", ex); }
         }
 
-        private LogbusCoreConfiguration[] core_configuration;
+        private LogbusServerConfiguration[] core_configuration;
 
         private AutoResetEvent t1_step1, t1_step2, t1_finish;
         private const int t1_source_port = 3140, t1_client_port = 3141;

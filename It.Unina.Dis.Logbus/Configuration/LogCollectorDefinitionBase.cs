@@ -28,11 +28,11 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// <remarks/>
     [XmlInclude(typeof (LogbusCollectorDefinition))]
     [XmlInclude(typeof (ForwarderDefinition))]
-    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
     public abstract class LogCollectorDefinitionBase : TypeAndParamBase
     {
     }

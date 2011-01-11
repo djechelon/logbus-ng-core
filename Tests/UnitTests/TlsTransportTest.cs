@@ -62,26 +62,27 @@ namespace UnitTests
         //
         #endregion
 
-        [TestInitialize()]
+        [TestInitialize]
         public void MyTestInitialize()
         {
-            LogbusCoreConfiguration coreConfig = new LogbusCoreConfiguration
+            LogbusServerConfiguration coreConfig = new LogbusServerConfiguration
                                                  {
                                                      inchannels = new[]
                                                                       {
-                                                                          new InboundChannelDefinition(){type = "SyslogTlsReceiver"}
-                                                 }
+                                                                          new InboundChannelDefinition{type = "SyslogTlsReceiver"}
+                                                                      },
+                                                     webserver = new WebServerConfiguration { active = true }
                                                  };
 
-            ConfigurationHelper.CoreConfiguration = coreConfig;
+            ConfigurationHelper.ServerConfiguration = coreConfig;
             LogbusClientConfiguration clientConfig = new LogbusClientConfiguration
                                                          {
-                                                             endpoint = new LogbusEndpointDefinition { managementUrl = "http://localhost:8065/LogbusManagement.asmx", subscriptionUrl = "http://localhost:8065/LogbusSubscription.asmx" }
+                                                             endpoint = new LogbusEndpointDefinition { basePath = "http://localhost:8065/", suffix = ".asmx" }
                                                          };
 
             ConfigurationHelper.ClientConfiguration = clientConfig;
 
-            LogbusLoggerConfiguration loggerConfig = new LogbusLoggerConfiguration()
+            LogbusLoggerConfiguration loggerConfig = new LogbusLoggerConfiguration
                                                          {
                                                              collector = new[]
                                                                              {
@@ -107,7 +108,6 @@ namespace UnitTests
             using (ILogBus logbus = LogbusSingletonHelper.Instance)
             {
                 logbus.Start();
-                WebServiceActivator.Start(logbus, 8065);
 
                 using (ILogClient client = ClientHelper.CreateReliableClient(new TrueFilter()))
                 {

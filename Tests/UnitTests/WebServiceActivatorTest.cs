@@ -77,15 +77,19 @@ namespace UnitTests
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             if (!principal.IsInRole(WindowsBuiltInRole.Administrator)) Assert.Fail("You must be running this test as an Administrator");
 
-            LogbusCoreConfiguration config = new LogbusCoreConfiguration();
-            ILogBus service = new LogbusService(config);
-            service.Start();
-            int httpPort = 8065; // TODO: Eseguire l'inizializzazione a un valore appropriato
-            WebServiceActivator.Start(service, httpPort);
-            Thread.Sleep(Timeout.Infinite);
-            WebServiceActivator.Stop();
-            service.Stop();
-
+            LogbusServerConfiguration config = new LogbusServerConfiguration();
+            using (ILogBus service = new LogbusService(config))
+            {
+                service.Start();
+                int httpPort = 8065; // TODO: Eseguire l'inizializzazione a un valore appropriato
+                using (WebServiceActivator webService = new WebServiceActivator(service, httpPort))
+                {
+                    webService.Start();
+                    Thread.Sleep(10000);
+                    webService.Stop();
+                }
+                service.Stop();
+            }
         }
 
 

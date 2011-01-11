@@ -52,13 +52,28 @@ namespace It.Unina.Dis.Logbus.OutTransports
         /// </summary>
         public bool ValidateClientCertificate { get; set; }
 
+        /// <summary>
+        /// Certificate to use for this server as TLS client certificate
+        /// </summary>
         public X509Certificate2 ServerCertificate { get; set; }
+
+        /// <summary>
+        /// Password for ServerCertificate
+        /// </summary>
+        public string CertificatePassword { get; set; }
 
         #region IOutboundTransportFactory Membri di
 
         public IOutboundTransport CreateTransport()
         {
-            return new SyslogTlsTransport(ServerCertificate, ValidateClientCertificate) {Log = Log};
+            if (ServerCertificate == null && !string.IsNullOrEmpty(_certificatePath))
+            {
+                lock (this)
+                    ServerCertificate = (string.IsNullOrEmpty(CertificatePassword))
+                        ? CertificateUtilities.LoadCertificate(_certificatePath)
+                        : CertificateUtilities.LoadCertificate(_certificatePath, CertificatePassword);
+            }
+            return new SyslogTlsTransport(ServerCertificate, ValidateClientCertificate) { Log = Log };
         }
 
         #endregion
@@ -79,6 +94,10 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     {
                         return ValidateClientCertificate ? "true" : "false";
                     }
+                case "certificatePassword":
+                    {
+                        return CertificatePassword;
+                    }
                 default:
                     {
                         throw new NotSupportedException("Configuration parameter not supported by TLS transport");
@@ -96,9 +115,6 @@ namespace It.Unina.Dis.Logbus.OutTransports
                     {
                         try
                         {
-                            ServerCertificate = (string.IsNullOrEmpty(value))
-                                                    ? null
-                                                    : CertificateUtilities.LoadCertificate(value);
                             _certificatePath = value;
                         }
                         catch (LogbusException ex)
@@ -118,6 +134,11 @@ namespace It.Unina.Dis.Logbus.OutTransports
                             throw new LogbusConfigurationException(
                                 "TLS transport \"validateClientCertificate\" parameter must be boolean", ex);
                         }
+                        break;
+                    }
+                case "certificatePassword":
+                    {
+                        CertificatePassword = value;
                         break;
                     }
                 default:

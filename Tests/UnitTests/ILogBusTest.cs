@@ -90,7 +90,7 @@ namespace UnitTests
             // TODO: creare l'istanza di una classe concreta appropriata.
             LogbusService target = new LogbusService();
 
-            LogbusCoreConfiguration config = new LogbusCoreConfiguration()
+            LogbusServerConfiguration config = new LogbusServerConfiguration()
             {
                 corefilter = new FacilityEqualsFilter() { facility = SyslogFacility.Security },
                 inchannels = new InboundChannelDefinition[]

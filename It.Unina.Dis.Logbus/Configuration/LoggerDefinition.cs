@@ -27,23 +27,21 @@ using System.Xml.Serialization;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [XmlRoot("logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
+    [XmlRoot("logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
     public class LoggerDefinition : TypeAndParamBase
     {
-        private string nameField;
-
         private string collectoridField;
 
         private int heartbeatintervalField;
+        private string nameField;
 
         private bool permanentField;
 
-        /// <remarks/>
         public LoggerDefinition()
         {
             heartbeatintervalField = 0;

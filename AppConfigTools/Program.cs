@@ -11,11 +11,11 @@ namespace TestAppConfig
         {
             object section = ConfigurationManager.GetSection("logbus-source");
 
-            Console.WriteLine("Trying to retrieve \"logbus\" section from App.config: {0}", (section is LogbusCoreConfiguration) ? "success" : "fail");
-            if (section is LogbusCoreConfiguration)
+            Console.WriteLine("Trying to retrieve \"logbus\" section from App.config: {0}", (section is LogbusServerConfiguration) ? "success" : "fail");
+            if (section is LogbusServerConfiguration)
             {
                 //OK, configuration was loaded;
-                LogbusCoreConfiguration config = (LogbusCoreConfiguration)section;
+                LogbusServerConfiguration config = (LogbusServerConfiguration)section;
 
                 Console.WriteLine("Parsing core filter");
                 if (config.corefilter == null)
@@ -49,7 +49,7 @@ namespace TestAppConfig
                     Console.WriteLine("Factory is {0}", config.outtransports.factory);
                     foreach (OutputTransportDefinition def in config.outtransports.outtransport)
                     {
-                        Console.WriteLine("Transport tag {0}, factory {2}", def.tag, def.factory);
+                        Console.WriteLine("Transport factory {0}", def.factory);
                     }
                     foreach (AssemblyToScan ass in config.outtransports.scanassembly)
                     {
