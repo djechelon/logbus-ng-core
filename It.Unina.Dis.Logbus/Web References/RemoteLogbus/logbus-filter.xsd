@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:altova="http://www.altova.com/xml-schema-extensions" xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:filter="http://www.dis.unina.it/logbus-ng/filters" xmlns:altova="http://www.altova.com/xml-schema-extensions" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.dis.unina.it/logbus-ng/filters" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:complexType name="FilterBase" abstract="true" />
   <xs:element name="filter" type="filter:FilterBase" />
   <xs:complexType name="AndFilter" final="#all" block="">
