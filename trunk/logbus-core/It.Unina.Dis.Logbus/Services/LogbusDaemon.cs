@@ -20,7 +20,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
-using It.Unina.Dis.Logbus.WebServices;
 
 namespace It.Unina.Dis.Logbus.Services
 {
@@ -37,8 +36,6 @@ namespace It.Unina.Dis.Logbus.Services
         /// </summary>
         public LogbusDaemon()
         {
-            HttpPort = 8065; //Default
-
             ServiceName = "Logbus-ng";
 
             CanPauseAndContinue = true;
@@ -54,27 +51,6 @@ namespace It.Unina.Dis.Logbus.Services
         }
 
         /// <summary>
-        /// Gets or sets whether this service must spawn or not the HTTP server for SOAP
-        /// interface of Logbus-ng
-        /// </summary>
-        public bool WebApplicationEnabled
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the HTTP port used by the web application
-        /// </summary>
-        /// <remarks>In order for this to be effective, you must also set
-        /// <see cref="WebApplicationEnabled"/> to <c>true</c></remarks>
-        public int HttpPort
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Instance of Logbus-ng core
         /// </summary>
         public ILogBus LogbusInstance
@@ -86,13 +62,6 @@ namespace It.Unina.Dis.Logbus.Services
         /// <remarks/>
         protected override void Dispose(bool disposing)
         {
-            if (WebApplicationEnabled)
-                try
-                {
-                    WebServiceActivator.Stop();
-                }
-                catch { }
-
             if (disposing) LogbusInstance.Dispose();
 
             base.Dispose(disposing);
@@ -114,21 +83,15 @@ namespace It.Unina.Dis.Logbus.Services
                 (pc.MainModule.FileName.Substring(0, pc.MainModule.FileName.LastIndexOf(Path.PathSeparator)));
 
             if (!LogbusInstance.Running)
-            {
                 LogbusInstance.Start();
-                if (WebApplicationEnabled) WebServiceActivator.Start(LogbusInstance, HttpPort);
-            }
         }
 
         /// <remarks/>
         protected override void OnStop()
         {
             if (LogbusInstance.Running)
-            {
-                if (WebApplicationEnabled) WebServiceActivator.Stop();
-
                 LogbusInstance.Stop();
-            }
+
 
             base.OnStop();
         }

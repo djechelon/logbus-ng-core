@@ -80,9 +80,9 @@ namespace UnitTests
 
             try
             {
-                
 
-                LogbusCoreConfiguration config = new LogbusCoreConfiguration();
+
+                LogbusServerConfiguration config = new LogbusServerConfiguration();
                 config.inchannels = new InboundChannelDefinition[1];
                 config.inchannels[0] = new InboundChannelDefinition();
                 config.inchannels[0].type = "It.Unina.Dis.Logbus.InChannels.SyslogUdpReceiver, It.Unina.Dis.Logbus";

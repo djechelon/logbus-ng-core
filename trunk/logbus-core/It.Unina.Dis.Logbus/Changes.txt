@@ -1,5 +1,24 @@
 ﻿Logbus-ng Change Log
 
+SVN trunk
+*Configuration redesigned (version 3.0)
+	*Web service activation is performed internally by Logbus server via
+	configuration
+	*logbus-core section renamed to logbus-server for better readability
+	*Logbus client is defined by a base path and an optional suffix to
+	handle the general case of web services. In most ASP.NET cases, suffix
+	must be valued to ".asmx"
+*By default, Logbus server activates no transport factory. These must all be
+	activated via configuration. Suggested is to scan the It.Unina.Dis.Logbus
+	assembly for the default transports
+	*Code commented in SyslogMulticastTransport to prevent registration
+*It's not possible to activate custom transport factories
+*SyslogTlsTransportFactory supports certificate passwords
+*Configuration samples adapted to the new configuration specifications
+*LogbusCoreConfiguration class renamed to LogbusServerConfiguration
+*ConfigurationHelper.CoreConfiguration member left as obsolete for
+	backward-compatibility
+
 version 2.3.42
 *Fixed a bug that sometimes prevented the channel to work properly
 *Fixed a bug that made LogbusService crash because a channel was created with

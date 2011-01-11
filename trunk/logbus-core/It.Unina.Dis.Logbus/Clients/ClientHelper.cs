@@ -49,7 +49,27 @@ namespace It.Unina.Dis.Logbus.Clients
 
         private static string UserAgent
         {
-            get { return string.Format("LogbusClient/{0}", typeof (ClientHelper).Assembly.GetName().Version); }
+            get { return string.Format("LogbusClient/{0}", typeof(ClientHelper).Assembly.GetName().Version); }
+        }
+
+        /// <summary>
+        /// Formats a SOAP URL according to configuration
+        /// </summary>
+        /// <param name="scriptName">Name of WSDL endpoint script</param>
+        /// <returns>A formatted URL</returns>
+        public static string FormatScriptPath(string scriptName)
+        {
+            if (Configuration == null || Configuration.endpoint == null || string.IsNullOrEmpty(Configuration.endpoint.basePath))
+                throw new InvalidOperationException("Logbus client is not configured");
+            return FormatScriptPath(scriptName,Configuration.endpoint.basePath, Configuration.endpoint.suffix);
+        }
+
+        private static string FormatScriptPath(string scriptName, string basePath, string suffix)
+        {
+            if (string.IsNullOrEmpty(basePath)) throw new ArgumentNullException("basePath");
+            if (!basePath.EndsWith("/")) basePath += '/';
+            if (suffix == null) suffix = string.Empty;
+            return basePath + scriptName + suffix;
         }
 
         /// <summary>
@@ -59,11 +79,11 @@ namespace It.Unina.Dis.Logbus.Clients
         public static IChannelManagement CreateChannelManager()
         {
             if (Configuration == null || Configuration.endpoint == null ||
-                string.IsNullOrEmpty(Configuration.endpoint.managementUrl))
+                string.IsNullOrEmpty(Configuration.endpoint.basePath))
                 throw new InvalidOperationException("Logbus is not configured for default client");
             return new ChannelManagement
                        {
-                           Url = Configuration.endpoint.managementUrl,
+                           Url = FormatScriptPath("LogbusManagement", Configuration.endpoint.basePath, Configuration.endpoint.suffix),
                            UserAgent = UserAgent
                        };
         }
@@ -89,11 +109,11 @@ namespace It.Unina.Dis.Logbus.Clients
         public static IChannelSubscription CreateChannelSubscriber()
         {
             if (Configuration == null || Configuration.endpoint == null ||
-                string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl))
+                string.IsNullOrEmpty(Configuration.endpoint.basePath))
                 throw new InvalidOperationException("Logbus is not configured for default client");
             return new ChannelSubscription
                        {
-                           Url = Configuration.endpoint.subscriptionUrl,
+                           Url = FormatScriptPath("LogbusSubscription", Configuration.endpoint.basePath, Configuration.endpoint.suffix),
                            UserAgent = UserAgent
                        };
         }
@@ -157,15 +177,16 @@ namespace It.Unina.Dis.Logbus.Clients
         public static ILogClient CreateUnreliableClient(FilterBase filter)
         {
             if (Configuration == null || Configuration.endpoint == null ||
-                string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) ||
-                string.IsNullOrEmpty(Configuration.endpoint.managementUrl))
+                string.IsNullOrEmpty(Configuration.endpoint.basePath))
                 throw new InvalidOperationException("Logbus is not configured for default client");
 
-            string mgmEndpoint = Configuration.endpoint.managementUrl,
-                   subEndpoint = Configuration.endpoint.subscriptionUrl;
+            string mgmEndpoint = FormatScriptPath("LogbusManagement", Configuration.endpoint.basePath,
+                                                  Configuration.endpoint.suffix),
+                   subEndpoint = FormatScriptPath("LogbusSubscription", Configuration.endpoint.basePath,
+                                                  Configuration.endpoint.suffix);
 
-            IChannelManagement mgmObject = new ChannelManagement {Url = mgmEndpoint, UserAgent = UserAgent};
-            IChannelSubscription subObject = new ChannelSubscription {Url = subEndpoint, UserAgent = UserAgent};
+            IChannelManagement mgmObject = new ChannelManagement { Url = mgmEndpoint, UserAgent = UserAgent };
+            IChannelSubscription subObject = new ChannelSubscription { Url = subEndpoint, UserAgent = UserAgent };
 
             return new SyslogUdpClient(filter, mgmObject, subObject);
         }
@@ -217,15 +238,16 @@ namespace It.Unina.Dis.Logbus.Clients
         public static ILogClient CreateReliableClient(FilterBase filter)
         {
             if (Configuration == null || Configuration.endpoint == null ||
-                string.IsNullOrEmpty(Configuration.endpoint.subscriptionUrl) ||
-                string.IsNullOrEmpty(Configuration.endpoint.managementUrl))
+                string.IsNullOrEmpty(Configuration.endpoint.basePath))
                 throw new InvalidOperationException("Logbus is not configured for default client");
 
-            string mgmEndpoint = Configuration.endpoint.managementUrl,
-                   subEndpoint = Configuration.endpoint.subscriptionUrl;
+            string mgmEndpoint = FormatScriptPath("LogbusManagement", Configuration.endpoint.basePath,
+                                                  Configuration.endpoint.suffix),
+                   subEndpoint = FormatScriptPath("LogbusSubscription", Configuration.endpoint.basePath,
+                                                  Configuration.endpoint.suffix);
 
-            IChannelManagement mgmObject = new ChannelManagement {Url = mgmEndpoint, UserAgent = UserAgent};
-            IChannelSubscription subObject = new ChannelSubscription {Url = subEndpoint, UserAgent = UserAgent};
+            IChannelManagement mgmObject = new ChannelManagement { Url = mgmEndpoint, UserAgent = UserAgent };
+            IChannelSubscription subObject = new ChannelSubscription { Url = subEndpoint, UserAgent = UserAgent };
 
             return new SyslogTlsClient(filter, mgmObject, subObject);
         }

@@ -26,32 +26,32 @@ using System.Xml.Serialization;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [XmlRoot("endpoint", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
+    [XmlRoot("endpoint", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
     public class LogbusEndpointDefinition
     {
-        private string subscriptionUrlField;
+        private string basePathField;
 
-        private string managementUrlField;
+        private string suffixField;
 
         /// <remarks/>
-        [XmlAttribute(DataType = "anyURI")]
-        public string subscriptionUrl
+        [XmlAttribute]
+        public string basePath
         {
-            get { return subscriptionUrlField; }
-            set { subscriptionUrlField = value; }
+            get { return basePathField; }
+            set { basePathField = value; }
         }
 
         /// <remarks/>
-        [XmlAttribute(DataType = "anyURI")]
-        public string managementUrl
+        [XmlAttribute]
+        public string suffix
         {
-            get { return managementUrlField; }
-            set { managementUrlField = value; }
+            get { return suffixField; }
+            set { suffixField = value; }
         }
     }
 }

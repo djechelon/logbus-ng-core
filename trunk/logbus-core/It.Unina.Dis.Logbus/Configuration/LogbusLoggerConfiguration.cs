@@ -26,25 +26,22 @@ using System.Xml.Serialization;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [XmlRoot("logbus-logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public class LogbusLoggerConfiguration
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
+    [XmlRoot("logbus-logger", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
+    public class LogbusLoggerConfiguration : XmlnsSupport
     {
         private LogbusCollectorDefinition[] collectorField;
-
-        private LoggerDefinition[] loggerField;
-
-        private string defaultloggertypeField;
 
         private string defaultcollectorField;
 
         private int defaultheartbeatintervalField;
+        private string defaultloggertypeField;
+        private LoggerDefinition[] loggerField;
 
-        /// <remarks/>
         public LogbusLoggerConfiguration()
         {
             defaultheartbeatintervalField = 0;

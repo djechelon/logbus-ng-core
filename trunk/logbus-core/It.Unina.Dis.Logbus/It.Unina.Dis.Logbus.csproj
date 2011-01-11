@@ -109,11 +109,13 @@
     <Compile Include="Configuration\LogbusEndpointDefinition.cs" />
     <Compile Include="Configuration\LogbusLoggerConfiguration.cs" />
     <Compile Include="Configuration\LogbusLoggerConfigurationSectionHandler.cs" />
+    <Compile Include="Configuration\LogbusServerConfiguration.cs" />
     <Compile Include="Configuration\LogCollectorDefinitionBase.cs" />
     <Compile Include="Configuration\LoggerDefinition.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Configuration\PluginDefinition.cs" />
     <Compile Include="Configuration\TypeAndParamBase.cs" />
+    <Compile Include="Configuration\WebServerConfiguration.cs" />
     <Compile Include="Configuration\XmlnsSupport.cs" />
     <Compile Include="Filters\Custom\LogbusInternalFilter.cs" />
     <Compile Include="IConfigurable.cs" />
@@ -142,10 +144,9 @@
     <Compile Include="Configuration\KeyValuePair.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\LogbusCoreConfigurationSectionHandler.cs">
+    <Compile Include="Configuration\LogbusServerConfigurationSectionHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\LogbusCoreConfiguration.cs" />
     <Compile Include="Configuration\OutputTransportDefinition.cs" />
     <Compile Include="Configuration\OutputTransportsConfiguration.cs" />
     <Compile Include="Design\CustomFilterAttribute.cs" />
@@ -282,7 +283,6 @@
     <None Include="MS-RL.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Configuration\ConfigTemplate.xml" />
     <Content Include="Schemas\logbus-configuration.xsd" />
     <Content Include="Schemas\logbus-control.wsdl" />
     <Content Include="Schemas\logbus-filter.xsd" />

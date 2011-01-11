@@ -28,27 +28,25 @@ using It.Unina.Dis.Logbus.Filters;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [XmlRoot("logbus-core", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
-    public class LogbusCoreConfiguration : XmlnsSupport
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
+    [XmlRoot("logbus-server", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
+    public class LogbusServerConfiguration : XmlnsSupport
     {
-        private InboundChannelDefinition[] inchannelsField;
-
+        private FilterBase corefilterField;
         private CustomFiltersConfiguration customfiltersField;
+        private ForwarderDefinition[] forwardtoField;
+        private InboundChannelDefinition[] inchannelsField;
+        private string outChannelFactoryTypeField;
 
         private OutputTransportsConfiguration outtransportsField;
 
-        private FilterBase corefilterField;
-
         private PluginDefinition[] pluginsField;
 
-        private ForwarderDefinition[] forwardtoField;
-
-        private string outChannelFactoryTypeField;
+        private WebServerConfiguration webserverField;
 
         /// <remarks/>
         [XmlArray("in-channels", IsNullable = true)]
@@ -98,6 +96,13 @@ namespace It.Unina.Dis.Logbus.Configuration
         {
             get { return forwardtoField; }
             set { forwardtoField = value; }
+        }
+
+        /// <remarks/>
+        public WebServerConfiguration webserver
+        {
+            get { return webserverField; }
+            set { webserverField = value; }
         }
 
         /// <remarks/>

@@ -76,15 +76,14 @@ namespace UnitTests
         {
             try
             {
-                LogbusCoreConfiguration config = new LogbusCoreConfiguration();
+                LogbusServerConfiguration config = new LogbusServerConfiguration();
+                config.webserver = new WebServerConfiguration {active = true};
                 PluginDefinition plugDef = new PluginDefinition() { type = typeof(DummyPlugin).AssemblyQualifiedName };
                 config.plugins = new PluginDefinition[] { plugDef };
                 using (LogbusService logbus = new LogbusService())
                 {
                     logbus.Configure(config);
                     logbus.Start();
-
-                    WebServiceActivator.Start(logbus, 8065);
 
                     //Test HTTP request
                     DummyStub stub = new DummyStub()

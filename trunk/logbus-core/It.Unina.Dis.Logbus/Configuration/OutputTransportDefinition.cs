@@ -27,24 +27,23 @@ using System.Xml.Serialization;
 namespace It.Unina.Dis.Logbus.Configuration
 {
     /// <remarks/>
-    [GeneratedCode("xsd", "2.0.50727.1432")]
+    [GeneratedCode("xsd", "4.0.30319.1")]
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
-    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0")]
-    [XmlRoot("out-transport", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/2.0", IsNullable = false)]
+    [XmlType(Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0")]
+    [XmlRoot("out-transport", Namespace = "http://www.dis.unina.it/logbus-ng/configuration/3.0", IsNullable = false)]
     public class OutputTransportDefinition
     {
-        private string tagField;
-
         private string factoryField;
+        private KeyValuePair[] paramField;
 
         /// <remarks/>
-        [XmlAttribute(Form = XmlSchemaForm.Qualified)]
-        public string tag
+        [XmlElement("param")]
+        public KeyValuePair[] param
         {
-            get { return tagField; }
-            set { tagField = value; }
+            get { return paramField; }
+            set { paramField = value; }
         }
 
         /// <remarks/>

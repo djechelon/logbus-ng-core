@@ -10,10 +10,7 @@ namespace LogbusService
         /// </summary>
         static void Main()
         {
-            ServiceBase.Run(new LogbusDaemon
-            {
-                WebApplicationEnabled = true
-            });
+            ServiceBase.Run(new LogbusDaemon());
         }
     }
 }

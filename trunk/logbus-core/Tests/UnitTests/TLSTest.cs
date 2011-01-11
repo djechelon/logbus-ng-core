@@ -17,7 +17,7 @@ namespace UnitTests
     {
 
         private ILogBus logbus;
-        private LogbusCoreConfiguration core_config;
+        private LogbusServerConfiguration core_config;
         private LogbusLoggerConfiguration source_config;
 
         private ILog logger;
@@ -28,7 +28,7 @@ namespace UnitTests
             // TODO: aggiungere qui la logica del costruttore
             //
 
-            core_config = new LogbusCoreConfiguration();
+            core_config = new LogbusServerConfiguration();
             core_config.corefilter = new TrueFilter();
             core_config.inchannels = new InboundChannelDefinition[1];
             core_config.inchannels[0] = new InboundChannelDefinition
@@ -51,14 +51,14 @@ namespace UnitTests
                 new KeyValuePair() { name="host", value="localhost" }
             };
 
-            ConfigurationHelper.CoreConfiguration = core_config;
+            ConfigurationHelper.ServerConfiguration = core_config;
             ConfigurationHelper.SourceConfiguration = source_config;
         }
 
         ~TLSTest()
         {
             ConfigurationHelper.ClientConfiguration = null;
-            ConfigurationHelper.CoreConfiguration = null;
+            ConfigurationHelper.ServerConfiguration = null;
             ConfigurationHelper.SourceConfiguration = null;
         }
 
@@ -112,7 +112,7 @@ namespace UnitTests
                 if (!File.Exists(@"C:\\logbus.p12")) Assert.Inconclusive("Please copy first logbus.p12 to C:\\ path");
 
                 logbus = LogbusSingletonHelper.Instance;
-                logger = LoggerHelper.CreateDefaultLogger();
+                logger = LoggerHelper.GetLogger();
 
                 logbus.Start();
                 logbus.MessageReceived += logbus_MessageReceived;

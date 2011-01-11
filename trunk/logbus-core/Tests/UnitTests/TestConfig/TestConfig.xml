@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
          xmlns:filter="http://www.dis.unina.it/logbus-ng/filters"
-         xmlns:config="http://www.dis.unina.it/logbus-ng/configuration/2.0" >
-  <logbus-core>
+         xmlns:config="http://www.dis.unina.it/logbus-ng/configuration/3.0" >
+  <logbus-server>
     <in-channels />
     <out-transports>
       <out-transport config:factory="Unit_Tests.TestClasses.TestTransportFactory, Unit_Tests" config:tag="test"/>
     </out-transports>
-  </logbus-core>
+  </logbus-server>
 </configs>

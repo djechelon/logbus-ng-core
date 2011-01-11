@@ -39,7 +39,6 @@ namespace LogbusDaemon
                 _logbus = LogbusSingletonHelper.Instance;
 
                 _logbus.Start();
-                WebServiceActivator.Start(_logbus, 8065);
 
                 Console.WriteLine("Logbus is started");
 
@@ -59,7 +58,6 @@ namespace LogbusDaemon
             Console.WriteLine("Logbus is shutting down");
             try
             {
-                WebServiceActivator.Stop();
                 _logbus.Dispose();
             }
             catch { }

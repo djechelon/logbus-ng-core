@@ -27,7 +27,7 @@ namespace It.Unina.Dis.Logbus.Configuration
     /// <summary>
     /// Configuration section handler for App.config/Web.config
     /// </summary>
-    public class LogbusCoreConfigurationSectionHandler : IConfigurationSectionHandler
+    public class LogbusServerConfigurationSectionHandler : IConfigurationSectionHandler
     {
         #region IConfigurationSectionHandler Membri di
 
@@ -39,7 +39,7 @@ namespace It.Unina.Dis.Logbus.Configuration
         {
             try
             {
-                return new XmlSerializer(typeof (LogbusCoreConfiguration)).Deserialize(new XmlNodeReader(section));
+                return new XmlSerializer(typeof (LogbusServerConfiguration)).Deserialize(new XmlNodeReader(section));
             }
             catch (InvalidOperationException)
             {

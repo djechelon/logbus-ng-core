@@ -40,14 +40,14 @@ namespace It.Unina.Dis.Logbus.Utils
             {
                 using (
                     Stream stream =
-                        typeof (CertificateUtilities).Assembly.GetManifestResourceStream(
+                        typeof(CertificateUtilities).Assembly.GetManifestResourceStream(
                             "It.Unina.Dis.Logbus.Security.DefaultCertificate.p12"))
                 {
                     if (stream == null)
                         throw new LogbusException("Unable to find default self-signed SSL certificate");
 
                     byte[] payload = new byte[stream.Length];
-                    stream.Read(payload, 0, (int) stream.Length);
+                    stream.Read(payload, 0, (int)stream.Length);
                     try
                     {
                         return new X509Certificate2(payload);
@@ -97,6 +97,42 @@ namespace It.Unina.Dis.Logbus.Utils
             try
             {
                 return relativePath.EndsWith(".pem") ? LoadPemCertificate(abspath) : new X509Certificate2(abspath);
+            }
+            catch (FileNotFoundException ex)
+            {
+                throw new LogbusException("Certificate file does not exist", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new LogbusException("Invalid certificate path", ex);
+            }
+        }
+
+        /// <summary>
+        /// Loads a password-protected certificate from a relative path
+        /// </summary>
+        /// <param name="relativePath">Path to certificate</param>
+        /// <param name="password">Password for certificate</param>
+        /// <returns></returns>
+        public static X509Certificate2 LoadCertificate(string relativePath, string password)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+                throw new ArgumentNullException("relativePath");
+
+            string abspath = Path.GetFullPath(relativePath);
+            if (!File.Exists(abspath))
+            {
+                //Then we might have a problem :(
+                if (HttpContext.Current != null) //We are running ASP.NET, use Server
+                {
+                    abspath = HttpContext.Current.Server.MapPath(relativePath);
+                }
+            }
+
+
+            try
+            {
+                return relativePath.EndsWith(".pem") ? LoadPemCertificate(abspath) : new X509Certificate2(abspath, password);
             }
             catch (FileNotFoundException ex)
             {
