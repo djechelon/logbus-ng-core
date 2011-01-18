@@ -47,13 +47,21 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region Constructor
 
+        private WebServiceActivator()
+        {
+            _startDelegate = new ThreadStart(Start);
+            _stopDelegate = new ThreadStart(Stop);
+        }
+
         /// <remarks/>
         public WebServiceActivator(ILogBus instance, int port)
+            : this()
         {
             _target = instance; HttpPort = port;
         }
 
         public WebServiceActivator(ILogBus instance)
+            : this()
         {
             _target = instance;
         }
@@ -285,9 +293,9 @@ namespace It.Unina.Dis.Logbus.WebServices
 
         #region IRunnable Membri di
 
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Starting;
+        public event EventHandler<CancelEventArgs> Starting;
 
-        public event EventHandler<System.ComponentModel.CancelEventArgs> Stopping;
+        public event EventHandler<CancelEventArgs> Stopping;
 
         public event EventHandler Started;
 
@@ -355,6 +363,7 @@ namespace It.Unina.Dis.Logbus.WebServices
                     if (pluginRoot != null) _ctr.Domain.SetData(plugin.Name, pluginRoot);
                 }
 #endif
+                Running = true;
                 if (Started != null) Started(this, EventArgs.Empty);
             }
             catch (LogbusException)
@@ -371,7 +380,7 @@ namespace It.Unina.Dis.Logbus.WebServices
         public void Stop()
         {
             if (Disposed) throw new ObjectDisposedException(GetType().FullName);
-            if (!Running) throw new NotSupportedException("Web service not running");
+            if (!Running) throw new InvalidOperationException("Web service not running");
             if (Stopping != null)
             {
                 CancelEventArgs e = new CancelEventArgs(false);
