@@ -323,10 +323,10 @@ namespace It.Unina.Dis.Logbus.WebServices
 
                 string appPath = InstallRuntime();
 #if MONO
-                WebSource ws = new XSPWebSource(IPAddress.Any, _httpPort, true);
+                WebSource ws = new XSPWebSource(IPAddress.Any, HttpPort, true);
 
                 _appserver = new ApplicationServer(ws, appPath);
-                _appserver.AddApplication(null, _httpPort, "/", appPath);
+                _appserver.AddApplication(null, HttpPort, "/", appPath);
 
                 _appserver.GetSingleApp().AppHost = new XSPApplicationHost();
                 _appserver.GetSingleApp().RequestBroker = new XSPRequestBroker();
