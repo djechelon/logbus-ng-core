@@ -32,6 +32,9 @@ namespace It.Unina.Dis.Logbus.Configuration
         private static LogbusClientConfiguration _client;
         private static LogbusLoggerConfiguration _source;
 
+        /// <summary>
+        /// Obsolete server configuration accessor
+        /// </summary>
         [Obsolete("CoreConfiguration is deprecated. Use ServerConfiguration instead.")]
         public static LogbusServerConfiguration CoreConfiguration
         {
@@ -39,7 +42,7 @@ namespace It.Unina.Dis.Logbus.Configuration
         }
 
         /// <summary>
-        /// Configuration for core facility
+        /// Configuration for Logbus server
         /// </summary>
         public static LogbusServerConfiguration ServerConfiguration
         {
@@ -50,7 +53,7 @@ namespace It.Unina.Dis.Logbus.Configuration
                 try
                 {
                     //Try to auto-configure. If fails, skip for now. Somebody MUST then provide proper configuration
-                    _core = ConfigurationManager.GetSection("logbus-core") as LogbusServerConfiguration;
+                    _core = ConfigurationManager.GetSection("logbus-server") as LogbusServerConfiguration;
                     return _core;
                 }
                 catch
