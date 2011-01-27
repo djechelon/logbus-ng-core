@@ -36,7 +36,7 @@ namespace It.Unina.Dis.Logbus.Configuration
                 ret.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
                 ret.Add("xsd", "http://www.w3.org/2001/XMLSchema");
                 ret.Add("filter", "http://www.dis.unina.it/logbus-ng/filters");
-                ret.Add("config", "http://www.dis.unina.it/logbus-ng/configuration/2.0");
+                ret.Add("config", "http://www.dis.unina.it/logbus-ng/configuration/3.0");
                 return ret;
             }
         }
